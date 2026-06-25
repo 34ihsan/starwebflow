@@ -358,7 +358,7 @@ export class MonitoringService {
       updatesHtml = `
         <h3 style="color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px;">🔧 Yapılan Güncellemeler ve İşlemler</h3>
         <ul style="padding-left: 20px; line-height: 1.6;">
-          ${report.updatesApplied.map((update: string) => `<li>${update}</li>`).join("")}
+          ${report.updatesApplied.map((update: any) => `<li>${update}</li>`).join("")}
         </ul>
       `;
     }
