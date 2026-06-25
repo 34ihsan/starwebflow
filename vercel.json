@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/process-funnel",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/process-sequences",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/generate-posts",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
