@@ -1,6 +1,6 @@
 import { format, subDays } from "date-fns";
 import { Filter, ChevronDown, Activity, ArrowRight, Layers, Users, TrendingUp } from "lucide-react";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export default async function AnalyticsDashboardPage() {
   const thirtyDaysAgo = subDays(new Date(), 30);

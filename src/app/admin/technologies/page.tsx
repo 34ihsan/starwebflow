@@ -20,7 +20,7 @@ export default function TechnologiesPage() {
     setLoading(true)
     const res = await getTechnologies()
     if (res.success) {
-      setTechnologies(res.data)
+      setTechnologies(res.data || [])
     }
     setLoading(false)
   }
