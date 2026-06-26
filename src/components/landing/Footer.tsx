@@ -61,14 +61,7 @@ export default function Footer() {
               {settings?.preferences?.branding?.logoUrl ? (
                 <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-9 object-contain" />
               ) : (
-                <>
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4F8EF7] to-[#8B5CF6] flex items-center justify-center shadow-[0_0_15px_rgba(79,142,247,0.3)]">
-                    <Zap className="w-5 h-5 text-white" fill="white" />
-                  </div>
-                  <span className="font-['Outfit'] font-800 text-xl tracking-tight text-white">
-                    Star<span className="text-[#4F8EF7]">WebFlow</span>
-                  </span>
-                </>
+                <img src="/starwebflow_banner_1.png" alt="StarWebFlow Logo" className="h-10 object-contain" />
               )}
             </a>
 
