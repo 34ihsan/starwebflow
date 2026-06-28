@@ -246,26 +246,26 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
         </div>
       </div>
 
-      {/* Footer Grid */}
-      <div className="bg-zinc-900 text-zinc-400 p-12 sm:px-16 sm:py-10 mt-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs leading-relaxed">
+      {/* Premium Light Footer */}
+      <div className="border-t border-zinc-200 bg-zinc-50/50 p-10 sm:px-16 sm:py-10 mt-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
           <div>
-            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
-            <p className="whitespace-pre-wrap mb-2">{companySettings.address}</p>
+            <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
+            <p className="whitespace-pre-wrap mb-2">{companySettings.address || 'Adres bilgisi girilmedi'}</p>
             {companySettings.email && <p>{companySettings.email}</p>}
             {companySettings.phone && <p>{companySettings.phone}</p>}
             {companySettings.website && <p>{companySettings.website}</p>}
           </div>
           <div>
-            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.bankDetails}</h5>
-            {companySettings.bankName && <p>{companySettings.bankName}</p>}
-            {companySettings.iban && <p>IBAN: <span className="text-zinc-300 tracking-wider">{companySettings.iban}</span></p>}
-            {companySettings.swift && <p>BIC/SWIFT: <span className="text-zinc-300 tracking-wider">{companySettings.swift}</span></p>}
+            <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.bankDetails}</h5>
+            {companySettings.bankName ? <p>{companySettings.bankName}</p> : <p className="italic opacity-50">Banka adı girilmedi</p>}
+            {companySettings.iban && <p>IBAN: <span className="font-mono text-zinc-700">{companySettings.iban}</span></p>}
+            {companySettings.swift && <p>BIC/SWIFT: <span className="font-mono text-zinc-700">{companySettings.swift}</span></p>}
           </div>
           <div>
-            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.taxDetails}</h5>
-            {companySettings.taxId && <p>St-Nr.: <span className="text-zinc-300 tracking-wider">{companySettings.taxId}</span></p>}
-            {companySettings.vatId && <p>USt-IdNr.: <span className="text-zinc-300 tracking-wider">{companySettings.vatId}</span></p>}
+            <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.taxDetails}</h5>
+            {companySettings.taxId ? <p>St-Nr.: <span className="font-mono text-zinc-700">{companySettings.taxId}</span></p> : <p className="italic opacity-50">Vergi no girilmedi</p>}
+            {companySettings.vatId && <p>USt-IdNr.: <span className="font-mono text-zinc-700">{companySettings.vatId}</span></p>}
           </div>
         </div>
       </div>
