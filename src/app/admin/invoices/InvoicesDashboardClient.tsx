@@ -110,246 +110,565 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     </div>
   ` : '';
 
-  const vatDisplay = isKlein ? `
-    <div style="display:flex; justify-content:space-between; align-items:center; font-size:18px; font-weight:700;">
-      <span style="color:#4b5563; font-weight:500;">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
-      <span style="color:#111827; font-family:monospace;">${formatVal(invoice.netAmount)}</span>
-    </div>
-  ` : `
-    <div style="display:flex; flex-direction:column; gap:12px;">
-      <div style="display:flex; justify-content:space-between; font-size:14px; color:#6b7280;">
-        <span>${labels.netAmount}</span>
-        <span style="font-family:monospace; font-weight:500; color:#374151;">${formatVal(invoice.netAmount)}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:14px; color:#6b7280; padding-bottom:12px; border-bottom:1px solid #e5e7eb;">
-        <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
-        <span style="font-family:monospace; font-weight:500; color:#374151;">${formatVal(invoice.taxAmount)}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; align-items:center; font-size:18px; padding-top:4px;">
-        <span style="font-weight:700; color:#111827;">${labels.grossAmount}</span>
-        <span style="font-weight:700; color:#4f46e5; font-family:monospace;">${formatVal(invoice.grossAmount)}</span>
-      </div>
-    </div>
-  `;
-
   printWindow.document.write(`
     <html>
       <head>
         <title>${labels.title} - ${invoice.invoiceNo}</title>
-        <script>
-          // Dynamically load Tailwind with a promise to ensure it compiles before rendering
-          const script = document.createElement('script');
-          script.src = 'https://cdn.tailwindcss.com';
-          document.head.appendChild(script);
-        </script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-          /* Reliable fallback print styling to guarantee premium design output even if Tailwind loading is slightly delayed */
+          * { box-sizing: border-box; margin: 0; padding: 0; }
           body { 
-            font-family: 'Inter', sans-serif !important; 
+            font-family: 'Inter', sans-serif; 
             -webkit-print-color-adjust: exact; 
             print-color-adjust: exact; 
             background-color: #f4f4f5; 
-            margin: 0; 
-            padding: 0;
+            color: #1f2937;
+            line-height: 1.5;
           }
-          .invoice-container {
+          
+          /* Print toolbar */
+          .no-print { 
+            position: fixed; 
+            top: 16px; 
+            right: 16px; 
+            z-index: 50; 
+            display: flex; 
+            gap: 8px; 
+          }
+          .btn {
+            cursor: pointer;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .btn-primary {
+            background-color: #4f46e5;
+            color: #ffffff;
+          }
+          .btn-primary:hover {
+            background-color: #4338ca;
+          }
+          .btn-secondary {
             background-color: #ffffff;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border-radius: 1rem;
-            border: 1px solid rgba(228, 228, 231, 0.5);
-            max-width: 210mm;
+            color: #374151;
+            border-color: #e5e7eb;
+          }
+          .btn-secondary:hover {
+            background-color: #f9fafb;
+          }
+
+          /* A4 Container Page Styling */
+          .invoice-page {
+            background-color: #ffffff;
+            width: 210mm;
             min-height: 297mm;
             margin: 2rem auto;
-            padding: 4rem;
-            box-sizing: border-box;
+            border-radius: 16px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+          .top-strip {
+            height: 12px;
+            background: linear-gradient(to right, #2563eb, #4f46e5, #7c3aed);
+          }
+          .page-content {
+            padding: 60px 80px;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
           }
-          .flex { display: flex; }
-          .justify-between { justify-content: space-between; }
-          .items-start { align-items: flex-start; }
-          .text-right { text-align: right; }
-          .mb-16 { margin-bottom: 4rem; }
-          .mb-14 { margin-bottom: 3.5rem; }
-          .mb-10 { margin-bottom: 2.5rem; }
-          .mb-8 { margin-bottom: 2rem; }
-          .mt-auto { margin-top: auto; }
-          .w-full { width: 100%; }
-          .bg-zinc-50 { background-color: #f4f4f5; }
-          .rounded-xl { border-radius: 0.75rem; }
-          .p-5 { padding: 1.25rem; }
-          .p-6 { padding: 1.5rem; }
-          .border { border: 1px solid #e4e4e7; }
-          .border-t { border-top: 1px solid #e4e4e7; }
-          .border-b-2 { border-bottom: 2px solid #e4e4e7; }
-          .border-zinc-200 { border-color: #e4e4e7; }
-          .text-zinc-500 { color: #71717a; }
-          .text-zinc-900 { color: #18181b; }
-          .text-indigo-700 { color: #4338ca; }
-          .font-bold { font-weight: 700; }
-          .font-semibold { font-weight: 600; }
-          .font-medium { font-weight: 500; }
-          .font-light { font-weight: 300; }
-          .uppercase { text-transform: uppercase; }
-          .tracking-widest { letter-spacing: 0.1em; }
-          .tracking-wider { letter-spacing: 0.05em; }
-          .text-xs { font-size: 0.75rem; }
-          .text-sm { font-size: 0.875rem; }
-          .text-lg { font-size: 1.125rem; }
-          .text-4xl { font-size: 2.25rem; }
-          .text-amber-900 { color: #78350f; }
-          .bg-amber-50 { background-color: #fffbeb; }
-          .border-amber-200 { border-color: #fde68a; }
-          .font-mono { font-family: monospace; }
-          
-          @page { 
-            size: A4; 
-            margin: 0; 
+
+          /* Header Layout */
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
           }
+          .company-info {
+            flex-grow: 1;
+          }
+          .company-address {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 16px;
+            max-w: 320px;
+            white-space: pre-wrap;
+          }
+          .company-contact {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #6b7280;
+          }
+          .company-contact div {
+            margin-bottom: 2px;
+          }
+          
+          .invoice-meta-box {
+            text-align: right;
+          }
+          .invoice-title {
+            font-size: 36px;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #d1d5db;
+            margin-bottom: 32px;
+          }
+          .meta-card {
+            background-color: #f9fafb;
+            border: 1px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 260px;
+            text-align: left;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          }
+          .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 8px;
+          }
+          .meta-row-main {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+          }
+          .meta-label {
+            color: #6b7280;
+          }
+          .meta-value {
+            font-weight: 500;
+            color: #1f2937;
+          }
+          .meta-value-bold {
+            font-weight: 700;
+            color: #111827;
+          }
+          .meta-value-due {
+            color: #4338ca;
+            font-weight: 700;
+          }
+
+          /* Client Info Layout */
+          .client-section {
+            margin-bottom: 50px;
+          }
+          .client-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9ca3af;
+            font-weight: 600;
+            margin-bottom: 8px;
+            margin-left: 4px;
+          }
+          .client-card {
+            background-color: #f9fafb;
+            border: 1px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 320px;
+            display: inline-block;
+          }
+          .client-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+          }
+          .client-address {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.5;
+          }
+          .client-tax-info {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+          }
+          .tax-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+          }
+
+          /* Items Table */
+          .items-table-container {
+            margin-bottom: 40px;
+            width: 100%;
+          }
+          .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+          }
+          .items-table th {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 12px;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+          .items-table td {
+            padding: 20px 0;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #374151;
+            vertical-align: top;
+          }
+          .items-table tr:last-child td {
+            border-bottom: none;
+          }
+          .item-description {
+            font-weight: 500;
+            color: #111827;
+            padding-left: 8px;
+          }
+          .item-quantity {
+            text-align: center;
+            color: #4b5563;
+            font-family: monospace;
+          }
+          .item-price {
+            text-align: right;
+            color: #4b5563;
+            font-family: monospace;
+          }
+          .item-total {
+            text-align: right;
+            font-weight: 600;
+            color: #111827;
+            padding-right: 8px;
+            font-family: monospace;
+          }
+
+          /* Totals Layout */
+          .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 32px;
+          }
+          .totals-card {
+            background-color: #f9fafb;
+            border: 1px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 24px;
+            width: 320px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          }
+          .totals-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+          }
+          .totals-row-final {
+            margin-bottom: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+          }
+          .totals-row-final-gross {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 16px;
+            margin-top: 4px;
+          }
+          .gross-amount {
+            color: #4f46e5;
+            font-family: monospace;
+          }
+          .net-amount {
+            font-family: monospace;
+          }
+
+          /* §19 Box */
+          .klein-box {
+            margin-bottom: 40px;
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 16px 24px;
+          }
+          .klein-box-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #92400e;
+            margin-bottom: 6px;
+          }
+          .klein-box-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #78350f;
+            line-height: 1.5;
+          }
+          .klein-box-subtext {
+            font-size: 11px;
+            color: #b45309;
+            margin-top: 4px;
+          }
+
+          /* Notes layout */
+          .notes-box {
+            border-left: 4px solid #4f46e5;
+            padding-left: 24px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin-bottom: 40px;
+          }
+          .notes-title {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #111827;
+            margin-bottom: 8px;
+          }
+          .notes-text {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-wrap;
+          }
+
+          /* Footer Layout */
+          .footer {
+            border-top: 1px solid #e5e7eb;
+            background-color: #fafafa;
+            padding: 40px 80px;
+            display: flex;
+            justify-content: space-between;
+            gap: 32px;
+          }
+          .footer-col {
+            flex: 1;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #6b7280;
+          }
+          .footer-col-title {
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            font-size: 10px;
+          }
+          .footer-col span {
+            font-family: monospace;
+          }
+          .klein-footer-text {
+            margin-top: 8px;
+            color: #b45309;
+            font-weight: 600;
+          }
+
+          /* Print Overrides */
           @media print {
             .no-print { display: none !important; }
-            body { background-color: white; margin: 0; padding: 0; }
-            .invoice-container { 
-              box-shadow: none !important; 
-              border: none !important;
-              border-radius: 0 !important; 
-              margin: 0 !important; 
-              max-width: 100% !important; 
-              min-height: 297mm !important; 
-              padding: 3rem !important;
+            body { background-color: #ffffff; }
+            .invoice-page {
+              width: 100%;
+              min-height: 100%;
+              margin: 0;
+              border: none;
+              border-radius: 0;
+              box-shadow: none;
+            }
+            .page-content {
+              padding: 40px 50px;
+            }
+            .footer {
+              padding: 30px 50px;
             }
           }
         </style>
       </head>
-      <body class="bg-zinc-100 flex justify-center items-start min-h-screen py-8 print:py-0">
+      <body>
         <!-- Print Toolbar -->
-        <div class="no-print fixed top-4 right-4 z-50 flex gap-2">
-          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="no-print">
+          <button onclick="window.print()" class="btn btn-primary">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
             </svg>
             ${labels.saveBtn}
           </button>
-          <button onclick="window.close()" class="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-6 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all">
+          <button onclick="window.close()" class="btn btn-secondary">
             ${labels.closeBtn}
           </button>
         </div>
 
-        <!-- Premium Invoice Container (Exact match to InvoicePreview.tsx) -->
-        <div class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-2xl rounded-2xl invoice-container flex flex-col mx-auto overflow-hidden ring-1 ring-zinc-200/50">
+        <!-- Premium Invoice Container -->
+        <div class="invoice-page">
           <!-- Top Strip -->
-          <div class="h-3 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600"></div>
+          <div class="top-strip"></div>
           
-          <div class="p-16 flex-grow flex flex-col">
+          <div class="page-content">
             <!-- Header -->
-            <header class="flex justify-between items-start mb-16">
-              <div class="flex-1 pr-8">
-                ${logoHtml}
-                <div class="text-zinc-500 text-sm leading-relaxed mt-4 max-w-sm whitespace-pre-wrap">${companySettings.address}</div>
-                <div class="text-zinc-500 text-sm mt-3 space-y-1">
+            <div class="header">
+              <div class="company-info">
+                ${companySettings.logo ? `<img src="${companySettings.logo}" alt="Logo" style="height: 64px; max-width: 200px; object-fit: contain; margin-bottom: 24px;" onerror="this.style.display='none'" />` : `<h1 style="font-size: 28px; font-weight: 700; tracking-tight: -0.025em; color: #111827; margin-bottom: 16px;">${companySettings.name}</h1>`}
+                <div class="company-address">${companySettings.address}</div>
+                <div class="company-contact">
                   ${companySettings.email ? `<div>E: ${companySettings.email}</div>` : ''}
                   ${companySettings.phone ? `<div>T: ${companySettings.phone}</div>` : ''}
                 </div>
               </div>
-              <div class="text-right flex-shrink-0">
-                <h2 class="text-4xl font-light text-zinc-300 uppercase tracking-widest mb-8">${labels.title}</h2>
-                <div class="bg-zinc-50 rounded-xl p-5 border border-zinc-100 shadow-sm min-w-[240px]">
-                  <div class="flex justify-between items-center mb-3 pb-3 border-b border-zinc-200">
-                    <span class="text-zinc-500 text-xs font-medium uppercase tracking-wider">${labels.invoiceNo}</span>
-                    <span class="font-bold text-zinc-900 text-sm">${invoice.invoiceNo}</span>
+              <div class="invoice-meta-box">
+                <div class="invoice-title">${labels.title}</div>
+                <div class="meta-card">
+                  <div class="meta-row meta-row-main">
+                    <span class="meta-label" style="font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em;">${labels.invoiceNo}</span>
+                    <span class="meta-value-bold" style="font-size: 14px;">${invoice.invoiceNo}</span>
                   </div>
-                  <div class="space-y-2 text-sm">
-                    <div class="flex justify-between items-center">
-                      <span class="text-zinc-500">${labels.date}</span>
-                      <span class="font-medium text-zinc-800">${formatDate(invoice.invoiceDate)}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                      <span class="text-zinc-500">${labels.deliveryDate}</span>
-                      <span class="font-medium text-zinc-800">${formatDate(invoice.deliveryDate)}</span>
-                    </div>
-                    <div class="flex justify-between items-center mt-3 pt-3 border-t border-zinc-100">
-                      <span class="font-medium text-indigo-600">${labels.dueDate}</span>
-                      <span class="font-bold text-indigo-700">${formatDate(invoice.dueDate)}</span>
-                    </div>
+                  <div class="meta-row">
+                    <span class="meta-label">${labels.date}</span>
+                    <span class="meta-value">${formatDate(invoice.invoiceDate)}</span>
                   </div>
-                </div>
-              </div>
-            </header>
-
-            <!-- Client Info Address Card -->
-            <div class="mb-14">
-              <div class="inline-block relative">
-                <div class="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold mb-2 ml-1">Fatura Edilen</div>
-                <div class="bg-zinc-50 rounded-xl p-6 border border-zinc-100 min-w-[300px]">
-                  <h3 class="text-lg font-bold text-zinc-900 mb-2">${client.name || 'Müşteri'}</h3>
-                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressStreet || ''}</p>
-                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressZip || ''} ${client.addressCity || ''}</p>
-                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressCountry || ''}</p>
-                  ${(client.vatId || client.taxId) ? `
-                    <div class="mt-4 pt-4 border-t border-zinc-200 text-xs text-zinc-500 space-y-1">
-                      ${client.vatId ? `<div class="flex justify-between"><span class="text-zinc-400">USt-IdNr.:</span> <span class="font-medium text-zinc-700">${client.vatId}</span></div>` : ''}
-                      ${client.taxId ? `<div class="flex justify-between"><span class="text-zinc-400">Steuernummer:</span> <span class="font-medium text-zinc-700">${client.taxId}</span></div>` : ''}
-                    </div>
-                  ` : ''}
+                  <div class="meta-row">
+                    <span class="meta-label">${labels.deliveryDate}</span>
+                    <span class="meta-value">${formatDate(invoice.deliveryDate)}</span>
+                  </div>
+                  <div class="meta-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb;">
+                    <span class="meta-label" style="font-weight: 600; color: #4f46e5;">${labels.dueDate}</span>
+                    <span class="meta-value-due">${formatDate(invoice.dueDate)}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
+            <!-- Client Info Address Card -->
+            <div class="client-section">
+              <div class="client-title">Fatura Edilen</div>
+              <div class="client-card">
+                <h3 class="client-name">${client.name || 'Müşteri'}</h3>
+                <div class="client-address">
+                  <p>${client.addressStreet || ''}</p>
+                  <p>${client.addressZip || ''} ${client.addressCity || ''}</p>
+                  <p>${client.addressCountry || ''}</p>
+                </div>
+                ${(client.vatId || client.taxId) ? `
+                  <div class="client-tax-info">
+                    ${client.vatId ? `<div class="tax-row"><span>USt-IdNr.:</span> <span style="font-weight: 500; color: #374151;">${client.vatId}</span></div>` : ''}
+                    ${client.taxId ? `<div class="tax-row"><span>Steuernummer:</span> <span style="font-weight: 500; color: #374151;">${client.taxId}</span></div>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
             <!-- Items Table -->
-            <div class="mb-10">
-              <table class="w-full text-left border-collapse">
+            <div class="items-table-container">
+              <table class="items-table">
                 <thead>
-                  <tr class="border-b-2 border-zinc-200 text-zinc-500 text-xs uppercase tracking-wider">
-                    <th class="pb-3 font-semibold pl-2 w-3/5">${labels.description}</th>
-                    <th class="pb-3 font-semibold text-center">${labels.quantity}</th>
-                    <th class="pb-3 font-semibold text-right">${labels.unitPrice}</th>
-                    <th class="pb-3 font-semibold text-right pr-2">${labels.total}</th>
+                  <tr>
+                    <th style="width: 55%; text-align: left; padding-left: 8px;">${labels.description}</th>
+                    <th style="width: 15%; text-align: center;">${labels.quantity}</th>
+                    <th style="width: 15%; text-align: right;">${labels.unitPrice}</th>
+                    <th style="width: 15%; text-align: right; padding-right: 8px;">${labels.total}</th>
                   </tr>
                 </thead>
-                <tbody class="text-zinc-800 text-sm align-top">
-                  ${itemsHtml}
+                <tbody>
+                  ${invoice.items.map((item: any) => `
+                    <tr>
+                      <td class="item-description">${item.description || (lang === 'de' ? 'Produkt/Dienstleistung' : 'Ürün/Hizmet')}</td>
+                      <td class="item-quantity">${Number(item.quantity)}</td>
+                      <td class="item-price">${formatVal(Number(item.unitPrice))}</td>
+                      <td class="item-total">${formatVal(Number(item.total))}</td>
+                    </tr>
+                  `).join('')}
                 </tbody>
               </table>
             </div>
 
             <!-- Totals Section -->
-            <div class="flex justify-end mb-8">
-              <div class="w-full sm:w-1/2 md:w-2/5 bg-zinc-50 rounded-xl p-6 border border-zinc-100 shadow-sm">
-                ${vatDisplay}
+            <div class="totals-section">
+              <div class="totals-card">
+                ${isKlein ? `
+                  <div class="totals-row totals-row-final">
+                    <span style="font-weight: 500; color: #4b5563; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+                    <span class="gross-amount" style="font-size: 20px;">${formatVal(invoice.netAmount)}</span>
+                  </div>
+                ` : `
+                  <div class="totals-row">
+                    <span>${labels.netAmount}</span>
+                    <span class="net-amount">${formatVal(invoice.netAmount)}</span>
+                  </div>
+                  <div class="totals-row" style="padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                    <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
+                    <span class="net-amount">${formatVal(invoice.taxAmount)}</span>
+                  </div>
+                  <div class="totals-row totals-row-final totals-row-final-gross">
+                    <span style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">${labels.grossAmount}</span>
+                    <span class="gross-amount" style="font-size: 20px;">${formatVal(invoice.grossAmount)}</span>
+                  </div>
+                `}
               </div>
             </div>
 
             <!-- §19 UStG Legal Notice - Prominent Box -->
-            ${kleinBox}
+            ${isKlein ? `
+              <div class="klein-box">
+                <p class="klein-box-title">Hinweis / ${lang === 'tr' ? 'KDV Muafiyeti Notu' : 'Steuerhinweis'}</p>
+                <p class="klein-box-text">Gem&auml;&szlig; &sect; 19 UStG wird keine Umsatzsteuer berechnet.</p>
+                ${lang === 'tr' ? '<p class="klein-box-subtext">(Bu fatura &sect;19 UStG K&uuml;&ccedil;&uuml;k &Icirc;&scedil;letme Y&ouml;netmeli&gbreve;i kapsam&inodot;nda KDV\'den muaft&inodot;r.)</p>' : ''}
+              </div>
+            ` : ''}
 
             <!-- Notes -->
-            ${printNotes}
+            ${invoice.notes ? `
+              <div class="notes-box">
+                <h4 class="notes-title">${labels.notes}</h4>
+                <div class="notes-text">${invoice.notes}</div>
+              </div>
+            ` : (lang === 'de' && defaultNotes ? `
+              <div class="notes-box">
+                <h4 class="notes-title">${labels.notes}</h4>
+                <div class="notes-text">${defaultNotes}</div>
+              </div>
+            ` : '')}
 
           </div>
 
           <!-- Premium Light Footer -->
-          <footer class="border-t border-zinc-200 bg-zinc-50/50 p-10 px-16 mt-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
-              <div>
-                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${companySettings.name}</h5>
-                <p class="whitespace-pre-wrap mb-2">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
-                ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
-                ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
-                ${companySettings.website ? `<p>${companySettings.website}</p>` : ''}
-              </div>
-              <div>
-                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${labels.bankInfo}</h5>
-                ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : '<p class="italic opacity-50">Banka adı girilmedi</p>'}
-                ${companySettings.iban ? `<p>IBAN: <span class="font-mono text-zinc-700">${companySettings.iban}</span></p>` : ''}
-                ${companySettings.swift ? `<p>BIC/SWIFT: <span class="font-mono text-zinc-700">${companySettings.swift}</span></p>` : ''}
-              </div>
-              <div>
-                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${labels.taxInfo}</h5>
-                ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-700">${companySettings.taxId}</span></p>` : '<p class="italic opacity-50">Vergi no girilmedi</p>'}
-                ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-700">${companySettings.vatId}</span></p>` : ''}
-                ${isKlein ? `<p style="margin-top:6px; color:#b45309; font-weight:600;">Kleinunternehmer gem. &sect; 19 UStG</p>` : ''}
-              </div>
+          <footer class="footer">
+            <div class="footer-col">
+              <h5 class="footer-col-title">${companySettings.name}</h5>
+              <p style="white-space: pre-wrap; margin-bottom: 8px;">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
+              ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
+              ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
+              ${companySettings.website ? `<p>${companySettings.website}</p>` : ''}
+            </div>
+            <div class="footer-col">
+              <h5 class="footer-col-title">${labels.bankInfo}</h5>
+              ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : '<p class="italic" style="opacity: 0.5;">Banka adı girilmedi</p>'}
+              ${companySettings.iban ? `<p>IBAN: <span>${companySettings.iban}</span></p>` : ''}
+              ${companySettings.swift ? `<p>BIC/SWIFT: <span>${companySettings.swift}</span></p>` : ''}
+            </div>
+            <div class="footer-col">
+              <h5 class="footer-col-title">${labels.taxInfo}</h5>
+              ${companySettings.taxId ? `<p>St-Nr.: <span>${companySettings.taxId}</span></p>` : '<p class="italic" style="opacity: 0.5;">Vergi no girilmedi</p>'}
+              ${companySettings.vatId ? `<p>USt-IdNr.: <span>${companySettings.vatId}</span></p>` : ''}
+              ${isKlein ? `<p class="klein-footer-text">Kleinunternehmer gem. &sect; 19 UStG</p>` : ''}
             </div>
           </footer>
         </div>
@@ -360,6 +679,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   printWindow.document.close();
   printWindow.focus();
 };
+
 
 
 
