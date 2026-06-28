@@ -628,7 +628,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         deliveryDate: new Date(viewInvoice.deliveryDate || viewInvoice.createdAt),
         dueDate: new Date(viewInvoice.dueDate),
         netAmount: Number(viewInvoice.netAmount || 0),
-        taxRate: Number(viewInvoice.taxRate || 19),
+        taxRate: Number(viewInvoice.taxRate !== undefined && viewInvoice.taxRate !== null ? viewInvoice.taxRate : 19),
         taxAmount: Number(viewInvoice.taxAmount || 0),
         grossAmount: Number(viewInvoice.grossAmount || viewInvoice.amount || 0),
         currency: viewInvoice.currency || "EUR",
