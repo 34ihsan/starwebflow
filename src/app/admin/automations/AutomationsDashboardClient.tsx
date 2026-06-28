@@ -129,6 +129,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
   const [selectedLog, setSelectedLog] = useState<any>(null);
   const [previewData, setPreviewData] = useState<any>(null);
   const [selectedPreviewNode, setSelectedPreviewNode] = useState<any>(null);
+  const [activeIntegrationGuide, setActiveIntegrationGuide] = useState<any>(null);
 
   // AI Conversational Edit and Simulation states
   const [aiEditPrompt, setAiEditPrompt] = useState("");
@@ -552,7 +553,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
           { id: "flows", label: "Aktif Akışlar", icon: Zap },
           { id: "approvals", label: `Onay Bekleyenler (${pendingApprovals.length})`, icon: CheckCircle2 },
           { id: "templates", label: "Hazır Şablonlar", icon: FileText },
-          { id: "webhooks", label: "Webhook Endpoints", icon: Globe },
+          { id: "webhooks", label: "API & Entegrasyonlar", icon: Link },
           { id: "logs", label: "Çalışma Geçmişi (Logs)", icon: Database }
         ].map((tab) => (
           <button
@@ -990,46 +991,179 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
       )}
 
       {activeTab === "webhooks" && (
-        <div className="grid gap-6 mt-6">
-          <div className="p-8 bg-[#0A0A0F] border border-white/[0.05] rounded-2xl">
-            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <Link className="w-5 h-5 text-[#4F8EF7]" />
-              Gelen Webhook Uç Noktaları
-            </h2>
-            <p className="text-[#94A3B8] text-sm mb-8">Dış sistemlerden veri almak için size özel oluşturulmuş benzersiz URL'ler.</p>
-            
-            <div className="space-y-4">
-              <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-[#4F8EF7]/20 text-[#4F8EF7] text-xs font-bold px-2 py-0.5 rounded border border-[#4F8EF7]/30">POST</span>
-                    <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/payments/stripe-events</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+          
+          {/* Left Column: Webhooks Management */}
+          <div className="col-span-1 lg:col-span-2 p-6 bg-[#0A0A0F] border border-white/[0.05] rounded-2xl flex flex-col justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                <Link className="w-5 h-5 text-[#4F8EF7]" />
+                Gelen Webhook Uç Noktaları
+              </h2>
+              <p className="text-[#94A3B8] text-sm mb-6">Dış sistemlerden veri almak için size özel oluşturulmuş benzersiz URL'ler.</p>
+              
+              <div className="space-y-4">
+                <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#4F8EF7]/20 text-[#4F8EF7] text-xs font-bold px-2 py-0.5 rounded border border-[#4F8EF7]/30">POST</span>
+                      <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/payments/stripe-events</span>
+                    </div>
+                    <p className="text-xs text-[#64748B]">Bağlı Akış: "Dış Sistem Entegrasyonu (Webhook Listener)" • Son Tetiklenme: 10 dk önce</p>
                   </div>
-                  <p className="text-xs text-[#64748B]">Bağlı Akış: "Dış Sistem Entegrasyonu (Webhook Listener)" • Son Tetiklenme: 10 dk önce</p>
+                  <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
+                    URL Kopyala
+                  </button>
                 </div>
-                <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
-                  URL Kopyala
-                </button>
-              </div>
 
-              <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-[#10B981]/20 text-[#10B981] text-xs font-bold px-2 py-0.5 rounded border border-[#10B981]/30">POST</span>
-                    <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/leads/external-form</span>
+                <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-[#10B981]/20 text-[#10B981] text-xs font-bold px-2 py-0.5 rounded border border-[#10B981]/30">POST</span>
+                      <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/leads/external-form</span>
+                    </div>
+                    <p className="text-xs text-[#64748B]">Bağlı Akış: Yok (Boşta) • Son Tetiklenme: Hiç</p>
                   </div>
-                  <p className="text-xs text-[#64748B]">Bağlı Akış: Yok (Boşta) • Son Tetiklenme: Hiç</p>
+                  <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
+                    URL Kopyala
+                  </button>
                 </div>
-                <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
-                  URL Kopyala
-                </button>
               </div>
             </div>
             
-            <button className="mt-6 flex items-center gap-2 text-[#4F8EF7] text-sm font-medium hover:text-white transition-colors">
-              <Plus className="w-4 h-4" /> Yeni Endpoint Oluştur
-            </button>
+            <div className="mt-8 border-t border-white/5 pt-4">
+              <button className="flex items-center gap-2 text-[#4F8EF7] text-sm font-medium hover:text-white transition-colors">
+                <Plus className="w-4 h-4" /> Yeni Endpoint Oluştur
+              </button>
+            </div>
           </div>
+
+          {/* Right Column: Third-party API Credentials & Connections */}
+          <div className="col-span-1 lg:col-span-1 p-6 bg-[#0A0A0F] border border-white/[0.05] rounded-2xl">
+            <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#10B981]" />
+              API Bağlantıları (Credentials)
+            </h2>
+            <p className="text-[#94A3B8] text-sm mb-6">Otomasyonlarda kullanılan dış sistemlerin entegrasyon anahtarları ve şifreleri.</p>
+
+            <div className="space-y-4">
+              {[
+                {
+                  id: "slack",
+                  name: "Slack Integration",
+                  app: "Slack",
+                  icon: MessageCircle,
+                  color: "text-[#E01E5A]",
+                  status: "CONNECTED",
+                  guide: {
+                    title: "Slack Bot Token Alımı (Bot User OAuth Token)",
+                    steps: [
+                      "https://api.slack.com/apps adresine gidin.",
+                      "Create New App -> From Scratch adımlarını takip ederek uygulamanızı oluşturun.",
+                      "Sol menüden 'OAuth & Permissions' sekmesine gelin.",
+                      "Scopes -> Bot Token Scopes bölümünden 'chat:write', 'channels:read', 'incoming-webhook' yetkilerini verin.",
+                      "Sayfanın üstündeki 'Install App to Workspace' butonuna basın ve erişim izinlerini verin.",
+                      "Oluşan 'Bot User OAuth Token' (xoxb-...) değerini kopyalayıp buraya yapıştırın."
+                    ]
+                  }
+                },
+                {
+                  id: "typeform",
+                  name: "Typeform API",
+                  app: "Typeform",
+                  icon: FileText,
+                  color: "text-white",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "Typeform Personal Access Token Alımı",
+                    steps: [
+                      "Typeform panelinize giriş yapın.",
+                      "Sağ üstteki profil resminize tıklayıp 'Settings' sekmesine gidin.",
+                      "Sol menüde en altta bulunan 'Personal Access Tokens' seçeneğine girin.",
+                      "Generate new token butonuna basın.",
+                      "Token'ınıza bir isim verin ve oluşturun. Ekranda çıkan anahtarı kopyalayarak buraya kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "whatsapp",
+                  name: "WhatsApp Cloud API",
+                  app: "WhatsApp",
+                  icon: MessageSquare,
+                  color: "text-[#25D366]",
+                  status: "CONNECTED",
+                  guide: {
+                    title: "WhatsApp Meta Cloud API Token Alımı",
+                    steps: [
+                      "Meta developers paneline (developers.facebook.com) giriş yapın.",
+                      "Uygulamanızı seçin veya yeni bir Business App oluşturun.",
+                      "Uygulama menüsünden 'WhatsApp' entegrasyonunu ekleyin.",
+                      "API Setup kısmına gelerek test numaranızı ve geçici token'ınızı görebilirsiniz.",
+                      "Canlı sürüm için Meta Business Suite panelinizden kalıcı 'System User Access Token' oluşturarak kopyalayın."
+                    ]
+                  }
+                },
+                {
+                  id: "stripe",
+                  name: "Stripe Payment Gateway",
+                  app: "Stripe",
+                  icon: Link,
+                  color: "text-[#635BFF]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "Stripe API Key & Webhook Secret Alımı",
+                    steps: [
+                      "Stripe Dashboard panelinize (dashboard.stripe.com) giriş yapın.",
+                      "Geliştirici sekmesinden 'API Keys' bölümüne gidin.",
+                      "Secret Key (sk_live_...) alanındaki anahtarı kopyalayın.",
+                      "Webhooks sekmesine gelerek, sol taraftaki Stripe Webhook URL adresinizi endpoint olarak ekleyin ve 'Signing Secret' (whsec_...) anahtarını alın."
+                    ]
+                  }
+                },
+                {
+                  id: "smtp",
+                  name: "SMTP / Mailer API",
+                  app: "SMTP",
+                  icon: Mail,
+                  color: "text-[#10B981]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "SMTP / E-posta Gönderim Şifresi Alımı",
+                    steps: [
+                      "SMTP veya mail sağlayıcınızın (Gmail, SendGrid, Outlook vb.) ayarlar paneline girin.",
+                      "Gmail kullanıyorsanız, Google Account -> Security -> 2-Step Verification altından 'App Passwords' (Uygulama Şifreleri) oluşturun.",
+                      "Oluşturulan 16 haneli uygulama şifresini buradaki SMTP Password alanına girin.",
+                      "SendGrid vb. kullanıyorsanız, Settings -> API Keys sekmesinden 'Full Access' iznine sahip bir API key oluşturarak kopyalayın."
+                    ]
+                  }
+                }
+              ].map(integration => {
+                const Icon = integration.icon;
+                return (
+                  <div key={integration.id} className="bg-[#05050A] border border-white/[0.05] rounded-xl p-4 flex items-center justify-between hover:border-white/10 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                        <Icon className={`w-4.5 h-4.5 ${integration.color}`} />
+                      </div>
+                      <div>
+                        <span className="text-white font-bold text-xs block">{integration.name}</span>
+                        <span className={`text-[10px] font-bold ${integration.status === 'CONNECTED' ? 'text-[#10B981]' : 'text-[#64748B]'}`}>
+                          {integration.status === 'CONNECTED' ? '● BAĞLI' : '○ BAĞLI DEĞİL'}
+                        </span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setActiveIntegrationGuide(integration.guide)}
+                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold border border-white/10 transition-colors flex items-center gap-1"
+                    >
+                      Anahtar Al <Info className="w-3 h-3 text-[#94A3B8]" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -1288,6 +1422,47 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                 className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold disabled:opacity-50 transition-colors"
               >
                 Testi Bitir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Integration Credentials Guide Popup Modal */}
+      {activeIntegrationGuide && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#05050A]">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#10B981]" />
+                {activeIntegrationGuide.title}
+              </h3>
+              <button onClick={() => setActiveIntegrationGuide(null)} className="text-[#64748B] hover:text-white transition-colors">
+                <Plus className="w-5 h-5 rotate-45" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-4 text-sm text-[#94A3B8] leading-relaxed">
+              <p className="text-white font-medium text-xs mb-2">Lütfen aşağıdaki adımları takip ederek entegrasyon anahtarınızı (API Key / Token) temin edin:</p>
+              <div className="space-y-3">
+                {activeIntegrationGuide.steps.map((step: string, idx: number) => (
+                  <div key={idx} className="flex gap-3 bg-white/[0.02] border border-white/5 p-3 rounded-xl">
+                    <div className="w-5 h-5 rounded-full bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981] flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                      {idx + 1}
+                    </div>
+                    <p className="text-xs text-[#E2E8F0]">{step}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-white/5 flex items-center justify-between bg-[#05050A]">
+              <span className="text-[10px] text-[#64748B]">StarWebflow Entegrasyon Yardımcısı</span>
+              <button 
+                onClick={() => setActiveIntegrationGuide(null)}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#10B981] to-[#4F8EF7] text-white hover:opacity-90 transition-all text-xs font-bold"
+              >
+                Anladım
               </button>
             </div>
           </div>
