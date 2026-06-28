@@ -142,3 +142,60 @@ export async function deleteInvoice(id: string, tenantId: string) {
     return { success: false, error: 'Failed to delete invoice' };
   }
 }
+
+export async function updateInvoice(id: string, tenantId: string, data: any) {
+  try {
+    // Delete existing items
+    await prisma.invoiceItem.deleteMany({
+      where: { invoiceId: id }
+    });
+
+    // Update invoice and add new items
+    const invoice = await prisma.invoice.update({
+      where: { id, tenantId },
+      data: {
+        projectId: data.projectId,
+        clientCompanyId: data.clientCompanyId,
+        netAmount: data.netAmount,
+        taxRate: data.taxRate,
+        taxAmount: data.taxAmount,
+        grossAmount: data.grossAmount,
+        currency: data.currency || "TRY",
+        status: data.status,
+        invoiceDate: data.invoiceDate,
+        deliveryDate: data.deliveryDate,
+        dueDate: data.dueDate,
+        notes: data.notes,
+        items: {
+          create: data.items.map((item: any) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: item.total
+          }))
+        }
+      },
+      include: {
+        project: {
+          include: { client: true }
+        },
+        clientCompany: true,
+        items: true
+      }
+    });
+
+    await logActivity({
+      tenantId,
+      action: 'UPDATED_INVOICE',
+      entityType: 'Invoice',
+      entityId: id,
+      details: `${invoice.invoiceNo} numaralı fatura güncellendi.`,
+    });
+
+    safeRevalidatePath('/admin/invoices');
+    return { success: true, data: invoice };
+  } catch (error) {
+    console.error('updateInvoice error:', error);
+    return { success: false, error: 'Failed to update invoice' };
+  }
+}
