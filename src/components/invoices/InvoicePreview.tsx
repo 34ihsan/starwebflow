@@ -131,7 +131,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
       {/* Addresses */}
       <div className="flex justify-between mb-20 pl-2">
         <div className="max-w-sm">
-          <p className="text-[9px] text-zinc-400 mb-4 uppercase tracking-widest font-medium border-b border-zinc-200/60 inline-block pb-1">{companySettings.name} • {companySettings.address}</p>
+          <p className="text-[9px] text-zinc-400 mb-4 uppercase tracking-widest font-medium border-b border-zinc-200/60 inline-block pb-1 whitespace-pre-wrap">{companySettings.name} • {companySettings.address?.replace(/\n/g, ', ')}</p>
           <h3 className="text-[15px] font-semibold text-zinc-900 mb-1">{client.name}</h3>
           <p className="text-zinc-600 text-xs leading-relaxed">{client.addressStreet}</p>
           <p className="text-zinc-600 text-xs leading-relaxed">{client.addressZip} {client.addressCity}</p>
@@ -222,7 +222,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
       <footer className="absolute bottom-0 left-0 right-0 border-t border-zinc-200 px-10 sm:px-14 py-10 text-[9.5px] text-zinc-400 flex flex-col md:flex-row justify-between leading-loose tracking-wide">
         <div className="max-w-[30%]">
           <p className="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">{companySettings.name}</p>
-          <p>{companySettings.address}</p>
+          <p className="whitespace-pre-wrap">{companySettings.address}</p>
           <p>T: {companySettings.phone}</p>
           <p>E: {companySettings.email}</p>
           <p>W: {companySettings.website}</p>

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { signJWT } from '@/modules/auth/auth.jwt';
 import { getJwtSecret } from '@/lib/config';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
