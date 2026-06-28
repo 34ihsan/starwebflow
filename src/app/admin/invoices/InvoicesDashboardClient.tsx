@@ -386,6 +386,10 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             font-size: 16px;
             font-weight: 700;
             color: #111827;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
           }
           .totals-row-final-gross {
             border-top: 1px solid #e5e7eb;
@@ -395,6 +399,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           .gross-amount {
             color: #4f46e5;
             font-family: monospace;
+            font-size: 20px;
+            font-weight: 700;
+            display: inline-block;
           }
           .net-amount {
             font-family: monospace;
@@ -486,67 +493,136 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           @page { 
             size: A4; 
-            margin: 15mm 15mm 20mm 15mm; 
+            margin: 10mm 15mm 15mm 15mm; 
           }
           @media print {
             .no-print { display: none !important; }
             body { 
               background-color: #ffffff; 
-              font-size: 12px; 
+              font-size: 10px; /* Scaled down base font size to make everything fit in 1 page */
             }
             .invoice-page {
               width: 100%;
-              height: auto !important;
-              min-height: 0 !important;
+              height: 297mm !important;
+              min-height: 297mm !important;
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
               border-radius: 0 !important;
               box-shadow: none !important;
-              display: block !important;
+              display: flex !important;
+              flex-direction: column !important;
             }
             .page-content {
-              padding: 0 !important;
-              display: block !important;
+              padding: 0px 0 0px 0 !important;
+              display: flex !important;
+              flex-direction: column !important;
+              flex-grow: 1 !important;
             }
             .header {
-              margin-bottom: 25px !important;
-              page-break-inside: avoid;
+              margin-bottom: 15px !important;
+            }
+            .invoice-title {
+              font-size: 24px !important;
+              margin-bottom: 10px !important;
+            }
+            .meta-card {
+              padding: 10px !important;
+              min-width: 200px !important;
+            }
+            .meta-row {
+              font-size: 10px !important;
+              margin-bottom: 4px !important;
+            }
+            .meta-row-main {
+              padding-bottom: 4px !important;
+              margin-bottom: 4px !important;
             }
             .client-section {
-              margin-bottom: 25px !important;
-              page-break-inside: avoid;
+              margin-bottom: 15px !important;
+            }
+            .client-card {
+              padding: 12px !important;
+              min-width: 250px !important;
+            }
+            .client-name {
+              font-size: 13px !important;
+            }
+            .client-address {
+              font-size: 10px !important;
+            }
+            .client-tax-info {
+              margin-top: 8px !important;
+              padding-top: 8px !important;
             }
             .items-table-container {
-              margin-bottom: 20px !important;
+              margin-bottom: 15px !important;
+            }
+            .items-table th {
+              font-size: 10px !important;
+              padding-bottom: 6px !important;
             }
             .items-table td {
-              padding: 10px 0 !important; 
+              padding: 8px 0 !important; 
+              font-size: 11px !important;
             }
             .totals-section {
-              page-break-inside: avoid;
+              margin-bottom: 15px !important;
+            }
+            .totals-card {
+              padding: 10px 15px !important;
+              width: 220px !important;
+            }
+            .totals-row {
+              font-size: 10px !important;
+              margin-bottom: 6px !important;
+            }
+            .totals-row-final {
+              font-size: 13px !important;
+            }
+            .gross-amount {
+              font-size: 14px !important;
             }
             .klein-box {
-              page-break-inside: avoid;
+              padding: 8px 15px !important;
+              margin-bottom: 15px !important;
+              border-radius: 8px !important;
+            }
+            .klein-box-text {
+              font-size: 10px !important;
+            }
+            .klein-box-subtext {
+              font-size: 8px !important;
             }
             .notes-box {
-              margin-bottom: 20px !important;
-              page-break-inside: avoid;
+              margin-bottom: 15px !important;
+              padding-left: 12px !important;
+            }
+            .notes-title {
+              font-size: 9px !important;
+              margin-bottom: 4px !important;
+            }
+            .notes-text {
+              font-size: 10px !important;
             }
             .footer {
-              padding-top: 15px !important;
+              padding: 15px 0 0 0 !important;
               border-top: 1px solid #e5e7eb !important;
               background-color: transparent !important;
-              position: fixed !important;
-              bottom: 0 !important;
+              position: absolute !important;
+              bottom: 0px !important;
               left: 0 !important;
               right: 0 !important;
-              height: 100px;
-              page-break-inside: avoid;
+              height: 80px !important;
+              display: flex !important;
             }
-            /* Add bottom margin to avoid text printing over fixed footer */
-            .page-content {
-              margin-bottom: 120px !important;
+            .footer-col {
+              font-size: 8px !important;
+              line-height: 1.4 !important;
+            }
+            .footer-col-title {
+              font-size: 8px !important;
+              margin-bottom: 6px !important;
             }
           }
 
