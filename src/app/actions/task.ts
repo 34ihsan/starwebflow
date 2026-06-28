@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma as db } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 
 export async function getTasks(tenantId: string) {
@@ -57,8 +57,8 @@ export async function createTask(data: {
       details: `Yeni bir görev eklendi: ${data.title}`,
     });
 
-    revalidatePath('/admin/crm');
-    revalidatePath('/admin/projects');
+    safeRevalidatePath('/admin/crm');
+    safeRevalidatePath('/admin/projects');
     return { success: true, data: newTask };
   } catch (error) {
     console.error('Failed to create task:', error);
@@ -103,8 +103,8 @@ export async function updateTaskStatus(taskId: string, status: string) {
       details: `${updatedTask.title} görevinin durumu ${status} olarak güncellendi.`,
     });
 
-    revalidatePath('/admin/crm');
-    revalidatePath('/admin/projects');
+    safeRevalidatePath('/admin/crm');
+    safeRevalidatePath('/admin/projects');
     return { success: true, data: updatedTask };
   } catch (error) {
     console.error('Failed to update task status:', error);

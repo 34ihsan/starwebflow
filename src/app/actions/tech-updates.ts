@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function triggerEmailCampaignForUpdate(updateId: string, tenantId: string = 'default-tenant') {
   try {
@@ -92,7 +92,7 @@ export async function triggerEmailCampaignForUpdate(updateId: string, tenantId: 
       data: { emailSent: true, isNotified: true }
     })
 
-    revalidatePath('/admin/tech-updates')
+    safeRevalidatePath('/admin/tech-updates')
 
     return { success: true, data: bulkOutreach, count: clientsToEmail.size }
 
@@ -106,7 +106,7 @@ export async function deleteTechnologyUpdate(id: string) {
     await prisma.technologyUpdate.delete({
       where: { id }
     })
-    revalidatePath('/admin/tech-updates')
+    safeRevalidatePath('/admin/tech-updates')
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }

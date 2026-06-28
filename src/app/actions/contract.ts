@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 import { generateText } from 'ai';
 import { getProModel } from '@/lib/ai/gemini-client';
@@ -127,8 +127,8 @@ Sözleşme içerisinde tarafların hakları, hizmet kapsamı (seçilen hizmet t�
       details: `${data.clientName} için yeni bir ${data.type} sözleşmesi oluşturuldu.`,
     });
 
-    revalidatePath('/admin/contracts');
-    revalidatePath('/client/contracts');
+    safeRevalidatePath('/admin/contracts');
+    safeRevalidatePath('/client/contracts');
     return { success: true, data: contract };
   } catch (error) {
     console.error('createContract error:', error);
@@ -156,9 +156,9 @@ export async function updateContractStatus(id: string, status: string) {
       });
     }
 
-    revalidatePath('/admin/contracts');
-    revalidatePath('/client/contracts');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin/contracts');
+    safeRevalidatePath('/client/contracts');
+    safeRevalidatePath('/client');
     return { success: true, data: contract };
   } catch (error) {
     console.error('updateContractStatus error:', error);
@@ -206,9 +206,9 @@ export async function updateContract(
       details: `${contract.title} başlıklı sözleşme güncellendi.`,
     });
 
-    revalidatePath('/admin/contracts');
-    revalidatePath('/client/contracts');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin/contracts');
+    safeRevalidatePath('/client/contracts');
+    safeRevalidatePath('/client');
     return { success: true, data: contract };
   } catch (error) {
     console.error('updateContract error:', error);
@@ -230,9 +230,9 @@ export async function deleteContract(id: string) {
       details: `${contract.title} başlıklı sözleşme silindi.`,
     });
 
-    revalidatePath('/admin/contracts');
-    revalidatePath('/client/contracts');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin/contracts');
+    safeRevalidatePath('/client/contracts');
+    safeRevalidatePath('/client');
     return { success: true };
   } catch (error) {
     console.error('deleteContract error:', error);

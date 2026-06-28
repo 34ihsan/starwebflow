@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getEmailData(tenantId: string) {
   try {
@@ -41,7 +41,7 @@ export async function createEmailCampaign(data: {
         status: 'ACTIVE',
       }
     });
-    revalidatePath('/admin/email');
+    safeRevalidatePath('/admin/email');
     return { success: true, data: campaign };
   } catch (error) {
     console.error('createEmailCampaign error:', error);
@@ -86,7 +86,7 @@ export async function createEmailMailbox(data: {
         senderName: data.senderName,
       }
     });
-    revalidatePath('/admin/email');
+    safeRevalidatePath('/admin/email');
     return { success: true, data: mailbox };
   } catch (error) {
     console.error('createEmailMailbox error:', error);
@@ -100,7 +100,7 @@ export async function updateMailboxStatus(data: { id: string, status: string }) 
       where: { id: data.id },
       data: { status: data.status }
     });
-    revalidatePath('/admin/email');
+    safeRevalidatePath('/admin/email');
     return { success: true, data: mailbox };
   } catch (error) {
     console.error('updateMailboxStatus error:', error);

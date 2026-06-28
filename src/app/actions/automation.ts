@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { generateObject } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { z } from 'zod';
@@ -45,7 +45,7 @@ export async function createAutomationFlow(data: {
         status: 'ACTIVE',
       }
     });
-    revalidatePath('/admin/automations');
+    safeRevalidatePath('/admin/automations');
     return { success: true, data: flow };
   } catch (error) {
     console.error('createAutomationFlow error:', error);
@@ -70,7 +70,7 @@ export async function createWebhookEndpoint(data: {
         flowId: data.flowId,
       }
     });
-    revalidatePath('/admin/automations');
+    safeRevalidatePath('/admin/automations');
     return { success: true, data: webhook };
   } catch (error) {
     console.error('createWebhookEndpoint error:', error);
@@ -95,7 +95,7 @@ export async function updateAutomationFlow(
         ...(data.nodes !== undefined && { nodes: data.nodes }),
       },
     });
-    revalidatePath('/admin/automations');
+    safeRevalidatePath('/admin/automations');
     return { success: true, data: flow };
   } catch (error) {
     console.error('updateAutomationFlow error:', error);
@@ -108,7 +108,7 @@ export async function deleteAutomationFlow(id: string) {
     await prisma.automationFlow.delete({
       where: { id },
     });
-    revalidatePath('/admin/automations');
+    safeRevalidatePath('/admin/automations');
     return { success: true };
   } catch (error) {
     console.error('deleteAutomationFlow error:', error);

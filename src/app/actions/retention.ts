@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 // Yasal Saklama ve İmha Süreleri Yapılandırması (Gün olarak)
 export const RETENTION_RULES = {
@@ -259,7 +259,7 @@ export async function runRetentionCleanup(tenantId: string = 'default-tenant', r
       }
     });
 
-    revalidatePath('/admin/settings');
+    safeRevalidatePath('/admin/settings');
     return {
       success: true,
       log: newLogEntry
@@ -314,7 +314,7 @@ export async function seedRetentionMockData(tenantId: string = 'default-tenant')
       ]
     });
 
-    revalidatePath('/admin/settings');
+    safeRevalidatePath('/admin/settings');
     return { success: true };
   } catch (error: any) {
     console.error('seedRetentionMockData error:', error);

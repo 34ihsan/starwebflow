@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 
 export async function getInvoices(tenantId: string) {
@@ -109,7 +109,7 @@ export async function createInvoice(data: {
       details: `${data.grossAmount} ${data.currency || 'TRY'} tutarında yeni fatura oluşturuldu.`,
     });
 
-    revalidatePath('/admin/invoices');
+    safeRevalidatePath('/admin/invoices');
     return { success: true, data: invoice };
   } catch (error) {
     console.error('createInvoice error:', error);
@@ -135,7 +135,7 @@ export async function deleteInvoice(id: string, tenantId: string) {
       details: `${invoice.invoiceNo} numaralı fatura silindi.`,
     });
 
-    revalidatePath('/admin/invoices');
+    safeRevalidatePath('/admin/invoices');
     return { success: true };
   } catch (error) {
     console.error('deleteInvoice error:', error);

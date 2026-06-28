@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 
 function generateProposalNumber(): string {
@@ -68,7 +68,7 @@ export async function createProposal(data: {
       details: `Yeni teklif talebi: ${data.companyName} (${proposalNumber})`,
     });
 
-    revalidatePath('/admin/proposals');
+    safeRevalidatePath('/admin/proposals');
     return { success: true, data: proposal };
   } catch (error) {
     console.error('Failed to create proposal:', error);
@@ -97,7 +97,7 @@ export async function updateProposalStatus(
       details: `${proposal.companyName} teklifinin durumu "${status}" olarak güncellendi.`,
     });
 
-    revalidatePath('/admin/proposals');
+    safeRevalidatePath('/admin/proposals');
     return { success: true, data: proposal };
   } catch (error) {
     console.error('Failed to update proposal status:', error);
@@ -112,7 +112,7 @@ export async function updateProposalNotes(proposalId: string, adminNotes: string
       data: { adminNotes },
     });
 
-    revalidatePath('/admin/proposals');
+    safeRevalidatePath('/admin/proposals');
     return { success: true, data: proposal };
   } catch (error) {
     console.error('Failed to update proposal notes:', error);

@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getAppointments(tenantId: string) {
   try {
@@ -39,7 +39,7 @@ export async function createAppointment(data: {
         meetLink: data.meetLink,
       }
     });
-    revalidatePath('/admin/appointments');
+    safeRevalidatePath('/admin/appointments');
     return { success: true, data: apt };
   } catch (error) {
     console.error('createAppointment error:', error);

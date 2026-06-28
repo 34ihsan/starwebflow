@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function logActivity(data: {
   tenantId: string;
@@ -24,8 +24,8 @@ export async function logActivity(data: {
     });
     
     // Revalidate dashboards so they show the latest activity
-    revalidatePath('/admin');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin');
+    safeRevalidatePath('/client');
     
     return { success: true, data: activity };
   } catch (error) {

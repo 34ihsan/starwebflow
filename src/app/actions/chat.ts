@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 // Fetch all threads for a tenant (Admin view)
 export async function getTenantChatThreads(tenantId: string) {
@@ -92,8 +92,8 @@ export async function sendChatMessage(data: {
       data: { updatedAt: new Date() }
     });
 
-    revalidatePath('/admin/messages');
-    revalidatePath('/client/messages');
+    safeRevalidatePath('/admin/messages');
+    safeRevalidatePath('/client/messages');
     
     return { success: true, data: message };
   } catch (error) {
@@ -157,8 +157,8 @@ export async function updateChatMessage(messageId: string, senderId: string, new
       include: { sender: true }
     });
 
-    revalidatePath('/admin/messages');
-    revalidatePath('/client/messages');
+    safeRevalidatePath('/admin/messages');
+    safeRevalidatePath('/client/messages');
 
     return { success: true, data: message };
   } catch (error) {
@@ -183,8 +183,8 @@ export async function deleteChatMessage(messageId: string, senderId: string) {
       where: { id: messageId }
     });
 
-    revalidatePath('/admin/messages');
-    revalidatePath('/client/messages');
+    safeRevalidatePath('/admin/messages');
+    safeRevalidatePath('/client/messages');
 
     return { success: true };
   } catch (error) {

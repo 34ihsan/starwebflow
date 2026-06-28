@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getTechnologies(tenantId: string = 'default-tenant') {
   try {
@@ -38,7 +38,7 @@ export async function createTechnology(data: {
         description: data.description
       }
     })
-    revalidatePath('/admin/technologies')
+    safeRevalidatePath('/admin/technologies')
     return { success: true, data: tech }
   } catch (error: any) {
     return { success: false, error: error.message }
@@ -50,7 +50,7 @@ export async function deleteTechnology(id: string) {
     await prisma.technology.delete({
       where: { id }
     })
-    revalidatePath('/admin/technologies')
+    safeRevalidatePath('/admin/technologies')
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error.message }

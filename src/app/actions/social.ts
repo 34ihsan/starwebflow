@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { cookies } from 'next/headers';
 
 // ─── Tenant Resolver ────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ export async function createSocialPost(data: {
         predictedScore: data.predictedScore,
       },
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: post };
   } catch (error) {
     console.error('createSocialPost error:', error);
@@ -132,7 +132,7 @@ export async function updateSocialPost(
         hasImage: data.mediaUrl !== undefined ? !!data.mediaUrl : undefined,
       },
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: post };
   } catch (error) {
     console.error('updateSocialPost error:', error);
@@ -145,7 +145,7 @@ export async function deleteSocialPost(postId: string) {
     const post = await prisma.socialPost.delete({
       where: { id: postId },
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: post };
   } catch (error) {
     console.error('deleteSocialPost error:', error);
@@ -167,7 +167,7 @@ export async function publishSocialPost(postId: string) {
         where: { id: postId },
         data: { publishError: errorMsg, status: 'FAILED' }
       });
-      revalidatePath('/admin/social');
+      safeRevalidatePath('/admin/social');
       return { success: false, error: errorMsg };
     }
 
@@ -175,7 +175,7 @@ export async function publishSocialPost(postId: string) {
       where: { id: postId },
       data: { isPublished: true, publishError: null, status: 'published' }
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: updated };
   } catch (error: any) {
     console.error('publishSocialPost error:', error);
@@ -210,7 +210,7 @@ export async function createAdCampaign(data: {
         ctr: data.ctr,
       },
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: ad };
   } catch (error) {
     console.error('createAdCampaign error:', error);
@@ -227,7 +227,7 @@ export async function updateAdCampaign(
       where: { id: adId },
       data,
     });
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, data: ad };
   } catch (error) {
     console.error('updateAdCampaign error:', error);
@@ -437,7 +437,7 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platform:
       createdCount++;
     }
 
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, createdCount };
   } catch (error: any) {
     console.error('bulkGenerateSocialContent error:', error);

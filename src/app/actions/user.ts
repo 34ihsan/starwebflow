@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getUsers(tenantId: string) {
   try {
@@ -32,7 +32,7 @@ export async function createUser(data: {
         passwordHash: 'dummy_hash', // In a real app, hash a random password and send email
       }
     });
-    revalidatePath('/admin/users');
+    safeRevalidatePath('/admin/users');
     return { success: true, data: user };
   } catch (error) {
     console.error('createUser error:', error);

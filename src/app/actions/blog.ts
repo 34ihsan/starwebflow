@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { cookies } from 'next/headers';
 
 // ─── Tenant Resolver ────────────────────────────────────────────────────────
@@ -60,9 +60,9 @@ export async function updateBlogPost(id: string, data: any) {
       where: { id },
       data,
     });
-    revalidatePath('/admin/blog');
-    revalidatePath('/blog');
-    revalidatePath(`/blog/${post.slug}`);
+    safeRevalidatePath('/admin/blog');
+    safeRevalidatePath('/blog');
+    safeRevalidatePath(`/blog/${post.slug}`);
     return { success: true, data: post };
   } catch (error) {
     console.error('updateBlogPost error:', error);
@@ -75,8 +75,8 @@ export async function deleteBlogPost(id: string) {
     const post = await prisma.blogPost.delete({
       where: { id },
     });
-    revalidatePath('/admin/blog');
-    revalidatePath('/blog');
+    safeRevalidatePath('/admin/blog');
+    safeRevalidatePath('/blog');
     return { success: true, data: post };
   } catch (error) {
     console.error('deleteBlogPost error:', error);
@@ -195,7 +195,7 @@ Lütfen makaleyi Markdown olarak yaz ve sonuna istediğim JSON formatındaki met
       },
     });
 
-    revalidatePath('/admin/blog');
+    safeRevalidatePath('/admin/blog');
     return { success: true, data: post };
   } catch (error: any) {
     console.error('generateAIBlog error:', error);
@@ -262,7 +262,7 @@ Blog İçeriği (ilk 3000 karakter): ${blog.content.substring(0, 3000)}`;
       createdCount++;
     }
 
-    revalidatePath('/admin/social');
+    safeRevalidatePath('/admin/social');
     return { success: true, createdCount };
   } catch (error: any) {
     console.error('repurposeBlogToSocial error:', error);

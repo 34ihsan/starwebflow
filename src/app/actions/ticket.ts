@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 
 export async function getTickets(tenantId: string) {
@@ -69,9 +69,9 @@ export async function createTicket(data: {
       details: `Yeni destek talebi: ${data.subject}`,
     });
 
-    revalidatePath('/admin/tickets');
-    revalidatePath('/client/tickets');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin/tickets');
+    safeRevalidatePath('/client/tickets');
+    safeRevalidatePath('/client');
     return { success: true, data: ticket };
   } catch (error) {
     console.error('Failed to create ticket:', error);
@@ -97,9 +97,9 @@ export async function updateTicketStatus(ticketId: string, status: string) {
       details: `${ticket.subject} başlıklı destek talebi ${status} olarak güncellendi.`,
     });
 
-    revalidatePath('/admin/tickets');
-    revalidatePath('/client/tickets');
-    revalidatePath('/client');
+    safeRevalidatePath('/admin/tickets');
+    safeRevalidatePath('/client/tickets');
+    safeRevalidatePath('/client');
     return { success: true, data: ticket };
   } catch (error) {
     console.error('Failed to update ticket status:', error);
@@ -129,8 +129,8 @@ export async function addTicketMessage(data: {
       data: { updatedAt: new Date() }
     });
 
-    revalidatePath('/admin/tickets');
-    revalidatePath('/client/tickets');
+    safeRevalidatePath('/admin/tickets');
+    safeRevalidatePath('/client/tickets');
     return { success: true, data: message };
   } catch (error) {
     console.error('Failed to add ticket message:', error);

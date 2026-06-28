@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getProjects(tenantId: string) {
   try {
@@ -80,7 +80,7 @@ export async function createProject(data: {
         manager: true
       }
     });
-    revalidatePath('/admin/projects');
+    safeRevalidatePath('/admin/projects');
     return { success: true, data: project };
   } catch (error) {
     console.error('createProject error:', error);

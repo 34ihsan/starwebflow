@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
+import { safeRevalidatePath } from '@/lib/utils/cache';
 import { z } from 'zod';
 
 const updateSettingsSchema = z.object({
@@ -88,8 +88,8 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
       }
     });
     try {
-      revalidatePath('/admin/settings');
-      revalidatePath('/admin/invoices');
+      safeRevalidatePath('/admin/settings');
+      safeRevalidatePath('/admin/invoices');
     } catch (e) {
       console.warn('revalidatePath skipped', e);
     }

@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma as db } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { safeRevalidatePath } from '@/lib/utils/cache';
 
 export async function getClientCompanies(tenantId: string) {
   try {
@@ -34,7 +34,7 @@ export async function createClientCompany(data: {
       data,
     })
     try {
-      revalidatePath('/admin/invoices')
+      safeRevalidatePath('/admin/invoices')
     } catch (e) {
       console.warn('revalidatePath skipped', e);
     }
