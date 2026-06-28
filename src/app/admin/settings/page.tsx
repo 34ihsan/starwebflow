@@ -1,9 +1,13 @@
 import { getTenantSettings } from '@/app/actions/settings';
 import SettingsDashboardClient from './SettingsDashboardClient';
+import { getServerSession } from '@/modules/auth/auth.helpers';
 
 export default async function AdminSettingsDashboardPage() {
-  const res = await getTenantSettings('default-tenant');
+  const session = await getServerSession();
+  const tenantId = session?.tenantId || 'default-tenant';
+  
+  const res = await getTenantSettings(tenantId);
   const initialData = res.success ? res.data : {};
 
-  return <SettingsDashboardClient initialData={initialData as any} />;
+  return <SettingsDashboardClient initialData={initialData as any} tenantId={tenantId} />;
 }

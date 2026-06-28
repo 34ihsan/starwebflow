@@ -13,7 +13,7 @@ import {
 import { updateTenantSettings } from "@/app/actions/settings";
 import { getRetentionStats, runRetentionCleanup, seedRetentionMockData } from "@/app/actions/retention";
 
-export default function SettingsDashboardClient({ initialData }: { initialData: any }) {
+export default function SettingsDashboardClient({ initialData, tenantId = 'default-tenant' }: { initialData: any, tenantId?: string }) {
   const [activeTab, setActiveTab] = useState<"general" | "invoice" | "branding" | "marketing" | "api" | "retention" | "notifications" | "integrations" | "security" | "database">("general");
   const [showApiKey, setShowApiKey] = useState(false);
   const [showIban, setShowIban] = useState(false);
@@ -135,7 +135,7 @@ export default function SettingsDashboardClient({ initialData }: { initialData: 
 
   const fetchRetentionStats = async () => {
     setIsLoadingStats(true);
-    const res = await getRetentionStats('default-tenant');
+    const res = await getRetentionStats(tenantId);
     if (res.success && res.data) {
       setRetentionStats(res.data);
     }
@@ -156,7 +156,7 @@ export default function SettingsDashboardClient({ initialData }: { initialData: 
     setIsCleaning(true);
     setCleanupMessage(null);
     try {
-      const res = await runRetentionCleanup('default-tenant', 'Yönetici Paneli');
+      const res = await runRetentionCleanup(tenantId, 'Yönetici Paneli');
       if (res.success && res.log) {
         setCleanupMessage({
           type: 'success',
@@ -200,7 +200,7 @@ export default function SettingsDashboardClient({ initialData }: { initialData: 
     setIsSeeding(true);
     setCleanupMessage(null);
     try {
-      const res = await seedRetentionMockData('default-tenant');
+      const res = await seedRetentionMockData(tenantId);
       if (res.success) {
         setCleanupMessage({
           type: 'success',
@@ -239,7 +239,7 @@ export default function SettingsDashboardClient({ initialData }: { initialData: 
           <button 
             onClick={async () => {
               setIsSaving(true);
-              await updateTenantSettings('default-tenant', {
+              await updateTenantSettings(tenantId, {
                 companyName: settings.companyName,
                 preferences,
                 apiKeys

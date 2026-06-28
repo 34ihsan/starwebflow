@@ -49,39 +49,39 @@ export interface InvoicePreviewProps {
 const localDict = {
   tr: {
     invoice: 'Fatura',
-    invoiceNo: 'Fatura No:',
-    invoiceDate: 'Fatura Tarihi:',
-    deliveryDate: 'Hizmet Tarihi:',
-    dueDate: 'Son Ödeme:',
+    invoiceNo: 'Fatura No',
+    invoiceDate: 'Fatura Tarihi',
+    deliveryDate: 'Hizmet Tarihi',
+    dueDate: 'Son Ödeme',
     description: 'Açıklama',
     quantity: 'Miktar',
     unitPrice: 'Birim Fiyat',
     total: 'Toplam',
-    netAmount: 'Net Tutar:',
+    netAmount: 'Net Tutar',
     vat: 'KDV',
-    grossAmount: 'Genel Toplam:',
+    grossAmount: 'Genel Toplam',
     bankDetails: 'Banka Bilgileri',
-    bank: 'Banka:',
+    bank: 'Banka',
     taxDetails: 'Vergi Bilgileri',
-    notes: 'Notlar:',
+    notes: 'Notlar',
   },
   de: {
     invoice: 'Rechnung',
-    invoiceNo: 'Rechnungsnr.:',
-    invoiceDate: 'Rechnungsdatum:',
-    deliveryDate: 'Leistungsdatum:',
-    dueDate: 'Fälligkeitsdatum:',
+    invoiceNo: 'Rechnungsnr.',
+    invoiceDate: 'Rechnungsdatum',
+    deliveryDate: 'Leistungsdatum',
+    dueDate: 'Fälligkeitsdatum',
     description: 'Beschreibung',
     quantity: 'Menge',
     unitPrice: 'Einzelpreis',
     total: 'Gesamtpreis',
-    netAmount: 'Netto-Betrag:',
+    netAmount: 'Netto-Betrag',
     vat: 'MwSt.',
-    grossAmount: 'Rechnungsbetrag (Brutto):',
+    grossAmount: 'Rechnungsbetrag (Brutto)',
     bankDetails: 'Bankverbindung',
-    bank: 'Bank:',
+    bank: 'Bank',
     taxDetails: 'Steuerangaben',
-    notes: 'Bemerkungen:',
+    notes: 'Bemerkungen',
   }
 };
 
@@ -90,154 +90,183 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
   const currencyLocale = invoice.currency === 'TRY' ? 'tr-TR' : 'de-DE';
 
   return (
-    <div className="bg-white p-10 sm:p-14 text-zinc-900 shadow-2xl rounded-2xl max-w-4xl mx-auto text-[13px] font-sans leading-relaxed ring-1 ring-zinc-200/50" id="invoice-preview" style={{ minHeight: '1056px', position: 'relative' }}>
-      {/* Decorative top border */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-slate-800 to-zinc-600 rounded-t-2xl"></div>
-      
-      {/* Header */}
-      <header className="flex justify-between items-start mb-20 pt-4">
-        <div className="flex flex-col">
-          {companySettings.logo ? (
-            <img 
-              src={companySettings.logo.startsWith('http') || companySettings.logo.startsWith('/') ? companySettings.logo : `/${companySettings.logo}`} 
-              alt={companySettings.name} 
-              className="h-12 w-auto mb-6 object-contain" 
-              onError={(e) => e.currentTarget.style.display = 'none'} 
-            />
-          ) : null}
-          {!companySettings.logo && (
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 mb-2">{companySettings.name}</h1>
-          )}
-          <p className="text-[11px] text-zinc-500 max-w-xs leading-relaxed">{companySettings.address}</p>
-        </div>
-        <div className="text-right">
-          <h2 className="text-3xl font-light text-zinc-400 uppercase tracking-[0.25em] mb-8">{dict.invoice}</h2>
-          <div className="grid grid-cols-[auto_auto] gap-x-6 gap-y-1.5 text-[11px] justify-end">
-            <span className="text-zinc-400 text-right">{dict.invoiceNo}</span>
-            <span className="font-semibold text-zinc-900 text-right">{invoice.invoiceNo}</span>
-            
-            <span className="text-zinc-400 text-right">{dict.invoiceDate}</span>
-            <span className="font-medium text-zinc-800 text-right">{format(new Date(invoice.invoiceDate), 'dd.MM.yyyy')}</span>
-            
-            <span className="text-zinc-400 text-right">{dict.deliveryDate}</span>
-            <span className="font-medium text-zinc-800 text-right">{format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}</span>
-            
-            <span className="text-zinc-400 text-right">{dict.dueDate}</span>
-            <span className="font-medium text-zinc-800 text-right">{format(new Date(invoice.dueDate), 'dd.MM.yyyy')}</span>
-          </div>
-        </div>
-      </header>
+    <div className="bg-white text-zinc-900 shadow-2xl rounded-2xl max-w-4xl mx-auto font-sans ring-1 ring-zinc-200/50 overflow-hidden flex flex-col" id="invoice-preview" style={{ minHeight: '1123px', position: 'relative' }}>
+      {/* Premium Header Strip */}
+      <div className="h-3 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600"></div>
 
-      {/* Addresses */}
-      <div className="flex justify-between mb-20 pl-2">
-        <div className="max-w-sm">
-          <p className="text-[9px] text-zinc-400 mb-4 uppercase tracking-widest font-medium border-b border-zinc-200/60 inline-block pb-1 whitespace-pre-wrap">{companySettings.name} • {companySettings.address?.replace(/\n/g, ', ')}</p>
-          <h3 className="text-[15px] font-semibold text-zinc-900 mb-1">{client.name}</h3>
-          <p className="text-zinc-600 text-xs leading-relaxed">{client.addressStreet}</p>
-          <p className="text-zinc-600 text-xs leading-relaxed">{client.addressZip} {client.addressCity}</p>
-          <p className="text-zinc-600 text-xs leading-relaxed">{client.addressCountry}</p>
-          <div className="mt-4 text-[10px] text-zinc-400 space-y-0.5">
-            {client.vatId && <p>USt-IdNr.: <span className="text-zinc-600">{client.vatId}</span></p>}
-            {client.taxId && <p>Steuernummer: <span className="text-zinc-600">{client.taxId}</span></p>}
-          </div>
-        </div>
-      </div>
-
-      {/* Items Table */}
-      <div className="mb-8">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b-2 border-zinc-900 text-zinc-900 text-[10px] uppercase tracking-widest">
-              <th className="py-3 font-semibold w-[55%]">{dict.description}</th>
-              <th className="py-3 font-semibold text-right">{dict.quantity}</th>
-              <th className="py-3 font-semibold text-right">{dict.unitPrice}</th>
-              <th className="py-3 font-semibold text-right">{dict.total}</th>
-            </tr>
-          </thead>
-          <tbody className="text-zinc-700 text-xs">
-            {invoice.items.map((item, idx) => (
-              <tr key={idx} className="border-b border-zinc-100 group">
-                <td className="py-4 pr-4 leading-relaxed">{item.description}</td>
-                <td className="py-4 text-right tabular-nums">{Number(item.quantity)}</td>
-                <td className="py-4 text-right tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(item.unitPrice))}</td>
-                <td className="py-4 text-right font-medium text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(item.total))}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Totals */}
-      <div className="flex justify-end mb-20">
-        <div className="w-full sm:w-[45%] md:w-[35%] pt-2">
-          {companySettings.isKleinunternehmer ? (
-            <div className="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-              <span className="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">{lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
-              <span className="text-[17px] text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+      <div className="p-12 sm:p-16 flex-grow flex flex-col">
+        {/* Header Section */}
+        <div className="flex justify-between items-start mb-16">
+          <div className="flex-1">
+            {companySettings.logo ? (
+              <img 
+                src={companySettings.logo.startsWith('http') || companySettings.logo.startsWith('/') ? companySettings.logo : `/${companySettings.logo}`} 
+                alt={companySettings.name} 
+                className="h-16 w-auto mb-6 object-contain" 
+                onError={(e) => e.currentTarget.style.display = 'none'} 
+              />
+            ) : null}
+            {!companySettings.logo && (
+              <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-2">{companySettings.name}</h1>
+            )}
+            <div className="text-zinc-500 text-sm leading-relaxed mt-4 max-w-sm whitespace-pre-wrap">
+              {companySettings.address}
             </div>
-          ) : (
-            <>
-              <div className="flex justify-between py-2 text-xs text-zinc-500">
-                <span>{dict.netAmount}</span>
-                <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+            {(companySettings.email || companySettings.phone) && (
+              <div className="text-zinc-500 text-sm mt-3 space-y-1">
+                {companySettings.email && <div className="flex items-center gap-2"><svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>{companySettings.email}</div>}
+                {companySettings.phone && <div className="flex items-center gap-2"><svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>{companySettings.phone}</div>}
               </div>
-              <div className="flex justify-between py-2 text-xs text-zinc-500">
-                <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
-                <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
+            )}
+          </div>
+          <div className="text-right">
+            <h2 className="text-4xl font-light text-zinc-300 uppercase tracking-widest mb-8">{dict.invoice}</h2>
+            
+            <div className="bg-zinc-50 rounded-xl p-5 border border-zinc-100 shadow-sm min-w-[240px]">
+              <div className="flex justify-between items-center mb-3 pb-3 border-b border-zinc-200">
+                <span className="text-zinc-500 text-xs font-medium uppercase tracking-wider">{dict.invoiceNo}</span>
+                <span className="font-bold text-zinc-900 text-sm">{invoice.invoiceNo}</span>
               </div>
-              <div className="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-                <span className="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">{dict.grossAmount}</span>
-                <span className="text-[17px] text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-500">{dict.invoiceDate}</span>
+                  <span className="font-medium text-zinc-800">{format(new Date(invoice.invoiceDate), 'dd.MM.yyyy')}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-zinc-500">{dict.deliveryDate}</span>
+                  <span className="font-medium text-zinc-800">{format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-zinc-100">
+                  <span className="text-indigo-600 font-medium">{dict.dueDate}</span>
+                  <span className="font-bold text-indigo-700">{format(new Date(invoice.dueDate), 'dd.MM.yyyy')}</span>
+                </div>
               </div>
-            </>
-          )}
+            </div>
+          </div>
+        </div>
+
+        {/* Client Address */}
+        <div className="mb-14">
+          <div className="inline-block relative">
+            <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold mb-2 ml-1">Fatura Edilen</div>
+            <div className="bg-zinc-50 rounded-xl p-6 border border-zinc-100 min-w-[300px]">
+              <h3 className="text-lg font-bold text-zinc-900 mb-2">{client.name}</h3>
+              <p className="text-zinc-600 text-sm leading-relaxed">{client.addressStreet}</p>
+              <p className="text-zinc-600 text-sm leading-relaxed">{client.addressZip} {client.addressCity}</p>
+              <p className="text-zinc-600 text-sm leading-relaxed">{client.addressCountry}</p>
+              
+              {(client.vatId || client.taxId) && (
+                <div className="mt-4 pt-4 border-t border-zinc-200 text-xs text-zinc-500 space-y-1">
+                  {client.vatId && <div className="flex justify-between"><span className="text-zinc-400">USt-IdNr.:</span> <span className="font-medium text-zinc-700">{client.vatId}</span></div>}
+                  {client.taxId && <div className="flex justify-between"><span className="text-zinc-400">Steuernummer:</span> <span className="font-medium text-zinc-700">{client.taxId}</span></div>}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Line Items */}
+        <div className="mb-10">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b-2 border-zinc-200 text-zinc-500 text-xs uppercase tracking-wider">
+                <th className="pb-3 font-semibold pl-2 w-3/5">{dict.description}</th>
+                <th className="pb-3 font-semibold text-center">{dict.quantity}</th>
+                <th className="pb-3 font-semibold text-right">{dict.unitPrice}</th>
+                <th className="pb-3 font-semibold text-right pr-2">{dict.total}</th>
+              </tr>
+            </thead>
+            <tbody className="text-zinc-800 text-sm align-top">
+              {invoice.items.map((item, idx) => (
+                <tr key={idx} className="border-b border-zinc-100 last:border-b-0 hover:bg-zinc-50/50 transition-colors">
+                  <td className="py-5 pl-2 font-medium">{item.description}</td>
+                  <td className="py-5 text-center text-zinc-600 tabular-nums">{Number(item.quantity)}</td>
+                  <td className="py-5 text-right text-zinc-600 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(item.unitPrice))}</td>
+                  <td className="py-5 text-right font-semibold text-zinc-900 pr-2 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(item.total))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Totals Section */}
+        <div className="flex justify-end mb-16">
+          <div className="w-full sm:w-1/2 md:w-2/5 bg-zinc-50 rounded-xl p-6 border border-zinc-100 shadow-sm">
+            {companySettings.isKleinunternehmer ? (
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-medium text-zinc-600">{lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+                <span className="font-bold text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm text-zinc-500">
+                  <span>{dict.netAmount}</span>
+                  <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+                </div>
+                <div className="flex justify-between text-sm text-zinc-500 pb-3 border-b border-zinc-200">
+                  <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
+                  <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
+                </div>
+                <div className="flex justify-between items-center text-lg pt-1">
+                  <span className="font-bold text-zinc-900">{dict.grossAmount}</span>
+                  <span className="font-bold text-indigo-600 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="mt-auto mb-10">
+          {(() => {
+            const diffDays = invoice.dueDate && invoice.invoiceDate 
+              ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) 
+              : 14;
+            
+            const kleinText = companySettings.isKleinunternehmer ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : null;
+            const transferText = (!invoice.notes && lang === 'de') ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : null;
+
+            if (!invoice.notes && !kleinText && !transferText) return null;
+
+            return (
+              <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-5">
+                <h4 className="font-semibold text-blue-900 mb-2 text-xs uppercase tracking-widest flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  {dict.notes}
+                </h4>
+                <div className="text-blue-800/80 text-sm leading-relaxed space-y-2">
+                  {invoice.notes && <p className="whitespace-pre-wrap">{invoice.notes}</p>}
+                  {kleinText && <p>{kleinText}</p>}
+                  {transferText && <p>{transferText}</p>}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
-      {/* Notes */}
-      {(() => {
-        const diffDays = invoice.dueDate && invoice.invoiceDate 
-          ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) 
-          : 14;
-        
-        let printNotes = invoice.notes 
-          ? <div className="mb-24 pt-4 text-[11px]"><h4 className="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">{dict.notes}</h4><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{invoice.notes}</p></div> 
-          : <div className="mb-24"></div>;
-
-        if (companySettings.isKleinunternehmer) {
-          const kleinText = "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.";
-          if (invoice.notes) {
-            printNotes = <div className="mb-24 pt-4 text-[11px]"><h4 className="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">{dict.notes}</h4><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{invoice.notes}<br/><br/>{kleinText}</p></div>;
-          } else {
-            printNotes = <div className="mb-24 pt-4 text-[11px]"><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{kleinText}</p></div>;
-          }
-        } else if (!invoice.notes && lang === 'de') {
-          printNotes = <div className="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl"><p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von {diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p></div>;
-        }
-
-        return printNotes;
-      })()}
-
-      {/* Footer / Legal Info */}
-      <footer className="absolute bottom-0 left-0 right-0 border-t border-zinc-200 px-10 sm:px-14 py-10 text-[9.5px] text-zinc-400 flex flex-col md:flex-row justify-between leading-loose tracking-wide">
-        <div className="max-w-[30%]">
-          <p className="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">{companySettings.name}</p>
-          <p className="whitespace-pre-wrap">{companySettings.address}</p>
-          <p>T: {companySettings.phone}</p>
-          <p>E: {companySettings.email}</p>
-          <p>W: {companySettings.website}</p>
+      {/* Footer Grid */}
+      <div className="bg-zinc-900 text-zinc-400 p-12 sm:px-16 sm:py-10 mt-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-xs leading-relaxed">
+          <div>
+            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
+            <p className="whitespace-pre-wrap mb-2">{companySettings.address}</p>
+            {companySettings.email && <p>{companySettings.email}</p>}
+            {companySettings.phone && <p>{companySettings.phone}</p>}
+            {companySettings.website && <p>{companySettings.website}</p>}
+          </div>
+          <div>
+            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.bankDetails}</h5>
+            {companySettings.bankName && <p>{companySettings.bankName}</p>}
+            {companySettings.iban && <p>IBAN: <span className="text-zinc-300 tracking-wider">{companySettings.iban}</span></p>}
+          </div>
+          <div>
+            <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.taxDetails}</h5>
+            {companySettings.taxId && <p>St-Nr.: <span className="text-zinc-300 tracking-wider">{companySettings.taxId}</span></p>}
+            {companySettings.vatId && <p>USt-IdNr.: <span className="text-zinc-300 tracking-wider">{companySettings.vatId}</span></p>}
+          </div>
         </div>
-        <div className="max-w-[30%] mt-4 md:mt-0">
-          <p className="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">{dict.bankDetails}</p>
-          <p>{companySettings.bankName}</p>
-          <p>IBAN: <span className="font-mono text-zinc-600">{companySettings.iban}</span></p>
-        </div>
-        <div className="max-w-[30%] mt-4 md:mt-0">
-          <p className="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">{dict.taxDetails}</p>
-          <p>St-Nr.: <span className="font-mono text-zinc-600">{companySettings.taxId}</span></p>
-          <p>USt-IdNr.: <span className="font-mono text-zinc-600">{companySettings.vatId}</span></p>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 }
