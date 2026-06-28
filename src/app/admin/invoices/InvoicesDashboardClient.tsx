@@ -642,33 +642,34 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               bottom: 12mm !important;
               left: 20mm !important;
               right: 20mm !important;
-              height: 50px !important;
+              height: 60px !important; /* Increased to allow bottom spacing for page numbering */
               display: flex !important;
               page-break-inside: avoid;
             }
             .footer-col {
               font-size: 7.5px !important;
               line-height: 1.3 !important;
+              padding-bottom: 15px !important; /* Reserve bottom space inside footer columns */
             }
             .footer-col-title {
               font-size: 7.5px !important;
               margin-bottom: 4px !important;
             }
             .invoice-page {
-              padding-bottom: 80px !important;
+              padding-bottom: 90px !important; /* Safe offset for footer container height */
             }
-            /* Custom Centered Page Number Styles using CSS counters */
+            /* Custom Centered Page Number Styles below footer columns */
             .page-number-indicator {
               position: absolute;
-              top: 2px;
+              bottom: 2px;
               left: 50%;
               transform: translateX(-50%);
-              font-size: 8px;
-              color: #9ca3af;
-              font-weight: 500;
+              font-size: 9px;
+              color: #4b5563;
+              font-weight: 600;
             }
             .page-number-indicator::after {
-              content: counter(page);
+              content: "- " counter(page) " -";
             }
             body {
               counter-reset: page;
