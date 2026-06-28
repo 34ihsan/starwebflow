@@ -130,6 +130,12 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
   const [previewData, setPreviewData] = useState<any>(null);
   const [selectedPreviewNode, setSelectedPreviewNode] = useState<any>(null);
   const [activeIntegrationGuide, setActiveIntegrationGuide] = useState<any>(null);
+  const [connectedCredentials, setConnectedCredentials] = useState<Record<string, string>>({
+    slack: "xoxb-9872138210382-9832103821-active",
+    whatsapp: "EAAG2038210382103-active",
+    openai: "sk-proj-starwebflow-ai-active",
+  });
+  const [tempKeys, setTempKeys] = useState<Record<string, string>>({});
 
   // AI Conversational Edit and Simulation states
   const [aiEditPrompt, setAiEditPrompt] = useState("");
@@ -1054,7 +1060,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Slack",
                   icon: MessageCircle,
                   color: "text-[#E01E5A]",
-                  status: "CONNECTED",
+                  placeholder: "xoxb-... (OAuth Bot Token)",
                   guide: {
                     title: "Slack Bot Token Alımı (Bot User OAuth Token)",
                     steps: [
@@ -1073,7 +1079,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Typeform",
                   icon: FileText,
                   color: "text-white",
-                  status: "NOT_CONNECTED",
+                  placeholder: "tfp_... (Personal Access Token)",
                   guide: {
                     title: "Typeform Personal Access Token Alımı",
                     steps: [
@@ -1091,7 +1097,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "WhatsApp",
                   icon: MessageSquare,
                   color: "text-[#25D366]",
-                  status: "CONNECTED",
+                  placeholder: "EAAG... (Meta Cloud API Access Token)",
                   guide: {
                     title: "WhatsApp Meta Cloud API Token Alımı",
                     steps: [
@@ -1109,7 +1115,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Stripe",
                   icon: Link,
                   color: "text-[#635BFF]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "sk_live_... (API Secret Key)",
                   guide: {
                     title: "Stripe API Key & Webhook Secret Alımı",
                     steps: [
@@ -1126,7 +1132,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "SMTP",
                   icon: Mail,
                   color: "text-[#10B981]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "SMTP Şifresi veya API Anahtarı",
                   guide: {
                     title: "SMTP / E-posta Gönderim Şifresi Alımı",
                     steps: [
@@ -1143,7 +1149,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Star AI",
                   icon: Activity,
                   color: "text-[#8B5CF6]",
-                  status: "CONNECTED",
+                  placeholder: "sk-... veya AIzaSy...",
                   guide: {
                     title: "OpenAI & Gemini API Key Alımı",
                     steps: [
@@ -1156,11 +1162,11 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                 },
                 {
                   id: "google_sheets",
-                  name: "Google Sheets & Drive API",
+                  name: "Google Sheets & Drive",
                   app: "Google Sheets",
                   icon: FileText,
                   color: "text-[#0F9D58]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "Google OAuth Client Secret",
                   guide: {
                     title: "Google Cloud Console Credentials Alımı",
                     steps: [
@@ -1178,7 +1184,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "HubSpot",
                   icon: Settings,
                   color: "text-[#FF7A59]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "pat-na1-... (HubSpot Access Token)",
                   guide: {
                     title: "HubSpot Private App Access Token Alımı",
                     steps: [
@@ -1196,7 +1202,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Shopify",
                   icon: Link,
                   color: "text-[#96BF48]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "shpat_... (Admin Access Token)",
                   guide: {
                     title: "Shopify Custom App API Credentials Alımı",
                     steps: [
@@ -1213,7 +1219,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   app: "Trello",
                   icon: Globe,
                   color: "text-[#0079BF]",
-                  status: "NOT_CONNECTED",
+                  placeholder: "Trello API Token / Jira Secret Key",
                   guide: {
                     title: "Trello Developer API Key & Token Alımı",
                     steps: [
@@ -1226,25 +1232,65 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                 }
               ].map(integration => {
                 const Icon = integration.icon;
+                const isConnected = !!connectedCredentials[integration.id];
+                const keyVal = tempKeys[integration.id] || connectedCredentials[integration.id] || "";
+                
                 return (
-                  <div key={integration.id} className="bg-[#05050A] border border-white/[0.05] rounded-xl p-4 flex items-center justify-between hover:border-white/10 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                        <Icon className={`w-4.5 h-4.5 ${integration.color}`} />
+                  <div key={integration.id} className="bg-[#05050A] border border-white/[0.05] rounded-xl p-4 space-y-3 hover:border-white/10 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                          <Icon className={`w-4.5 h-4.5 ${integration.color}`} />
+                        </div>
+                        <div>
+                          <span className="text-white font-bold text-xs block">{integration.name}</span>
+                          <span className={`text-[9px] font-bold ${isConnected ? 'text-emerald-400' : 'text-[#64748B]'}`}>
+                            {isConnected ? '● AKTİF BAĞLANTI' : '○ AKTİF DEĞİL'}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-white font-bold text-xs block">{integration.name}</span>
-                        <span className={`text-[10px] font-bold ${integration.status === 'CONNECTED' ? 'text-[#10B981]' : 'text-[#64748B]'}`}>
-                          {integration.status === 'CONNECTED' ? '● BAĞLI' : '○ BAĞLI DEĞİL'}
-                        </span>
-                      </div>
+                      
+                      <button 
+                        onClick={() => setActiveIntegrationGuide(integration.guide)}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[9px] font-bold border border-white/10 transition-colors flex items-center gap-1"
+                      >
+                        Nasıl Yapılır? <Info className="w-2.5 h-2.5 text-[#94A3B8]" />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => setActiveIntegrationGuide(integration.guide)}
-                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-[10px] font-bold border border-white/10 transition-colors flex items-center gap-1"
-                    >
-                      Anahtar Al <Info className="w-3 h-3 text-[#94A3B8]" />
-                    </button>
+
+                    <div className="flex gap-2 items-center">
+                      <input 
+                        type="password"
+                        value={keyVal}
+                        placeholder={integration.placeholder}
+                        onChange={(e) => setTempKeys({ ...tempKeys, [integration.id]: e.target.value })}
+                        className="flex-1 bg-black/40 border border-white/10 text-xs rounded-lg px-3 py-2 text-white font-mono placeholder:text-[#64748B] focus:outline-none focus:border-[#4F8EF7] transition-colors"
+                      />
+                      {isConnected ? (
+                        <button 
+                          onClick={() => {
+                            const copy = { ...connectedCredentials };
+                            delete copy[integration.id];
+                            setConnectedCredentials(copy);
+                            setTempKeys({ ...tempKeys, [integration.id]: "" });
+                          }}
+                          className="px-3 py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-[10px] font-bold border border-rose-500/20 transition-all shrink-0"
+                        >
+                          Bağlantıyı Kes
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => {
+                            if(!keyVal) return alert("Lütfen geçerli bir anahtar girin.");
+                            setConnectedCredentials({ ...connectedCredentials, [integration.id]: keyVal });
+                            alert(`${integration.name} bağlantısı başarıyla kuruldu!`);
+                          }}
+                          className="px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-[#10B981] text-[10px] font-bold border border-emerald-500/20 transition-all shrink-0"
+                        >
+                          Bağla
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}
