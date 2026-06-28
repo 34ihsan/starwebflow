@@ -484,32 +484,36 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           @page { 
             size: A4; 
-            margin: 10mm 10mm 15mm 10mm; /* Adjusted margins for optimal height fit */
+            margin: 15mm 15mm 20mm 15mm; 
           }
           @media print {
             .no-print { display: none !important; }
             body { 
               background-color: #ffffff; 
-              font-size: 12px; /* Uniform font scaling down on print */
+              font-size: 12px; 
             }
             .invoice-page {
               width: 100%;
-              height: 100%;
-              min-height: 297mm;
+              height: auto !important;
+              min-height: 0 !important;
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
               border-radius: 0 !important;
               box-shadow: none !important;
+              display: block !important;
             }
             .page-content {
-              padding: 0px 0 0px 0 !important; /* Extremely tight padding to fit 100% height */
+              padding: 0 !important;
+              display: block !important;
             }
             .header {
               margin-bottom: 25px !important;
+              page-break-inside: avoid;
             }
             .client-section {
               margin-bottom: 25px !important;
+              page-break-inside: avoid;
             }
             .items-table-container {
               margin-bottom: 20px !important;
@@ -517,19 +521,33 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             .items-table td {
               padding: 10px 0 !important; 
             }
+            .totals-section {
+              page-break-inside: avoid;
+            }
+            .klein-box {
+              page-break-inside: avoid;
+            }
             .notes-box {
               margin-bottom: 20px !important;
+              page-break-inside: avoid;
             }
             .footer {
-              padding: 15px 0 0 0 !important;
+              padding-top: 15px !important;
               border-top: 1px solid #e5e7eb !important;
               background-color: transparent !important;
-              position: absolute;
-              bottom: 0px;
-              left: 0;
-              right: 0;
+              position: fixed !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              height: 100px;
+              page-break-inside: avoid;
+            }
+            /* Add bottom margin to avoid text printing over fixed footer */
+            .page-content {
+              margin-bottom: 120px !important;
             }
           }
+
         </style>
       </head>
       <body>
