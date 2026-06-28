@@ -44,7 +44,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     bank: 'Bank:',
     notes: 'Bemerkungen:',
     saveBtn: 'Rechnung drucken / PDF speichern',
-    closeBtn: 'Schließen'
+    closeBtn: 'Schließen',
+    billedTo: 'Rechnungsempfänger'
   } : {
     title: 'Fatura',
     invoiceNo: 'Fatura No:',
@@ -64,7 +65,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     bank: 'Banka:',
     notes: 'Notlar:',
     saveBtn: 'PDF Olarak Kaydet / Yazdır',
-    closeBtn: 'Kapat'
+    closeBtn: 'Kapat',
+    billedTo: 'Fatura Edilen'
   };
 
   const itemsHtml = invoice.items.map((item: any) => `
@@ -732,7 +734,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
             <!-- Client Info Address Card -->
             <div class="client-section">
-              <div class="client-title">Fatura Edilen</div>
+              <div class="client-title">${labels.billedTo}</div>
               <div class="client-card">
                 <div class="client-details">
                   <h3 class="client-name">${client.name || 'Müşteri'}</h3>
