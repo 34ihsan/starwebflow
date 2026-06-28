@@ -483,23 +483,47 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             font-weight: 600;
           }
 
-          /* Print Overrides */
+          @page { 
+            size: A4; 
+            margin: 15mm 15mm 15mm 15mm; 
+          }
           @media print {
             .no-print { display: none !important; }
-            body { background-color: #ffffff; }
+            body { 
+              background-color: #ffffff; 
+              font-size: 13px; /* Slightly adjust print font size to save vertical space */
+            }
             .invoice-page {
               width: 100%;
               min-height: 100%;
-              margin: 0;
-              border: none;
-              border-radius: 0;
-              box-shadow: none;
+              margin: 0 !important;
+              padding: 0 !important;
+              border: none !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
             }
             .page-content {
-              padding: 40px 50px;
+              padding: 10px 0 20px 0 !important; /* Compact padding for printing scale */
+            }
+            .header {
+              margin-bottom: 30px !important;
+            }
+            .client-section {
+              margin-bottom: 30px !important;
+            }
+            .items-table-container {
+              margin-bottom: 25px !important;
+            }
+            .items-table td {
+              padding: 12px 0 !important; /* Tighter padding on print */
             }
             .footer {
-              padding: 30px 50px;
+              padding: 20px 0 !important;
+              position: fixed;
+              bottom: 0;
+              left: 0;
+              right: 0;
+              background-color: transparent !important;
             }
           }
         </style>
