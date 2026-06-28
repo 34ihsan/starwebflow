@@ -11,6 +11,7 @@ import {
 import { createInvoice, deleteInvoice } from "@/app/actions/invoice";
 import { sendInvoiceToClient } from "@/app/actions/dispatch";
 import { createClientCompany } from "@/app/actions/clientCompany";
+import { updateTenantSettings } from "@/app/actions/settings";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CURRENCIES, formatCurrency } from "@/lib/utils";
 import InvoicePreview from "@/components/invoices/InvoicePreview";
@@ -230,7 +231,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 };
 
 
-export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, tenantSettings }: { initialInvoices: any[], projects: any[], clientCompanies: any[], tenantSettings: any }) {
+export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], tenantSettings: any, tenantId: string }) {
   const [activeTab, setActiveTab] = useState<"all" | "paid" | "pending" | "overdue">("all");
   const [invoices, setInvoices] = useState<any[]>(initialInvoices);
   const [companies, setCompanies] = useState<any[]>(clientCompanies);
@@ -240,6 +241,10 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [printLang, setPrintLang] = useState<'tr' | 'de'>('tr');
   const [searchQuery, setSearchQuery] = useState("");
   const [sending, setSending] = useState(false);
+
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [localSettings, setLocalSettings] = useState(tenantSettings);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const [invoiceData, setInvoiceData] = useState({
     projectId: "",
@@ -302,7 +307,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     
     setLoading(true);
     try {
-      const res = await deleteInvoice(id, 'default-tenant');
+      const res = await deleteInvoice(id, tenantId);
       if (res.success) {
         setInvoices(invoices.filter(i => i.id !== id));
         alert("Fatura başarıyla silindi.");
@@ -329,7 +334,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           return;
         }
         const clientRes = await createClientCompany({
-          tenantId: 'default-tenant',
+          tenantId: tenantId,
           ...newClientData
         });
         if (clientRes.success && clientRes.data) {
@@ -356,7 +361,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       }));
 
       const res = await createInvoice({
-        tenantId: 'default-tenant',
+        tenantId: tenantId,
         projectId: invoiceData.projectId || undefined,
         clientCompanyId: finalClientId,
         netAmount,
@@ -459,7 +464,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     if (!viewInvoice) return;
     setSending(true);
     try {
-      const res = await sendInvoiceToClient(viewInvoice.id, 'default-tenant');
+      const res = await sendInvoiceToClient(viewInvoice.id, tenantId);
       if (res.success) {
         alert(`Fatura müşteriye başarıyla iletildi! (${res.method === 'portal' ? 'Müşteri Paneli + E-posta Bildirimi' : 'Doğrudan Detaylı E-posta'})`);
       } else {
@@ -470,6 +475,28 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       alert('Fatura iletilemedi.');
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const res = await updateTenantSettings(tenantId, {
+        preferences: {
+          invoiceSettings: localSettings
+        }
+      });
+      if (res.success) {
+        alert('Fatura ayarları başarıyla kaydedildi.');
+        setIsSettingsModalOpen(false);
+      } else {
+        alert(res.error || 'Ayarlar kaydedilemedi.');
+      }
+    } catch (error) {
+      console.error('Settings save error', error);
+      alert('Bir hata oluştu.');
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -581,6 +608,13 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
             />
           </div>
+          <button 
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all border border-white/10"
+          >
+            <Settings className="w-4 h-4" />
+            Ayarlar
+          </button>
           <button 
             onClick={() => setIsAddInvoiceModalOpen(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]"
@@ -884,6 +918,94 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                 <button onClick={() => setIsAddInvoiceModalOpen(false)} className="px-5 py-2.5 rounded-xl text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">İptal</button>
                 <button onClick={handleSaveInvoice} disabled={loading} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity text-sm font-medium disabled:opacity-50">
                   {loading ? 'Oluşturuluyor...' : 'Faturayı Oluştur'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {isSettingsModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0A0A0F] border border-white/10 p-6 md:p-8 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Settings className="w-5 h-5 text-[#4F8EF7]" /> 
+                Fatura ve Şirket Ayarları
+              </h2>
+              <button onClick={() => setIsSettingsModalOpen(false)} className="text-[#94A3B8] hover:text-white">
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Şirket Adı</label>
+                  <input type="text" value={localSettings?.name || ''} onChange={(e) => setLocalSettings({...localSettings, name: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Logo URL</label>
+                  <input type="text" value={localSettings?.logo || ''} onChange={(e) => setLocalSettings({...localSettings, logo: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#94A3B8] mb-1">Adres</label>
+                <input type="text" value={localSettings?.address || ''} onChange={(e) => setLocalSettings({...localSettings, address: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Steuernummer (Tax ID)</label>
+                  <input type="text" value={localSettings?.taxId || ''} onChange={(e) => setLocalSettings({...localSettings, taxId: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">USt-IdNr. (VAT ID)</label>
+                  <input type="text" value={localSettings?.vatId || ''} onChange={(e) => setLocalSettings({...localSettings, vatId: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Banka Adı</label>
+                  <input type="text" value={localSettings?.bankName || ''} onChange={(e) => setLocalSettings({...localSettings, bankName: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">IBAN</label>
+                  <input type="text" value={localSettings?.iban || ''} onChange={(e) => setLocalSettings({...localSettings, iban: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">E-posta</label>
+                  <input type="text" value={localSettings?.email || ''} onChange={(e) => setLocalSettings({...localSettings, email: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Telefon</label>
+                  <input type="text" value={localSettings?.phone || ''} onChange={(e) => setLocalSettings({...localSettings, phone: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Web Sitesi</label>
+                  <input type="text" value={localSettings?.website || ''} onChange={(e) => setLocalSettings({...localSettings, website: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-8">
+                <button 
+                  onClick={() => setIsSettingsModalOpen(false)}
+                  className="px-4 py-2 text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
+                >
+                  İptal
+                </button>
+                <button 
+                  onClick={handleSaveSettings}
+                  disabled={savingSettings}
+                  className="px-4 py-2 text-sm text-white bg-[#4F8EF7] hover:bg-[#4F8EF7]/90 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {savingSettings ? 'Kaydediliyor...' : 'Kaydet'}
                 </button>
               </div>
             </div>

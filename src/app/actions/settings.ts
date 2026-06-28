@@ -64,15 +64,25 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
 
     const validatedData = updateSettingsSchema.parse(data);
 
+    const existingSettings = await prisma.tenantSettings.findUnique({
+      where: { tenantId }
+    });
+    
     const settings = await prisma.tenantSettings.update({
       where: { tenantId },
       data: {
         companyName: validatedData.companyName,
         ...(validatedData.apiKeys && { apiKeys: validatedData.apiKeys }),
-        ...(validatedData.preferences && { preferences: validatedData.preferences }),
+        ...(validatedData.preferences && { 
+          preferences: {
+            ...(existingSettings?.preferences as any || {}),
+            ...validatedData.preferences
+          } 
+        }),
       }
     });
     revalidatePath('/admin/settings');
+    revalidatePath('/admin/invoices');
     return { success: true, data: settings };
   } catch (error) {
     console.error('updateTenantSettings error:', error);
