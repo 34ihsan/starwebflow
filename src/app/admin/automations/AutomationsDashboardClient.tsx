@@ -960,31 +960,46 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
               <div className="flex items-center justify-between pt-4 border-t border-white/[0.05]">
                 <span className="text-xs text-[#64748B] flex items-center gap-1"><Zap className="w-3 h-3" /> {(t as any).uses || Math.floor(Math.random() * 500) + 100} kez kullanıldı</span>
                 <button 
-                  onClick={() => {
+                  onClick={async () => {
+                    const templateNodes = (t as any).nodes?.map((n: any, idx: number) => {
+                      const style = appConfigs[n.app || n.type] || appConfigs["Custom"];
+                      return {
+                        id: `n${idx + 1}`,
+                        type: n.type || (idx === 0 ? "trigger" : "action"),
+                        app: n.app || n.type || "Custom",
+                        label: n.label || n.config?.title || n.config?.contractTitle || n.config?.projectName || style?.defaultLabel || "Adım",
+                        icon: n.app || n.type || "Zap",
+                        color: style?.color || "text-[#10B981]",
+                        bg: style?.bg || "bg-[#10B981]/10",
+                        config: n.config || {
+                          description: `${n.label || "İşlem"} başarıyla yürütülür.`,
+                          subject: "Otomatik Akış Bildirimi",
+                          channel: "#general"
+                        }
+                      };
+                    }) || [];
+
                     const newFlowObj = {
-                      id: `template-${Date.now()}`,
+                      tenantId: 'default-tenant',
                       name: t.name,
-                      description: t.description || (t as any).desc,
+                      description: t.description,
                       status: "PAUSED",
-                      runs: 0,
-                      successRate: 0,
-                      nodes: (t as any).nodes?.map((n: any, idx: number) => {
-                        const style = appConfigs[n.type] || appConfigs["Custom"];
-                        return {
-                          id: `n${idx + 1}`,
-                          type: idx === 0 ? "trigger" : "action",
-                          app: n.type || "Custom",
-                          label: n.config?.title || n.config?.contractTitle || n.config?.projectName || style?.defaultLabel || n.label || "Adım",
-                          icon: n.type || "Zap", // Use app name string instead of React Icon function
-                          color: style?.color || "text-[#10B981]",
-                          bg: style?.bg || "bg-[#10B981]/10",
-                          config: n.config || {}
-                        };
-                      }) || []
+                      nodes: templateNodes
                     };
-                    setFlows(prev => [newFlowObj, ...prev]);
-                    setActiveTab("flows");
-                    alert("Şablon başarıyla eklendi! Şimdi düzenleyebilirsiniz.");
+
+                    try {
+                      const response = await createAutomationFlow(newFlowObj);
+                      if (response.success && response.data) {
+                        setFlows(prev => [response.data, ...prev]);
+                        setActiveTab("flows");
+                        alert(`"${t.name}" şablonu başarıyla veritabanına kaydedildi ve aktif akışlarınıza eklendi! Şimdi düzenleyip aktif hale getirebilirsiniz.`);
+                      } else {
+                        alert("Şablon veritabanına kaydedilirken bir hata oluştu.");
+                      }
+                    } catch (err) {
+                      console.error("Failed to create flow from template:", err);
+                      alert("Şablon oluşturulurken bir hata oluştu.");
+                    }
                   }}
                   className="text-sm font-semibold text-white bg-white/[0.05] hover:bg-white/[0.1] px-4 py-2 rounded-lg transition-colors"
                 >
