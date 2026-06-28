@@ -163,15 +163,12 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             background-color: #f9fafb;
           }
 
-          /* A4 Container Page Styling */
+          /* A4 Container Page Styling - Clean Flat Layout for 1:1 Screen/Print Match */
           .invoice-page {
             background-color: #ffffff;
             width: 210mm;
             min-height: 297mm;
-            margin: 2rem auto;
-            border-radius: 16px;
-            border: 1px solid rgba(229, 231, 235, 0.5);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin: 0 auto;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -503,6 +500,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             margin-top: 6px;
             color: #b45309;
             font-weight: 600;
+          }
           @page { 
             size: A4; 
             margin: 0; /* Let body padding manage printable margins */
