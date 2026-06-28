@@ -503,42 +503,40 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           @page { 
             size: A4; 
-            margin: 0; /* Clear native print margins to get absolute control */
+            margin: 15mm 15mm 20mm 15mm; 
           }
           @media print {
             .no-print { display: none !important; }
             html, body {
-              height: 297mm !important;
-              overflow: hidden !important;
+              height: auto !important;
+              overflow: visible !important;
               background-color: #ffffff;
             }
             body { 
               font-size: 9.5px;
-              padding: 10mm 15mm !important; /* Managed padding inside the printable page */
+              padding: 0 !important; 
               margin: 0 !important;
               box-sizing: border-box;
             }
             .invoice-page {
               width: 100% !important;
-              height: 100% !important;
-              max-height: 277mm !important; /* Dynamically lock height to prevent page 2 pushes */
+              height: auto !important;
+              min-height: 0 !important;
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
               border-radius: 0 !important;
               box-shadow: none !important;
-              display: flex !important;
-              flex-direction: column !important;
+              display: block !important;
               position: relative !important;
             }
             .page-content {
               padding: 0 !important;
-              display: flex !important;
-              flex-direction: column !important;
-              flex-grow: 1 !important;
+              display: block !important;
             }
             .header {
-              margin-bottom: 12px !important;
+              margin-bottom: 15px !important;
+              page-break-inside: avoid;
             }
             .invoice-title {
               font-size: 20px !important;
@@ -638,12 +636,13 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               padding: 10px 0 0 0 !important;
               border-top: 1px solid #e5e7eb !important;
               background-color: transparent !important;
-              position: absolute !important;
+              position: fixed !important;
               bottom: 0px !important;
               left: 0 !important;
               right: 0 !important;
               height: 45px !important;
               display: flex !important;
+              page-break-inside: avoid;
             }
             .footer-col {
               font-size: 7.5px !important;
@@ -652,6 +651,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             .footer-col-title {
               font-size: 7.5px !important;
               margin-bottom: 4px !important;
+            }
+            .invoice-page {
+              padding-bottom: 60px !important;
             }
           }
         </style>
