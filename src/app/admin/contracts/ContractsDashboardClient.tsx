@@ -409,6 +409,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
       const res = await generateLastenheftFromChoices({
         serviceType: wizardData.serviceType,
         clientName: wizardData.clientName,
+        clientEmail: wizardData.clientEmail,
         title: wizardData.title,
         budget: wizardData.budget,
         currency: wizardData.currency,

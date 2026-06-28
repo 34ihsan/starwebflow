@@ -248,7 +248,8 @@ export async function generatePflichtenheftFromLastenheft(lastenheftContent: str
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) dökümanını incele.
 Bu dökümandaki her bir iş ihtiyacını, teknik hedefleri ve müşteri taleplerini analiz ederek; bunların "Hangi teknolojilerle, nasıl, ne şekilde ve hangi mimari araçlarla" çözüleceğini açıklayan detaylı, profesyonel ve premium bir "PFLICHTENHEFT" (Teknik Uygulama Şartnamesi) dökümanına dönüştür.
 
-Gereksinimleri "Wie & Womit" (Nasıl & Ne ile?) prensibine göre teknik detaylarıyla (Next.js, Tailwind, PostgreSQL, API mimarisi, Güvenlik filtreleri vb.) eşleştir ve planla.
+KRİTİK UYARI: Bu doküman bir yasal sözleşme değildir! Kesinlikle hukuki sözleşme maddeleri (Madde 1: Taraflar, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. Sadece teknik uygulama planı olmalıdır.
+Gereksinimleri "Wie & Womit" (Nasıl & Ne ile?) prensibine göre teknik detaylarıyla (Next.js, Tailwind, PostgreSQL, API mimarisi, Güvenlik filtreleri, sunucu mimarisi vb.) eşleştir ve planla.
 
 Lastenheft Dökümanı:
 ${lastenheftContent}
@@ -265,6 +266,7 @@ Dönüştürülecek Pflichtenheft dökümanını Türkçe ve Markdown formatınd
 export async function generateLastenheftFromChoices(data: {
   serviceType: string;
   clientName: string;
+  clientEmail?: string;
   title: string;
   budget: string;
   currency: string;
@@ -285,17 +287,23 @@ export async function generateLastenheftFromChoices(data: {
       model: getProModel(),
       prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
 Aşağıda seçilen hizmet türü, müşteri tercihleri ve girilen bilgilere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
-Bu doküman "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden istediğini net bir şekilde açıklamalıdır. Şirket ve iletişim bilgileri ile yasal sınırları da içermelidir.
 
-Müşteri/Firma Adı: ${data.clientName}
-Proje Başlığı: ${data.title}
-Hizmet Türü: ${serviceName}
-Bütçe/Tutar: ${data.budget ? `${data.budget} ${data.currency}` : 'Belirtilmedi'}
+KRİTİK UYARI: Bu doküman bir yasal sözleşme değildir! Kesinlikle yasal sözleşme maddeleri (Madde 1: Taraflar, Cezai Şartlar, Ödeme Şartları, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. 
+Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden/niçin istediğini açıklayan iş gereksinimleri şartnamesi olmalıdır.
 
-Müşterinin Seçtiği Gereksinimler/Hedefler:
+Müşteri/Firma Bilgileri:
+- Müşteri Adı: ${data.clientName}
+- İletişim E-Postası: ${data.clientEmail || 'Belirtilmedi'}
+
+Proje Detayları:
+- Proje Başlığı: ${data.title}
+- Hizmet Türü: ${serviceName}
+- Hedeflenen Bütçe: ${data.budget ? `${data.budget} ${data.currency}` : 'Belirtilmedi'}
+
+Müşterinin Seçtiği İhtiyaçlar ve İşlevler (Ne?):
 ${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
 
-Ek Müşteri Notları:
+Müşterinin Hedefleri ve Notları (Niçin?):
 ${data.customNotes || 'Belirtilmedi'}
 
 Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı bir Lastenheft dokümanı oluştur. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
@@ -320,7 +328,9 @@ export async function generateOfficialContract(data: {
     const { text } = await generateText({
       model: getProModel(),
       prompt: `Sen uzman bir B2B teknoloji avukatı ve sözleşme danışmanısın.
-Aşağıda verilen "Lastenheft" (Müşteri Talepleri) ve "Pflichtenheft" (Teknik Şartname) dokümanlarını esas alarak, StarWebFlow şirketimizin çıkarlarını azami düzeyde koruyan (Pro/Elit seviye), hukuki geçerliliği olan resmi bir B2B Hizmet Sözleşmesi (Master Service Agreement) oluştur.
+Aşağıda verilen "Lastenheft" (Müşteri Talepleri - Ne ve Niçin) ve "Pflichtenheft" (Teknik Şartname - Nasıl ve Ne İle) dokümanlarını esas alarak, StarWebFlow şirketimizin çıkarlarını azami düzeyde koruyan (Pro/Elit seviye), hukuki geçerliliği olan resmi bir B2B Hizmet Sözleşmesi (Master Service Agreement) oluştur.
+
+Bu doküman nihai yasal sözleşmedir. Önceki adımlarda hazırlanan Lastenheft ve Pflichtenheft şartlarını yasal maddelere entegre etmeli veya ek olarak referans vermelidir.
 
 Sözleşme Koşulları & Koruma Maddeleri (Kritik):
 1. StarWebFlow lehine korumacı bir dil kullan.
