@@ -1136,6 +1136,93 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       "SendGrid vb. kullanıyorsanız, Settings -> API Keys sekmesinden 'Full Access' iznine sahip bir API key oluşturarak kopyalayın."
                     ]
                   }
+                },
+                {
+                  id: "openai",
+                  name: "OpenAI / Gemini API",
+                  app: "Star AI",
+                  icon: Activity,
+                  color: "text-[#8B5CF6]",
+                  status: "CONNECTED",
+                  guide: {
+                    title: "OpenAI & Gemini API Key Alımı",
+                    steps: [
+                      "OpenAI için platform.openai.com/api-keys adresine gidin. Google AI Studio için aistudio.google.com adresine gidin.",
+                      "Giriş yaptıktan sonra 'Create new secret key' (Yeni gizli anahtar oluştur) butonuna tıklayın.",
+                      "Oluşan 'sk-...' (OpenAI) veya 'AIzaSy...' (Gemini) anahtarını kopyalayın.",
+                      "StarWebflow AI node'larının zeka kararlarını beslemesi için kopyaladığınız anahtarı buraya kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "google_sheets",
+                  name: "Google Sheets & Drive API",
+                  app: "Google Sheets",
+                  icon: FileText,
+                  color: "text-[#0F9D58]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "Google Cloud Console Credentials Alımı",
+                    steps: [
+                      "Google Cloud Console (console.cloud.google.com) paneline giriş yapın ve bir proje oluşturun.",
+                      "API Library sekmesinden 'Google Sheets API' ve 'Google Drive API' servislerini aktifleştirin.",
+                      "Credentials -> Create Credentials -> OAuth Client ID adımlarını takip edin.",
+                      "Uygulama tipi olarak 'Web Application' seçin ve yetkilendirilmiş yönlendirme URI kısmına StarWebflow panel geri dönüş adresini girin.",
+                      "Oluşan Client ID ve Client Secret bilgilerini kopyalayıp buraya ekleyin."
+                    ]
+                  }
+                },
+                {
+                  id: "hubspot",
+                  name: "HubSpot CRM",
+                  app: "HubSpot",
+                  icon: Settings,
+                  color: "text-[#FF7A59]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "HubSpot Private App Access Token Alımı",
+                    steps: [
+                      "HubSpot Developer veya Admin panelinizde sağ üstteki ayarlar (dişli) ikonuna tıklayın.",
+                      "Sol menüden Integrations -> Private Apps sekmesine gelin.",
+                      "Create a private app butonuna basın.",
+                      "Scope kısmından 'crm.objects.contacts.read/write', 'crm.objects.deals.read/write' izinlerini verin.",
+                      "Oluşturulan Access Token anahtarını kopyalayın ve buradaki API Anahtarı alanına girin."
+                    ]
+                  }
+                },
+                {
+                  id: "shopify",
+                  name: "Shopify E-Commerce",
+                  app: "Shopify",
+                  icon: Link,
+                  color: "text-[#96BF48]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "Shopify Custom App API Credentials Alımı",
+                    steps: [
+                      "Shopify Admin panelinize girin ve Apps -> App and sales channel settings sayfasına gidin.",
+                      "Develop apps for your store butonuna, ardından Create an app seçeneğine tıklayın.",
+                      "Configure Admin API Scopes menüsünden 'write_products', 'write_orders', 'read_customers' yetkilerini tanımlayın.",
+                      "Install App butonuna basarak, 'Admin API access token' (shpat_...) anahtarını bir kez görüntüleyip kopyalayın."
+                    ]
+                  }
+                },
+                {
+                  id: "trello",
+                  name: "Trello / Jira PM",
+                  app: "Trello",
+                  icon: Globe,
+                  color: "text-[#0079BF]",
+                  status: "NOT_CONNECTED",
+                  guide: {
+                    title: "Trello Developer API Key & Token Alımı",
+                    steps: [
+                      "trello.com/app-key adresine gidin ve Trello geliştirici koşullarını onaylayın.",
+                      "Size sunulan 32 haneli 'Developer API Key' değerini kopyalayın.",
+                      "Hemen altındaki 'Token' bağlantısına tıklayarak uygulamanızın hesabınıza erişimini onaylayın.",
+                      "Karşınıza çıkan kalıcı Token değerini kopyalayıp Trello bağlantı alanı için buraya yapıştırın."
+                    ]
+                  }
                 }
               ].map(integration => {
                 const Icon = integration.icon;
