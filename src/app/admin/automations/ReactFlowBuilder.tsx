@@ -22,17 +22,69 @@ const nodeStyle = "rounded-xl border border-white/10 shadow-xl bg-[#0A0A0F] p-4 
 
 // --- Custom Nodes ---
 
+// Helper function to resolve dynamic summaries for node config parameters
+const resolveNodeSummary = (data: any) => {
+  const raw = data.rawData || {};
+  const config = raw.config || {};
+  const appName = (raw.app || data.label || "").toLowerCase();
+
+  // If a custom description is explicitly provided
+  if (config.description) return config.description;
+
+  if (appName.includes("email") || appName.includes("posta")) {
+    return config.subject ? `E-posta: "${config.subject}"` : "Kullanıcıya bildirim e-postası gönderilir.";
+  }
+  if (appName.includes("slack")) {
+    return config.channel ? `Slack: ${config.channel}` : "Slack kanalına bildirim iletilir.";
+  }
+  if (appName.includes("whatsapp")) {
+    return "Müşteriye WhatsApp şablon mesajı gönderilir.";
+  }
+  if (appName.includes("crm") || appName.includes("database")) {
+    const actionMap: Record<string, string> = {
+      create_project: "Proje Oluştur",
+      create_task: "Görev Oluştur",
+      update_lead: "Lead Güncelle",
+      create_contract: "Sözleşme Hazırla"
+    };
+    return `CRM: ${actionMap[config.action] || "Veritabanı kaydı güncellenir."}`;
+  }
+  if (appName.includes("ai")) {
+    return config.prompt ? `AI Görevi: "${config.prompt.substring(0, 30)}..."` : "Yapay Zeka otonom işlem gerçekleştirir.";
+  }
+  if (appName.includes("delay")) {
+    return config.hours ? `Bekleme: ${config.hours} Saat` : "24 Saat bekleme uygulanır.";
+  }
+  if (appName.includes("webhook")) {
+    return "Harici API tetikleyicisi dinlenir.";
+  }
+  if (appName.includes("cron")) {
+    return "Zamanlanmış periyodik tetikleyici.";
+  }
+  if (appName.includes("typeform")) {
+    return "Yeni bir form yanıtı tetikleyici.";
+  }
+
+  return "Otomasyon sistemi özel akış adımı.";
+};
+
 // 1. Trigger Node
 const TriggerNode = ({ data }: any) => {
+  const summary = resolveNodeSummary(data);
   return (
     <div className={nodeStyle}>
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#4F8EF7]/10 text-[#4F8EF7]">
-          {data.icon === 'Mail' ? <Mail className="w-5 h-5"/> : <Zap className="w-5 h-5" />}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#4F8EF7]/10 text-[#4F8EF7] shrink-0">
+            {data.icon === 'Mail' ? <Mail className="w-5 h-5"/> : <Zap className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-[#64748B]">Tetikleyici (Trigger)</div>
+            <div className="text-sm font-semibold text-white">{data.label}</div>
+          </div>
         </div>
-        <div>
-          <div className="text-[10px] uppercase font-bold text-[#64748B]">Tetikleyici (Trigger)</div>
-          <div className="text-sm font-semibold text-white">{data.label}</div>
+        <div className="text-[10px] text-[#94A3B8] border-t border-white/5 pt-2 leading-relaxed italic">
+          {summary}
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-[#4F8EF7] border-2 border-[#0A0A0F]" />
@@ -42,18 +94,24 @@ const TriggerNode = ({ data }: any) => {
 
 // 2. Action Node
 const ActionNode = ({ data }: any) => {
+  const summary = resolveNodeSummary(data);
   return (
     <div className={nodeStyle}>
       <Handle type="target" position={Position.Top} className="w-3 h-3 bg-[#10B981] border-2 border-[#0A0A0F]" />
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#10B981]/10 text-[#10B981]">
-          {data.icon === 'Mail' ? <Mail className="w-5 h-5"/> : 
-           data.icon === 'Database' ? <Database className="w-5 h-5"/> : 
-           <Zap className="w-5 h-5" />}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#10B981]/10 text-[#10B981] shrink-0">
+            {data.icon === 'Mail' ? <Mail className="w-5 h-5"/> : 
+             data.icon === 'Database' ? <Database className="w-5 h-5"/> : 
+             <Zap className="w-5 h-5" />}
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-[#64748B]">Aksiyon (Action)</div>
+            <div className="text-sm font-semibold text-white">{data.label}</div>
+          </div>
         </div>
-        <div>
-          <div className="text-[10px] uppercase font-bold text-[#64748B]">Aksiyon (Action)</div>
-          <div className="text-sm font-semibold text-white">{data.label}</div>
+        <div className="text-[10px] text-[#94A3B8] border-t border-white/5 pt-2 leading-relaxed italic">
+          {summary}
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-[#10B981] border-2 border-[#0A0A0F]" />
@@ -63,16 +121,22 @@ const ActionNode = ({ data }: any) => {
 
 // 3. Approval Node
 const ApprovalNode = ({ data }: any) => {
+  const summary = resolveNodeSummary(data);
   return (
     <div className={`${nodeStyle} border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)]`}>
       <Handle type="target" position={Position.Top} className="w-3 h-3 bg-amber-500 border-2 border-[#0A0A0F]" />
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-500">
-          <Activity className="w-5 h-5" />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-500/10 text-amber-500 shrink-0">
+            <Activity className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-amber-500">Admin Onayı (Gate)</div>
+            <div className="text-sm font-semibold text-white">{data.label}</div>
+          </div>
         </div>
-        <div>
-          <div className="text-[10px] uppercase font-bold text-amber-500">Admin Onayı (Gate)</div>
-          <div className="text-sm font-semibold text-white">{data.label}</div>
+        <div className="text-[10px] text-[#94A3B8] border-t border-white/5 pt-2 leading-relaxed italic">
+          {summary}
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} className="w-3 h-3 bg-amber-500 border-2 border-[#0A0A0F]" />
@@ -276,6 +340,16 @@ export default function ReactFlowBuilder({ initialFlow, onSave, onCancel, onTest
                         <option value="Admin Approval">Admin Approval (Onay)</option>
                         <option value="Custom">Custom (Özel)</option>
                       </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-[#94A3B8] uppercase">Adım Açıklaması</label>
+                      <textarea
+                        value={config.description || ""}
+                        onChange={(e) => updateConfig("description", e.target.value)}
+                        className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#4F8EF7] min-h-[60px]"
+                        placeholder="Bu adımın ne yaptığını kısaca yazın (örn: Müşteriye hoşgeldin mesajı atar)."
+                      />
                     </div>
                   </div>
 
