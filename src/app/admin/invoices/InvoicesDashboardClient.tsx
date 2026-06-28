@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { 
-  FileText, Search, Plus, Filter, 
-  CheckCircle2, Clock, AlertTriangle, Eye,
-  Download, MoreVertical, CreditCard, Send, Settings, LineChart as LineChartIcon,
-  Trash2
+  FileText, Search, Plus,
+  CheckCircle2, Clock, Eye,
+  Download, CreditCard, Send, Settings,
+  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus
 } from "lucide-react";
 
 import { createInvoice, deleteInvoice, updateInvoice } from "@/app/actions/invoice";
 import { sendInvoiceToClient } from "@/app/actions/dispatch";
-import { createClientCompany } from "@/app/actions/clientCompany";
+import { createClientCompany, updateClientCompany, deleteClientCompany } from "@/app/actions/clientCompany";
 import { updateTenantSettings } from "@/app/actions/settings";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { CURRENCIES, formatCurrency } from "@/lib/utils";
@@ -259,7 +259,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 };
 
 
-export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], tenantSettings: any, tenantId: string }) {
+export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, crmLeads = [], tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], crmLeads?: any[], tenantSettings: any, tenantId: string }) {
+  const [activeMainTab, setActiveMainTab] = useState<"invoices" | "clients">("invoices");
   const [activeTab, setActiveTab] = useState<"all" | "paid" | "pending" | "overdue">("all");
   const [invoices, setInvoices] = useState<any[]>(initialInvoices);
   const [companies, setCompanies] = useState<any[]>(clientCompanies);
@@ -269,11 +270,18 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [viewInvoice, setViewInvoice] = useState<any | null>(null);
   const [printLang, setPrintLang] = useState<'tr' | 'de'>('tr');
   const [searchQuery, setSearchQuery] = useState("");
+  const [clientSearch, setClientSearch] = useState("");
   const [sending, setSending] = useState(false);
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [localSettings, setLocalSettings] = useState(tenantSettings);
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Client management state
+  const [editingClient, setEditingClient] = useState<any | null>(null);
+  const [isAddClientModalOpen, setIsAddClientModalOpen] = useState(false);
+  const [clientFormData, setClientFormData] = useState({ name: "", email: "", phone: "", addressStreet: "", addressCity: "", addressZip: "", addressCountry: "Germany", taxId: "", vatId: "", contactPerson: "" });
+  const [savingClient, setSavingClient] = useState(false);
 
   const [invoiceData, setInvoiceData] = useState({
     projectId: "",
@@ -519,7 +527,74 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     }
   };
 
+  // Client management handlers
+  const handleOpenAddClient = () => {
+    setEditingClient(null);
+    setClientFormData({ name: "", email: "", phone: "", addressStreet: "", addressCity: "", addressZip: "", addressCountry: "Germany", taxId: "", vatId: "", contactPerson: "" });
+    setIsAddClientModalOpen(true);
+  };
+
+  const handleOpenEditClient = (client: any) => {
+    setEditingClient(client);
+    setClientFormData({
+      name: client.name || "", email: client.email || "", phone: client.phone || "",
+      addressStreet: client.addressStreet || "", addressCity: client.addressCity || "",
+      addressZip: client.addressZip || "", addressCountry: client.addressCountry || "Germany",
+      taxId: client.taxId || "", vatId: client.vatId || "", contactPerson: client.contactPerson || ""
+    });
+    setIsAddClientModalOpen(true);
+  };
+
+  const handleImportFromCRM = (lead: any) => {
+    setEditingClient(null);
+    setClientFormData({
+      name: lead.companyName || lead.name || "", email: lead.email || "", phone: lead.phone || "",
+      addressStreet: lead.addressStreet || lead.address || "", addressCity: lead.city || "",
+      addressZip: lead.zip || "", addressCountry: lead.country || "Germany",
+      taxId: "", vatId: "", contactPerson: lead.name || ""
+    });
+    setIsAddClientModalOpen(true);
+  };
+
+  const handleSaveClient = async () => {
+    if (!clientFormData.name) { alert("Müşteri adı zorunludur."); return; }
+    setSavingClient(true);
+    try {
+      if (editingClient) {
+        const res = await updateClientCompany(editingClient.id, tenantId, clientFormData);
+        if (res.success && res.data) {
+          setCompanies(companies.map(c => c.id === editingClient.id ? { ...c, ...res.data } : c));
+          setIsAddClientModalOpen(false);
+        } else { alert(res.error || "Güncellenemedi."); }
+      } else {
+        const res = await createClientCompany({ tenantId, ...clientFormData });
+        if (res.success && res.data) {
+          setCompanies([...companies, res.data]);
+          setIsAddClientModalOpen(false);
+        } else { alert(res.error || "Oluşturulamadı."); }
+      }
+    } catch (e) { alert("Bir hata oluştu."); }
+    finally { setSavingClient(false); }
+  };
+
+  const handleDeleteClient = async (id: string) => {
+    if (!confirm("Bu müşteriyi silmek istediğinize emin misiniz?")) return;
+    const res = await deleteClientCompany(id, tenantId);
+    if (res.success) { setCompanies(companies.filter(c => c.id !== id)); }
+    else { alert(res.error || "Silinemedi."); }
+  };
+
+  const filteredCompanies = companies.filter(c =>
+    c.name?.toLowerCase().includes(clientSearch.toLowerCase()) ||
+    c.email?.toLowerCase().includes(clientSearch.toLowerCase())
+  );
+
+  const crmLeadsNotInCompanies = crmLeads.filter((lead: any) =>
+    !companies.some(c => c.email && c.email === lead.email)
+  );
+
   // Settings are now managed in /admin/settings. The local handleSaveSettings has been removed.
+
 
   const renderViewInvoice = () => {
     if (!viewInvoice) return null;
@@ -637,28 +712,71 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               Faturalar & Tahsilatlar
             </span>
           </h1>
-          <p className="text-[#94A3B8] mt-2">Finanzamt uyumlu faturalandırma ve tahsilat yönetimi.</p>
+          <p className="text-[#94A3B8] mt-2">Finanzamt uyumlu faturalandırma, müşteri ve tahsilat yönetimi.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
-            <input 
-              type="text" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Fatura no veya firma ara..." 
-              className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
-            />
-          </div>
+        <div className="flex items-center gap-3">
+          {activeMainTab === 'invoices' ? (
+            <>
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+                <input
+                  type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Fatura no veya firma ara..."
+                  className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
+                />
+              </div>
+              <button onClick={() => setIsAddInvoiceModalOpen(true)}
+                className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]">
+                <Plus className="w-4 h-4" /> Yeni Fatura Kes
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+                <input
+                  type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)}
+                  placeholder="Müşteri ara..."
+                  className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
+                />
+              </div>
+              <button onClick={handleOpenAddClient}
+                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all">
+                <UserPlus className="w-4 h-4" /> Müşteri Ekle
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
-          <button 
-            onClick={() => setIsAddInvoiceModalOpen(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]"
-          >
-            <Plus className="w-4 h-4" />
-            Yeni Fatura Kes
-          </button>
-        </div>
+      {/* Main Tabs */}
+      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
+        <button
+          onClick={() => setActiveMainTab('invoices')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeMainTab === 'invoices'
+              ? 'bg-gradient-to-r from-[#4F8EF7] to-purple-600 text-white shadow-lg'
+              : 'text-[#94A3B8] hover:text-white'
+          }`}
+        >
+          <FileText className="w-4 h-4" /> Faturalar
+          <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+            activeMainTab === 'invoices' ? 'bg-white/20' : 'bg-white/10 text-[#64748B]'
+          }`}>{invoices.length}</span>
+        </button>
+        <button
+          onClick={() => setActiveMainTab('clients')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeMainTab === 'clients'
+              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg'
+              : 'text-[#94A3B8] hover:text-white'
+          }`}
+        >
+          <Users className="w-4 h-4" /> Müşteriler
+          <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+            activeMainTab === 'clients' ? 'bg-white/20' : 'bg-white/10 text-[#64748B]'
+          }`}>{companies.length}</span>
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -669,19 +787,18 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               <CreditCard className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#94A3B8]">Aylık Ciro</p>
+              <p className="text-sm font-medium text-[#94A3B8]">Toplam Ciro</p>
               <h3 className="text-2xl font-bold text-white">{formatCurrency(monthlyRevenue, "EUR")}</h3>
             </div>
           </div>
         </div>
-        {/* ... (other stats simplified for brevity) ... */}
         <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 flex items-center justify-center border border-[#10B981]/20">
               <CheckCircle2 className="w-6 h-6 text-[#10B981]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-[#94A3B8]">Tahsil Edilen (Aylık)</p>
+              <p className="text-sm font-medium text-[#94A3B8]">Tahsil Edilen</p>
               <h3 className="text-2xl font-bold text-white">{formatCurrency(monthlyRevenue, "EUR")}</h3>
             </div>
           </div>
@@ -697,9 +814,155 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             </div>
           </div>
         </div>
+        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-12 h-12 rounded-xl bg-[#4F8EF7]/10 flex items-center justify-center border border-[#4F8EF7]/20">
+              <Users className="w-6 h-6 text-[#4F8EF7]" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-[#94A3B8]">Toplam Müşteri</p>
+              <h3 className="text-2xl font-bold text-white">{companies.length}</h3>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content (Table) */}
+      {/* ============ CLIENTS TAB ============ */}
+      {activeMainTab === 'clients' && (
+        <div className="space-y-6">
+          {/* CRM Import Banner */}
+          {crmLeadsNotInCompanies.length > 0 && (
+            <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                    <UserPlus className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold text-sm">CRM'den Aktarılabilecek Müşteriler</p>
+                    <p className="text-[#94A3B8] text-xs">{crmLeadsNotInCompanies.length} lead henüz fatura müşterisi değil</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {crmLeadsNotInCompanies.slice(0, 8).map((lead: any) => (
+                  <button
+                    key={lead.id}
+                    onClick={() => handleImportFromCRM(lead)}
+                    className="flex items-center gap-2 bg-white/5 hover:bg-indigo-500/20 border border-white/10 hover:border-indigo-500/40 text-white px-3 py-2 rounded-lg text-xs font-medium transition-all group"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold text-[10px]">
+                      {(lead.companyName || lead.name || '?')[0].toUpperCase()}
+                    </div>
+                    {lead.companyName || lead.name}
+                    <UserPlus className="w-3 h-3 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Client Cards Grid */}
+          {filteredCompanies.length === 0 ? (
+            <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-16 text-center">
+              <Building2 className="w-12 h-12 text-[#64748B] mx-auto mb-4" />
+              <p className="text-white font-semibold mb-2">Henüz müşteri yok</p>
+              <p className="text-[#64748B] text-sm mb-6">Yeni müşteri ekleyin veya CRM'den aktarın</p>
+              <button onClick={handleOpenAddClient} className="bg-gradient-to-r from-[#4F8EF7] to-purple-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium">
+                <UserPlus className="w-4 h-4 inline mr-2" />İlk Müşteriyi Ekle
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCompanies.map((client: any) => {
+                const clientInvoices = invoices.filter(inv => inv.clientCompanyId === client.id);
+                const clientTotal = clientInvoices.reduce((acc: number, inv: any) => acc + Number(inv.grossAmount || 0), 0);
+                const paidCount = clientInvoices.filter((inv: any) => inv.status === 'PAID').length;
+                const initials = client.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
+                return (
+                  <div key={client.id} className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 group hover:border-[#4F8EF7]/30 transition-all">
+                    {/* Client Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#4F8EF7]/30 to-purple-500/30 border border-[#4F8EF7]/20 flex items-center justify-center text-white font-bold text-sm">
+                          {initials}
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold text-sm leading-tight">{client.name}</h3>
+                          {client.contactPerson && <p className="text-[#64748B] text-xs mt-0.5">{client.contactPerson}</p>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleOpenEditClient(client)} className="p-1.5 hover:bg-[#4F8EF7]/10 rounded-lg text-[#64748B] hover:text-[#4F8EF7] transition-colors">
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={() => handleDeleteClient(client.id)} className="p-1.5 hover:bg-red-500/10 rounded-lg text-[#64748B] hover:text-red-400 transition-colors">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="space-y-1.5 mb-4">
+                      {client.email && (
+                        <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                          <Mail className="w-3 h-3 text-[#64748B] flex-shrink-0" />
+                          <span className="truncate">{client.email}</span>
+                        </div>
+                      )}
+                      {client.phone && (
+                        <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                          <Phone className="w-3 h-3 text-[#64748B] flex-shrink-0" />
+                          <span>{client.phone}</span>
+                        </div>
+                      )}
+                      {(client.addressCity || client.addressCountry) && (
+                        <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                          <MapPin className="w-3 h-3 text-[#64748B] flex-shrink-0" />
+                          <span>{[client.addressZip, client.addressCity, client.addressCountry].filter(Boolean).join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Tax Info */}
+                    {(client.vatId || client.taxId) && (
+                      <div className="mb-4 p-2.5 bg-white/[0.03] rounded-lg border border-white/5">
+                        {client.vatId && <p className="text-[10px] text-[#64748B]">USt-IdNr.: <span className="text-white font-mono">{client.vatId}</span></p>}
+                        {client.taxId && <p className="text-[10px] text-[#64748B]">St-Nr.: <span className="text-white font-mono">{client.taxId}</span></p>}
+                      </div>
+                    )}
+
+                    {/* Invoice Stats */}
+                    <div className="flex items-center justify-between pt-3 border-t border-white/[0.05]">
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-white">{clientInvoices.length}</p>
+                        <p className="text-[10px] text-[#64748B] uppercase tracking-wider">Fatura</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-bold text-[#10B981]">{paidCount}</p>
+                        <p className="text-[10px] text-[#64748B] uppercase tracking-wider">Ödendi</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-bold text-[#4F8EF7]">{formatCurrency(clientTotal, 'EUR')}</p>
+                        <p className="text-[10px] text-[#64748B] uppercase tracking-wider">Toplam</p>
+                      </div>
+                      <button
+                        onClick={() => { setActiveMainTab('invoices'); setSearchQuery(client.name); }}
+                        className="text-[10px] text-[#4F8EF7] hover:text-white bg-[#4F8EF7]/10 hover:bg-[#4F8EF7]/20 px-2 py-1 rounded-lg transition-colors font-medium"
+                      >
+                        Faturalar →
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Content (Table) - Only show in invoices tab */}
+      {activeMainTab === 'invoices' && (
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl shadow-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -784,6 +1047,94 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           </table>
         </div>
       </div>
+      )} {/* end invoices tab */}
+
+      {/* CLIENT ADD/EDIT MODAL */}
+      {isAddClientModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-xl w-full shadow-2xl my-auto">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-[#4F8EF7]" />
+                {editingClient ? 'Müşteri Düzenle' : 'Yeni Müşteri Ekle'}
+              </h3>
+              <button onClick={() => setIsAddClientModalOpen(false)} className="text-[#64748B] hover:text-white p-1 rounded-lg hover:bg-white/5">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className="block text-xs text-[#94A3B8] mb-1">Firma / Kişi Adı *</label>
+                  <input type="text" value={clientFormData.name} onChange={e => setClientFormData({...clientFormData, name: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="ABC GmbH" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">E-posta</label>
+                    <input type="email" value={clientFormData.email} onChange={e => setClientFormData({...clientFormData, email: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="info@firma.de" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">Telefon</label>
+                    <input type="text" value={clientFormData.phone} onChange={e => setClientFormData({...clientFormData, phone: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="+49 123..." />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-[#94A3B8] mb-1">Yetkili Kişi</label>
+                  <input type="text" value={clientFormData.contactPerson} onChange={e => setClientFormData({...clientFormData, contactPerson: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="Max Mustermann" />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#94A3B8] mb-1">Adres</label>
+                  <input type="text" value={clientFormData.addressStreet} onChange={e => setClientFormData({...clientFormData, addressStreet: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="Musterstraße 1" />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">PLZ</label>
+                    <input type="text" value={clientFormData.addressZip} onChange={e => setClientFormData({...clientFormData, addressZip: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="67105" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">Şehir</label>
+                    <input type="text" value={clientFormData.addressCity} onChange={e => setClientFormData({...clientFormData, addressCity: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="Mannheim" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">Ülke</label>
+                    <input type="text" value={clientFormData.addressCountry} onChange={e => setClientFormData({...clientFormData, addressCountry: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="Germany" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">Steuernummer</label>
+                    <input type="text" value={clientFormData.taxId} onChange={e => setClientFormData({...clientFormData, taxId: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="123/456/78901" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1">USt-IdNr.</label>
+                    <input type="text" value={clientFormData.vatId} onChange={e => setClientFormData({...clientFormData, vatId: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:border-[#4F8EF7] focus:outline-none" placeholder="DE123456789" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setIsAddClientModalOpen(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-medium transition-colors">
+                  İptal
+                </button>
+                <button onClick={handleSaveClient} disabled={savingClient}
+                  className="flex-1 py-3 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50">
+                  {savingClient ? 'Kaydediliyor...' : (editingClient ? 'Güncelle' : 'Müşteri Ekle')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* NEW INVOICE MODAL */}
       {isAddInvoiceModalOpen && !isPreviewMode && (
@@ -817,9 +1168,22 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                       onChange={e => setInvoiceData({...invoiceData, clientCompanyId: e.target.value})}
                     >
                       <option value="">-- Müşteri Seçin --</option>
-                      {companies.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
+                      {companies.length > 0 && (
+                        <optgroup label="📋 Kayıtlı Müşteriler">
+                          {companies.map(c => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {crmLeadsNotInCompanies.length > 0 && (
+                        <optgroup label="🔗 CRM Leadleri (Aktarılmamış)">
+                          {crmLeadsNotInCompanies.map((lead: any) => (
+                            <option key={`crm-${lead.id}`} value={`crm-${lead.id}`}>
+                              {lead.companyName || lead.name} (CRM)
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
                     </select>
                   ) : (
                     <div className="grid grid-cols-1 gap-3">
