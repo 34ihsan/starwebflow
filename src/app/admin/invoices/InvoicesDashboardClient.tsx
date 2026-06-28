@@ -503,7 +503,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           @page { 
             size: A4; 
-            margin: 15mm 15mm 20mm 15mm; 
+            margin: 0 !important; /* Set margins to 0 to hide browser headers (RE-2026-0001, date, etc) and footers (about:blank, 1/1) */
           }
           @media print {
             .no-print { display: none !important; }
@@ -514,7 +514,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             }
             body { 
               font-size: 9.5px;
-              padding: 0 !important; 
+              padding: 15mm 20mm 20mm 20mm !important; /* Managed printable padding to offset the 0 margin */
               margin: 0 !important;
               box-sizing: border-box;
             }
@@ -633,14 +633,14 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               font-size: 9px !important;
             }
             .footer {
-              padding: 10px 0 0 0 !important;
+              padding: 18px 0 0 0 !important; /* Increased padding top to make space for page indicator */
               border-top: 1px solid #e5e7eb !important;
               background-color: transparent !important;
               position: fixed !important;
               bottom: 0px !important;
               left: 0 !important;
               right: 0 !important;
-              height: 45px !important;
+              height: 55px !important; /* Height increased slightly to fit numbering */
               display: flex !important;
               page-break-inside: avoid;
             }
@@ -653,7 +653,26 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               margin-bottom: 4px !important;
             }
             .invoice-page {
-              padding-bottom: 60px !important;
+              padding-bottom: 75px !important;
+            }
+            /* Custom Centered Page Number Styles using CSS counters */
+            .page-number-indicator {
+              position: absolute;
+              top: 2px;
+              left: 50%;
+              transform: translateX(-50%);
+              font-size: 8px;
+              color: #9ca3af;
+              font-weight: 500;
+            }
+            .page-number-indicator::after {
+              content: counter(page);
+            }
+            body {
+              counter-reset: page;
+            }
+            .invoice-page {
+              counter-increment: page;
             }
           }
         </style>
@@ -807,6 +826,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           <!-- Premium Light Footer -->
           <footer class="footer">
+            <div class="page-number-indicator"></div>
             <div class="footer-col">
               <h5 class="footer-col-title">${companySettings.name}</h5>
               <p style="white-space: pre-wrap; margin-bottom: 8px;">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
