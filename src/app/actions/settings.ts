@@ -68,10 +68,16 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
       where: { tenantId }
     });
     
-    const settings = await prisma.tenantSettings.update({
+    const settings = await prisma.tenantSettings.upsert({
       where: { tenantId },
-      data: {
-        companyName: validatedData.companyName,
+      create: {
+        tenantId,
+        companyName: validatedData.companyName || 'Şirket Adı',
+        apiKeys: validatedData.apiKeys || {},
+        preferences: validatedData.preferences || {},
+      },
+      update: {
+        ...(validatedData.companyName && { companyName: validatedData.companyName }),
         ...(validatedData.apiKeys && { apiKeys: validatedData.apiKeys }),
         ...(validatedData.preferences && { 
           preferences: {
