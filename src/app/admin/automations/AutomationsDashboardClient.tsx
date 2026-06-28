@@ -1116,12 +1116,47 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
               </h3>
               <p className="text-sm text-[#94A3B8] mt-1">Sistemin ne yapmasını istediğinizi doğal dille anlatın.</p>
             </div>
+            
+            {/* Quick AI Suggestions */}
+            <div className="px-6 pt-4">
+              <span className="text-[10px] text-[#64748B] uppercase tracking-wider block font-bold mb-2">Önerilen Otomasyon İstekleri</span>
+              <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto pr-1 select-none">
+                {[
+                  {
+                    title: "Müşteri Mail Attığında AI Destek ve WhatsApp Bildirimi",
+                    text: "Müşteri mail attığında, gelen mail içeriğini Star AI ile oku ve analiz et. Eğer acil destek talebi ise WhatsApp üzerinden yetkiliye acil durum bildirimi gönder, ayrıca müşteriye otomatik bekleme maili at."
+                  },
+                  {
+                    title: "Teklif Onayında Sözleşme ve Proje Başlatma",
+                    text: "Yeni teklif onaylandığında (trigger), CRM üzerinde otomatik proje başlat, sonrasında müşteriye hoşgeldiniz e-postası gönder ve 24 saat sonra ilk onboarding görevini aç."
+                  },
+                  {
+                    title: "Tahsilat Takibi ve Proje Duraklatma",
+                    text: "Zamanlanmış günlük tetikleyici (Cron) çalıştır, vadesi geçen faturaları kontrol et, eğer ödenmeyen fatura varsa Admin Approval onayı iste, onaylanırsa müşteriye WhatsApp uyarısı at ve CRM'de projeyi pasife al."
+                  },
+                  {
+                    title: "Form Yanıtından Potansiyel Müşteri Skorlama",
+                    text: "Typeform üzerinden yeni form yanıtı geldiğinde (trigger), Star AI ile gelen şirketi analiz et ve skorla. Eğer skor yüksekse CRM'de yeni lead kaydı aç, Slack üzerinden satış ekibine bildirim gönder."
+                  }
+                ].map((s, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => setPromptText(s.text)}
+                    className="p-2 border border-white/5 hover:border-[#4F8EF7]/30 bg-white/[0.02] hover:bg-white/[0.05] rounded-xl text-left cursor-pointer transition-colors text-xs"
+                  >
+                    <span className="text-white font-bold block mb-0.5">{s.title}</span>
+                    <span className="text-[#94A3B8] text-[10px] line-clamp-1">{s.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="p-6">
               <textarea 
                 value={promptText}
                 onChange={e => setPromptText(e.target.value)}
-                className="w-full h-32 bg-white/5 border border-white/10 text-white rounded-xl p-4 focus:outline-none focus:border-[#4F8EF7] transition-colors resize-none text-sm leading-relaxed"
-                placeholder="Örn: Yeni bir teklif onaylandığında, müşteriye teşekkür emaili at, Projeler panosunda yeni proje aç ve Slack takım kanalına haber ver..."
+                className="w-full h-24 bg-white/5 border border-white/10 text-white rounded-xl p-4 focus:outline-none focus:border-[#4F8EF7] transition-colors resize-none text-sm leading-relaxed"
+                placeholder="Örn: Yeni bir teklif onaylandığında, müşteriye teşekkür emaili at, Projeler panosunda yeni proje aç..."
               />
             </div>
             <div className="p-6 border-t border-white/5 flex items-center justify-between bg-[#05050A]">
