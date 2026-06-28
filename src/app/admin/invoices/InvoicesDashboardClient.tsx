@@ -228,13 +228,14 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           </div>
           <div class="max-w-[30%] mt-4 md:mt-0">
             <p class="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">${labels.bankInfo}</p>
-            <p>${companySettings.bankName}</p>
-            <p>IBAN: <span class="font-mono text-zinc-600">${companySettings.iban}</span></p>
+            ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : ''}
+            ${companySettings.iban ? `<p>IBAN: <span class="font-mono text-zinc-600">${companySettings.iban}</span></p>` : ''}
+            ${companySettings.swift ? `<p>BIC/SWIFT: <span class="font-mono text-zinc-600">${companySettings.swift}</span></p>` : ''}
           </div>
           <div class="max-w-[30%] mt-4 md:mt-0">
             <p class="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">${labels.taxInfo}</p>
-            <p>St-Nr.: <span class="font-mono text-zinc-600">${companySettings.taxId}</span></p>
-            <p>USt-IdNr.: <span class="font-mono text-zinc-600">${companySettings.vatId}</span></p>
+            ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-600">${companySettings.taxId}</span></p>` : ''}
+            ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-600">${companySettings.vatId}</span></p>` : ''}
           </div>
         </footer>
       </body>

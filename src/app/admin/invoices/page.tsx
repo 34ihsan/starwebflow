@@ -27,6 +27,8 @@ export default async function AdminInvoicesDashboardPage() {
     vatId: billingSettings.vatId || "",
     iban: billingSettings.iban || "",
     bankName: billingSettings.bankName || "",
+    swift: billingSettings.swift || "",
+    bankCurrency: billingSettings.bankCurrency || "TRY",
     email: prefs.general?.supportEmail || session?.email || "",
     phone: prefs.general?.supportPhone || "",
     website: prefs.general?.website || "",

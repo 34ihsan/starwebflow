@@ -550,6 +550,20 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                         </div>
                       </div>
                       <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-[#94A3B8]">KDV Numarası / USt-IdNr.</label>
+                        <input 
+                          type="text" 
+                          maxLength={30}
+                          placeholder="Örn: DE123456789"
+                          value={preferences.billing?.vatId || ""} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setSettings({...settings, preferences: {...preferences, billing: {...preferences.billing, vatId: val}}})
+                          }}
+                          className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors placeholder:text-white/[0.2]"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
                         <label className="text-xs font-medium text-[#94A3B8]">Tam Fatura Adresi</label>
                         <textarea 
                           rows={3}

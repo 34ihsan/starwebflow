@@ -11,6 +11,7 @@ export interface InvoicePreviewProps {
     vatId: string;
     iban: string;
     bankName: string;
+    swift?: string;
     email: string;
     phone: string;
     website: string;
@@ -259,6 +260,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
             <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.bankDetails}</h5>
             {companySettings.bankName && <p>{companySettings.bankName}</p>}
             {companySettings.iban && <p>IBAN: <span className="text-zinc-300 tracking-wider">{companySettings.iban}</span></p>}
+            {companySettings.swift && <p>BIC/SWIFT: <span className="text-zinc-300 tracking-wider">{companySettings.swift}</span></p>}
           </div>
           <div>
             <h5 className="text-zinc-100 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.taxDetails}</h5>
