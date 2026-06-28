@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MonitoringService } from "@/modules/monitoring/monitoring.service";
 
+import { prisma } from "@/lib/prisma";
+
 export async function POST(
-  req: NextRequest,
+  request: Request,
   { params }: { params: { id: string, reportId: string } }
 ) {
   try {
-    const tenantId = "default-tenant-id"; 
+    const tenant = await prisma.tenant.findFirst();
+    const tenantId = tenant?.id || "default-tenant"; 
     
     await MonitoringService.sendMaintenanceReport(params.reportId, params.id, tenantId);
     

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { MonitoringService } from "@/modules/monitoring/monitoring.service";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
-    // In a real implementation, you would get the tenantId from Auth Session
-    // For MVP/Demonstration, we'll assume a dummy or extract from headers/auth.
-    const tenantId = "default-tenant"; 
+    const tenant = await prisma.tenant.findFirst();
+    const tenantId = tenant?.id || "default-tenant";
     
     const monitors = await MonitoringService.listMonitors(tenantId);
     
@@ -23,7 +23,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const tenantId = "default-tenant"; // Should come from session
+    const tenant = await prisma.tenant.findFirst();
+    const tenantId = tenant?.id || "default-tenant";
     const body = await request.json();
 
     const monitor = await MonitoringService.createMonitor(tenantId, body);

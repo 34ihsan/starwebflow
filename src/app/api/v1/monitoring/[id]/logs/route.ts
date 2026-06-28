@@ -6,7 +6,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const tenantId = "default-tenant"; // from auth session
+    const tenant = await prisma.tenant.findFirst();
+    const tenantId = tenant?.id || "default-tenant";
     
     // Check if monitor belongs to tenant
     const monitor = await prisma.serviceMonitor.findUnique({

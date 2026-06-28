@@ -84,7 +84,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </div>
               )}
               <span className="font-black text-lg tracking-tight font-['Outfit']">
-                {settings?.companyName ? settings.companyName : (
+                {settings?.companyName ? (
+                  <>Admin <span className="text-[#8B5CF6] text-sm ml-1 truncate">{settings.companyName}</span></>
+                ) : (
                   <>Star<span className="text-[#8B5CF6]">Admin</span></>
                 )}
               </span>

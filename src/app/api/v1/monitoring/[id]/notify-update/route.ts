@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MonitoringService } from "@/modules/monitoring/monitoring.service";
+import { prisma } from "@/lib/prisma";
 
 // Temporarily handle auth/tenantId for the MVP
 export async function POST(
@@ -7,10 +8,8 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    // In a real app with next-auth:
-    // const session = await getServerSession();
-    // const tenantId = session?.user?.tenantId;
-    const tenantId = "default-tenant-id"; 
+    const tenant = await prisma.tenant.findFirst();
+    const tenantId = tenant?.id || "default-tenant";
     
     await MonitoringService.sendUpdateNotification(params.id, tenantId);
     
