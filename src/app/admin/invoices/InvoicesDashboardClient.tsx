@@ -503,24 +503,23 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           @page { 
             size: A4; 
-            margin: 0; /* Let body padding manage printable margins */
+            margin: 8mm 12mm; /* Let native print margins define the space */
           }
           @media print {
             .no-print { display: none !important; }
             html, body {
-              height: 297mm;
-              overflow: hidden;
+              height: auto;
+              overflow: visible;
               background-color: #ffffff;
             }
             body { 
               font-size: 9.5px;
-              padding: 10mm 15mm; /* Clean margins on page container level */
-              box-sizing: border-box;
+              padding: 0 !important;
+              margin: 0 !important;
             }
             .invoice-page {
               width: 100% !important;
-              height: 100% !important;
-              max-height: 277mm !important; /* Dynamic A4 height subtraction */
+              height: 275mm !important; /* Lock page container height to fit A4 printable area */
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
@@ -537,7 +536,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               flex-grow: 1 !important;
             }
             .header {
-              margin-bottom: 10px !important;
+              margin-bottom: 12px !important;
             }
             .invoice-title {
               font-size: 20px !important;
@@ -599,7 +598,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             }
             .totals-card {
               padding: 8px 12px !important;
-              width: 200px !important;
+              width: 260px !important;
             }
             .totals-row {
               font-size: 9px !important;
