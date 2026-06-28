@@ -68,11 +68,11 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   };
 
   const itemsHtml = invoice.items.map((item: any) => `
-    <tr class="border-b border-zinc-200">
-      <td class="py-4 text-sm font-medium text-zinc-900">${item.description || (lang === 'de' ? 'Produkt/Dienstleistung' : 'Ürün/Hizmet')}</td>
-      <td class="py-4 text-center text-sm text-zinc-600">${Number(item.quantity)}</td>
-      <td class="py-4 text-right text-sm text-zinc-600">${formatVal(Number(item.unitPrice))}</td>
-      <td class="py-4 text-right text-sm font-bold text-zinc-900">${formatVal(Number(item.total))}</td>
+    <tr class="border-b border-zinc-100 last:border-b-0">
+      <td class="py-5 pl-2 font-medium text-zinc-900">${item.description || (lang === 'de' ? 'Produkt/Dienstleistung' : 'Ürün/Hizmet')}</td>
+      <td class="py-5 text-center text-zinc-600 font-mono">${Number(item.quantity)}</td>
+      <td class="py-5 text-right text-zinc-600 font-mono">${formatVal(Number(item.unitPrice))}</td>
+      <td class="py-5 text-right font-semibold text-zinc-900 pr-2 font-mono">${formatVal(Number(item.total))}</td>
     </tr>
   `).join('');
 
@@ -110,6 +110,28 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     </div>
   ` : '';
 
+  const vatDisplay = isKlein ? `
+    <div style="display:flex; justify-content:space-between; align-items:center; font-size:18px; font-weight:700;">
+      <span style="color:#4b5563; font-weight:500;">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+      <span style="color:#111827; font-family:monospace;">${formatVal(invoice.netAmount)}</span>
+    </div>
+  ` : `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; justify-content:space-between; font-size:14px; color:#6b7280;">
+        <span>${labels.netAmount}</span>
+        <span style="font-family:monospace; font-weight:500; color:#374151;">${formatVal(invoice.netAmount)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:14px; color:#6b7280; padding-bottom:12px; border-bottom:1px solid #e5e7eb;">
+        <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
+        <span style="font-family:monospace; font-weight:500; color:#374151;">${formatVal(invoice.taxAmount)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:18px; padding-top:4px;">
+        <span style="font-weight:700; color:#111827;">${labels.grossAmount}</span>
+        <span style="font-weight:700; color:#4f46e5; font-family:monospace;">${formatVal(invoice.grossAmount)}</span>
+      </div>
+    </div>
+  `;
+
   printWindow.document.write(`
     <html>
       <head>
@@ -117,59 +139,71 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-          body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
-          @page { size: A4; margin: 0; }
+          body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+            background-color: #f4f4f5; 
+          }
+          @page { 
+            size: A4; 
+            margin: 0; 
+          }
           @media print {
             .no-print { display: none !important; }
-            body { margin: 0; padding: 0; }
-            .invoice-container { min-height: 100vh; position: relative; }
+            body { background-color: white; margin: 0; padding: 0; }
+            .invoice-container { shadow: none !important; border-radius: 0 !important; margin: 0 !important; max-width: 100% !important; min-height: 297mm !important; }
           }
         </style>
       </head>
-      <body class="bg-zinc-100/50 flex justify-center items-start min-h-screen">
+      <body class="bg-zinc-100 flex justify-center items-start min-h-screen py-8 print:py-0">
+        <!-- Print Toolbar -->
         <div class="no-print fixed top-4 right-4 z-50 flex gap-2">
-          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg transition-all flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+            </svg>
             ${labels.saveBtn}
           </button>
-          <button onclick="window.close()" class="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all">
+          <button onclick="window.close()" class="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-6 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all">
             ${labels.closeBtn}
           </button>
         </div>
 
-        <div class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-2xl invoice-container flex flex-col mx-auto my-8 print:my-0 print:shadow-none">
+        <!-- Premium Invoice Container (Exact match to InvoicePreview.tsx) -->
+        <div class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-2xl rounded-2xl invoice-container flex flex-col mx-auto overflow-hidden ring-1 ring-zinc-200/50">
           <!-- Top Strip -->
-          <div class="h-4 w-full bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-700"></div>
+          <div class="h-3 w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600"></div>
           
-          <div class="px-16 py-16 flex-grow flex flex-col">
+          <div class="p-16 flex-grow flex flex-col">
             <!-- Header -->
             <header class="flex justify-between items-start mb-16">
               <div class="flex-1 pr-8">
                 ${logoHtml}
-                <div class="text-zinc-500 text-sm leading-relaxed max-w-sm whitespace-pre-wrap">${companySettings.address}</div>
-                <div class="text-zinc-500 text-sm mt-4 space-y-1">
+                <div class="text-zinc-500 text-sm leading-relaxed mt-4 max-w-sm whitespace-pre-wrap">${companySettings.address}</div>
+                <div class="text-zinc-500 text-sm mt-3 space-y-1">
                   ${companySettings.email ? `<div>E: ${companySettings.email}</div>` : ''}
                   ${companySettings.phone ? `<div>T: ${companySettings.phone}</div>` : ''}
                 </div>
               </div>
               <div class="text-right flex-shrink-0">
-                <h2 class="text-5xl font-light text-zinc-300 uppercase tracking-widest mb-8">${labels.title}</h2>
-                <div class="bg-zinc-50 rounded-xl p-6 border border-zinc-100 min-w-[260px]">
-                  <div class="flex justify-between items-center mb-4 pb-4 border-b border-zinc-200">
-                    <span class="text-zinc-500 text-xs font-semibold uppercase tracking-widest">${labels.invoiceNo}</span>
-                    <span class="font-bold text-zinc-900 text-base">${invoice.invoiceNo}</span>
+                <h2 class="text-4xl font-light text-zinc-300 uppercase tracking-widest mb-8">${labels.title}</h2>
+                <div class="bg-zinc-50 rounded-xl p-5 border border-zinc-100 shadow-sm min-w-[240px]">
+                  <div class="flex justify-between items-center mb-3 pb-3 border-b border-zinc-200">
+                    <span class="text-zinc-500 text-xs font-medium uppercase tracking-wider">${labels.invoiceNo}</span>
+                    <span class="font-bold text-zinc-900 text-sm">${invoice.invoiceNo}</span>
                   </div>
-                  <div class="space-y-3 text-sm">
+                  <div class="space-y-2 text-sm">
                     <div class="flex justify-between items-center">
                       <span class="text-zinc-500">${labels.date}</span>
-                      <span class="font-medium text-zinc-900">${formatDate(invoice.invoiceDate)}</span>
+                      <span class="font-medium text-zinc-800">${formatDate(invoice.invoiceDate)}</span>
                     </div>
                     <div class="flex justify-between items-center">
                       <span class="text-zinc-500">${labels.deliveryDate}</span>
-                      <span class="font-medium text-zinc-900">${formatDate(invoice.deliveryDate)}</span>
+                      <span class="font-medium text-zinc-800">${formatDate(invoice.deliveryDate)}</span>
                     </div>
-                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-zinc-100">
-                      <span class="font-bold text-indigo-700">${labels.dueDate}</span>
+                    <div class="flex justify-between items-center mt-3 pt-3 border-t border-zinc-100">
+                      <span class="font-medium text-indigo-600">${labels.dueDate}</span>
                       <span class="font-bold text-indigo-700">${formatDate(invoice.dueDate)}</span>
                     </div>
                   </div>
@@ -177,86 +211,76 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               </div>
             </header>
 
-            <!-- Client Info -->
-            <div class="mb-16">
-              <div class="text-xs text-zinc-400 uppercase tracking-widest font-bold mb-3 border-b border-zinc-200 inline-block pb-1">${labels.client}</div>
-              <h3 class="text-xl font-bold text-zinc-900 mb-2">${client.name || 'Müşteri'}</h3>
-              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressStreet || ''}</p>
-              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressZip || ''} ${client.addressCity || ''}</p>
-              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressCountry || ''}</p>
-              <div class="mt-4 text-xs text-zinc-500 space-y-1">
-                ${client.vatId ? `<p>USt-IdNr.: <span class="font-medium text-zinc-900">${client.vatId}</span></p>` : ''}
-                ${client.taxId ? `<p>Steuernummer: <span class="font-medium text-zinc-900">${client.taxId}</span></p>` : ''}
+            <!-- Client Info Address Card -->
+            <div class="mb-14">
+              <div class="inline-block relative">
+                <div class="text-[10px] text-zinc-400 uppercase tracking-widest font-semibold mb-2 ml-1">Fatura Edilen</div>
+                <div class="bg-zinc-50 rounded-xl p-6 border border-zinc-100 min-w-[300px]">
+                  <h3 class="text-lg font-bold text-zinc-900 mb-2">${client.name || 'Müşteri'}</h3>
+                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressStreet || ''}</p>
+                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressZip || ''} ${client.addressCity || ''}</p>
+                  <p class="text-zinc-600 text-sm leading-relaxed">${client.addressCountry || ''}</p>
+                  ${(client.vatId || client.taxId) ? `
+                    <div class="mt-4 pt-4 border-t border-zinc-200 text-xs text-zinc-500 space-y-1">
+                      ${client.vatId ? `<div class="flex justify-between"><span class="text-zinc-400">USt-IdNr.:</span> <span class="font-medium text-zinc-700">${client.vatId}</span></div>` : ''}
+                      ${client.taxId ? `<div class="flex justify-between"><span class="text-zinc-400">Steuernummer:</span> <span class="font-medium text-zinc-700">${client.taxId}</span></div>` : ''}
+                    </div>
+                  ` : ''}
+                </div>
               </div>
             </div>
 
             <!-- Items Table -->
-            <div class="mb-12">
+            <div class="mb-10">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="border-b-2 border-zinc-800 text-zinc-800 text-xs uppercase tracking-widest">
-                    <th class="py-3 font-bold w-[50%]">${labels.description}</th>
-                    <th class="py-3 font-bold text-center">${labels.quantity}</th>
-                    <th class="py-3 font-bold text-right">${labels.unitPrice}</th>
-                    <th class="py-3 font-bold text-right">${labels.total}</th>
+                  <tr class="border-b-2 border-zinc-200 text-zinc-500 text-xs uppercase tracking-wider">
+                    <th class="pb-3 font-semibold pl-2 w-3/5">${labels.description}</th>
+                    <th class="pb-3 font-semibold text-center">${labels.quantity}</th>
+                    <th class="pb-3 font-semibold text-right">${labels.unitPrice}</th>
+                    <th class="pb-3 font-semibold text-right pr-2">${labels.total}</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-zinc-800 text-sm align-top">
                   ${itemsHtml}
                 </tbody>
               </table>
             </div>
 
-            <!-- Totals -->
+            <!-- Totals Section -->
             <div class="flex justify-end mb-8">
-              <div class="w-full sm:w-[45%] md:w-[40%] bg-zinc-50 rounded-xl p-6 border border-zinc-100">
-                ${isKlein ? `
-                  <div class="flex justify-between items-center text-lg">
-                    <span class="font-bold text-zinc-600 uppercase tracking-widest text-sm">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
-                    <span class="font-bold text-zinc-900 text-xl tabular-nums">${formatVal(invoice.netAmount)}</span>
-                  </div>
-                ` : `
-                  <div class="flex justify-between py-2 text-sm text-zinc-600">
-                    <span>${labels.netAmount}</span>
-                    <span class="tabular-nums font-medium text-zinc-900">${formatVal(invoice.netAmount)}</span>
-                  </div>
-                  <div class="flex justify-between py-2 text-sm text-zinc-600 pb-4 border-b border-zinc-200">
-                    <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
-                    <span class="tabular-nums font-medium text-zinc-900">${formatVal(invoice.taxAmount)}</span>
-                  </div>
-                  <div class="flex justify-between items-center pt-4">
-                    <span class="font-bold text-zinc-900 uppercase tracking-widest text-sm">${labels.grossAmount}</span>
-                    <span class="font-bold text-indigo-700 text-xl tabular-nums">${formatVal(invoice.grossAmount)}</span>
-                  </div>
-                `}
+              <div class="w-full sm:w-1/2 md:w-2/5 bg-zinc-50 rounded-xl p-6 border border-zinc-100 shadow-sm">
+                ${vatDisplay}
               </div>
             </div>
 
+            <!-- §19 UStG Legal Notice - Prominent Box -->
             ${kleinBox}
 
+            <!-- Notes -->
             ${printNotes}
 
           </div>
 
-          <!-- Footer -->
-          <footer class="border-t border-zinc-200 bg-zinc-50/80 px-16 py-12 mt-auto">
+          <!-- Premium Light Footer -->
+          <footer class="border-t border-zinc-200 bg-zinc-50/50 p-10 px-16 mt-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
               <div>
-                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${companySettings.name}</p>
-                <p class="whitespace-pre-wrap mb-2">${companySettings.address}</p>
-                ${companySettings.phone ? `<p>T: ${companySettings.phone}</p>` : ''}
-                ${companySettings.email ? `<p>E: ${companySettings.email}</p>` : ''}
-                ${companySettings.website ? `<p>W: ${companySettings.website}</p>` : ''}
+                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${companySettings.name}</h5>
+                <p class="whitespace-pre-wrap mb-2">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
+                ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
+                ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
+                ${companySettings.website ? `<p>${companySettings.website}</p>` : ''}
               </div>
               <div>
-                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${labels.bankInfo}</p>
-                ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : ''}
+                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${labels.bankInfo}</h5>
+                ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : '<p class="italic opacity-50">Banka adı girilmedi</p>'}
                 ${companySettings.iban ? `<p>IBAN: <span class="font-mono text-zinc-700">${companySettings.iban}</span></p>` : ''}
                 ${companySettings.swift ? `<p>BIC/SWIFT: <span class="font-mono text-zinc-700">${companySettings.swift}</span></p>` : ''}
               </div>
               <div>
-                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${labels.taxInfo}</p>
-                ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-700">${companySettings.taxId}</span></p>` : ''}
+                <h5 class="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">${labels.taxInfo}</h5>
+                ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-700">${companySettings.taxId}</span></p>` : '<p class="italic opacity-50">Vergi no girilmedi</p>'}
                 ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-700">${companySettings.vatId}</span></p>` : ''}
                 ${isKlein ? `<p style="margin-top:6px; color:#b45309; font-weight:600;">Kleinunternehmer gem. &sect; 19 UStG</p>` : ''}
               </div>
@@ -270,6 +294,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   printWindow.document.close();
   printWindow.focus();
 };
+
 
 
 export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, crmLeads = [], tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], crmLeads?: any[], tenantSettings: any, tenantId: string }) {
