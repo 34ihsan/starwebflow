@@ -635,14 +635,14 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               font-size: 9px !important;
             }
             .footer {
-              padding: 18px 0 0 0 !important; /* Increased padding top to make space for page indicator */
+              padding: 8px 0 0 0 !important;
               border-top: 1px solid #e5e7eb !important;
               background-color: transparent !important;
               position: fixed !important;
-              bottom: 0px !important;
-              left: 0 !important;
-              right: 0 !important;
-              height: 55px !important; /* Height increased slightly to fit numbering */
+              bottom: 12mm !important;
+              left: 20mm !important;
+              right: 20mm !important;
+              height: 50px !important;
               display: flex !important;
               page-break-inside: avoid;
             }
@@ -655,7 +655,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               margin-bottom: 4px !important;
             }
             .invoice-page {
-              padding-bottom: 75px !important;
+              padding-bottom: 80px !important;
             }
             /* Custom Centered Page Number Styles using CSS counters */
             .page-number-indicator {
