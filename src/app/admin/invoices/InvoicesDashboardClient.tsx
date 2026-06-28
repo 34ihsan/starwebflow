@@ -83,22 +83,30 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     : 14;
 
   let printNotes = '';
-  const isKlein = companySettings.isKleinunternehmer === true || String(companySettings.vatRate) === "0";
-  const kleinText = isKlein ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : "";
+  const isKlein = companySettings.isKleinunternehmer === true ||
+    String(companySettings.vatRate) === "0" ||
+    Number(invoice.taxRate) === 0;
   const defaultNotes = lang === 'de' ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : "";
 
-  if (invoice.notes || kleinText || (!invoice.notes && lang === 'de')) {
+  if (invoice.notes || (!invoice.notes && lang === 'de')) {
     printNotes = `
       <div class="mt-12 mb-16 border-l-4 border-indigo-600 pl-6 py-2">
         <h4 class="font-bold text-zinc-900 mb-2 uppercase tracking-widest text-xs">${labels.notes}</h4>
         <div class="text-sm text-zinc-700 leading-relaxed space-y-2">
           ${invoice.notes ? `<p class="whitespace-pre-wrap">${invoice.notes}</p>` : ''}
-          ${kleinText ? `<p class="font-bold">${kleinText}</p>` : ''}
           ${!invoice.notes && defaultNotes ? `<p>${defaultNotes}</p>` : ''}
         </div>
       </div>
     `;
   }
+
+  const kleinBox = isKlein ? `
+    <div style="margin-bottom:2rem; background:#fffbeb; border:1.5px solid #fbbf24; border-radius:12px; padding:1rem 1.5rem;">
+      <p style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#92400e; margin-bottom:6px;">Hinweis / Steuerhinweis</p>
+      <p style="font-size:13px; font-weight:600; color:#78350f; line-height:1.5;">Gem&auml;&szlig; &sect; 19 UStG wird keine Umsatzsteuer berechnet.</p>
+      ${lang === 'tr' ? '<p style="font-size:11px; color:#92400e; margin-top:4px;">(Bu fatura &sect;19 UStG K&uuml;&ccedil;&uuml;k &Icirc;&scedil;letme Y&ouml;netmeli&gbreve;i kapsam&inodot;nda KDV\'den muaft&inodot;r.)</p>' : ''}
+    </div>
+  ` : '';
 
   printWindow.document.write(`
     <html>
@@ -222,6 +230,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               </div>
             </div>
 
+            ${kleinBox}
+
             ${printNotes}
 
           </div>
@@ -246,6 +256,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                 <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${labels.taxInfo}</p>
                 ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-700">${companySettings.taxId}</span></p>` : ''}
                 ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-700">${companySettings.vatId}</span></p>` : ''}
+                ${isKlein ? `<p style="margin-top:6px; color:#b45309; font-weight:600;">Kleinunternehmer gem. &sect; 19 UStG</p>` : ''}
               </div>
             </div>
           </footer>

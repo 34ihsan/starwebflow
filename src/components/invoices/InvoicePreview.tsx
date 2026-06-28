@@ -191,57 +191,80 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
         </div>
 
         {/* Totals Section */}
-        <div className="flex justify-end mb-16">
+        <div className="flex justify-end mb-8">
           <div className="w-full sm:w-1/2 md:w-2/5 bg-zinc-50 rounded-xl p-6 border border-zinc-100 shadow-sm">
-            {companySettings.isKleinunternehmer ? (
-              <div className="flex justify-between items-center text-lg">
-                <span className="font-medium text-zinc-600">{lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
-                <span className="font-bold text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm text-zinc-500">
-                  <span>{dict.netAmount}</span>
-                  <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+            {(() => {
+              const isKlein = companySettings.isKleinunternehmer === true ||
+                String((companySettings as any).vatRate) === "0" ||
+                Number(invoice.taxRate) === 0;
+              if (isKlein) {
+                return (
+                  <div className="flex justify-between items-center text-lg">
+                    <span className="font-medium text-zinc-600">{lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+                    <span className="font-bold text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+                  </div>
+                );
+              }
+              return (
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm text-zinc-500">
+                    <span>{dict.netAmount}</span>
+                    <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-zinc-500 pb-3 border-b border-zinc-200">
+                    <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
+                    <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-lg pt-1">
+                    <span className="font-bold text-zinc-900">{dict.grossAmount}</span>
+                    <span className="font-bold text-indigo-600 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-zinc-500 pb-3 border-b border-zinc-200">
-                  <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
-                  <span className="tabular-nums font-medium text-zinc-700">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
-                </div>
-                <div className="flex justify-between items-center text-lg pt-1">
-                  <span className="font-bold text-zinc-900">{dict.grossAmount}</span>
-                  <span className="font-bold text-indigo-600 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
 
+        {/* §19 UStG Legal Notice - Prominent Box */}
+        {(companySettings.isKleinunternehmer === true ||
+          String((companySettings as any).vatRate) === "0" ||
+          Number(invoice.taxRate) === 0) && (
+          <div className="mb-10 bg-amber-50 border border-amber-200 rounded-xl px-6 py-4">
+            <p className="text-amber-900 text-xs font-bold uppercase tracking-widest mb-1.5">Hinweis / {lang === 'tr' ? 'KDV Muafiyeti Notu' : 'Steuerhinweis'}</p>
+            <p className="text-amber-800 text-sm leading-relaxed font-medium">
+              Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.
+            </p>
+            {lang === 'tr' && (
+              <p className="text-amber-700 text-xs mt-1 leading-relaxed">
+                (Bu fatura §19 UStG Küçük İşletme Yönetmeliği kapsamında KDV'den muaftır.)
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Notes */}
-        <div className="mt-12 mb-10">
+        <div className="mb-10">
           {(() => {
             const diffDays = invoice.dueDate && invoice.invoiceDate 
               ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) 
               : 14;
             
-            const isKlein = companySettings.isKleinunternehmer === true || String((companySettings as any).vatRate) === "0";
-            const kleinText = isKlein ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : null;
             const transferText = (!invoice.notes && lang === 'de') ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : null;
 
-            if (!invoice.notes && !kleinText && !transferText) return null;
+            if (!invoice.notes && !transferText) return null;
 
             return (
               <div className="border-l-4 border-indigo-600 pl-6 py-2">
                 <h4 className="font-bold text-zinc-900 mb-2 text-xs uppercase tracking-widest">{dict.notes}</h4>
                 <div className="text-zinc-700 text-sm leading-relaxed space-y-2">
                   {invoice.notes && <p className="whitespace-pre-wrap">{invoice.notes}</p>}
-                  {kleinText && <p className="font-bold">{kleinText}</p>}
                   {transferText && <p>{transferText}</p>}
                 </div>
               </div>
             );
           })()}
         </div>
+
       </div>
 
       {/* Premium Light Footer */}
@@ -264,6 +287,11 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
             <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.taxDetails}</h5>
             {companySettings.taxId ? <p>St-Nr.: <span className="font-mono text-zinc-700">{companySettings.taxId}</span></p> : <p className="italic opacity-50">Vergi no girilmedi</p>}
             {companySettings.vatId && <p>USt-IdNr.: <span className="font-mono text-zinc-700">{companySettings.vatId}</span></p>}
+            {(companySettings.isKleinunternehmer === true ||
+              String((companySettings as any).vatRate) === "0" ||
+              Number(invoice.taxRate) === 0) && (
+              <p className="mt-2 text-amber-700 font-semibold leading-snug">Kleinunternehmer gem. § 19 UStG</p>
+            )}
           </div>
         </div>
       </div>
