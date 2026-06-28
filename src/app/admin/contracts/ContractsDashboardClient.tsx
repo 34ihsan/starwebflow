@@ -8,7 +8,7 @@ import {
   Trash2, Settings, PlusCircle, LayoutList
 } from "lucide-react";
 
-import { createContract, updateContractStatus, updateContract, deleteContract, generatePflichtenheftFromLastenheft } from "@/app/actions/contract";
+import { createContract, updateContractStatus, updateContract, deleteContract, generatePflichtenheftFromLastenheft, generateLastenheftFromChoices, generateOfficialContract } from "@/app/actions/contract";
 import { sendContractToClient } from "@/app/actions/dispatch";
 import { CURRENCIES, formatCurrency } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
@@ -30,6 +30,44 @@ function renderMarkdownToHtmlSimple(md: string): string {
 
   return html;
 }
+
+const WIZARD_NEEDS: Record<string, string[]> = {
+  WEB: [
+    "Sub-second (saniye altı) sayfa hızı ve yüksek performans",
+    "SEO Uyumlu Arama Motoru Optimizasyonu",
+    "Mobil Öncelikli & Responsive Arayüz Tasarımı",
+    "Modern Outfit & Inter yazı tipi entegrasyonu",
+    "İletişim Formları ve Lead Yakalama modülleri"
+  ],
+  SAAS: [
+    "Gelişmiş Admin Yönetim Paneli",
+    "Kullanıcı Rolleri ve Yetkilendirme Sistemi (RBAC)",
+    "Stripe veya yerel ödeme kanalları entegrasyonu",
+    "Veri Tablosu filtreleme, dışa aktarma (Excel/CSV)",
+    "Gerçek zamanlı bildirimler ve veri akışı"
+  ],
+  AGENTS: [
+    "CRM ve Müşteri İlişkileri Entegrasyonu",
+    "7/24 Otonom Dijital Destek Asistanı",
+    "Doğal Dil Anlama (NLU) ve Akıllı Karar Verme",
+    "Gemini & GPT LLM API entegrasyonu",
+    "Kullanıcı veritabanı ile entegre hafıza (Memory) sistemi"
+  ],
+  AUTOMATION: [
+    "n8n iş akışı otomasyonu kurulumu ve yönetimi",
+    "API ve Webhook entegrasyonları",
+    "Otomatik faturalama veya veri senkronizasyonu",
+    "Manuel işleri 10 kat hızlandıracak veri işleme robotları",
+    "E-posta veya Slack bildirim akışları"
+  ],
+  MARKETING: [
+    "Yapay zeka destekli kreatif tasarımlar",
+    "ROAS odaklı Meta (Facebook/Instagram) reklam yönetimi",
+    "ROAS odaklı Google Ads reklam kampanya yönetimi",
+    "Haftalık içerik planlama ve otomatik paylaşım",
+    "Aylık performans ve bütçe verimliliği raporu"
+  ]
+};
 
 const CONTRACT_TEMPLATES: Record<string, string> = {
   NDA: `### **GİZLİLİK SÖZLEŞMESİ (NON-DISCLOSURE AGREEMENT)**
@@ -330,6 +368,25 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
   const [sending, setSending] = useState(false);
   const [generating, setGenerating] = useState(false);
 
+  // Wizard (AI Generator) States
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [wizardData, setWizardData] = useState({
+    clientName: "",
+    clientEmail: "",
+    title: "",
+    budget: "",
+    currency: "TRY",
+    serviceType: "WEB",
+    selectedNeeds: [] as string[],
+    customNotes: "",
+    lastenheftContent: "",
+    pflichtenheftContent: "",
+    officialContractContent: ""
+  });
+  const [generatingLastenheft, setGeneratingLastenheft] = useState(false);
+  const [generatingPflichtenheft, setGeneratingPflichtenheft] = useState(false);
+  const [generatingContract, setGeneratingContract] = useState(false);
+
   // Edit states for unified Viewer/Editor Modal
   const [editContent, setEditContent] = useState("");
   const [editTitle, setEditTitle] = useState("");
@@ -341,6 +398,139 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
   const [editClientName, setEditClientName] = useState("");
   const [editClientEmail, setEditClientEmail] = useState("");
   const [modalTab, setModalTab] = useState<"edit" | "preview" | "pdf">("edit");
+
+  const handleWizardGenerateLastenheft = async () => {
+    if (!wizardData.clientName || !wizardData.title) {
+      alert("Lütfen Müşteri Adı ve Proje Başlığı alanlarını doldurun.");
+      return;
+    }
+    setGeneratingLastenheft(true);
+    try {
+      const res = await generateLastenheftFromChoices({
+        serviceType: wizardData.serviceType,
+        clientName: wizardData.clientName,
+        title: wizardData.title,
+        budget: wizardData.budget,
+        currency: wizardData.currency,
+        selectedNeeds: wizardData.selectedNeeds,
+        customNotes: wizardData.customNotes
+      });
+      if (res.success && res.data) {
+        setWizardData(prev => ({ ...prev, lastenheftContent: res.data || "" }));
+        setWizardStep(2);
+      } else {
+        alert(res.error || "Lastenheft üretilirken bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hata oluştu.");
+    } finally {
+      setGeneratingLastenheft(false);
+    }
+  };
+
+  const handleWizardGeneratePflichtenheft = async () => {
+    if (!wizardData.lastenheftContent) {
+      alert("Lütfen önce Lastenheft içeriğinin hazır olduğundan emin olun.");
+      return;
+    }
+    setGeneratingPflichtenheft(true);
+    try {
+      const res = await generatePflichtenheftFromLastenheft(wizardData.lastenheftContent);
+      if (res.success && res.data) {
+        setWizardData(prev => ({ ...prev, pflichtenheftContent: res.data || "" }));
+      } else {
+        alert(res.error || "Pflichtenheft üretilirken bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hata oluştu.");
+    } finally {
+      setGeneratingPflichtenheft(false);
+    }
+  };
+
+  const handleWizardGenerateContract = async () => {
+    if (!wizardData.lastenheftContent || !wizardData.pflichtenheftContent) {
+      alert("Sözleşme üretebilmek için hem Lastenheft hem de Pflichtenheft dökümanlarının hazırlanmış olması gerekir.");
+      return;
+    }
+    setGeneratingContract(true);
+    try {
+      const res = await generateOfficialContract({
+        lastenheft: wizardData.lastenheftContent,
+        pflichtenheft: wizardData.pflichtenheftContent,
+        clientName: wizardData.clientName,
+        title: wizardData.title,
+        value: wizardData.budget ? Number(wizardData.budget) : undefined,
+        currency: wizardData.currency
+      });
+      if (res.success && res.data) {
+        setWizardData(prev => ({ ...prev, officialContractContent: res.data || "" }));
+        setWizardStep(3);
+      } else {
+        alert(res.error || "Sözleşme üretilirken bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hata oluştu.");
+    } finally {
+      setGeneratingContract(false);
+    }
+  };
+
+  const handleWizardSaveContract = async () => {
+    if (!wizardData.officialContractContent) {
+      alert("Kaydedilecek sözleşme içeriği bulunamadı.");
+      return;
+    }
+    setIsCreating(true);
+    try {
+      const res = await createContract({
+        tenantId: 'default-tenant',
+        title: wizardData.title,
+        clientName: wizardData.clientName,
+        clientEmail: wizardData.clientEmail,
+        type: "MSA",
+        value: wizardData.budget ? Number(wizardData.budget) : undefined,
+        currency: wizardData.currency,
+        status: "PENDING"
+      });
+      if (res.success && res.data) {
+        const updated = await updateContract(res.data.id, {
+          content: wizardData.officialContractContent
+        });
+        if (updated.success && updated.data) {
+          setContracts(prev => [updated.data, ...prev]);
+          setIsGeneratorModalOpen(false);
+          setWizardStep(1);
+          setWizardData({
+            clientName: "",
+            clientEmail: "",
+            title: "",
+            budget: "",
+            currency: "TRY",
+            serviceType: "WEB",
+            selectedNeeds: [],
+            customNotes: "",
+            lastenheftContent: "",
+            pflichtenheftContent: "",
+            officialContractContent: ""
+          });
+          alert("Profesyonel B2B Sözleşmesi başarıyla oluşturuldu ve kaydedildi!");
+        } else {
+          alert("Sözleşme kaydedildi fakat içerik güncellenemedi.");
+        }
+      } else {
+        alert("Sözleşme oluşturulurken bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Bir hata oluştu.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleSendContract = async () => {
     if (!selectedContract) return;
@@ -885,53 +1075,379 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
         </div>
       )}
 
-      {/* AI Generator Modal */}
+      {/* AI Generator Modal (Pro/Elit 3-Step Wizard) */}
       {isGeneratorModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-emerald-900/20 to-cyan-900/20">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col my-8 max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-emerald-950/30 to-cyan-950/30">
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2"><Wand2 className="w-5 h-5 text-emerald-400" /> AI Sözleşme Asistanı</h3>
-                <p className="text-sm text-[#94A3B8] mt-1">Gereksinimlerinizi yazın, AI sizin için hukuki metni hazırlasın.</p>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Wand2 className="w-5 h-5 text-emerald-400 animate-pulse" /> 
+                  Pro/Elit AI Sözleşme Asistanı
+                </h3>
+                <p className="text-xs text-[#94A3B8] mt-1">İş gereksinimlerinden başlayarak teknik şartname ve korumacı resmi sözleşmeye adım adım ilerleyin.</p>
               </div>
-              <button onClick={() => setIsGeneratorModalOpen(false)} className="text-[#64748B] hover:text-white p-2">✕</button>
-            </div>
-            
-            <div className="p-6 space-y-4 bg-white/[0.01]">
-              <div>
-                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Sözleşme Türü</label>
-                <select 
-                  value={newContractData.type}
-                  onChange={(e) => setNewContractData({...newContractData, type: e.target.value})}
-                  className="w-full bg-black/40 border border-white/10 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
-                >
-                  <option value="LASTENHEFT">İş Gereksinimleri (Lastenheft)</option>
-                  <option value="PFLICHTENHEFT">Teknik Şartname (Pflichtenheft)</option>
-                  <option value="SLA">Hizmet Seviyesi Sözleşmesi (SLA)</option>
-                  <option value="NDA">Gizlilik Sözleşmesi (NDA)</option>
-                  <option value="MSA">Ana Hizmet Sözleşmesi (Kapsamlı MSA)</option>
-                  <option value="SEO">SEO Sözleşmesi</option>
-                  <option value="MAINTENANCE">Bakım Sözleşmesi</option>
-                  <option value="SOCIAL">Sosyal Medya Sözleşmesi</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Özel Şartlar ve Gereksinimler</label>
-                <textarea 
-                  rows={4} 
-                  className="w-full bg-black/40 border border-white/10 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
-                  placeholder="Örn: Cayma bedeli 50.000 TL olsun, Ankara mahkemeleri yetkili kılınsın, proje 6 ay sürecek."
-                ></textarea>
-              </div>
+              <button 
+                onClick={() => {
+                  setIsGeneratorModalOpen(false);
+                  setWizardStep(1);
+                }} 
+                className="text-[#64748B] hover:text-white p-2 text-lg hover:bg-white/5 rounded-full transition-colors"
+              >
+                ✕
+              </button>
             </div>
 
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-[#0A0A0F]">
-               <button 
-                onClick={() => setIsGeneratorModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium text-sm flex items-center gap-2"
-              >
-                <Wand2 className="w-4 h-4" /> Oluşturmaya Başla
-              </button>
+            {/* Stepper Progress Bar */}
+            <div className="bg-white/[0.01] border-b border-white/5 px-8 py-4 flex items-center justify-between">
+              {[
+                { step: 1, title: "1. Lastenheft", desc: "Müşteri Talebi (Ne & Niçin)" },
+                { step: 2, title: "2. Pflichtenheft", desc: "Teknik Şartname (Nasıl & Ne İle)" },
+                { step: 3, title: "3. Sözleşme", desc: "Resmi Yasal Metin (Birleşim)" }
+              ].map((s) => (
+                <div key={s.step} className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
+                    wizardStep === s.step 
+                      ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-110" 
+                      : wizardStep > s.step 
+                      ? "bg-emerald-500 text-white" 
+                      : "bg-white/5 text-[#64748B] border border-white/10"
+                  }`}>
+                    {wizardStep > s.step ? "✓" : s.step}
+                  </div>
+                  <div className="text-left hidden md:block">
+                    <p className={`text-xs font-semibold ${wizardStep === s.step ? "text-white" : "text-[#64748B]"}`}>{s.title}</p>
+                    <p className="text-[10px] text-[#475569]">{s.desc}</p>
+                  </div>
+                  {s.step < 3 && <div className="w-12 md:w-20 h-px bg-white/10 hidden sm:block mx-2" />}
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Body - Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              
+              {/* STEP 1: LASTENHEFT / TALEPLER */}
+              {wizardStep === 1 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  {/* Service Cards Selection */}
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-[#64748B] uppercase tracking-wider">Hizmet Türü Seçin</label>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      {[
+                        { code: "WEB", label: "Web Tasarım", desc: "Next.js & Performance", color: "from-blue-500/20 to-cyan-500/20 border-blue-500/30" },
+                        { code: "SAAS", label: "Web App / SaaS", desc: "Panel & Cloud Software", color: "from-purple-500/20 to-pink-500/20 border-purple-500/30" },
+                        { code: "AGENTS", label: "AI Ajanları", desc: "Autonomous AI & CRM", color: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30" },
+                        { code: "AUTOMATION", label: "AI Otomasyon", desc: "n8n, Webhooks & APIs", color: "from-amber-500/20 to-orange-500/20 border-amber-500/30" },
+                        { code: "MARKETING", label: "Dijital Pazarlama", desc: "Meta/Google Ads & Creative", color: "from-rose-500/20 to-red-500/20 border-rose-500/30" }
+                      ].map((item) => {
+                        const isSelected = wizardData.serviceType === item.code;
+                        return (
+                          <div 
+                            key={item.code}
+                            onClick={() => {
+                              setWizardData({
+                                ...wizardData, 
+                                serviceType: item.code,
+                                selectedNeeds: [] // Reset selected needs on service type change
+                              });
+                            }}
+                            className={`p-4 rounded-2xl border text-center cursor-pointer transition-all duration-300 select-none flex flex-col justify-between h-28 ${
+                              isSelected 
+                                ? `bg-gradient-to-br ${item.color} text-white shadow-lg scale-102` 
+                                : "bg-white/[0.02] border-white/5 text-[#94A3B8] hover:bg-white/[0.05] hover:border-white/10"
+                            }`}
+                          >
+                            <span className="font-bold text-xs block">{item.label}</span>
+                            <span className="text-[9px] text-[#64748B] block mt-1 leading-normal">{item.desc}</span>
+                            <span className={`text-[9px] font-bold block mt-2 ${isSelected ? "text-emerald-400" : "text-transparent"}`}>✓ Seçildi</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Company Info Inputs */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/[0.01] border border-white/5 p-5 rounded-2xl">
+                    <div className="col-span-1 md:col-span-3 pb-2 border-b border-white/5 mb-2">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Müşteri & Proje Künyesi</h4>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Müşteri / Şirket Adı</label>
+                      <input 
+                        type="text" 
+                        value={wizardData.clientName}
+                        onChange={(e) => setWizardData({...wizardData, clientName: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500/50"
+                        placeholder="Örn: ABC Teknoloji Ltd."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Müşteri E-Posta</label>
+                      <input 
+                        type="email" 
+                        value={wizardData.clientEmail}
+                        onChange={(e) => setWizardData({...wizardData, clientEmail: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500/50"
+                        placeholder="Örn: info@abctech.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Proje / İş Başlığı</label>
+                      <input 
+                        type="text" 
+                        value={wizardData.title}
+                        onChange={(e) => setWizardData({...wizardData, title: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500/50"
+                        placeholder="Örn: Otonom CRM Entegrasyonu"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Tahmini Bütçe Tutar</label>
+                      <input 
+                        type="number" 
+                        value={wizardData.budget}
+                        onChange={(e) => setWizardData({...wizardData, budget: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500/50"
+                        placeholder="Örn: 250000"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Para Birimi</label>
+                      <select 
+                        value={wizardData.currency}
+                        onChange={(e) => setWizardData({...wizardData, currency: e.target.value})}
+                        className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-emerald-500/50"
+                      >
+                        <option value="TRY">TRY (₺)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="USD">USD ($)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Multi-Choice Checklist of Needs */}
+                  <div className="space-y-3">
+                    <label className="block text-xs font-bold text-[#64748B] uppercase tracking-wider">Proje Hedefleri ve İhtiyaçlar (Çoklu Seçim)</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white/[0.01] border border-white/5 p-5 rounded-2xl">
+                      {(WIZARD_NEEDS[wizardData.serviceType] || []).map((need, idx) => {
+                        const isChecked = wizardData.selectedNeeds.includes(need);
+                        return (
+                          <label 
+                            key={idx} 
+                            className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 select-none ${
+                              isChecked 
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-white" 
+                                : "bg-black/30 border-white/5 text-[#94A3B8] hover:border-white/10 hover:text-white"
+                            }`}
+                          >
+                            <input 
+                              type="checkbox" 
+                              checked={isChecked}
+                              onChange={() => {
+                                if (isChecked) {
+                                  setWizardData({
+                                    ...wizardData, 
+                                    selectedNeeds: wizardData.selectedNeeds.filter(n => n !== need)
+                                  });
+                                } else {
+                                  setWizardData({
+                                    ...wizardData, 
+                                    selectedNeeds: [...wizardData.selectedNeeds, need]
+                                  });
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-white/10 bg-black/40 text-emerald-500 focus:ring-emerald-500/50 mt-0.5" 
+                            />
+                            <span className="text-xs leading-relaxed">{need}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Custom Notes */}
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Ek Şartlar ve Ekstra Notlar (İsteğe Bağlı)</label>
+                    <textarea 
+                      rows={3} 
+                      value={wizardData.customNotes}
+                      onChange={(e) => setWizardData({...wizardData, customNotes: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50"
+                      placeholder="Geliştirme süresi 3 ay olacaktır, StarWebFlow sunucularında barındırılacaktır vb."
+                    />
+                  </div>
+
+                  {/* Generate Button Step 1 */}
+                  <div className="flex justify-end pt-4 border-t border-white/5">
+                    <button 
+                      onClick={handleWizardGenerateLastenheft}
+                      disabled={generatingLastenheft}
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50"
+                    >
+                      {generatingLastenheft ? (
+                        <>
+                          <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                          Lastenheft Derleniyor...
+                        </>
+                      ) : (
+                        <>
+                          Lastenheft Üret ve İlerle <Wand2 className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: PFLICHTENHEFT / TEKNIK SARTNAME */}
+              {wizardStep === 2 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Pane: Lastenheft Review */}
+                    <div className="space-y-3 flex flex-col">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-xs font-bold text-[#64748B] uppercase tracking-wider">1. Adım: Lastenheft (İş Talebi) İçeriği</label>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">Derlendi</span>
+                      </div>
+                      <textarea 
+                        value={wizardData.lastenheftContent}
+                        onChange={(e) => setWizardData({...wizardData, lastenheftContent: e.target.value})}
+                        className="flex-1 bg-black/40 border border-white/10 text-white rounded-xl p-4 font-mono text-xs leading-relaxed focus:outline-none focus:border-emerald-500/50 resize-none h-[400px]"
+                      />
+                    </div>
+
+                    {/* Right Pane: Pflichtenheft Generation */}
+                    <div className="space-y-3 flex flex-col">
+                      <div className="flex justify-between items-center">
+                        <label className="block text-xs font-bold text-[#64748B] uppercase tracking-wider">2. Adım: Pflichtenheft (Teknik Şartname)</label>
+                        {wizardData.pflichtenheftContent ? (
+                          <span className="text-[10px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full font-bold">Hazır</span>
+                        ) : (
+                          <span className="text-[10px] text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full font-bold">Üretim Bekleniyor</span>
+                        )}
+                      </div>
+                      
+                      {wizardData.pflichtenheftContent ? (
+                        <textarea 
+                          value={wizardData.pflichtenheftContent}
+                          onChange={(e) => setWizardData({...wizardData, pflichtenheftContent: e.target.value})}
+                          className="flex-1 bg-black/40 border border-white/10 text-white rounded-xl p-4 font-mono text-xs leading-relaxed focus:outline-none focus:border-emerald-500/50 resize-none h-[400px]"
+                        />
+                      ) : (
+                        <div className="flex-1 border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center p-8 text-center bg-black/20 h-[400px]">
+                          <Wand2 className="w-12 h-12 text-[#64748B] mb-4 animate-bounce" />
+                          <h4 className="text-white font-medium mb-1">Teknik Şartname Henüz Üretilmedi</h4>
+                          <p className="text-xs text-[#94A3B8] max-w-sm mb-6">Lastenheft gereksinimlerine göre mimariyi, kullanılacak teknolojileri ve teslimat fazlarını AI ile planlayın.</p>
+                          <button 
+                            onClick={handleWizardGeneratePflichtenheft}
+                            disabled={generatingPflichtenheft}
+                            className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs font-semibold rounded-xl hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.3)] disabled:opacity-50"
+                          >
+                            {generatingPflichtenheft ? (
+                              <>
+                                <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                                Teknik Plan Hazırlanıyor (Wie/Womit)...
+                              </>
+                            ) : (
+                              <>
+                                Pflichtenheft Üret (Wie & Womit) <Wand2 className="w-4 h-4" />
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions Step 2 */}
+                  <div className="flex justify-between pt-4 border-t border-white/5">
+                    <button 
+                      onClick={() => setWizardStep(1)}
+                      className="px-5 py-2.5 rounded-xl border border-white/10 text-[#94A3B8] hover:text-white hover:bg-white/5 text-sm font-medium transition-all"
+                    >
+                      Geri Dön
+                    </button>
+
+                    <button 
+                      onClick={handleWizardGenerateContract}
+                      disabled={generatingContract || !wizardData.pflichtenheftContent}
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {generatingContract ? (
+                        <>
+                          <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                          Resmi Sözleşme Birleştiriliyor...
+                        </>
+                      ) : (
+                        <>
+                          Resmi Sözleşmeye Dönüştür & İlerle <Wand2 className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: OFFICIAL CONTRACT REVIEW & SAVE */}
+              {wizardStep === 3 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <span className="text-xs">
+                      <strong>Harika!</strong> Lastenheft ve Pflichtenheft bilgileriniz birleştirildi ve StarWebFlow lehine korumacı yasal hükümler eklenerek elit düzeyde resmi B2B sözleşmesi hazırlandı.
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 flex flex-col h-[400px]">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-xs font-bold text-[#64748B] uppercase tracking-wider">3. Adım: Nihai Resmi Sözleşme İçeriği (Düzenlenebilir)</label>
+                      <button 
+                        onClick={() => {
+                          if (confirm("Sözleşmeyi baştan üretmek istediğinize emin misiniz? Yapılan düzenlemeler kaybolacaktır.")) {
+                            handleWizardGenerateContract();
+                          }
+                        }}
+                        className="text-[10px] text-purple-400 hover:text-purple-300 font-semibold"
+                      >
+                        Yeniden Üret
+                      </button>
+                    </div>
+                    <textarea 
+                      value={wizardData.officialContractContent}
+                      onChange={(e) => setWizardData({...wizardData, officialContractContent: e.target.value})}
+                      className="flex-1 bg-black/40 border border-white/10 text-white rounded-xl p-4 font-mono text-xs leading-relaxed focus:outline-none focus:border-emerald-500/50 resize-none h-[350px]"
+                    />
+                  </div>
+
+                  {/* Actions Step 3 */}
+                  <div className="flex justify-between pt-4 border-t border-white/5">
+                    <button 
+                      onClick={() => setWizardStep(2)}
+                      className="px-5 py-2.5 rounded-xl border border-white/10 text-[#94A3B8] hover:text-white hover:bg-white/5 text-sm font-medium transition-all"
+                    >
+                      Geri Dön (Teknik Şartname)
+                    </button>
+
+                    <button 
+                      onClick={handleWizardSaveContract}
+                      disabled={isCreating}
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50"
+                    >
+                      {isCreating ? (
+                        <>
+                          <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                          Veritabanına Kaydediliyor...
+                        </>
+                      ) : (
+                        "Sözleşmeyi Kaydet ve Tamamla"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>

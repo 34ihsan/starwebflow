@@ -262,3 +262,91 @@ Dönüştürülecek Pflichtenheft dökümanını Türkçe ve Markdown formatınd
   }
 }
 
+export async function generateLastenheftFromChoices(data: {
+  serviceType: string;
+  clientName: string;
+  title: string;
+  budget: string;
+  currency: string;
+  selectedNeeds: string[];
+  customNotes?: string;
+}) {
+  try {
+    const serviceLabels: Record<string, string> = {
+      WEB: 'Web Sitesi Geliştirme (Next.js & Modern UI)',
+      SAAS: 'Web Uygulamaları (B2B SaaS / Panel Mimarisi)',
+      AGENTS: 'Yapay Zeka Ajanları (AI Agents & LLM Entegrasyonu)',
+      AUTOMATION: 'AI İş Akış Otomasyonları (n8n, Webhook & API)',
+      MARKETING: 'Reklam & Sosyal Medya (Google/Meta Reklam Yönetimi)'
+    };
+    
+    const serviceName = serviceLabels[data.serviceType] || data.serviceType;
+    const { text } = await generateText({
+      model: getProModel(),
+      prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
+Aşağıda seçilen hizmet türü, müşteri tercihleri ve girilen bilgilere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
+Bu doküman "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden istediğini net bir şekilde açıklamalıdır. Şirket ve iletişim bilgileri ile yasal sınırları da içermelidir.
+
+Müşteri/Firma Adı: ${data.clientName}
+Proje Başlığı: ${data.title}
+Hizmet Türü: ${serviceName}
+Bütçe/Tutar: ${data.budget ? `${data.budget} ${data.currency}` : 'Belirtilmedi'}
+
+Müşterinin Seçtiği Gereksinimler/Hedefler:
+${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
+
+Ek Müşteri Notları:
+${data.customNotes || 'Belirtilmedi'}
+
+Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı bir Lastenheft dokümanı oluştur. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
+    });
+    return { success: true, data: text };
+  } catch (error) {
+    console.error('generateLastenheftFromChoices error:', error);
+    return { success: false, error: 'Lastenheft üretilirken AI hatası oluştu.' };
+  }
+}
+
+export async function generateOfficialContract(data: {
+  lastenheft: string;
+  pflichtenheft: string;
+  clientName: string;
+  title: string;
+  value?: number;
+  currency?: string;
+}) {
+  try {
+    const budgetText = data.value ? `${data.value} ${data.currency || 'TRY'}` : 'Belirtilmedi';
+    const { text } = await generateText({
+      model: getProModel(),
+      prompt: `Sen uzman bir B2B teknoloji avukatı ve sözleşme danışmanısın.
+Aşağıda verilen "Lastenheft" (Müşteri Talepleri) ve "Pflichtenheft" (Teknik Şartname) dokümanlarını esas alarak, StarWebFlow şirketimizin çıkarlarını azami düzeyde koruyan (Pro/Elit seviye), hukuki geçerliliği olan resmi bir B2B Hizmet Sözleşmesi (Master Service Agreement) oluştur.
+
+Sözleşme Koşulları & Koruma Maddeleri (Kritik):
+1. StarWebFlow lehine korumacı bir dil kullan.
+2. Kapsam Genişlemesi (Scope Creep): Pflichtenheft dışındaki her türlü yeni talep ek ücrete tabi olacaktır ve ek süre gerektirir.
+3. Fikri Mülkiyet: Yazılıma dair tüm mülkiyet ve telif hakları, Müşteri sözleşme bedelinin %100'ünü ödeyene kadar StarWebFlow'a aittir. Ödeme tamamlandıktan sonra kullanım hakkı devredilir, ancak "Background IP" (StarWebFlow'un önceden geliştirdiği altyapılar ve kütüphaneler) StarWebFlow mülkiyetinde kalır, müşteriye sadece devredilemez lisans verilir.
+4. Ödeme Planı: Net avans ve ara teslimat/nihai ödemeler belirtilmeli, ödemelerin gecikmesi durumunda aylık %5 gecikme faizi uygulanır ve StarWebFlow hizmeti durdurma hakkına sahiptir.
+5. Sorumluluk Sınırı: StarWebFlow'un sorumluluğu, müşterinin bu sözleşme kapsamında ödediği toplam tutarı aşamaz.
+6. Gizlilik (NDA) ve GDPR/KVKK uyumluluğu.
+
+Müşteri Firma: ${data.clientName}
+Proje Adı: ${data.title}
+Toplam Bütçe: ${budgetText}
+
+MÜŞTERİ TALEPLERİ (Lastenheft):
+${data.lastenheft}
+
+TEKNİK ŞARTNAME (Pflichtenheft):
+${data.pflichtenheft}
+
+Lütfen bu iki belgedeki teknik şartları ve iş kapsamını hukuki maddelere entegre ederek, çok detaylı, resmi bir Türkçe dil kullanarak Markdown formatında nihai B2B Hizmet Sözleşmesini oluştur. Başlık olarak doğrudan resmi sözleşme adı ile başla.`,
+    });
+    return { success: true, data: text };
+  } catch (error) {
+    console.error('generateOfficialContract error:', error);
+    return { success: false, error: 'Resmi sözleşme üretilirken AI hatası oluştu.' };
+  }
+}
+
+
