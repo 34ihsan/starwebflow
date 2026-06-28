@@ -154,10 +154,36 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
       trigger: "form.submitted",
       category: "Pazarlama",
       nodes: [
-        { id: "1", type: "trigger", app: "Typeform", label: "Yeni Yanıt", icon: "FileText", color: "text-white", bg: "bg-black" },
-        { id: "2", type: "action", app: "Email", label: "Mail 1 (Marka Tanıtımı)", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
-        { id: "3", type: "action", app: "Delay", label: "3 Gün Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
-        { id: "4", type: "action", app: "Email", label: "Mail 2 (Değer Önerisi)", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "1", type: "trigger", app: "Typeform", label: "Yeni Yanıt", icon: "FileText", color: "text-white", bg: "bg-black", config: { description: "Potansiyel Müşteri İletişim Formu Doldurulduğunda tetiklenir." } },
+        { 
+          id: "2", 
+          type: "action", 
+          app: "Email", 
+          label: "Mail 1 (Marka Tanıtımı)", 
+          icon: "Mail", 
+          color: "text-[#10B981]", 
+          bg: "bg-[#10B981]/10",
+          config: {
+            subject: "StarWebflow Ajansı'na Hoş Geldiniz! 🚀",
+            description: "Ajansımızın vizyonunu, referanslarını ve çalışma metodolojisini anlatan ilk marka tanıtım e-postasıdır.",
+            email_body: "Merhaba {{clientName}},\n\nStarWebflow ekibine gösterdiğiniz ilgi için teşekkür ederiz! Biz, markaların dijital dönüşüm süreçlerini A-Z'ye tasarlayan ve yöneten yeni nesil bir dijital ajansız.\n\nNeler Yapıyoruz?\n- Modern & Dönüşüm Odaklı Web Tasarım\n- Yapay Zeka Tabanlı İş Akışı Otomasyonları\n- Kurumsal Kimlik & Marka Stratejisi\n\nEkibimiz talebinizi incelemeye başladı. Çok yakında sizinle iletişime geçeceğiz.\n\nSevgiler,\nStarWebflow Ekibi\nwww.starwebflow.com"
+          }
+        },
+        { id: "3", type: "action", app: "Delay", label: "3 Gün Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10", config: { hours: 72, description: "İlk tanıtım mailinin ardından 3 gün (72 saat) bekleme uygulanır." } },
+        { 
+          id: "4", 
+          type: "action", 
+          app: "Email", 
+          label: "Mail 2 (Değer Önerisi)", 
+          icon: "Mail", 
+          color: "text-[#10B981]", 
+          bg: "bg-[#10B981]/10",
+          config: {
+            subject: "İşletmenizi Otomasyonlarla Nasıl Büyütebiliriz?",
+            description: "Müşteriye yapay zeka entegrasyonlarının sağlayacağı somut değerleri ve verimlilik artışını gösteren e-postadır.",
+            email_body: "Merhaba Yaratıcı Girişimci,\n\nDaha önce web tasarımı ve otomasyon hizmetlerimizden bahsetmiştik. Peki, günde 3 saatlik iş yükünü otonom hale getirmek işletmenize ne kazandırır?\n\n- %80 Daha Hızlı Yanıt Süresi (AI Chatbots)\n- Sıfır Hata Payı ile Fatura & CRM Senkronizasyonu\n- Reklam bütçelerinde optimizasyon\n\nSize özel hazırladığımız başarı hikayelerini (Case Studies) incelemek için web sitemizi ziyaret edebilirsiniz.\n\nSaygılarımızla,\nStarWebflow"
+          }
+        },
       ]
     },
     {
