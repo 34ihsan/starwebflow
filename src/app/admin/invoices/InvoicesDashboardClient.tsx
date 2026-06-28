@@ -161,9 +161,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           .btn-secondary:hover {
             background-color: #f9fafb;
-          }
-
-          /* A4 Container Page Styling */
+           /* A4 Container Page Styling */
           .invoice-page {
             background-color: #ffffff;
             width: 210mm;
@@ -178,11 +176,11 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             overflow: hidden;
           }
           .top-strip {
-            height: 12px;
+            height: 10px;
             background: linear-gradient(to right, #2563eb, #4f46e5, #7c3aed);
           }
           .page-content {
-            padding: 60px 80px;
+            padding: 40px 60px 20px 60px; /* Reduced from 60px 80px to save vertical space */
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -193,22 +191,22 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 60px;
+            margin-bottom: 40px; /* Reduced from 60px */
           }
           .company-info {
             flex-grow: 1;
           }
           .company-address {
             color: #6b7280;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-top: 16px;
-            max-w: 320px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 12px;
+            max-width: 320px;
             white-space: pre-wrap;
           }
           .company-contact {
-            margin-top: 12px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 13px;
             color: #6b7280;
           }
           .company-contact div {
@@ -219,19 +217,19 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             text-align: right;
           }
           .invoice-title {
-            font-size: 36px;
+            font-size: 32px; /* Reduced from 36px */
             font-weight: 300;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #d1d5db;
-            margin-bottom: 32px;
+            margin-bottom: 20px; /* Reduced from 32px */
           }
           .meta-card {
             background-color: #f9fafb;
             border: 1px solid #f3f4f6;
             border-radius: 12px;
-            padding: 20px;
-            min-width: 260px;
+            padding: 16px; /* Reduced from 20px */
+            min-width: 250px;
             text-align: left;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
           }
@@ -239,13 +237,13 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 14px;
-            margin-bottom: 8px;
+            font-size: 13px;
+            margin-bottom: 6px;
           }
           .meta-row-main {
             border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 12px;
-            margin-bottom: 12px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
           }
           .meta-label {
             color: #6b7280;
@@ -265,7 +263,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           /* Client Info Layout */
           .client-section {
-            margin-bottom: 50px;
+            margin-bottom: 35px; /* Reduced from 50px */
           }
           .client-title {
             font-size: 10px;
@@ -273,31 +271,31 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             letter-spacing: 0.1em;
             color: #9ca3af;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             margin-left: 4px;
           }
           .client-card {
             background-color: #f9fafb;
             border: 1px solid #f3f4f6;
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px; /* Reduced from 24px */
             min-width: 320px;
             display: inline-block;
           }
           .client-name {
-            font-size: 18px;
+            font-size: 16px; /* Reduced from 18px */
             font-weight: 700;
             color: #111827;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
           }
           .client-address {
-            font-size: 14px;
+            font-size: 13px;
             color: #4b5563;
-            line-height: 1.5;
+            line-height: 1.4;
           }
           .client-tax-info {
-            margin-top: 16px;
-            padding-top: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid #e5e7eb;
             font-size: 12px;
             color: #6b7280;
@@ -310,7 +308,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           /* Items Table */
           .items-table-container {
-            margin-bottom: 40px;
+            margin-bottom: 30px; /* Reduced from 40px */
             width: 100%;
           }
           .items-table {
@@ -320,7 +318,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           .items-table th {
             border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 12px;
+            padding-bottom: 10px;
             color: #6b7280;
             font-size: 12px;
             font-weight: 600;
@@ -328,9 +326,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             letter-spacing: 0.05em;
           }
           .items-table td {
-            padding: 20px 0;
+            padding: 14px 0; /* Reduced from 20px */
             border-bottom: 1px solid #f3f4f6;
-            font-size: 14px;
+            font-size: 13px;
             color: #374151;
             vertical-align: top;
           }
@@ -364,32 +362,32 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           .totals-section {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 32px;
+            margin-bottom: 25px; /* Reduced from 32px */
           }
           .totals-card {
             background-color: #f9fafb;
             border: 1px solid #f3f4f6;
             border-radius: 12px;
-            padding: 24px;
-            width: 320px;
+            padding: 16px 20px; /* Reduced from 24px */
+            width: 300px;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
           }
           .totals-row {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            font-size: 13px;
             color: #6b7280;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
           }
           .totals-row-final {
             margin-bottom: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             color: #111827;
           }
           .totals-row-final-gross {
             border-top: 1px solid #e5e7eb;
-            padding-top: 16px;
+            padding-top: 12px;
             margin-top: 4px;
           }
           .gross-amount {
@@ -402,11 +400,11 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           /* §19 Box */
           .klein-box {
-            margin-bottom: 40px;
+            margin-bottom: 25px; /* Reduced from 40px */
             background-color: #fffbeb;
             border: 1px solid #fde68a;
             border-radius: 12px;
-            padding: 16px 24px;
+            padding: 12px 20px;
           }
           .klein-box-title {
             font-size: 10px;
@@ -414,40 +412,40 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #92400e;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
           }
           .klein-box-text {
-            font-size: 13px;
+            font-size: 12px; /* Reduced from 13px */
             font-weight: 600;
             color: #78350f;
-            line-height: 1.5;
+            line-height: 1.4;
           }
           .klein-box-subtext {
-            font-size: 11px;
+            font-size: 10px;
             color: #b45309;
-            margin-top: 4px;
+            margin-top: 2px;
           }
 
           /* Notes layout */
           .notes-box {
             border-left: 4px solid #4f46e5;
-            padding-left: 24px;
-            padding-top: 8px;
-            padding-bottom: 8px;
-            margin-bottom: 40px;
+            padding-left: 20px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            margin-bottom: 30px; /* Reduced from 40px */
           }
           .notes-title {
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #111827;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
           }
           .notes-text {
-            font-size: 14px;
+            font-size: 13px;
             color: #374151;
-            line-height: 1.6;
+            line-height: 1.5;
             white-space: pre-wrap;
           }
 
@@ -455,15 +453,16 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           .footer {
             border-top: 1px solid #e5e7eb;
             background-color: #fafafa;
-            padding: 40px 80px;
+            padding: 30px 60px; /* Reduced padding */
             display: flex;
             justify-content: space-between;
             gap: 32px;
+            margin-top: auto; /* Push footer to the absolute bottom of page container */
           }
           .footer-col {
             flex: 1;
-            font-size: 11px;
-            line-height: 1.7;
+            font-size: 10px; /* Reduced from 11px */
+            line-height: 1.6;
             color: #6b7280;
           }
           .footer-col-title {
@@ -471,31 +470,32 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             color: #374151;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin-bottom: 12px;
-            font-size: 10px;
+            margin-bottom: 10px;
+            font-size: 9px;
           }
           .footer-col span {
             font-family: monospace;
           }
           .klein-footer-text {
-            margin-top: 8px;
+            margin-top: 6px;
             color: #b45309;
             font-weight: 600;
           }
 
           @page { 
             size: A4; 
-            margin: 15mm 15mm 15mm 15mm; 
+            margin: 10mm 10mm 15mm 10mm; /* Adjusted margins for optimal height fit */
           }
           @media print {
             .no-print { display: none !important; }
             body { 
               background-color: #ffffff; 
-              font-size: 13px; /* Slightly adjust print font size to save vertical space */
+              font-size: 12px; /* Uniform font scaling down on print */
             }
             .invoice-page {
               width: 100%;
-              min-height: 100%;
+              height: 100%;
+              min-height: 297mm;
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
@@ -503,27 +503,31 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               box-shadow: none !important;
             }
             .page-content {
-              padding: 10px 0 20px 0 !important; /* Compact padding for printing scale */
+              padding: 0px 0 0px 0 !important; /* Extremely tight padding to fit 100% height */
             }
             .header {
-              margin-bottom: 30px !important;
-            }
-            .client-section {
-              margin-bottom: 30px !important;
-            }
-            .items-table-container {
               margin-bottom: 25px !important;
             }
+            .client-section {
+              margin-bottom: 25px !important;
+            }
+            .items-table-container {
+              margin-bottom: 20px !important;
+            }
             .items-table td {
-              padding: 12px 0 !important; /* Tighter padding on print */
+              padding: 10px 0 !important; 
+            }
+            .notes-box {
+              margin-bottom: 20px !important;
             }
             .footer {
-              padding: 20px 0 !important;
-              position: fixed;
-              bottom: 0;
+              padding: 15px 0 0 0 !important;
+              border-top: 1px solid #e5e7eb !important;
+              background-color: transparent !important;
+              position: absolute;
+              bottom: 0px;
               left: 0;
               right: 0;
-              background-color: transparent !important;
             }
           }
         </style>
