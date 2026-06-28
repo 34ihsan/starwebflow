@@ -265,7 +265,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
           /* Client Info Layout */
           .client-section {
-            margin-bottom: 35px; /* Reduced from 50px */
+            margin-bottom: 25px;
           }
           .client-title {
             font-size: 10px;
@@ -280,15 +280,21 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             background-color: #f9fafb;
             border: 1px solid #f3f4f6;
             border-radius: 12px;
-            padding: 20px; /* Reduced from 24px */
-            min-width: 320px;
-            display: inline-block;
+            padding: 16px 20px;
+            width: 100%; /* Make card full width */
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 40px;
+          }
+          .client-details {
+            flex: 1;
           }
           .client-name {
-            font-size: 16px; /* Reduced from 18px */
+            font-size: 15px;
             font-weight: 700;
             color: #111827;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
           }
           .client-address {
             font-size: 13px;
@@ -296,16 +302,23 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             line-height: 1.4;
           }
           .client-tax-info {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 1px solid #e5e7eb;
+            padding-left: 20px;
             font-size: 12px;
             color: #6b7280;
           }
           .tax-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+          }
+          .tax-row:last-child {
+            margin-bottom: 0;
           }
 
           /* Items Table */
@@ -543,8 +556,15 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               margin-bottom: 12px !important;
             }
             .client-card {
-              padding: 10px !important;
-              min-width: 220px !important;
+              padding: 10px 16px !important;
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: stretch !important;
+              width: 100% !important;
+              gap: 20px !important;
+            }
+            .client-details {
+              flex: 1 !important;
             }
             .client-name {
               font-size: 11px !important;
@@ -553,8 +573,12 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               font-size: 9px !important;
             }
             .client-tax-info {
-              margin-top: 6px !important;
-              padding-top: 6px !important;
+              width: 180px !important;
+              border-left: 1px solid #e5e7eb !important;
+              padding-left: 15px !important;
+              margin-top: 0 !important;
+              padding-top: 0 !important;
+              justify-content: center !important;
             }
             .items-table-container {
               margin-bottom: 12px !important;
@@ -686,11 +710,13 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             <div class="client-section">
               <div class="client-title">Fatura Edilen</div>
               <div class="client-card">
-                <h3 class="client-name">${client.name || 'Müşteri'}</h3>
-                <div class="client-address">
-                  <p>${client.addressStreet || ''}</p>
-                  <p>${client.addressZip || ''} ${client.addressCity || ''}</p>
-                  <p>${client.addressCountry || ''}</p>
+                <div class="client-details">
+                  <h3 class="client-name">${client.name || 'Müşteri'}</h3>
+                  <div class="client-address">
+                    <p>${client.addressStreet || ''}</p>
+                    <p>${client.addressZip || ''} ${client.addressCity || ''}</p>
+                    <p>${client.addressCountry || ''}</p>
+                  </div>
                 </div>
                 ${(client.vatId || client.taxId) ? `
                   <div class="client-tax-info">
