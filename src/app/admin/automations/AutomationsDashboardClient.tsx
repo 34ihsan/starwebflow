@@ -1298,6 +1298,92 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       "Oluşan webhook kartını genişleterek 'Webhook URL'sini Kopyala' butonuna tıklayın ve buraya ekleyin."
                     ]
                   }
+                },
+                {
+                  id: "notion",
+                  name: "Notion Workspace",
+                  app: "Notion",
+                  icon: FileText,
+                  color: "text-white",
+                  placeholder: "secret_... (Notion Integration Token)",
+                  guide: {
+                    title: "Notion API & Private Integration Token Alımı",
+                    steps: [
+                      "notion.so/my-integrations adresine gidin.",
+                      "Create New Integration butonuna tıklayıp uygulamanıza bir isim verin ve doğru workspace'i seçin.",
+                      "Content Capabilities altından okuma, yazma ve güncelleme izinlerini aktif hale getirin.",
+                      "Oluşan 'Internal Integration Secret' (secret_...) anahtarını kopyalayın.",
+                      "Kullanmak istediğiniz Notion sayfasına gidin, sağ üstteki üç noktadan 'Connect to' seçeneğini seçerek oluşturduğunuz entegrasyona izin verin."
+                    ]
+                  }
+                },
+                {
+                  id: "airtable",
+                  name: "Airtable Database",
+                  app: "Airtable",
+                  icon: Link,
+                  color: "text-[#FCB400]",
+                  placeholder: "pat.abc... (Personal Access Token)",
+                  guide: {
+                    title: "Airtable Personal Access Token Alımı",
+                    steps: [
+                      "airtable.com/create/tokens adresine gidin.",
+                      "Create Token butonuna tıklayın.",
+                      "Scopes bölümünden 'data.records:read', 'data.records:write', 'schema.bases:read' yetkilerini tanımlayın.",
+                      "Access kısmından erişmesini istediğiniz Base'leri (veritabanlarını) seçin.",
+                      "Oluşturulan Access Token (pat.xxx...) kodunu kopyalayarak buraya yapıştırın."
+                    ]
+                  }
+                },
+                {
+                  id: "zoom",
+                  name: "Zoom Meetings",
+                  app: "Zoom",
+                  icon: Globe,
+                  color: "text-[#2D8CFF]",
+                  placeholder: "Zoom Server-to-Server OAuth Credentials",
+                  guide: {
+                    title: "Zoom Server-to-Server OAuth Credentials Alımı",
+                    steps: [
+                      "marketplace.zoom.us adresine gidin ve geliştirici hesabınızla giriş yapın.",
+                      "Develop -> Build App menüsünden 'Server-to-Server OAuth' seçeneğini seçip oluşturun.",
+                      "App Credentials sekmesinden Account ID, Client ID ve Client Secret değerlerini kopyalayın.",
+                      "Otomatik toplantı odası açma ve takvim oluşturma özellikleri için buraya kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "database_sql",
+                  name: "SQL Veritabanı (Postgres / MySQL)",
+                  app: "SQL DB",
+                  icon: Database,
+                  color: "text-amber-500",
+                  placeholder: "postgresql://user:pass@host:port/dbname",
+                  guide: {
+                    title: "PostgreSQL & MySQL Bağlantı Metni Alımı",
+                    steps: [
+                      "Uzak veya yerel veritabanı sunucunuzun bağlantı parametrelerini hazırlayın.",
+                      "Güvenlik için sadece gerekli tablolara erişimi olan kısıtlı bir DB User oluşturun (örn: starwebflow_reader).",
+                      "Sunucunuzun güvenlik duvarında (firewall) StarWebflow sunucu IP adreslerine erişim izni (whitelist) verin.",
+                      "Standart Connection String metnini (postgresql://... veya mysql://...) buraya yapıştırarak kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "http_request",
+                  name: "Özel HTTP İstekleri (Custom Request)",
+                  app: "HTTP Client",
+                  icon: Activity,
+                  color: "text-emerald-400",
+                  placeholder: "Custom Bearer Token / API Secret Key",
+                  guide: {
+                    title: "Özel HTTP / REST API Header Tanımlama",
+                    steps: [
+                      "Herhangi bir n8n düğümü gibi çalışmak üzere listede olmayan bir dış sisteme istek atacaksanız burayı kullanın.",
+                      "Dış servisin beklediği Bearer Token, API Key veya Basic Auth şifrelerini buraya kaydedin.",
+                      "Akış yöneticisinde HTTP Node'unu kurarken bu kimlik doğrulama anahtarını otomatik çağırabilirsiniz."
+                    ]
+                  }
                 }
               ].map(integration => {
                 const Icon = integration.icon;
