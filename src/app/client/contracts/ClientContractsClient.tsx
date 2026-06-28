@@ -271,6 +271,36 @@ export default function ClientContractsClient({
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
+  // Client edit states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const handleSaveClientEdit = async () => {
+    if (!selectedContract) return;
+    setIsSavingEdit(true);
+    try {
+      const res = await updateContract(selectedContract.id, {
+        title: editTitle,
+        content: editContent
+      });
+      if (res.success && res.data) {
+        setContracts(prev => prev.map(c => c.id === res.data.id ? res.data : c));
+        setIsEditModalOpen(false);
+        setSelectedContract(null);
+        alert(language === 'tr' ? "Talebiniz başarıyla güncellendi!" : "Request successfully updated!");
+      } else {
+        alert("Hata oluştu.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hata oluştu.");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   // Client Wizard States
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
   const [wizardData, setWizardData] = useState({
@@ -483,7 +513,22 @@ export default function ClientContractsClient({
                             <Eye className="w-4 h-4" />
                             {dict.view}
                           </button>
-                          {isPending && (
+                          {contract.type === 'LASTENHEFT' && (
+                            <button 
+                              onClick={() => {
+                                setSelectedContract(contract);
+                                setEditTitle(contract.title || "");
+                                setEditContent(contract.content || "");
+                                setIsEditModalOpen(true);
+                              }}
+                              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-colors"
+                              title="Talebi Düzenle"
+                            >
+                              <PenTool className="w-4 h-4 text-amber-400" />
+                              Düzenle
+                            </button>
+                          )}
+                          {isPending && contract.type !== 'LASTENHEFT' && (
                             <button 
                               onClick={() => { setSelectedContract(contract); setIsSignModalOpen(true); }}
                               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#06B6D4] hover:bg-cyan-400 text-white text-xs font-bold transition-colors shadow-[0_0_10px_rgba(6,182,212,0.3)]"
@@ -662,6 +707,79 @@ export default function ClientContractsClient({
                   Sözleşmeyi İmzala
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Lastenheft Edit Modal */}
+      {isEditModalOpen && selectedContract && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col h-[85vh]">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-[#131B2A] to-black/40">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <PenTool className="w-5 h-5 text-[#06B6D4]" />
+                  Talep Formu Düzenle (Lastenheft)
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">Gereksinim detaylarını özelleştirin.</p>
+              </div>
+              <button 
+                onClick={() => { setIsEditModalOpen(false); setSelectedContract(null); }}
+                className="text-slate-400 hover:text-white p-2 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Proje Başlığı</label>
+                <input 
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#06B6D4] transition-colors"
+                />
+              </div>
+              
+              <div className="flex-1 flex flex-col min-h-[300px]">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gereksinimler İçeriği (Markdown)</label>
+                <textarea 
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="flex-1 bg-[#131B2A] border border-white/[0.05] rounded-xl p-4 text-white font-mono text-sm leading-relaxed focus:outline-none focus:border-[#06B6D4] transition-colors resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/5 flex items-center justify-end gap-3 bg-[#0A0A0F]">
+              <button 
+                onClick={() => { setIsEditModalOpen(false); setSelectedContract(null); }}
+                disabled={isSavingEdit}
+                className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium disabled:opacity-50"
+              >
+                Vazgeç
+              </button>
+              <button 
+                onClick={handleSaveClientEdit}
+                disabled={isSavingEdit || !editTitle}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-sm hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              >
+                {isSavingEdit ? (
+                  <>
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                    Kaydediliyor...
+                  </>
+                ) : (
+                  <>
+                    Kaydet ve Güncelle
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

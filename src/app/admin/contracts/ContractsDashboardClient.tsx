@@ -1363,18 +1363,132 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                   </div>
 
                   {/* Actions Step 2 */}
-                  <div className="flex justify-between pt-4 border-t border-white/5">
-                    <button 
-                      onClick={() => setWizardStep(1)}
-                      className="px-5 py-2.5 rounded-xl border border-white/10 text-[#94A3B8] hover:text-white hover:bg-white/5 text-sm font-medium transition-all"
-                    >
-                      Geri Dön
-                    </button>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setWizardStep(1)}
+                        className="px-5 py-2.5 rounded-xl border border-white/10 text-[#94A3B8] hover:text-white hover:bg-white/5 text-sm font-medium transition-all"
+                      >
+                        Geri Dön
+                      </button>
+
+                      <button
+                        onClick={async () => {
+                          if (!wizardData.lastenheftContent) {
+                            alert("Lastenheft içeriği bulunamadı.");
+                            return;
+                          }
+                          setIsCreating(true);
+                          try {
+                            const res = await createContract({
+                              tenantId: 'default-tenant',
+                              title: `${wizardData.title} - Lastenheft`,
+                              clientName: wizardData.clientName,
+                              clientEmail: wizardData.clientEmail,
+                              type: "LASTENHEFT",
+                              value: wizardData.budget ? Number(wizardData.budget) : undefined,
+                              currency: wizardData.currency,
+                              status: "draft"
+                            });
+                            if (res.success && res.data) {
+                              const updated = await updateContract(res.data.id, {
+                                content: wizardData.lastenheftContent
+                              });
+                              if (updated.success && updated.data) {
+                                setContracts(prev => [updated.data, ...prev]);
+                                setIsGeneratorModalOpen(false);
+                                setWizardStep(1);
+                                setWizardData({
+                                  clientName: "",
+                                  clientEmail: "",
+                                  title: "",
+                                  budget: "",
+                                  currency: "TRY",
+                                  serviceType: "WEB",
+                                  selectedNeeds: [],
+                                  customNotes: "",
+                                  lastenheftContent: "",
+                                  pflichtenheftContent: "",
+                                  officialContractContent: ""
+                                });
+                                alert("Lastenheft başarıyla oluşturuldu ve kaydedildi!");
+                              }
+                            } else {
+                              alert("Kayıt sırasında hata oluştu.");
+                            }
+                          } catch (err) {
+                            console.error(err);
+                            alert("Hata oluştu.");
+                          } finally {
+                            setIsCreating(false);
+                          }
+                        }}
+                        disabled={isCreating}
+                        className="px-5 py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:text-white text-sm font-semibold transition-all cursor-pointer"
+                      >
+                        {isCreating ? 'Kaydediliyor...' : 'Sadece Lastenheft Kaydet (Müşteri Adına)'}
+                      </button>
+
+                      {wizardData.pflichtenheftContent && (
+                        <button
+                          onClick={async () => {
+                            setIsCreating(true);
+                            try {
+                              const res = await createContract({
+                                tenantId: 'default-tenant',
+                                title: `${wizardData.title} - Pflichtenheft`,
+                                clientName: wizardData.clientName,
+                                clientEmail: wizardData.clientEmail,
+                                type: "PFLICHTENHEFT",
+                                value: wizardData.budget ? Number(wizardData.budget) : undefined,
+                                currency: wizardData.currency,
+                                status: "draft"
+                              });
+                              if (res.success && res.data) {
+                                const updated = await updateContract(res.data.id, {
+                                  content: wizardData.pflichtenheftContent
+                                });
+                                if (updated.success && updated.data) {
+                                  setContracts(prev => [updated.data, ...prev]);
+                                  setIsGeneratorModalOpen(false);
+                                  setWizardStep(1);
+                                  setWizardData({
+                                    clientName: "",
+                                    clientEmail: "",
+                                    title: "",
+                                    budget: "",
+                                    currency: "TRY",
+                                    serviceType: "WEB",
+                                    selectedNeeds: [],
+                                    customNotes: "",
+                                    lastenheftContent: "",
+                                    pflichtenheftContent: "",
+                                    officialContractContent: ""
+                                  });
+                                  alert("Pflichtenheft başarıyla oluşturuldu ve kaydedildi!");
+                                }
+                              } else {
+                                alert("Kayıt sırasında hata oluştu.");
+                              }
+                            } catch (err) {
+                              console.error(err);
+                              alert("Hata oluştu.");
+                            } finally {
+                              setIsCreating(false);
+                            }
+                          }}
+                          disabled={isCreating}
+                          className="px-5 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:text-white text-sm font-semibold transition-all cursor-pointer"
+                        >
+                          {isCreating ? 'Kaydediliyor...' : 'Sadece Pflichtenheft Kaydet'}
+                        </button>
+                      )}
+                    </div>
 
                     <button 
                       onClick={handleWizardGenerateContract}
                       disabled={generatingContract || !wizardData.pflichtenheftContent}
-                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       {generatingContract ? (
                         <>
