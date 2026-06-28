@@ -503,22 +503,26 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             margin-top: 6px;
             color: #b45309;
             font-weight: 600;
-          }
-
           @page { 
             size: A4; 
-            margin: 8mm 12mm 12mm 12mm; 
+            margin: 0; /* Let body padding manage printable margins */
           }
           @media print {
             .no-print { display: none !important; }
+            html, body {
+              height: 297mm;
+              overflow: hidden;
+              background-color: #ffffff;
+            }
             body { 
-              background-color: #ffffff; 
-              font-size: 9.5px; /* Scaled down base font size to make everything fit in 1 page */
+              font-size: 9.5px;
+              padding: 10mm 15mm; /* Clean margins on page container level */
+              box-sizing: border-box;
             }
             .invoice-page {
-              width: 100%;
-              height: 297mm !important;
-              min-height: 297mm !important;
+              width: 100% !important;
+              height: 100% !important;
+              max-height: 277mm !important; /* Dynamic A4 height subtraction */
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
@@ -526,9 +530,10 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               box-shadow: none !important;
               display: flex !important;
               flex-direction: column !important;
+              position: relative !important;
             }
             .page-content {
-              padding: 0px 0 0px 0 !important;
+              padding: 0 !important;
               display: flex !important;
               flex-direction: column !important;
               flex-grow: 1 !important;
@@ -556,7 +561,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               margin-bottom: 12px !important;
             }
             .client-card {
-              padding: 10px 16px !important;
+              padding: 8px 14px !important;
               display: flex !important;
               justify-content: space-between !important;
               align-items: stretch !important;
@@ -638,7 +643,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               bottom: 0px !important;
               left: 0 !important;
               right: 0 !important;
-              height: 65px !important;
+              height: 55px !important;
               display: flex !important;
             }
             .footer-col {
@@ -650,7 +655,6 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               margin-bottom: 4px !important;
             }
           }
-
         </style>
       </head>
       <body>
