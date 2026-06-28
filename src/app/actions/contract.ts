@@ -359,4 +359,42 @@ Lütfen bu iki belgedeki teknik şartları ve iş kapsamını hukuki maddelere e
   }
 }
 
+export async function createPublicLastenheft(data: {
+  name: string;
+  email: string;
+  idea: string;
+}) {
+  try {
+    const { text } = await generateText({
+      model: getProModel(),
+      prompt: `Sen StarWebFlow Bilişim'in baş iş analistisin. 
+Müşteri aşağıdaki fikir ile web sitemiz üzerinden bir proje talebinde bulundu.
+Müşteri Adı: ${data.name}
+Müşteri E-Postası: ${data.email}
+Proje Fikri: "${data.idea}"
+
+Lütfen bu fikri analiz ederek "Ne ve Niçin" (Was & Wofür) mantığında, Türkçe ve Markdown formatında profesyonel bir "LASTENHEFT" (Gereksinim Şartnamesi) dokümanı oluştur. 
+Bu doküman yasal sözleşme maddeleri İÇERMEMELİDİR. Sadece iş gereksinimlerini listelemelidir.`,
+    });
+
+    const contract = await prisma.contract.create({
+      data: {
+        tenant: { connect: { id: 'default-tenant' } },
+        title: `${data.name} - Proje Talebi (Lastenheft)`,
+        clientName: data.name,
+        clientEmail: data.email,
+        type: 'LASTENHEFT',
+        status: 'draft',
+        content: text
+      }
+    });
+
+    return { success: true, data: contract };
+  } catch (error) {
+    console.error('createPublicLastenheft error:', error);
+    return { success: false, error: 'Talebiniz kaydedilirken bir hata oluştu.' };
+  }
+}
+
+
 

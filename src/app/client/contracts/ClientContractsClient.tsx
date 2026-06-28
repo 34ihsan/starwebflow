@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { FileSignature, Search, Download, ExternalLink, PenTool, Eye } from 'lucide-react'
+import { FileSignature, Search, Download, ExternalLink, PenTool, Eye, Wand2, Plus } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
-import { updateContractStatus } from '@/app/actions/contract'
+import { updateContractStatus, createContract, updateContract, generateLastenheftFromChoices } from '@/app/actions/contract'
 import ReactMarkdown from 'react-markdown'
 
 function renderMarkdownToHtmlSimple(md: string): string {
@@ -23,6 +23,44 @@ function renderMarkdownToHtmlSimple(md: string): string {
 
   return html;
 }
+
+const WIZARD_NEEDS: Record<string, string[]> = {
+  WEB: [
+    "Sub-second (saniye altı) sayfa hızı ve yüksek performans",
+    "SEO Uyumlu Arama Motoru Optimizasyonu",
+    "Mobil Öncelikli & Responsive Arayüz Tasarımı",
+    "Modern Outfit & Inter yazı tipi entegrasyonu",
+    "İletişim Formları ve Lead Yakalama modülleri"
+  ],
+  SAAS: [
+    "Gelişmiş Admin Yönetim Paneli",
+    "Kullanıcı Rolleri ve Yetkilendirme Sistemi (RBAC)",
+    "Stripe veya yerel ödeme kanalları entegrasyonu",
+    "Veri Tablosu filtreleme, dışa aktarma (Excel/CSV)",
+    "Gerçek zamanlı bildirimler ve veri akışı"
+  ],
+  AGENTS: [
+    "CRM ve Müşteri İlişkileri Entegrasyonu",
+    "7/24 Otonom Dijital Destek Asistanı",
+    "Doğal Dil Anlama (NLU) ve Akıllı Karar Verme",
+    "Gemini & GPT LLM API entegrasyonu",
+    "Kullanıcı veritabanı ile entegre hafıza (Memory) sistemi"
+  ],
+  AUTOMATION: [
+    "n8n iş akışı otomasyonu kurulumu ve yönetimi",
+    "API ve Webhook entegrasyonları",
+    "Otomatik faturalama veya veri senkronizasyonu",
+    "Manuel işleri 10 kat hızlandıracak veri işleme robotları",
+    "E-posta veya Slack bildirim akışları"
+  ],
+  MARKETING: [
+    "Yapay zeka destekli kreatif tasarımlar",
+    "ROAS odaklı Meta (Facebook/Instagram) reklam yönetimi",
+    "ROAS odaklı Google Ads reklam kampanya yönetimi",
+    "Haftalık içerik planlama ve otomatik paylaşım",
+    "Aylık performans ve bütçe verimliliği raporu"
+  ]
+};
 
 export const handlePrintContract = (contract: any) => {
   const printWindow = window.open("", "_blank");
@@ -216,7 +254,13 @@ const localDict = {
   }
 }
 
-export default function ClientContractsClient({ initialContracts }: { initialContracts: any[] }) {
+export default function ClientContractsClient({ 
+  initialContracts, 
+  clientInfo 
+}: { 
+  initialContracts: any[]; 
+  clientInfo: { name: string; email: string } | null;
+}) {
   const { language } = useLanguage()
   const dict = localDict[language] || localDict.tr
   
@@ -226,6 +270,87 @@ export default function ClientContractsClient({ initialContracts }: { initialCon
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  // Client Wizard States
+  const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
+  const [wizardData, setWizardData] = useState({
+    title: "",
+    budget: "",
+    currency: "TRY",
+    serviceType: "WEB",
+    selectedNeeds: [] as string[],
+    customNotes: "",
+    lastenheftContent: ""
+  });
+  const [generatingLastenheft, setGeneratingLastenheft] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleWizardSubmit = async () => {
+    if (!wizardData.title) {
+      alert(language === 'tr' ? "Lütfen Proje Başlığı girin." : "Please enter a project title.");
+      return;
+    }
+    setGeneratingLastenheft(true);
+    try {
+      const clientName = clientInfo?.name || "Müşteri";
+      const clientEmail = clientInfo?.email || "";
+      
+      const res = await generateLastenheftFromChoices({
+        serviceType: wizardData.serviceType,
+        clientName: clientName,
+        clientEmail: clientEmail,
+        title: wizardData.title,
+        budget: wizardData.budget,
+        currency: wizardData.currency,
+        selectedNeeds: wizardData.selectedNeeds,
+        customNotes: wizardData.customNotes
+      });
+      
+      if (res.success && res.data) {
+        setIsSaving(true);
+        const dbRes = await createContract({
+          tenantId: 'default-tenant',
+          title: wizardData.title,
+          clientName: clientName,
+          clientEmail: clientEmail,
+          type: "LASTENHEFT",
+          value: wizardData.budget ? Number(wizardData.budget) : undefined,
+          currency: wizardData.currency,
+          status: "draft"
+        });
+        
+        if (dbRes.success && dbRes.data) {
+          const updated = await updateContract(dbRes.data.id, {
+            content: res.data
+          });
+          if (updated.success && updated.data) {
+            setContracts(prev => [updated.data, ...prev]);
+            setIsGeneratorModalOpen(false);
+            setWizardData({
+              title: "",
+              budget: "",
+              currency: "TRY",
+              serviceType: "WEB",
+              selectedNeeds: [],
+              customNotes: "",
+              lastenheftContent: ""
+            });
+            alert(language === 'tr' ? "Proje talebiniz (Lastenheft) başarıyla oluşturuldu ve ekibe iletildi!" : "Project request (Lastenheft) successfully created and sent!");
+          }
+        } else {
+          alert("Kayıt sırasında hata oluştu.");
+        }
+      } else {
+        alert(res.error || "Gereksinimler derlenirken hata oluştu.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hata oluştu.");
+    } finally {
+      setGeneratingLastenheft(false);
+      setIsSaving(false);
+    }
+  };
 
   const filteredContracts = contracts.filter(c => {
     const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -246,6 +371,13 @@ export default function ClientContractsClient({ initialContracts }: { initialCon
           </h1>
           <p className="text-slate-400 mt-2">{dict.subtitle}</p>
         </div>
+        <button 
+          onClick={() => setIsGeneratorModalOpen(true)}
+          className="flex items-center gap-2 bg-gradient-to-r from-[#06B6D4] to-cyan-500 hover:opacity-90 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] select-none cursor-pointer"
+        >
+          <Plus className="w-4 h-4" />
+          {language === 'tr' ? "Yeni Proje Talebi (Lastenheft)" : "New Project Request"}
+        </button>
       </div>
 
       {/* Metrics */}
@@ -530,6 +662,174 @@ export default function ClientContractsClient({ initialContracts }: { initialCon
                   Sözleşmeyi İmzala
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Lastenheft Builder Wizard Modal */}
+      {isGeneratorModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-[#131B2A] to-black/40">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Wand2 className="w-5 h-5 text-[#06B6D4]" />
+                  Yeni Proje Talebi (Lastenheft)
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">İhtiyaçlarınızı belirleyin ve yapay zeka ile iş gereksinimleri şartnamesini hazırlayın.</p>
+              </div>
+              <button 
+                onClick={() => setIsGeneratorModalOpen(false)}
+                className="text-slate-400 hover:text-white p-2 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Form */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Proje Başlığı */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Proje Başlığı</label>
+                <input 
+                  type="text"
+                  placeholder="Örn: E-Ticaret Mobil Entegrasyonu veya Müşteri Destek Asistanı"
+                  value={wizardData.title}
+                  onChange={(e) => setWizardData(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#06B6D4] transition-colors"
+                />
+              </div>
+
+              {/* Hizmet Türü Seçimi */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Hizmet Türü</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    { id: 'WEB', name: 'Web Geliştirme', desc: 'Modern ve hızlı web siteleri' },
+                    { id: 'SAAS', name: 'B2B SaaS / Panel', desc: 'Web uygulamaları ve paneller' },
+                    { id: 'AGENTS', name: 'AI Ajanları', desc: 'Akıllı LLM / Yapay zeka asistanları' },
+                    { id: 'AUTOMATION', name: 'İş Akış Otomasyonu', desc: 'API / n8n / webhook entegrasyonu' },
+                    { id: 'MARKETING', name: 'Sosyal Medya & Reklam', desc: 'ROAS odaklı kampanya yönetimi' }
+                  ].map((srv) => (
+                    <div 
+                      key={srv.id}
+                      onClick={() => setWizardData(prev => ({ ...prev, serviceType: srv.id, selectedNeeds: [] }))}
+                      className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                        wizardData.serviceType === srv.id 
+                          ? 'border-[#06B6D4] bg-[#06B6D4]/5' 
+                          : 'border-white/5 hover:border-white/10 bg-white/[0.01]'
+                      }`}
+                    >
+                      <h4 className="font-bold text-white text-sm">{srv.name}</h4>
+                      <p className="text-xs text-slate-500 mt-1">{srv.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Hedefler & İhtiyaçlar Checkbox Listesi */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                  Bu Projeden Beklentileriniz & Hedefleriniz
+                </label>
+                <div className="space-y-2">
+                  {(WIZARD_NEEDS[wizardData.serviceType] || []).map((need) => {
+                    const isSelected = wizardData.selectedNeeds.includes(need);
+                    return (
+                      <label 
+                        key={need}
+                        className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                          isSelected ? 'border-[#06B6D4]/40 bg-[#06B6D4]/5 text-white' : 'border-white/5 hover:border-white/10 text-slate-400'
+                        }`}
+                      >
+                        <input 
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            setWizardData(prev => {
+                              const alreadySelected = prev.selectedNeeds.includes(need);
+                              const next = alreadySelected 
+                                ? prev.selectedNeeds.filter(x => x !== need)
+                                : [...prev.selectedNeeds, need];
+                              return { ...prev, selectedNeeds: next };
+                            });
+                          }}
+                          className="mt-0.5 rounded border-white/10 bg-black/40 text-[#06B6D4] focus:ring-[#06B6D4]"
+                        />
+                        <span className="text-sm">{need}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bütçe Aralığı */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Öngörülen Bütçe</label>
+                  <input 
+                    type="number"
+                    placeholder="Örn: 2500"
+                    value={wizardData.budget}
+                    onChange={(e) => setWizardData(prev => ({ ...prev, budget: e.target.value }))}
+                    className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#06B6D4] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Para Birimi</label>
+                  <select 
+                    value={wizardData.currency}
+                    onChange={(e) => setWizardData(prev => ({ ...prev, currency: e.target.value }))}
+                    className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#06B6D4] transition-colors"
+                  >
+                    <option value="TRY">TRY (₺)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="USD">USD ($)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Ekstra Notlar */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ekstra Notlar / İstekler (Opsiyonel)</label>
+                <textarea 
+                  rows={3}
+                  placeholder="Projenizle ilgili belirtmek istediğiniz diğer özel gereksinimleri yazın..."
+                  value={wizardData.customNotes}
+                  onChange={(e) => setWizardData(prev => ({ ...prev, customNotes: e.target.value }))}
+                  className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#06B6D4] transition-colors resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-white/5 flex items-center justify-end gap-3 bg-[#0A0A0F]">
+              <button 
+                onClick={() => setIsGeneratorModalOpen(false)}
+                disabled={generatingLastenheft || isSaving}
+                className="px-5 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium disabled:opacity-50"
+              >
+                İptal
+              </button>
+              <button 
+                onClick={handleWizardSubmit}
+                disabled={generatingLastenheft || isSaving || !wizardData.title}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#06B6D4] to-cyan-500 text-white font-bold text-sm hover:opacity-90 transition-all flex items-center gap-2 disabled:opacity-50 shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+              >
+                {generatingLastenheft || isSaving ? (
+                  <>
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                    Lastenheft Derleniyor...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4" />
+                    Talebi Gönder (Lastenheft Üret)
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

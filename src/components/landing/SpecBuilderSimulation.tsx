@@ -7,6 +7,8 @@ import { Terminal, Sparkles, CheckCircle2, FileText, Server, Lock, Calendar } fr
 import LeadFormModal from '@/components/services/LeadFormModal'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
+import { createPublicLastenheft } from '@/app/actions/contract'
+
 export default function SpecBuilderSimulation() {
   const { t, language } = useLanguage()
   const sectionRef = useRef<HTMLDivElement>(null)
@@ -23,10 +25,21 @@ export default function SpecBuilderSimulation() {
   const [isDownloaded, setIsDownloaded] = useState(false)
   const [leadData, setLeadData] = useState({ name: '', email: '' })
 
-  const handleLeadSubmitSuccess = (data: { name: string; email: string }) => {
+  const handleLeadSubmitSuccess = async (data: { name: string; email: string }) => {
     setLeadData(data)
     setIsDownloaded(true)
     setIsModalOpen(false)
+
+    // Save as draft Lastenheft contract in DB
+    try {
+      await createPublicLastenheft({
+        name: data.name,
+        email: data.email,
+        idea: projectIdea
+      })
+    } catch (e) {
+      console.error('Error saving public Lastenheft:', e)
+    }
 
     // Trigger dynamic PDF stream download
     window.location.href = `/api/v1/pdf/lastenheft?name=${encodeURIComponent(data.name)}&email=${encodeURIComponent(data.email)}&idea=${encodeURIComponent(projectIdea)}`

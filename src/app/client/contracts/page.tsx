@@ -9,6 +9,7 @@ export const metadata = {
 export default async function ClientContractsPage() {
   const res = await getClientDashboardData('default-tenant');
   const contracts = res.success ? res.data?.contracts || [] : [];
+  const clientInfo = res.success ? res.data?.client || null : null;
 
-  return <ClientContractsClient initialContracts={contracts} />;
+  return <ClientContractsClient initialContracts={contracts} clientInfo={clientInfo} />;
 }
