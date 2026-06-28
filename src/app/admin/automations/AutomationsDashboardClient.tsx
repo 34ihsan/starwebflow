@@ -74,6 +74,51 @@ const resolveNodeBg = (node: any) => {
   return node.bg || "bg-[#4F8EF7]/10";
 };
 
+const resolveNodeSummary = (node: any) => {
+  if (!node) return "";
+  const config = node.config || {};
+  const appName = (node.app || node.label || "").toLowerCase();
+
+  // If a custom description is explicitly provided
+  if (config.description) return config.description;
+
+  if (appName.includes("email") || appName.includes("posta")) {
+    return config.subject ? `E-posta: "${config.subject}"` : "Kullanıcıya bildirim e-postası gönderilir.";
+  }
+  if (appName.includes("slack")) {
+    return config.channel ? `Slack: ${config.channel}` : "Slack kanalına bildirim iletilir.";
+  }
+  if (appName.includes("whatsapp")) {
+    return "Müşteriye WhatsApp şablon mesajı gönderilir.";
+  }
+  if (appName.includes("crm") || appName.includes("database")) {
+    const actionMap: Record<string, string> = {
+      create_project: "Proje Oluştur",
+      create_task: "Görev Oluştur",
+      update_lead: "Lead Güncelle",
+      create_contract: "Sözleşme Hazırla"
+    };
+    return `CRM: ${actionMap[config.action] || "Veritabanı kaydı güncellenir."}`;
+  }
+  if (appName.includes("ai")) {
+    return config.prompt ? `AI: "${config.prompt.substring(0, 20)}..."` : "Yapay Zeka işlemi gerçekleştirir.";
+  }
+  if (appName.includes("delay")) {
+    return config.hours ? `Bekleme: ${config.hours} Saat` : "24 Saat bekleme uygulanır.";
+  }
+  if (appName.includes("webhook")) {
+    return "Harici API tetikleyicisi dinlenir.";
+  }
+  if (appName.includes("cron")) {
+    return "Zamanlanmış periyodik tetikleyici.";
+  }
+  if (appName.includes("typeform")) {
+    return "Yeni bir form yanıtı tetikleyici.";
+  }
+
+  return "Otomasyon sistemi özel akış adımı.";
+};
+
 export default function AutomationsDashboardClient({ initialData }: { initialData: { flows: any[], webhooks: any[], logs: any[] } }) {
   const [activeTab, setActiveTab] = useState<"flows" | "templates" | "webhooks" | "logs" | "approvals">("flows");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -600,13 +645,14 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                         return (
                           <div key={node.id} className="flex items-center gap-4 relative">
                             {/* Condition Node */}
-                            <div className="bg-[#05050A] border-2 border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] rounded-xl p-3 flex items-center gap-3 min-w-[140px] z-10">
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg}`}>
+                            <div className="bg-[#05050A] border-2 border-amber-500/30 shadow-[0_0_15px_rgba(251,191,36,0.1)] rounded-xl p-3 flex items-center gap-3 min-w-[150px] z-10">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg} shrink-0`}>
                                 <Icon className={`w-4 h-4 ${color}`} />
                               </div>
                               <div>
                                 <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-0.5">{node.app}</p>
                                 <p className="text-xs font-semibold text-white whitespace-nowrap">{node.label}</p>
+                                <p className="text-[9px] text-amber-500/80 whitespace-normal max-w-[150px] leading-tight mt-0.5">{resolveNodeSummary(node)}</p>
                               </div>
                             </div>
 
@@ -634,12 +680,13 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                                       return (
                                       <div key={bNode.id} className="flex items-center gap-4">
                                         <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-3 flex items-center gap-3 min-w-[140px]">
-                                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bBg}`}>
+                                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bBg} shrink-0`}>
                                             <BIcon className={`w-4 h-4 ${bColor}`} />
                                           </div>
                                           <div>
                                             <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-0.5">{bNode.type}</p>
                                             <p className="text-xs font-semibold text-white whitespace-nowrap">{bNode.label}</p>
+                                            <p className="text-[9px] text-[#64748B] whitespace-normal max-w-[150px] leading-tight mt-0.5">{resolveNodeSummary(bNode)}</p>
                                           </div>
                                         </div>
                                         {bnIdx < branch.nodes.length - 1 && (
@@ -658,13 +705,14 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       // Normal Node
                       return (
                         <div key={node.id} className="flex items-center gap-2 md:gap-4">
-                          <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-3 flex items-center gap-3 min-w-[140px] hover:border-white/[0.15] transition-colors cursor-pointer">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg}`}>
+                          <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-3 flex items-center gap-3 min-w-[150px] hover:border-white/[0.15] transition-colors cursor-pointer">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${bg} shrink-0`}>
                               <Icon className={`w-4 h-4 ${color}`} />
                             </div>
                             <div>
                               <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-0.5">{node.app || node.type}</p>
                               <p className="text-xs font-semibold text-white whitespace-nowrap">{node.label}</p>
+                              <p className="text-[9px] text-[#64748B] whitespace-normal max-w-[150px] leading-tight mt-0.5">{resolveNodeSummary(node)}</p>
                             </div>
                           </div>
                           
