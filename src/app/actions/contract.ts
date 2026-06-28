@@ -272,6 +272,7 @@ export async function generateLastenheftFromChoices(data: {
   currency: string;
   selectedNeeds: string[];
   customNotes?: string;
+  sector?: string;
 }) {
   try {
     const serviceLabels: Record<string, string> = {
@@ -281,8 +282,21 @@ export async function generateLastenheftFromChoices(data: {
       AUTOMATION: 'AI İş Akış Otomasyonları (n8n, Webhook & API)',
       MARKETING: 'Reklam & Sosyal Medya (Google/Meta Reklam Yönetimi)'
     };
+
+    const sectorLabels: Record<string, string> = {
+      RETAIL: 'E-Ticaret & Perakende (Giyim, Mağaza vb.)',
+      FOOD: 'Gıda & Restoran (Kafe, Sipariş vb.)',
+      REAL_ESTATE: 'Gayrimenkul & Emlak',
+      HEALTH: 'Sağlık & Klinik (Medikal, Doktor vb.)',
+      EDUCATION: 'Eğitim & Kurs (Akademi, E-Öğrenme vb.)',
+      LOGISTICS: 'Lojistik & Taşımacılık',
+      FINANCE: 'Finans, Danışmanlık & B2B',
+      OTHER: 'Diğer / Genel Sektör'
+    };
     
     const serviceName = serviceLabels[data.serviceType] || data.serviceType;
+    const sectorName = data.sector ? (sectorLabels[data.sector] || data.sector) : 'Diğer / Genel Sektör';
+
     const { text } = await generateText({
       model: getProModel(),
       prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
@@ -294,6 +308,7 @@ Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırl
 Müşteri/Firma Bilgileri:
 - Müşteri Adı: ${data.clientName}
 - İletişim E-Postası: ${data.clientEmail || 'Belirtilmedi'}
+- Sektör / Odak Alanı: ${sectorName}
 
 Proje Detayları:
 - Proje Başlığı: ${data.title}
@@ -306,7 +321,7 @@ ${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
 Müşterinin Hedefleri ve Notları (Niçin?):
 ${data.customNotes || 'Belirtilmedi'}
 
-Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı bir Lastenheft dokümanı oluştur. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
+Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
     });
     return { success: true, data: text };
   } catch (error) {

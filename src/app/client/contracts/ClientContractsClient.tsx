@@ -64,6 +64,67 @@ const WIZARD_NEEDS: Record<string, string[]> = {
   ]
 };
 
+const SECTORS = [
+  { code: 'RETAIL', name: 'E-Ticaret & Perakende (Giyim, Mağaza vb.)' },
+  { code: 'FOOD', name: 'Gıda & Restoran (Kafe, Sipariş vb.)' },
+  { code: 'REAL_ESTATE', name: 'Gayrimenkul & Emlak' },
+  { code: 'HEALTH', name: 'Sağlık & Klinik (Medikal, Doktor vb.)' },
+  { code: 'EDUCATION', name: 'Eğitim & Kurs (Akademi, E-Öğrenme vb.)' },
+  { code: 'LOGISTICS', name: 'Lojistik & Taşımacılık' },
+  { code: 'FINANCE', name: 'Finans, Danışmanlık & B2B' },
+  { code: 'OTHER', name: 'Diğer / Genel Sektör' }
+];
+
+const WIZARD_SECTOR_NEEDS: Record<string, string[]> = {
+  RETAIL: [
+    "Was (Ne): Beden, renk ve beden filtresi içeren dinamik giyim katalog modülü / Wofür (Neden): Müşterilerin aradıkları ürün varyasyonlarına kolayca ulaşıp satın alım sürecini hızlandırmak için",
+    "Was (Ne): Akıllı beden tablosu ve 'Bedenimi Bul' algoritması / Wofür (Neden): Hatalı beden siparişlerinden kaynaklanan ürün iade oranlarını en aza indirmek için",
+    "Was (Ne): Instagram Shop ve Facebook katalog XML entegrasyonu / Wofür (Neden): Sosyal medya üzerinden gelen kullanıcıların doğrudan ilgili ürüne yönlenip satın almasını sağlamak için",
+    "Was (Ne): Terk edilen sepetleri kurtarma (abandoned cart) e-posta otomasyonu / Wofür (Neden): Alışverişi tamamlamadan çıkan müşterilere özel indirimler sunarak sepet dönüşüm oranını artırmak için"
+  ],
+  FOOD: [
+    "Was (Ne): İnteraktif QR Kod menü ve masadan sipariş modülü / Wofür (Neden): Garson iş yükünü azaltmak ve masada bekleyen müşterilere temassız, hızlı sipariş imkanı sunmak için",
+    "Was (Ne): Besin değerleri, kalori hesabı ve alerjen uyarı etiketleri / Wofür (Neden): Hassas diyeti olan (glütensiz, vegan vb.) müşterilerin güvenle sipariş vermesini sağlamak için",
+    "Was (Ne): Bölge bazlı dinamik teslimat süresi ve minimum paket tutarı hesaplayıcı / Wofür (Neden): Sipariş teslimat süreçlerini optimize etmek ve uzak bölgelerdeki lojistik maliyetlerini dengelemek için",
+    "Was (Ne): Masa rezervasyon ve anlık doluluk oranı takip sistemi / Wofür (Neden): Restoran doluluk kapasitesini önceden yönetmek ve müşterilerin kapıda sıra beklemesini engellemek için"
+  ],
+  REAL_ESTATE: [
+    "Was (Ne): Harita üzerinde filtreleme (Google Maps) destekli interaktif portföy modülü / Wofür (Neden): Müşterilerin istedikleri bölgedeki satılık/kiralık ilanları görsel olarak anında inceleyebilmesi için",
+    "Was (Ne): 3D Sanal Tur ve video galeri yerleştirme alanı / Wofür (Neden): Gayrimenkulü fiziksel olarak ziyaret edemeyen yerli/yabancı yatırımcılara gerçekçi bir uzaktan inceleme deneyimi sunmak için",
+    "Was (Ne): Kredi hesaplama aracı ve aylık taksit simülatörü / Wofür (Neden): Alıcıların satın alma güçlerini site üzerinde hızlıca test edip doğrudan emlak danışmanıyla iletişime geçmesini kolaylaştırmak için",
+    "Was (Ne): Otomatik PDF ilan broşürü oluşturma ve WhatsApp ile paylaşım modülü / Wofür (Neden): Portföy detaylarının müşterilere profesyonel bir formatta hızlıca iletilmesi ve sunum kalitesinin artırılması için"
+  ],
+  HEALTH: [
+    "Was (Ne): Doktor çalışma takvimiyle entegre online randevu ve SMS hatırlatma sistemi / Wofür (Neden): Klinik telefon trafiğini azaltmak ve randevuya gelinmeme (no-show) oranlarını düşürmek için",
+    "Was (Ne): Tedavi branşları, semptom rehberi ve hekim uzmanlık sayfaları / Wofür (Neden): Hastaların kendi rahatsızlıklarına en uygun doktoru bulmasını ve kliniğe olan güveni artırmayı sağlamak için",
+    "Was (Ne): KVKK uyumlu dijital hasta onay formları ve ön-konsültasyon modülü / Wofür (Neden): Tedavi öncesi gerekli anamnez verilerini güvenle toplayıp yasal mevzuat gerekliliklerini yerine getirmek için",
+    "Was (Ne): Online danışmanlık (Teletıp) görüntülü görüşme entegrasyonu / Wofür (Neden): Kliniğe fiziksel olarak gelemeyen hastalara uzaktan teşhis ve takip hizmeti sunarak hizmet kapsamını genişletmek için"
+  ],
+  EDUCATION: [
+    "Was (Ne): Müfredat, ders içerikleri ve eğitmen profilleri tanıtım alanı / Wofür (Neden): Kurs veya eğitim programının detaylarını şeffafça sunarak kayıt olma isteğini (lead dönüşümünü) artırmak için",
+    "Was (Ne): Sınav/sertifika kontrolü ve online başarı belgesi sorgulama modülü / Wofür (Neden): Mezun öğrencilerin kazandığı sertifikaların doğruluğunu işverenlerin sorgulayabilmesi ve kurumsal prestiji artırmak için",
+    "Was (Ne): Canlı ders takvimi, Zoom entegrasyonu ve interaktif eğitim ajandası / Wofür (Neden): Öğrencilerin yaklaşan dersleri kolayca takip etmesi ve tek tıkla eğitime katılabilmesi için",
+    "Was (Ne): Eğitim öncesi seviye belirleme (quiz/test) modülü / Wofür (Neden): Öğrencileri seviyelerine en uygun sınıflara yönlendirerek eğitim kalitesini ve öğrenci memnuniyetini maksimize etmek için"
+  ],
+  LOGISTICS: [
+    "Was (Ne): Gerçek zamanlı kargo/gönderi takip (tracking) ve durum güncelleme modülü / Wofür (Neden): Müşterilerin gönderilerinin nerede olduğunu 7/24 sorgulayabilmesi ve destek merkezinin telefon yükünü azaltmak için",
+    "Was (Ne): Hacimsel (Desi) hesaplama ve anlık navlun fiyat teklifi alma motoru / Wofür (Neden): B2B müşterilerin gönderi detaylarını girerek anında fiyat teklifi almasını sağlamak ve teklif sürecini hızlandırmak için",
+    "Was (Ne): Araç filosu, güzergahlar ve gümrükleme hizmetleri detay sayfaları / Wofür (Neden): Taşımacılık kapasitesini ve operasyonel gücü potansiyel müşterilere eksiksiz gösterip güven oluşturmak için",
+    "Was (Ne): Sürücü ve sevkiyat yönetim paneli entegrasyonu / Wofür (Neden): Saha operasyonlarının dijital izlenebilirliğini artırmak ve sevkiyat gecikmelerini minimize etmek için"
+  ],
+  FINANCE: [
+    "Was (Ne): İnteraktif ROI (Yatırım Getirisi) hesaplayıcı ve bütçe planlama araçları / Wofür (Neden): Müşterilerin hizmetten elde edeceği finansal kazancı somut olarak görerek satın alma kararını hızlandırması için",
+    "Was (Ne): Mevzuat, finansal makaleler, pazar analizleri ve bilgi bankası (Wiki) / Wofür (Neden): Sektörel gelişmeleri paylaşarak firmanın otorite konumunu pekiştirmek ve SEO gücünü artırmak için",
+    "Was (Ne): Güvenli müşteri portalı, doküman yükleme/paylaşma katmanı / Wofür (Neden): Hassas finansal raporların, analizlerin ve sözleşmelerin müşteriyle şifreli bir ortamda güvenle paylaşılması için",
+    "Was (Ne): Hizmet paketleri, fiyat karşılaştırma tabloları ve teklif özelleştirici / Wofür (Neden): Müşterilerin ihtiyaçlarına en uygun danışmanlık paketini seçmesini kolaylaştırmak ve net sınırlar belirlemek için"
+  ],
+  OTHER: [
+    "Was (Ne): Detaylı SSS (Sıkça Sorulan Sorular) ve interaktif destek merkezi / Wofür (Neden): Müşteri sorularını hızlıca yanıtlayarak destek ekibinin yükünü azaltmak için",
+    "Was (Ne): Referanslar, müşteri yorumları (Testimonials) ve vaka analizleri / Wofür (Neden): Markanın güvenirliğini ve sosyal kanıt (social proof) değerini artırmak için",
+    "Was (Ne): Blog ve makale paylaşım altyapısı / Wofür (Neden): Sektörel aramaları hedefleyerek organik Google trafiğini sürekli yukarı taşımak için"
+  ]
+};
+
 export const handlePrintContract = (contract: any) => {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
@@ -310,6 +371,7 @@ export default function ClientContractsClient({
     budget: "",
     currency: "TRY",
     serviceType: "WEB",
+    selectedSector: "OTHER",
     selectedNeeds: [] as string[],
     customNotes: "",
     lastenheftContent: ""
@@ -335,7 +397,8 @@ export default function ClientContractsClient({
         budget: wizardData.budget,
         currency: wizardData.currency,
         selectedNeeds: wizardData.selectedNeeds,
-        customNotes: wizardData.customNotes
+        customNotes: wizardData.customNotes,
+        sector: wizardData.selectedSector
       });
       
       if (res.success && res.data) {
@@ -363,6 +426,7 @@ export default function ClientContractsClient({
               budget: "",
               currency: "TRY",
               serviceType: "WEB",
+              selectedSector: "OTHER",
               selectedNeeds: [],
               customNotes: "",
               lastenheftContent: ""
@@ -849,13 +913,36 @@ export default function ClientContractsClient({
                 </div>
               </div>
 
+              {/* Sektör Seçimi */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Sektörünüzü Seçin (Taleplerinizi Sektöre Özel Özelleştirir)</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {SECTORS.map((sec) => (
+                    <div 
+                      key={sec.code}
+                      onClick={() => setWizardData(prev => ({ ...prev, selectedSector: sec.code, selectedNeeds: [] }))}
+                      className={`p-3 rounded-xl border cursor-pointer text-center transition-all ${
+                        wizardData.selectedSector === sec.code 
+                          ? 'border-[#06B6D4] bg-[#06B6D4]/5 text-white' 
+                          : 'border-white/5 hover:border-white/10 bg-[#131B2A]/30 text-slate-400'
+                      }`}
+                    >
+                      <span className="font-bold text-[10px] block">{sec.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Hedefler & İhtiyaçlar Checkbox Listesi */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                  Bu Projeden Beklentileriniz & Hedefleriniz
+                  Bu Projeden Beklentileriniz & Hedefleriniz (Çoklu Seçim)
                 </label>
                 <div className="space-y-2">
-                  {(WIZARD_NEEDS[wizardData.serviceType] || []).map((need) => {
+                  {[
+                    ...(WIZARD_NEEDS[wizardData.serviceType] || []),
+                    ...(WIZARD_SECTOR_NEEDS[wizardData.selectedSector] || [])
+                  ].map((need) => {
                     const isSelected = wizardData.selectedNeeds.includes(need);
                     return (
                       <label 
