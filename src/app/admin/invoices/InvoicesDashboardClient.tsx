@@ -658,12 +658,11 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             .invoice-page {
               padding-bottom: 105px !important; /* Safe offset for footer container height */
             }
-            /* Custom Centered Page Number Styles below footer columns */
+            /* Custom Page Number Styles at footer bottom-right corner */
             .page-number-indicator {
               position: absolute;
               bottom: 2px;
-              left: 50%;
-              transform: translateX(-50%);
+              right: 0;
               font-size: 9px;
               color: #4b5563;
               font-weight: 600;
