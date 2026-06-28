@@ -51,9 +51,6 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
       <aside className="w-64 bg-[#0A0A0F] border-r border-white/[0.05] flex flex-col h-screen sticky top-0">
         <div className="p-6 border-b border-white/[0.05]">
           <Link href="/" className="flex items-center gap-2 group">
-            {settings?.preferences?.branding?.logoUrl ? (
-              <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-8 object-contain" />
-            ) : (
               <>
                 <div className="w-8 h-8 rounded-lg bg-[#4F8EF7] flex items-center justify-center">
                   <span className="text-white font-black text-sm">SW</span>
@@ -62,7 +59,6 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
                   Star<span className="text-[#4F8EF7]">Portal</span>
                 </span>
               </>
-            )}
           </Link>
         </div>
 
