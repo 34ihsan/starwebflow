@@ -616,26 +616,47 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   </div>
                   
                   {/* Actions */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button 
                       onClick={() => setEditingFlow(flow)}
-                      className="px-4 py-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.05] text-white text-xs font-semibold transition-colors border border-white/[0.05] flex items-center gap-2"
+                      className="px-3 py-1.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.05] text-white text-xs font-semibold transition-colors border border-white/[0.05] flex items-center gap-1.5"
                     >
                       <Settings className="w-3.5 h-3.5" /> Düzenle
                     </button>
                     <button 
+                      onClick={() => {
+                        setIsTestingFlow(true);
+                        setIsTestingRunning(true);
+                        setTestLogs([
+                          `🟢 Simülasyon Başlatıldı: ${flow.name}`,
+                          `⚡ Adım 1 Tetiklendi: ${nodes[0]?.label || "Tetikleyici"}`,
+                          `ℹ️ Tetikleyici Verisi: { clientName: "Ahmet Yılmaz", email: "ahmet@example.com", phone: "+905551234567" }`,
+                          ...nodes.slice(1).map((n: any, i: number) => {
+                            const details = n.config?.description || resolveNodeSummary(n);
+                            return `✅ Adım ${i + 2} Yürütüldü [${n.app || n.type}]: ${n.label} -> "${details}"`;
+                          }),
+                          `🟢 Simülasyon Başarıyla Tamamlandı. Hiçbir müşteriye gerçek e-posta veya mesaj gönderilmedi.`
+                        ]);
+                        setTimeout(() => setIsTestingRunning(false), 1500);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 text-xs font-semibold transition-colors border border-purple-500/20 flex items-center gap-1.5"
+                      title="Akış Çıktılarını Simüle Et & Önizle"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Simüle Et
+                    </button>
+                    <button 
                       onClick={() => handleToggleFlowStatus(flow.id)}
-                      className={`p-2 rounded-lg border transition-colors ${
+                      className={`p-1.5 rounded-lg border transition-colors ${
                       safeStatus === 'ACTIVE' 
                         ? 'bg-amber-400/10 hover:bg-amber-400/20 text-amber-400 border-amber-400/20' 
                         : 'bg-[#10B981]/10 hover:bg-[#10B981]/20 text-[#10B981] border-[#10B981]/20'
                     }`} title={safeStatus === 'ACTIVE' ? 'Durdur' : 'Başlat'}>
-                      {safeStatus === 'ACTIVE' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                      {safeStatus === 'ACTIVE' ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                     </button>
                     <button 
                       onClick={() => handleDeleteFlow(flow.id)}
-                      className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition-colors" title="Sil">
-                      <Trash2 className="w-4 h-4" />
+                      className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition-colors" title="Sil">
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
