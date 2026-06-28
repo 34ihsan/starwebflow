@@ -1229,6 +1229,75 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       "Karşınıza çıkan kalıcı Token değerini kopyalayıp Trello bağlantı alanı için buraya yapıştırın."
                     ]
                   }
+                },
+                {
+                  id: "telegram",
+                  name: "Telegram Bot API",
+                  app: "Telegram",
+                  icon: MessageSquare,
+                  color: "text-[#0088cc]",
+                  placeholder: "123456:ABC-DEF1234ghIkl-zyx57... (Bot Token)",
+                  guide: {
+                    title: "Telegram Bot Token Alımı (BotFather)",
+                    steps: [
+                      "Telegram uygulamasını açın ve arama çubuğuna '@BotFather' yazarak resmi botu bulun.",
+                      "Botu başlatmak için '/start' komutunu gönderin.",
+                      "Yeni bir bot oluşturmak için '/newbot' komutunu çalıştırın.",
+                      "Botunuza bir isim ve benzersiz bir kullanıcı adı (örn: starwebflow_bot) tanımlayın.",
+                      "BotFather'ın size verdiği kırmızı renkli HTTP API Token (123456:ABC...) kodunu kopyalayıp buraya kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "github",
+                  name: "GitHub API / Actions",
+                  app: "GitHub",
+                  icon: Activity,
+                  color: "text-white",
+                  placeholder: "ghp_... (Personal Access Token)",
+                  guide: {
+                    title: "GitHub Personal Access Token (Classic/Fine-Grained) Alımı",
+                    steps: [
+                      "github.com sitesine girin ve sağ üstteki profil resminizden Settings -> Developer Settings kısmına gidin.",
+                      "Personal access tokens -> Tokens (classic) sekmesine girin ve 'Generate new token' butonuna basın.",
+                      "Token açıklaması yazıp yetkilerden 'repo', 'workflow' ve 'admin:repo_hook' kutucuklarını seçin.",
+                      "En alttaki butonla oluşturduğunuz 'ghp_...' ile başlayan anahtarı kopyalayarak buraya yapıştırın."
+                    ]
+                  }
+                },
+                {
+                  id: "mailchimp",
+                  name: "Mailchimp Marketing",
+                  app: "Mailchimp",
+                  icon: Mail,
+                  color: "text-[#FFE01B]",
+                  placeholder: "abc123xyz...-usX (Mailchimp API Key)",
+                  guide: {
+                    title: "Mailchimp API Key & Audience ID Alımı",
+                    steps: [
+                      "Mailchimp hesabınıza girip profil menünüzden Account & billing sekmesine gidin.",
+                      "Extras -> API keys menüsüne tıklayın.",
+                      "Create A Key butonuna basarak yeni bir API anahtarı üretip kopyalayın.",
+                      "Müşteri bülten akışlarını senkronize etmek için bu anahtarı buraya kaydedin."
+                    ]
+                  }
+                },
+                {
+                  id: "discord",
+                  name: "Discord Webhook / Bot",
+                  app: "Discord",
+                  icon: MessageCircle,
+                  color: "text-[#5865F2]",
+                  placeholder: "https://discord.com/api/webhooks/...",
+                  guide: {
+                    title: "Discord Sunucu Webhook URL Alımı",
+                    steps: [
+                      "Discord uygulamasını açın ve yöneticisi olduğunuz sunucuya gidin.",
+                      "Mesaj gönderilecek kanalın yanındaki vites (Kanalı Düzenle) ikonuna tıklayın.",
+                      "Entegrasyonlar (Integrations) sekmesinden 'Webhook Oluştur' (Webhooks) butonuna basın.",
+                      "Oluşan webhook kartını genişleterek 'Webhook URL'sini Kopyala' butonuna tıklayın ve buraya ekleyin."
+                    ]
+                  }
                 }
               ].map(integration => {
                 const Icon = integration.icon;
