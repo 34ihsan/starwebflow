@@ -87,11 +87,15 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
         }),
       }
     });
-    revalidatePath('/admin/settings');
-    revalidatePath('/admin/invoices');
+    try {
+      revalidatePath('/admin/settings');
+      revalidatePath('/admin/invoices');
+    } catch (e) {
+      console.warn('revalidatePath skipped', e);
+    }
     return { success: true, data: settings };
-  } catch (error) {
+  } catch (error: any) {
     console.error('updateTenantSettings error:', error);
-    return { success: false, error: 'Ayarlar güncellenemedi veya veri formatı hatalı.' };
+    return { success: false, error: error?.message || 'Ayarlar güncellenemedi veya veri formatı hatalı.' };
   }
 }

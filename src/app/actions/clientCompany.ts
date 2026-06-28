@@ -33,10 +33,14 @@ export async function createClientCompany(data: {
     const newCompany = await db.clientCompany.create({
       data,
     })
-    revalidatePath('/admin/invoices')
+    try {
+      revalidatePath('/admin/invoices')
+    } catch (e) {
+      console.warn('revalidatePath skipped', e);
+    }
     return { success: true, data: newCompany }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to create client company:', error)
-    return { success: false, error: 'Şirket oluşturulamadı' }
+    return { success: false, error: error?.message || 'Şirket oluşturulamadı' }
   }
 }

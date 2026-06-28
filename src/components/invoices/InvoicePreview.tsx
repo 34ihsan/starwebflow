@@ -98,7 +98,12 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
       <header className="flex justify-between items-start mb-20 pt-4">
         <div className="flex flex-col">
           {companySettings.logo ? (
-            <img src={companySettings.logo} alt={companySettings.name} className="h-12 w-auto mb-6 object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
+            <img 
+              src={companySettings.logo.startsWith('http') || companySettings.logo.startsWith('/') ? companySettings.logo : `/${companySettings.logo}`} 
+              alt={companySettings.name} 
+              className="h-12 w-auto mb-6 object-contain" 
+              onError={(e) => e.currentTarget.style.display = 'none'} 
+            />
           ) : null}
           {!companySettings.logo && (
             <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 mb-2">{companySettings.name}</h1>

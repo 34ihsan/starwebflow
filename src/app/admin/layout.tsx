@@ -72,14 +72,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-64 bg-[#0A0A0F] border-r border-white/[0.05] flex flex-col h-screen sticky top-0">
         <div className="p-6 border-b border-white/[0.05]">
           <Link href="/" className="flex items-center gap-2 group">
-              <>
+              {settings?.logoUrl ? (
+                <img 
+                  src={settings.logoUrl.startsWith('http') || settings.logoUrl.startsWith('/') ? settings.logoUrl : `/${settings.logoUrl}`} 
+                  alt="Logo" 
+                  className="w-8 h-8 rounded-lg object-contain bg-white" 
+                />
+              ) : (
                 <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
-                  <span className="text-white font-black text-sm">SW</span>
+                  <span className="text-white font-black text-sm">A</span>
                 </div>
-                <span className="font-black text-lg tracking-tight font-['Outfit']">
-                  Star<span className="text-[#8B5CF6]">Admin</span>
-                </span>
-              </>
+              )}
+              <span className="font-black text-lg tracking-tight font-['Outfit']">
+                {settings?.companyName ? settings.companyName : (
+                  <>Star<span className="text-[#8B5CF6]">Admin</span></>
+                )}
+              </span>
           </Link>
         </div>
 
@@ -115,7 +123,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         <header className="h-16 border-b border-white/[0.05] bg-[#0A0A0F]/80 backdrop-blur-md flex items-center px-8 shrink-0 justify-between">
-          <h1 className="font-semibold font-['Outfit'] text-lg text-[#E2E8F0]">StarWebFlow Admin</h1>
+          <h1 className="font-semibold font-['Outfit'] text-lg text-[#E2E8F0]">
+            {settings?.companyName ? `${settings.companyName} Paneli` : 'StarWebFlow Admin'}
+          </h1>
           <div className="flex items-center gap-3">
             <div className="relative group">
               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors text-[#94A3B8] hover:text-white relative">
