@@ -17,20 +17,20 @@ export default async function AdminInvoicesDashboardPage() {
   ]);
 
   const prefs: any = settings?.preferences || {};
-  const invSettings = prefs.invoiceSettings || {};
+  const billingSettings = prefs.billing || {};
 
   const defaultSettings = {
-    name: invSettings.companyName || settings?.companyName || "Şirket Adı",
-    logo: invSettings.logoUrl || "",
-    address: invSettings.address || "",
-    taxId: invSettings.taxId || "",
-    vatId: invSettings.vatId || "",
-    iban: invSettings.iban || "",
-    bankName: invSettings.bankName || "",
-    email: invSettings.email || session?.email || "",
-    phone: invSettings.phone || "",
-    website: invSettings.website || "",
-    isKleinunternehmer: invSettings.isKleinunternehmer || false
+    name: billingSettings.legalName || settings?.companyName || "Şirket Adı",
+    logo: prefs.branding?.logoUrl || "",
+    address: billingSettings.address || "",
+    taxId: billingSettings.taxNumber || "",
+    vatId: billingSettings.vatId || "",
+    iban: billingSettings.iban || "",
+    bankName: billingSettings.bankName || "",
+    email: prefs.general?.supportEmail || session?.email || "",
+    phone: prefs.general?.supportPhone || "",
+    website: prefs.general?.website || "",
+    isKleinunternehmer: billingSettings.vatRate === "0" || billingSettings.isKleinunternehmer || false
   };
 
   return (

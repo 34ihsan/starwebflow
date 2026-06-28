@@ -493,27 +493,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     }
   };
 
-  const handleSaveSettings = async () => {
-    setSavingSettings(true);
-    try {
-      const res = await updateTenantSettings(tenantId, {
-        preferences: {
-          invoiceSettings: localSettings
-        }
-      });
-      if (res.success) {
-        alert('Fatura ayarları başarıyla kaydedildi.');
-        setIsSettingsModalOpen(false);
-      } else {
-        alert(res.error || 'Ayarlar kaydedilemedi.');
-      }
-    } catch (error) {
-      console.error('Settings save error', error);
-      alert('Bir hata oluştu.');
-    } finally {
-      setSavingSettings(false);
-    }
-  };
+  // Settings are now managed in /admin/settings. The local handleSaveSettings has been removed.
 
   const renderViewInvoice = () => {
     if (!viewInvoice) return null;
@@ -623,13 +603,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
             />
           </div>
-          <button 
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all border border-white/10"
-          >
-            <Settings className="w-4 h-4" />
-            Ayarlar
-          </button>
+
           <button 
             onClick={() => setIsAddInvoiceModalOpen(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]"
