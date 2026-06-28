@@ -1377,11 +1377,13 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                   color: "text-emerald-400",
                   placeholder: "Custom Bearer Token / API Secret Key",
                   guide: {
-                    title: "Özel HTTP / REST API Header Tanımlama",
+                    title: "Özel HTTP / REST API Header Tanımlama Adımları",
                     steps: [
-                      "Herhangi bir n8n düğümü gibi çalışmak üzere listede olmayan bir dış sisteme istek atacaksanız burayı kullanın.",
-                      "Dış servisin beklediği Bearer Token, API Key veya Basic Auth şifrelerini buraya kaydedin.",
-                      "Akış yöneticisinde HTTP Node'unu kurarken bu kimlik doğrulama anahtarını otomatik çağırabilirsiniz."
+                      "Kimlik Doğrulama Tipi Belirleme: Bağlanmak istediğiniz dış sistemin API dökümanlarını inceleyin. API genelde 'Bearer Token' (Örn: Authorization: Bearer <token>), 'API Key' (Örn: X-API-Key: <key>) veya 'Basic Auth' (Kullanıcı Adı ve Şifre) yöntemlerinden birini kullanır.",
+                      "Credential Tanımlama: Yukarıdaki alana sadece gizli anahtarınızı veya şifrenizi girin. Örneğin, Bearer token kullanıyorsanız sadece token değerini (Örn: eyJhbGciOi...) buraya yapıştırın.",
+                      "Header Parametresi Ekleme: Akış yöneticisindeki (ReactFlow Builder) 'HTTP Node' ayarlar paneline gidin. İstek metodunu (GET, POST, PUT, DELETE) ve hedef URL'yi girin.",
+                      "Anahtarı Bağlama: HTTP Node ayarlarında 'Header Ekle' seçeneğine tıklayın. Key alanına API'nin beklediği başlığı (Örn: 'Authorization' veya 'X-API-Key'), Value kısmına ise sistemimizden otomatik çekilmesini sağlamak için '{{credentials.http_request}}' yazın. Bearer kullanıyorsanız 'Bearer {{credentials.http_request}}' olarak formatlayın.",
+                      "İsteği Test Etme: Akışınızı kaydetmeden önce 'HTTP İsteğini Test Et' butonuna basarak gelen 200 OK yanıtını ve JSON çıktısını doğrulayın."
                     ]
                   }
                 }
