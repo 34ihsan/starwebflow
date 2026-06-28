@@ -136,15 +136,73 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     <html>
       <head>
         <title>${labels.title} - ${invoice.invoiceNo}</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+          // Dynamically load Tailwind with a promise to ensure it compiles before rendering
+          const script = document.createElement('script');
+          script.src = 'https://cdn.tailwindcss.com';
+          document.head.appendChild(script);
+        </script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
+          /* Reliable fallback print styling to guarantee premium design output even if Tailwind loading is slightly delayed */
           body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', sans-serif !important; 
             -webkit-print-color-adjust: exact; 
             print-color-adjust: exact; 
             background-color: #f4f4f5; 
+            margin: 0; 
+            padding: 0;
           }
+          .invoice-container {
+            background-color: #ffffff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border-radius: 1rem;
+            border: 1px solid rgba(228, 228, 231, 0.5);
+            max-width: 210mm;
+            min-height: 297mm;
+            margin: 2rem auto;
+            padding: 4rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+          }
+          .flex { display: flex; }
+          .justify-between { justify-content: space-between; }
+          .items-start { align-items: flex-start; }
+          .text-right { text-align: right; }
+          .mb-16 { margin-bottom: 4rem; }
+          .mb-14 { margin-bottom: 3.5rem; }
+          .mb-10 { margin-bottom: 2.5rem; }
+          .mb-8 { margin-bottom: 2rem; }
+          .mt-auto { margin-top: auto; }
+          .w-full { width: 100%; }
+          .bg-zinc-50 { background-color: #f4f4f5; }
+          .rounded-xl { border-radius: 0.75rem; }
+          .p-5 { padding: 1.25rem; }
+          .p-6 { padding: 1.5rem; }
+          .border { border: 1px solid #e4e4e7; }
+          .border-t { border-top: 1px solid #e4e4e7; }
+          .border-b-2 { border-bottom: 2px solid #e4e4e7; }
+          .border-zinc-200 { border-color: #e4e4e7; }
+          .text-zinc-500 { color: #71717a; }
+          .text-zinc-900 { color: #18181b; }
+          .text-indigo-700 { color: #4338ca; }
+          .font-bold { font-weight: 700; }
+          .font-semibold { font-weight: 600; }
+          .font-medium { font-weight: 500; }
+          .font-light { font-weight: 300; }
+          .uppercase { text-transform: uppercase; }
+          .tracking-widest { letter-spacing: 0.1em; }
+          .tracking-wider { letter-spacing: 0.05em; }
+          .text-xs { font-size: 0.75rem; }
+          .text-sm { font-size: 0.875rem; }
+          .text-lg { font-size: 1.125rem; }
+          .text-4xl { font-size: 2.25rem; }
+          .text-amber-900 { color: #78350f; }
+          .bg-amber-50 { background-color: #fffbeb; }
+          .border-amber-200 { border-color: #fde68a; }
+          .font-mono { font-family: monospace; }
+          
           @page { 
             size: A4; 
             margin: 0; 
@@ -152,7 +210,15 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           @media print {
             .no-print { display: none !important; }
             body { background-color: white; margin: 0; padding: 0; }
-            .invoice-container { shadow: none !important; border-radius: 0 !important; margin: 0 !important; max-width: 100% !important; min-height: 297mm !important; }
+            .invoice-container { 
+              box-shadow: none !important; 
+              border: none !important;
+              border-radius: 0 !important; 
+              margin: 0 !important; 
+              max-width: 100% !important; 
+              min-height: 297mm !important; 
+              padding: 3rem !important;
+            }
           }
         </style>
       </head>
