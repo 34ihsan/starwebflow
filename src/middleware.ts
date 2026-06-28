@@ -16,28 +16,33 @@ export async function middleware(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || '127.0.0.1';
   const currentTime = Date.now();
   const windowMs = 60 * 1000; // 1 Dakikalık pencere
-  const limit = 120; // Dakikada maks 120 istek
+  const limit = 800; // Dakikada maks 800 istek (Next.js Link prefetchleri için yüksek tutulmalı)
 
-  const state = ipCache.get(ip) || { count: 0, resetAt: currentTime + windowMs };
-  if (currentTime > state.resetAt) {
-    state.count = 1;
-    state.resetAt = currentTime + windowMs;
-  } else {
-    state.count++;
-  }
-  ipCache.set(ip, state);
+  const isRscRequest = req.headers.has('RSC') || req.nextUrl.searchParams.has('_rsc');
 
-  if (state.count > limit) {
-    return new NextResponse(
-      JSON.stringify({ error: 'Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin. (Too Many Requests - 429)' }),
-      { 
-        status: 429, 
-        headers: { 
-          'Content-Type': 'application/json; charset=utf-8',
-          'Retry-After': '60'
-        } 
-      }
-    );
+  // RSC isteklerini hız sınırlamasından muaf tut veya limitini çok daha yüksek tut
+  if (!isRscRequest) {
+    const state = ipCache.get(ip) || { count: 0, resetAt: currentTime + windowMs };
+    if (currentTime > state.resetAt) {
+      state.count = 1;
+      state.resetAt = currentTime + windowMs;
+    } else {
+      state.count++;
+    }
+    ipCache.set(ip, state);
+
+    if (state.count > limit) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Çok fazla istek gönderildi. Lütfen biraz sonra tekrar deneyin. (Too Many Requests - 429)' }),
+        { 
+          status: 429, 
+          headers: { 
+            'Content-Type': 'application/json; charset=utf-8',
+            'Retry-After': '60'
+          } 
+        }
+      );
+    }
   }
 
   // Static files, public assets, landing page and API auth endpoints can pass
