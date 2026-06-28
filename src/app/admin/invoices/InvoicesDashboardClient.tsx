@@ -8,7 +8,7 @@ import {
   Trash2
 } from "lucide-react";
 
-import { createInvoice, deleteInvoice } from "@/app/actions/invoice";
+import { createInvoice, deleteInvoice, updateInvoice } from "@/app/actions/invoice";
 import { sendInvoiceToClient } from "@/app/actions/dispatch";
 import { createClientCompany } from "@/app/actions/clientCompany";
 import { updateTenantSettings } from "@/app/actions/settings";
@@ -68,32 +68,36 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   };
 
   const itemsHtml = invoice.items.map((item: any) => `
-    <tr class="border-b border-zinc-100 group text-xs text-zinc-700">
-      <td class="py-4 pr-4 leading-relaxed">${item.description || (lang === 'de' ? 'Produkt/Dienstleistung' : 'Ürün/Hizmet')}</td>
-      <td class="py-4 text-right tabular-nums">${Number(item.quantity)}</td>
-      <td class="py-4 text-right tabular-nums">${formatVal(Number(item.unitPrice))}</td>
-      <td class="py-4 text-right font-medium text-zinc-900 tabular-nums">${formatVal(Number(item.total))}</td>
+    <tr class="border-b border-zinc-200">
+      <td class="py-4 text-sm font-medium text-zinc-900">${item.description || (lang === 'de' ? 'Produkt/Dienstleistung' : 'Ürün/Hizmet')}</td>
+      <td class="py-4 text-center text-sm text-zinc-600">${Number(item.quantity)}</td>
+      <td class="py-4 text-right text-sm text-zinc-600">${formatVal(Number(item.unitPrice))}</td>
+      <td class="py-4 text-right text-sm font-bold text-zinc-900">${formatVal(Number(item.total))}</td>
     </tr>
   `).join('');
 
-  const logoHtml = companySettings.logo ? '<img src="' + companySettings.logo + '" alt="Logo" class="h-12 w-auto mb-6 object-contain" onerror="this.style.display=\'none\'" />' : '';
-  const clientVatHtml = client.vatId ? `<p>USt-IdNr.: ${client.vatId}</p>` : '';
-  const clientTaxHtml = client.taxId ? `<p>Steuernummer: ${client.taxId}</p>` : '';
+  const logoHtml = companySettings.logo ? '<img src="' + companySettings.logo + '" alt="Logo" class="h-16 w-auto mb-6 object-contain" onerror="this.style.display=\'none\'" />' : `<h1 class="text-3xl font-bold tracking-tight text-zinc-900 mb-6">${companySettings.name}</h1>`;
   
   const diffDays = invoice.dueDate && invoice.invoiceDate 
     ? Math.round((new Date(invoice.dueDate).getTime() - new Date(invoice.invoiceDate).getTime()) / (1000 * 3600 * 24))
     : 14;
-  let printNotes = invoice.notes ? `<div class="mb-24 pt-4 text-[11px]"><h4 class="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">${labels.notes}</h4><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${invoice.notes}</p></div>` : `<div class="mb-24"></div>`;
 
-  if (companySettings.isKleinunternehmer) {
-    const kleinText = "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.";
-    if (invoice.notes) {
-      printNotes = `<div class="mb-24 pt-4 text-[11px]"><h4 class="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">${labels.notes}</h4><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${invoice.notes}\n\n${kleinText}</p></div>`;
-    } else {
-      printNotes = `<div class="mb-24 pt-4 text-[11px]"><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${kleinText}</p></div>`;
-    }
-  } else if (!invoice.notes && lang === 'de') {
-    printNotes = `<div class="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl"><p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p></div>`;
+  let printNotes = '';
+  const isKlein = companySettings.isKleinunternehmer === true || String(companySettings.vatRate) === "0";
+  const kleinText = isKlein ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : "";
+  const defaultNotes = lang === 'de' ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : "";
+
+  if (invoice.notes || kleinText || (!invoice.notes && lang === 'de')) {
+    printNotes = `
+      <div class="mt-12 mb-16 border-l-4 border-indigo-600 pl-6 py-2">
+        <h4 class="font-bold text-zinc-900 mb-2 uppercase tracking-widest text-xs">${labels.notes}</h4>
+        <div class="text-sm text-zinc-700 leading-relaxed space-y-2">
+          ${invoice.notes ? `<p class="whitespace-pre-wrap">${invoice.notes}</p>` : ''}
+          ${kleinText ? `<p class="font-bold">${kleinText}</p>` : ''}
+          ${!invoice.notes && defaultNotes ? `<p>${defaultNotes}</p>` : ''}
+        </div>
+      </div>
+    `;
   }
 
   printWindow.document.write(`
@@ -101,143 +105,151 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
       <head>
         <title>${labels.title} - ${invoice.invoiceNo}</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-          body {
-            font-family: 'Inter', sans-serif;
-            background: #ffffff;
-            color: #1e293b;
-            margin: 0;
-            padding: 0;
-          }
+          body { font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
+          @page { size: A4; margin: 0; }
           @media print {
-            body {
-              background: #ffffff;
-              color: #18181b; /* zinc-900 */
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .no-print {
-              display: none;
-            }
-            @page {
-              margin: 1cm;
-            }
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 0; }
+            .invoice-container { min-height: 100vh; position: relative; }
           }
         </style>
       </head>
-      <body class="p-10 sm:p-14 max-w-4xl mx-auto text-[13px] font-sans leading-relaxed relative">
-        <!-- Decorative top border -->
-        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-slate-800 to-zinc-600"></div>
-        <div class="no-print mb-8 flex justify-end gap-3 bg-slate-100 p-4 rounded-xl border border-slate-200">
-          <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors cursor-pointer shadow-sm">
+      <body class="bg-zinc-100/50 flex justify-center items-start min-h-screen">
+        <div class="no-print fixed top-4 right-4 z-50 flex gap-2">
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-lg transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
             ${labels.saveBtn}
           </button>
-          <button onclick="window.close()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors cursor-pointer">
+          <button onclick="window.close()" class="bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200 px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all">
             ${labels.closeBtn}
           </button>
         </div>
 
-        <header class="flex justify-between items-start mb-20 pt-4">
-          <div class="flex flex-col">
-            ${logoHtml}
-            ${!companySettings.logo ? `<h1 class="text-2xl font-semibold tracking-tight text-zinc-900 mb-2">${companySettings.name}</h1>` : ''}
-            <p class="text-[11px] text-zinc-500 max-w-xs leading-relaxed">${companySettings.address}</p>
-          </div>
-          <div class="text-right">
-            <h2 class="text-3xl font-light text-zinc-400 uppercase tracking-[0.25em] mb-8">${labels.title}</h2>
-            <div class="grid grid-cols-[auto_auto] gap-x-6 gap-y-1.5 text-[11px] justify-end">
-              <span class="text-zinc-400 text-right">${labels.invoiceNo}</span>
-              <span class="font-semibold text-zinc-900 text-right">${invoice.invoiceNo}</span>
-              
-              <span class="text-zinc-400 text-right">${labels.date}</span>
-              <span class="font-medium text-zinc-800 text-right">${formatDate(invoice.invoiceDate)}</span>
-              
-              <span class="text-zinc-400 text-right">${labels.deliveryDate}</span>
-              <span class="font-medium text-zinc-800 text-right">${formatDate(invoice.deliveryDate)}</span>
-              
-              <span class="text-zinc-400 text-right">${labels.dueDate}</span>
-              <span class="font-medium text-zinc-800 text-right">${formatDate(invoice.dueDate)}</span>
+        <div class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-2xl invoice-container flex flex-col mx-auto my-8 print:my-0 print:shadow-none">
+          <!-- Top Strip -->
+          <div class="h-4 w-full bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-700"></div>
+          
+          <div class="px-16 py-16 flex-grow flex flex-col">
+            <!-- Header -->
+            <header class="flex justify-between items-start mb-16">
+              <div class="flex-1 pr-8">
+                ${logoHtml}
+                <div class="text-zinc-500 text-sm leading-relaxed max-w-sm whitespace-pre-wrap">${companySettings.address}</div>
+                <div class="text-zinc-500 text-sm mt-4 space-y-1">
+                  ${companySettings.email ? `<div>E: ${companySettings.email}</div>` : ''}
+                  ${companySettings.phone ? `<div>T: ${companySettings.phone}</div>` : ''}
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <h2 class="text-5xl font-light text-zinc-300 uppercase tracking-widest mb-8">${labels.title}</h2>
+                <div class="bg-zinc-50 rounded-xl p-6 border border-zinc-100 min-w-[260px]">
+                  <div class="flex justify-between items-center mb-4 pb-4 border-b border-zinc-200">
+                    <span class="text-zinc-500 text-xs font-semibold uppercase tracking-widest">${labels.invoiceNo}</span>
+                    <span class="font-bold text-zinc-900 text-base">${invoice.invoiceNo}</span>
+                  </div>
+                  <div class="space-y-3 text-sm">
+                    <div class="flex justify-between items-center">
+                      <span class="text-zinc-500">${labels.date}</span>
+                      <span class="font-medium text-zinc-900">${formatDate(invoice.invoiceDate)}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-zinc-500">${labels.deliveryDate}</span>
+                      <span class="font-medium text-zinc-900">${formatDate(invoice.deliveryDate)}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-4 border-t border-zinc-100">
+                      <span class="font-bold text-indigo-700">${labels.dueDate}</span>
+                      <span class="font-bold text-indigo-700">${formatDate(invoice.dueDate)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </header>
+
+            <!-- Client Info -->
+            <div class="mb-16">
+              <div class="text-xs text-zinc-400 uppercase tracking-widest font-bold mb-3 border-b border-zinc-200 inline-block pb-1">${labels.client}</div>
+              <h3 class="text-xl font-bold text-zinc-900 mb-2">${client.name || 'Müşteri'}</h3>
+              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressStreet || ''}</p>
+              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressZip || ''} ${client.addressCity || ''}</p>
+              <p class="text-zinc-600 text-sm leading-relaxed">${client.addressCountry || ''}</p>
+              <div class="mt-4 text-xs text-zinc-500 space-y-1">
+                ${client.vatId ? `<p>USt-IdNr.: <span class="font-medium text-zinc-900">${client.vatId}</span></p>` : ''}
+                ${client.taxId ? `<p>Steuernummer: <span class="font-medium text-zinc-900">${client.taxId}</span></p>` : ''}
+              </div>
             </div>
-          </div>
-        </header>
 
-        <div class="flex justify-between mb-20 pl-2">
-          <div class="max-w-sm">
-            <p class="text-[9px] text-zinc-400 mb-4 uppercase tracking-widest font-medium border-b border-zinc-200/60 inline-block pb-1">${companySettings.name} • ${companySettings.address}</p>
-            <h3 class="text-[15px] font-semibold text-zinc-900 mb-1">${client.name || 'Müşteri'}</h3>
-            <p class="text-zinc-600 text-xs leading-relaxed">${client.addressStreet || ''}</p>
-            <p class="text-zinc-600 text-xs leading-relaxed">${client.addressZip || ''} ${client.addressCity || ''}</p>
-            <p class="text-zinc-600 text-xs leading-relaxed">${client.addressCountry || ''}</p>
-            <div class="mt-4 text-[10px] text-zinc-400 space-y-0.5">
-              ${client.vatId ? `<p>USt-IdNr.: <span class="text-zinc-600">${client.vatId}</span></p>` : ''}
-              ${client.taxId ? `<p>Steuernummer: <span class="text-zinc-600">${client.taxId}</span></p>` : ''}
+            <!-- Items Table -->
+            <div class="mb-12">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b-2 border-zinc-800 text-zinc-800 text-xs uppercase tracking-widest">
+                    <th class="py-3 font-bold w-[50%]">${labels.description}</th>
+                    <th class="py-3 font-bold text-center">${labels.quantity}</th>
+                    <th class="py-3 font-bold text-right">${labels.unitPrice}</th>
+                    <th class="py-3 font-bold text-right">${labels.total}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                </tbody>
+              </table>
             </div>
+
+            <!-- Totals -->
+            <div class="flex justify-end mb-8">
+              <div class="w-full sm:w-[45%] md:w-[40%] bg-zinc-50 rounded-xl p-6 border border-zinc-100">
+                ${isKlein ? `
+                  <div class="flex justify-between items-center text-lg">
+                    <span class="font-bold text-zinc-600 uppercase tracking-widest text-sm">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+                    <span class="font-bold text-zinc-900 text-xl tabular-nums">${formatVal(invoice.netAmount)}</span>
+                  </div>
+                ` : `
+                  <div class="flex justify-between py-2 text-sm text-zinc-600">
+                    <span>${labels.netAmount}</span>
+                    <span class="tabular-nums font-medium text-zinc-900">${formatVal(invoice.netAmount)}</span>
+                  </div>
+                  <div class="flex justify-between py-2 text-sm text-zinc-600 pb-4 border-b border-zinc-200">
+                    <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
+                    <span class="tabular-nums font-medium text-zinc-900">${formatVal(invoice.taxAmount)}</span>
+                  </div>
+                  <div class="flex justify-between items-center pt-4">
+                    <span class="font-bold text-zinc-900 uppercase tracking-widest text-sm">${labels.grossAmount}</span>
+                    <span class="font-bold text-indigo-700 text-xl tabular-nums">${formatVal(invoice.grossAmount)}</span>
+                  </div>
+                `}
+              </div>
+            </div>
+
+            ${printNotes}
+
           </div>
+
+          <!-- Footer -->
+          <footer class="border-t border-zinc-200 bg-zinc-50/80 px-16 py-12 mt-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
+              <div>
+                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${companySettings.name}</p>
+                <p class="whitespace-pre-wrap mb-2">${companySettings.address}</p>
+                ${companySettings.phone ? `<p>T: ${companySettings.phone}</p>` : ''}
+                ${companySettings.email ? `<p>E: ${companySettings.email}</p>` : ''}
+                ${companySettings.website ? `<p>W: ${companySettings.website}</p>` : ''}
+              </div>
+              <div>
+                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${labels.bankInfo}</p>
+                ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : ''}
+                ${companySettings.iban ? `<p>IBAN: <span class="font-mono text-zinc-700">${companySettings.iban}</span></p>` : ''}
+                ${companySettings.swift ? `<p>BIC/SWIFT: <span class="font-mono text-zinc-700">${companySettings.swift}</span></p>` : ''}
+              </div>
+              <div>
+                <p class="font-bold text-zinc-800 mb-3 uppercase tracking-widest">${labels.taxInfo}</p>
+                ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-700">${companySettings.taxId}</span></p>` : ''}
+                ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-700">${companySettings.vatId}</span></p>` : ''}
+              </div>
+            </div>
+          </footer>
         </div>
-
-        <div class="mb-8">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b-2 border-zinc-900 text-zinc-900 text-[10px] uppercase tracking-widest">
-                <th class="py-3 font-semibold w-[55%]">${labels.description}</th>
-                <th class="py-3 font-semibold text-right">${labels.quantity}</th>
-                <th class="py-3 font-semibold text-right">${labels.unitPrice}</th>
-                <th class="py-3 font-semibold text-right">${labels.total}</th>
-              </tr>
-            </thead>
-            <tbody class="text-zinc-700 text-xs">
-              ${itemsHtml}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="flex justify-end mb-20">
-          <div class="w-full sm:w-[45%] md:w-[35%] pt-2">
-            ${companySettings.isKleinunternehmer ? `
-              <div class="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-                <span class="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
-                <span class="text-[17px] text-zinc-900 tabular-nums">${formatVal(invoice.netAmount)}</span>
-              </div>
-            ` : `
-              <div class="flex justify-between py-2 text-xs text-zinc-500">
-                <span>${labels.netAmount}</span>
-                <span class="tabular-nums text-zinc-800">${formatVal(invoice.netAmount)}</span>
-              </div>
-              <div class="flex justify-between py-2 text-xs text-zinc-500">
-                <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
-                <span class="tabular-nums text-zinc-800">${formatVal(invoice.taxAmount)}</span>
-              </div>
-              <div class="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-                <span class="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">${labels.grossAmount}</span>
-                <span class="text-[17px] text-zinc-900 tabular-nums">${formatVal(invoice.grossAmount)}</span>
-              </div>
-            `}
-          </div>
-        </div>
-
-        ${printNotes}
-
-        <footer class="absolute bottom-0 left-0 right-0 border-t border-zinc-200 px-10 sm:px-14 py-10 text-[9.5px] text-zinc-400 flex flex-col md:flex-row justify-between leading-loose tracking-wide">
-          <div class="max-w-[30%]">
-            <p class="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">${companySettings.name}</p>
-            <p>${companySettings.address}</p>
-            <p>T: ${companySettings.phone}</p>
-            <p>E: ${companySettings.email}</p>
-            <p>W: ${companySettings.website}</p>
-          </div>
-          <div class="max-w-[30%] mt-4 md:mt-0">
-            <p class="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">${labels.bankInfo}</p>
-            ${companySettings.bankName ? `<p>${companySettings.bankName}</p>` : ''}
-            ${companySettings.iban ? `<p>IBAN: <span class="font-mono text-zinc-600">${companySettings.iban}</span></p>` : ''}
-            ${companySettings.swift ? `<p>BIC/SWIFT: <span class="font-mono text-zinc-600">${companySettings.swift}</span></p>` : ''}
-          </div>
-          <div class="max-w-[30%] mt-4 md:mt-0">
-            <p class="font-semibold text-zinc-800 mb-2 uppercase tracking-widest">${labels.taxInfo}</p>
-            ${companySettings.taxId ? `<p>St-Nr.: <span class="font-mono text-zinc-600">${companySettings.taxId}</span></p>` : ''}
-            ${companySettings.vatId ? `<p>USt-IdNr.: <span class="font-mono text-zinc-600">${companySettings.vatId}</span></p>` : ''}
-          </div>
-        </footer>
       </body>
     </html>
   `);
@@ -252,6 +264,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [invoices, setInvoices] = useState<any[]>(initialInvoices);
   const [companies, setCompanies] = useState<any[]>(clientCompanies);
   const [isAddInvoiceModalOpen, setIsAddInvoiceModalOpen] = useState(false);
+  const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [viewInvoice, setViewInvoice] = useState<any | null>(null);
   const [printLang, setPrintLang] = useState<'tr' | 'de'>('tr');
@@ -376,7 +389,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         total: item.quantity * item.unitPrice
       }));
 
-      const res = await createInvoice({
+      const payload = {
         tenantId: tenantId,
         projectId: invoiceData.projectId || undefined,
         clientCompanyId: finalClientId,
@@ -391,14 +404,26 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         dueDate: new Date(invoiceData.dueDate),
         notes: invoiceData.notes,
         items: formattedItems
-      });
+      };
+
+      let res;
+      if (editInvoiceId) {
+        res = await updateInvoice(editInvoiceId, tenantId, payload);
+      } else {
+        res = await createInvoice(payload);
+      }
 
       if(res.success && res.data) {
-        setInvoices([res.data, ...invoices]);
+        if (editInvoiceId) {
+          setInvoices(invoices.map(i => i.id === res.data.id ? res.data : i));
+        } else {
+          setInvoices([res.data, ...invoices]);
+        }
         setIsAddInvoiceModalOpen(false);
         setIsPreviewMode(false);
+        setEditInvoiceId(null);
       } else {
-        alert("Fatura oluşturulamadı: " + res.error);
+        alert("Fatura kaydedilemedi: " + res.error);
       }
     } catch (error) {
       console.error(error);
@@ -579,6 +604,27 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     );
   };
 
+  const handleEditInvoice = (invoice: any) => {
+    setEditInvoiceId(invoice.id);
+    setInvoiceData({
+      projectId: invoice.projectId || "",
+      clientCompanyId: invoice.clientCompanyId || "",
+      currency: invoice.currency || "EUR",
+      taxRate: invoice.taxRate || 19,
+      invoiceDate: new Date(invoice.invoiceDate).toISOString().split('T')[0],
+      deliveryDate: new Date(invoice.deliveryDate).toISOString().split('T')[0],
+      dueDate: new Date(invoice.dueDate).toISOString().split('T')[0],
+      notes: invoice.notes || "",
+      items: invoice.items.length > 0 ? invoice.items.map((item: any) => ({
+        description: item.description,
+        quantity: Number(item.quantity),
+        unitPrice: Number(item.unitPrice)
+      })) : [{ description: "", quantity: 1, unitPrice: 0 }]
+    });
+    setIsCreatingNewClient(false);
+    setIsAddInvoiceModalOpen(true);
+  };
+
   const { netAmount, taxAmount, grossAmount } = calculateTotals();
 
   return (
@@ -706,6 +752,9 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleEditInvoice(invoice)} className="p-2 hover:bg-[#4F8EF7]/10 rounded-lg text-[#64748B] hover:text-[#4F8EF7] transition-colors" title="Düzenle">
+                        <Settings className="w-4 h-4" />
+                      </button>
                       <button onClick={() => handleViewInvoice(invoice)} className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" title="Görüntüle">
                         <Eye className="w-4 h-4" />
                       </button>

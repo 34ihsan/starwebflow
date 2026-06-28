@@ -218,26 +218,24 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
         </div>
 
         {/* Notes */}
-        <div className="mt-auto mb-10">
+        <div className="mt-12 mb-10">
           {(() => {
             const diffDays = invoice.dueDate && invoice.invoiceDate 
               ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) 
               : 14;
             
-            const kleinText = companySettings.isKleinunternehmer ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : null;
+            const isKlein = companySettings.isKleinunternehmer === true || String((companySettings as any).vatRate) === "0";
+            const kleinText = isKlein ? "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet." : null;
             const transferText = (!invoice.notes && lang === 'de') ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : null;
 
             if (!invoice.notes && !kleinText && !transferText) return null;
 
             return (
-              <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-5">
-                <h4 className="font-semibold text-blue-900 mb-2 text-xs uppercase tracking-widest flex items-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  {dict.notes}
-                </h4>
-                <div className="text-blue-800/80 text-sm leading-relaxed space-y-2">
+              <div className="border-l-4 border-indigo-600 pl-6 py-2">
+                <h4 className="font-bold text-zinc-900 mb-2 text-xs uppercase tracking-widest">{dict.notes}</h4>
+                <div className="text-zinc-700 text-sm leading-relaxed space-y-2">
                   {invoice.notes && <p className="whitespace-pre-wrap">{invoice.notes}</p>}
-                  {kleinText && <p>{kleinText}</p>}
+                  {kleinText && <p className="font-bold">{kleinText}</p>}
                   {transferText && <p>{transferText}</p>}
                 </div>
               </div>
