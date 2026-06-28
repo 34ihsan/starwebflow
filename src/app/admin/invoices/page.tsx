@@ -29,7 +29,8 @@ export default async function AdminInvoicesDashboardPage() {
     bankName: invSettings.bankName || "",
     email: invSettings.email || session?.email || "",
     phone: invSettings.phone || "",
-    website: invSettings.website || ""
+    website: invSettings.website || "",
+    isKleinunternehmer: invSettings.isKleinunternehmer || false
   };
 
   return (

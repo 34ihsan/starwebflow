@@ -14,6 +14,7 @@ export interface InvoicePreviewProps {
     email: string;
     phone: string;
     website: string;
+    isKleinunternehmer?: boolean;
   };
   client: {
     name: string;
@@ -164,32 +165,53 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
       {/* Totals */}
       <div className="flex justify-end mb-20">
         <div className="w-full sm:w-[45%] md:w-[35%] pt-2">
-          <div className="flex justify-between py-2 text-xs text-zinc-500">
-            <span>{dict.netAmount}</span>
-            <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
-          </div>
-          <div className="flex justify-between py-2 text-xs text-zinc-500">
-            <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
-            <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
-          </div>
-          <div className="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-            <span className="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">{dict.grossAmount}</span>
-            <span className="text-[17px] text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
-          </div>
+          {companySettings.isKleinunternehmer ? (
+            <div className="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
+              <span className="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">{lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+              <span className="text-[17px] text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+            </div>
+          ) : (
+            <>
+              <div className="flex justify-between py-2 text-xs text-zinc-500">
+                <span>{dict.netAmount}</span>
+                <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.netAmount))}</span>
+              </div>
+              <div className="flex justify-between py-2 text-xs text-zinc-500">
+                <span>{dict.vat} ({Number(invoice.taxRate)}%)</span>
+                <span className="tabular-nums text-zinc-800">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.taxAmount))}</span>
+              </div>
+              <div className="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
+                <span className="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">{dict.grossAmount}</span>
+                <span className="text-[17px] text-zinc-900 tabular-nums">{new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency }).format(Number(invoice.grossAmount))}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Notes */}
-      {invoice.notes ? (
-        <div className="mb-24 pt-4 text-[11px]">
-          <h4 className="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">{dict.notes}</h4>
-          <p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{invoice.notes}</p>
-        </div>
-      ) : lang === 'de' ? (
-        <div className="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl">
-          <p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von {invoice.dueDate && invoice.invoiceDate ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) : 14} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p>
-        </div>
-      ) : <div className="mb-24"></div>}
+      {(() => {
+        const diffDays = invoice.dueDate && invoice.invoiceDate 
+          ? differenceInDays(new Date(invoice.dueDate), new Date(invoice.invoiceDate)) 
+          : 14;
+        
+        let printNotes = invoice.notes 
+          ? <div className="mb-24 pt-4 text-[11px]"><h4 className="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">{dict.notes}</h4><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{invoice.notes}</p></div> 
+          : <div className="mb-24"></div>;
+
+        if (companySettings.isKleinunternehmer) {
+          const kleinText = "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.";
+          if (invoice.notes) {
+            printNotes = <div className="mb-24 pt-4 text-[11px]"><h4 className="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">{dict.notes}</h4><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{invoice.notes}<br/><br/>{kleinText}</p></div>;
+          } else {
+            printNotes = <div className="mb-24 pt-4 text-[11px]"><p className="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">{kleinText}</p></div>;
+          }
+        } else if (!invoice.notes && lang === 'de') {
+          printNotes = <div className="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl"><p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von {diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p></div>;
+        }
+
+        return printNotes;
+      })()}
 
       {/* Footer / Legal Info */}
       <footer className="absolute bottom-0 left-0 right-0 border-t border-zinc-200 px-10 sm:px-14 py-10 text-[9.5px] text-zinc-400 flex flex-col md:flex-row justify-between leading-loose tracking-wide">

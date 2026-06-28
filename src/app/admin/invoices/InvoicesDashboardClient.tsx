@@ -83,10 +83,18 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   const diffDays = invoice.dueDate && invoice.invoiceDate 
     ? Math.round((new Date(invoice.dueDate).getTime() - new Date(invoice.invoiceDate).getTime()) / (1000 * 3600 * 24))
     : 14;
+  let printNotes = invoice.notes ? `<div class="mb-24 pt-4 text-[11px]"><h4 class="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">${labels.notes}</h4><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${invoice.notes}</p></div>` : `<div class="mb-24"></div>`;
 
-  const notesHtml = invoice.notes 
-    ? `<div class="mb-24 pt-4 text-[11px]"><h4 class="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">${labels.notes}</h4><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${invoice.notes}</p></div>` 
-    : (lang === 'de' ? `<div class="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl"><p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p></div>` : '<div class="mb-24"></div>');
+  if (companySettings.isKleinunternehmer) {
+    const kleinText = "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.";
+    if (invoice.notes) {
+      printNotes = `<div class="mb-24 pt-4 text-[11px]"><h4 class="font-semibold text-zinc-900 mb-2 uppercase tracking-widest">${labels.notes}</h4><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${invoice.notes}\n\n${kleinText}</p></div>`;
+    } else {
+      printNotes = `<div class="mb-24 pt-4 text-[11px]"><p class="text-zinc-600 whitespace-pre-wrap leading-loose max-w-2xl">${kleinText}</p></div>`;
+    }
+  } else if (!invoice.notes && lang === 'de') {
+    printNotes = `<div class="mb-24 text-[11px] text-zinc-500 leading-loose max-w-xl"><p>Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.</p></div>`;
+  }
 
   printWindow.document.write(`
     <html>
@@ -186,22 +194,29 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
         <div class="flex justify-end mb-20">
           <div class="w-full sm:w-[45%] md:w-[35%] pt-2">
-            <div class="flex justify-between py-2 text-xs text-zinc-500">
-              <span>${labels.netAmount}</span>
-              <span class="tabular-nums text-zinc-800">${formatVal(invoice.netAmount)}</span>
-            </div>
-            <div class="flex justify-between py-2 text-xs text-zinc-500">
-              <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
-              <span class="tabular-nums text-zinc-800">${formatVal(invoice.taxAmount)}</span>
-            </div>
-            <div class="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
-              <span class="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">${labels.grossAmount}</span>
-              <span class="text-[17px] text-zinc-900 tabular-nums">${formatVal(invoice.grossAmount)}</span>
-            </div>
+            ${companySettings.isKleinunternehmer ? `
+              <div class="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
+                <span class="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">${lang === 'de' ? 'Rechnungsbetrag' : 'Fatura Tutarı'}</span>
+                <span class="text-[17px] text-zinc-900 tabular-nums">${formatVal(invoice.netAmount)}</span>
+              </div>
+            ` : `
+              <div class="flex justify-between py-2 text-xs text-zinc-500">
+                <span>${labels.netAmount}</span>
+                <span class="tabular-nums text-zinc-800">${formatVal(invoice.netAmount)}</span>
+              </div>
+              <div class="flex justify-between py-2 text-xs text-zinc-500">
+                <span>${labels.vat} (${Number(invoice.taxRate)}%)</span>
+                <span class="tabular-nums text-zinc-800">${formatVal(invoice.taxAmount)}</span>
+              </div>
+              <div class="flex justify-between items-baseline py-4 border-t-2 border-zinc-900 font-bold mt-2">
+                <span class="uppercase tracking-widest text-[10px] text-zinc-900 mr-4">${labels.grossAmount}</span>
+                <span class="text-[17px] text-zinc-900 tabular-nums">${formatVal(invoice.grossAmount)}</span>
+              </div>
+            `}
           </div>
         </div>
 
-        ${notesHtml}
+        ${printNotes}
 
         <footer class="absolute bottom-0 left-0 right-0 border-t border-zinc-200 px-10 sm:px-14 py-10 text-[9.5px] text-zinc-400 flex flex-col md:flex-row justify-between leading-loose tracking-wide">
           <div class="max-w-[30%]">
@@ -280,7 +295,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
 
   const calculateTotals = () => {
     const netAmount = invoiceData.items.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
-    const taxAmount = netAmount * (invoiceData.taxRate / 100);
+    const taxAmount = tenantSettings.isKleinunternehmer ? 0 : netAmount * (invoiceData.taxRate / 100);
     const grossAmount = netAmount + taxAmount;
     return { netAmount, taxAmount, grossAmount };
   };
@@ -942,7 +957,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Şirket Adı</label>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1">Şirket Adı <span className="text-[#64748B] ml-1">(Örn: Sinan... - StarWebFlow)</span></label>
                   <input type="text" value={localSettings?.name || ''} onChange={(e) => setLocalSettings({...localSettings, name: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
                 </div>
                 <div>
@@ -954,6 +969,20 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               <div>
                 <label className="block text-xs font-medium text-[#94A3B8] mb-1">Adres</label>
                 <input type="text" value={localSettings?.address || ''} onChange={(e) => setLocalSettings({...localSettings, address: e.target.value})} className="w-full bg-[#05050A] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#4F8EF7]/50" />
+              </div>
+
+              <div className="flex items-center gap-3 bg-[#05050A] border border-white/10 p-4 rounded-lg">
+                <input 
+                  type="checkbox" 
+                  id="kleinunternehmer"
+                  checked={localSettings?.isKleinunternehmer || false} 
+                  onChange={(e) => setLocalSettings({...localSettings, isKleinunternehmer: e.target.checked})}
+                  className="w-4 h-4 rounded bg-[#0A0A0F] border-white/20 text-[#4F8EF7] focus:ring-[#4F8EF7] focus:ring-offset-[#0A0A0F]" 
+                />
+                <label htmlFor="kleinunternehmer" className="text-sm font-medium text-white cursor-pointer select-none">
+                  Kleinunternehmerregelung (§ 19 UStG)
+                  <p className="text-xs text-[#94A3B8] mt-0.5 font-normal">Bu seçenek işaretlendiğinde faturada KDV (MwSt) gösterilmez ve yasal not otomatik eklenir.</p>
+                </label>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
