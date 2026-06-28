@@ -9,7 +9,7 @@ cd "$(dirname "$0")/.." || exit
 
 # Install dependencies
 echo "Installing dependencies..."
-npm ci
+npm ci --legacy-peer-deps
 
 # Generate Prisma Client
 echo "Generating Prisma Client..."
