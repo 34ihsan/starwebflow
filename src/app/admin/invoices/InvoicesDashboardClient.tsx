@@ -161,7 +161,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           .btn-secondary:hover {
             background-color: #f9fafb;
-           /* A4 Container Page Styling */
+          }
+
+          /* A4 Container Page Styling */
           .invoice-page {
             background-color: #ffffff;
             width: 210mm;
