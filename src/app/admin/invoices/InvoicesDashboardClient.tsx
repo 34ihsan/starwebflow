@@ -82,12 +82,14 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     ? Math.round((new Date(invoice.dueDate).getTime() - new Date(invoice.invoiceDate).getTime()) / (1000 * 3600 * 24))
     : 14;
 
-  let printNotes = '';
   const isKlein = companySettings.isKleinunternehmer === true ||
     String(companySettings.vatRate) === "0" ||
-    Number(invoice.taxRate) === 0;
+    String(companySettings.isKleinunternehmer) === "true" ||
+    Number(invoice.taxRate) === 0 ||
+    Number(invoice.taxAmount) === 0;
   const defaultNotes = lang === 'de' ? `Bitte überweisen Sie den Rechnungsbetrag innerhalb von ${diffDays} Tagen auf das unten angegebene Bankkonto unter Angabe der Rechnungsnummer.` : "";
 
+  let printNotes = '';
   if (invoice.notes || (!invoice.notes && lang === 'de')) {
     printNotes = `
       <div class="mt-12 mb-16 border-l-4 border-indigo-600 pl-6 py-2">
@@ -1036,7 +1038,14 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                         onClick={() => {
                           const client = invoice.clientCompany || invoice.project?.client || {};
                           const defaultLang = (client.addressCountry?.toLowerCase().includes('de') || client.addressCountry?.toLowerCase().includes('almanya') || invoice.currency === 'EUR') ? 'de' : 'tr';
-                          handlePrintInvoice(tenantSettings, client, invoice, defaultLang);
+                          const mappedInvoice = {
+                            ...invoice,
+                            taxRate: Number(invoice.taxRate !== undefined && invoice.taxRate !== null ? invoice.taxRate : 19),
+                            netAmount: Number(invoice.netAmount || 0),
+                            taxAmount: Number(invoice.taxAmount || 0),
+                            grossAmount: Number(invoice.grossAmount || invoice.amount || 0)
+                          };
+                          handlePrintInvoice(tenantSettings, client, mappedInvoice, defaultLang);
                         }} 
                         className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" 
                         title="PDF İndir"

@@ -164,18 +164,28 @@ export default function ResetPasswordPage() {
       {/* Header */}
       <header className="absolute top-0 inset-x-0 h-20 flex items-center px-8 z-50">
         <Link href="/" className="flex items-center gap-2 group">
-          {settings?.preferences?.branding?.logoUrl ? (
-            <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-8 object-contain" />
+          {settings?.logoUrl || settings?.preferences?.branding?.logoUrl ? (
+            <img 
+              src={
+                settings?.logoUrl 
+                  ? (settings.logoUrl.startsWith('http') || settings.logoUrl.startsWith('/') || settings.logoUrl.startsWith('data:') ? settings.logoUrl : `/${settings.logoUrl}`)
+                  : settings?.preferences?.branding?.logoUrl
+              } 
+              alt="Logo" 
+              className="h-10 object-contain bg-white rounded-lg p-1" 
+            />
           ) : (
-            <>
-              <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
-                <Zap className="w-4 h-4 text-white" fill="white" />
-              </div>
-              <span className="font-black text-xl tracking-tight text-white font-['Outfit']">
-                Star<span className="text-[#8B5CF6]">WebFlow</span>
-              </span>
-            </>
+            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" fill="white" />
+            </div>
           )}
+          <span className="font-black text-xl tracking-tight text-white font-['Outfit']">
+            {settings?.companyName ? (
+              <>{settings.companyName}</>
+            ) : (
+              <>Star<span className="text-[#8B5CF6]">WebFlow</span></>
+            )}
+          </span>
         </Link>
       </header>
 
