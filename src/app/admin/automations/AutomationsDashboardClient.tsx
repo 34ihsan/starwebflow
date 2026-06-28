@@ -1176,12 +1176,12 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       const words = promptText.split(/\s+/).slice(0, 3).join(" ");
                       const flowName = `AI: ${words}...`;
                       
-                      // Düğümleri zenginleştir
+                      // Düğümleri zenginleştir (React bileşenleri/fonksiyonları barındırmaz, sadece string/primitive veri tutar)
                       const enrichedNodes = result.nodes.map((node: any) => {
                         const style = appConfigs[node.app] || appConfigs["Custom"];
                         return {
                           ...node,
-                          icon: style.icon,
+                          icon: node.app, // Store app name string instead of React Icon function
                           color: style.color,
                           bg: style.bg,
                           config: {}
