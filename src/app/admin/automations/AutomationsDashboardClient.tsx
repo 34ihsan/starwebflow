@@ -147,10 +147,10 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
       trigger: "form.submitted",
       category: "Pazarlama",
       nodes: [
-        { id: "1", type: "trigger", app: "Typeform", label: "Yeni Yanıt", icon: FileText, color: "text-white", bg: "bg-black" },
-        { id: "2", type: "action", app: "Email", label: "Mail 1 (Marka Tanıtımı)", icon: Mail, color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
-        { id: "3", type: "action", app: "Delay", label: "3 Gün Bekle", icon: Zap, color: "text-amber-400", bg: "bg-amber-400/10" },
-        { id: "4", type: "action", app: "Email", label: "Mail 2 (Değer Önerisi)", icon: Mail, color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "1", type: "trigger", app: "Typeform", label: "Yeni Yanıt", icon: "FileText", color: "text-white", bg: "bg-black" },
+        { id: "2", type: "action", app: "Email", label: "Mail 1 (Marka Tanıtımı)", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "3", type: "action", app: "Delay", label: "3 Gün Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "4", type: "action", app: "Email", label: "Mail 2 (Değer Önerisi)", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
       ]
     },
     {
@@ -160,10 +160,10 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
       trigger: "email.opened",
       category: "Satış",
       nodes: [
-        { id: "1", type: "trigger", app: "Webhook", label: "Email Açıldı (Webhook)", icon: Globe, color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
-        { id: "2", type: "condition", app: "If/Else", label: "Yanıt Geldi mi?", icon: GitBranch, color: "text-amber-400", bg: "bg-amber-400/10", branches: [{ path: "Hayır" }] },
-        { id: "3", type: "action", app: "Delay", label: "24 Saat Bekle", icon: Zap, color: "text-amber-400", bg: "bg-amber-400/10" },
-        { id: "4", type: "action", app: "Email", label: "Özel Fırsat Hatırlatması", icon: Mail, color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
+        { id: "1", type: "trigger", app: "Webhook", label: "Email Açıldı (Webhook)", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "condition", app: "If/Else", label: "Yanıt Geldi mi?", icon: "GitBranch", color: "text-amber-400", bg: "bg-amber-400/10", branches: [{ path: "Hayır" }] },
+        { id: "3", type: "action", app: "Delay", label: "24 Saat Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "4", type: "action", app: "Email", label: "Özel Fırsat Hatırlatması", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
       ]
     },
     {
@@ -173,11 +173,11 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
       trigger: "email.received",
       category: "Müşteri Hizmetleri",
       nodes: [
-        { id: "1", type: "trigger", app: "Email", label: "Yeni Gelen E-Posta", icon: Mail, color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
-        { id: "2", type: "action", app: "Star AI", label: "Mail İçeriğini Analiz Et", icon: Activity, color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
-        { id: "3", type: "condition", app: "If/Else", label: "Destek mi Satış mı?", icon: GitBranch, color: "text-amber-400", bg: "bg-amber-400/10", branches: [
-          { path: "Teknik Destek", nodes: [{ id: "3a", type: "action", app: "Email", label: "Otomatik Destek Yanıtı", icon: Mail }] },
-          { path: "Satış/Fiyat", nodes: [{ id: "3b", type: "action", app: "Email", label: "Fiyat Teklifi ve Toplantı Linki", icon: Mail }] }
+        { id: "1", type: "trigger", app: "Email", label: "Yeni Gelen E-Posta", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Mail İçeriğini Analiz Et", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "condition", app: "If/Else", label: "Destek mi Satış mı?", icon: "GitBranch", color: "text-amber-400", bg: "bg-amber-400/10", branches: [
+          { path: "Teknik Destek", nodes: [{ id: "3a", type: "action", app: "Email", label: "Otomatik Destek Yanıtı", icon: "Mail" }] },
+          { path: "Satış/Fiyat", nodes: [{ id: "3b", type: "action", app: "Email", label: "Fiyat Teklifi ve Toplantı Linki", icon: "Mail" }] }
         ]}
       ]
     },
@@ -961,17 +961,17 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       status: "PAUSED",
                       runs: 0,
                       successRate: 0,
-                      lastRun: "-",
                       nodes: (t as any).nodes?.map((n: any, idx: number) => {
                         const style = appConfigs[n.type] || appConfigs["Custom"];
                         return {
                           id: `n${idx + 1}`,
                           type: idx === 0 ? "trigger" : "action",
-                          app: n.type,
-                          label: n.config?.title || n.config?.contractTitle || n.config?.projectName || style.defaultLabel || "Node",
-                          icon: style.icon,
-                          color: style.color,
-                          bg: style.bg
+                          app: n.type || "Custom",
+                          label: n.config?.title || n.config?.contractTitle || n.config?.projectName || style?.defaultLabel || n.label || "Adım",
+                          icon: n.type || "Zap", // Use app name string instead of React Icon function
+                          color: style?.color || "text-[#10B981]",
+                          bg: style?.bg || "bg-[#10B981]/10",
+                          config: n.config || {}
                         };
                       }) || []
                     };
