@@ -503,23 +503,25 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           }
           @page { 
             size: A4; 
-            margin: 8mm 12mm; /* Let native print margins define the space */
+            margin: 0; /* Clear native print margins to get absolute control */
           }
           @media print {
             .no-print { display: none !important; }
             html, body {
-              height: auto;
-              overflow: visible;
+              height: 297mm !important;
+              overflow: hidden !important;
               background-color: #ffffff;
             }
             body { 
               font-size: 9.5px;
-              padding: 0 !important;
+              padding: 10mm 15mm !important; /* Managed padding inside the printable page */
               margin: 0 !important;
+              box-sizing: border-box;
             }
             .invoice-page {
               width: 100% !important;
-              height: 275mm !important; /* Lock page container height to fit A4 printable area */
+              height: 100% !important;
+              max-height: 277mm !important; /* Dynamically lock height to prevent page 2 pushes */
               margin: 0 !important;
               padding: 0 !important;
               border: none !important;
@@ -598,7 +600,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             }
             .totals-card {
               padding: 8px 12px !important;
-              width: 260px !important;
+              width: 280px !important;
             }
             .totals-row {
               font-size: 9px !important;
@@ -640,7 +642,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               bottom: 0px !important;
               left: 0 !important;
               right: 0 !important;
-              height: 55px !important;
+              height: 45px !important;
               display: flex !important;
             }
             .footer-col {
