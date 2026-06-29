@@ -2,6 +2,7 @@ module.exports = {
   apps: [
     {
       name: "starwebflow",
+      cwd: "c:\\Users\\sinan\\Desktop\\projeler\\starwebflow",
       script: "node_modules/next/dist/bin/next",
       args: "start",
       instances: "max",
