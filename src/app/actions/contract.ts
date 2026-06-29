@@ -346,20 +346,21 @@ export async function generateOfficialContract(data: {
     const budgetText = data.value ? `${data.value} ${data.currency || 'TRY'}` : 'Belirtilmedi';
     const { text } = await generateText({
       model: getFlashModel(),
-      prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış kıdemli bir hukukçusun.
-Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) ve "Pflichtenheft" (Teknik Uygulama Şartnamesi) dokümanlarını esas alarak, StarWebFlow şirketimizin haklarını ve çıkarlarını en üst düzeyde koruyan (Pro/Elit düzeyde), yasal olarak bağlayıcı resmi bir "B2B ANA HİZMET SÖZLEŞMESİ" (Master Service Agreement) oluştur.
+      prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
+Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) ve "Pflichtenheft" (Teknik Uygulama Şartnamesi) dokümanlarını esas alarak, StarWebFlow şirketimizin haklarını, çıkarlarını ve yasal sınırlarını en üst düzeyde koruyan (Pro/Elit düzeyde tek taraflı korumacı), hukuki geçerliliği olan resmi bir "B2B ANA HİZMET SÖZLEŞMESİ" (Master Service Agreement) oluştur.
 
-Tüm hizmetler için bu ana sözleşme son yasal aşamadır. Aşağıdaki koruyucu ve yasal bölümlerin tamamı otomatik olarak sözleşmeye entegre edilmelidir:
+Tüm hizmetler için bu ana sözleşme son yasal aşamadır. Aşağıdaki tüm koruyucu yasal bölümler StarWebFlow lehine olacak şekilde otomatik olarak sözleşmeye entegre edilmelidir:
 
-SÖZLEŞME YAPISI VE ZORUNLU BÖLÜMLER:
+STARWEBFLOW LEHİNE KRİTİK YASAL MADDELER VE YAPISI:
 1. SÖZLEŞMENİN TARAFLARI VE KONUSU: StarWebFlow ile ${data.clientName} arasındaki yazılım/web geliştirme projesinin genel çerçevesi.
-2. GİZLİLİK VE VERİ GÜVENLİĞİ (GİZLİLİK SÖZLEŞMESİ / NDA): Taraflar arasında paylaşılan ticari, mali, teknik veya fikri tüm bilgilerin gizliliği, ifşa yasakları, ihlal halinde uygulanacak net ve ağır cezai şartlar.
-3. FİKRİ VE SINAİ MÜLKİYET HAKLARI (IP RIGHTS): Geliştirilen yazılıma ait tüm mülkiyet ve telif hakları, Müşteri sözleşme bedelinin %100'ünü ödeyene kadar StarWebFlow'a aittir. Ödeme tamamlandıktan sonra kullanım hakkı devredilir; ancak "Background IP" (StarWebFlow'un önceden geliştirdiği altyapılar, kütüphaneler, hazır kodlar ve şablonlar) StarWebFlow mülkiyetinde kalır, müşteriye sadece devredilemez lisans verilir.
-4. KAPSAM YÖNETİMİ VE EK TALEPLER (SCOPE CREEP): Projenin teknik sınırları Pflichtenheft ile çizilmiştir. Pflichtenheft dışındaki her türlü yeni talep ek ücrete tabi olacaktır ve teslim süresinin uzatılmasını gerektirir.
-5. HİZMET SEVİYESİ TAAHHÜDÜ (SLA): Bakım, destek, hata bildirimleri, müdahale ve çözüm süreleri.
-6. KİŞİSEL VERİLERİN KORUNMASI (GDPR & KVKK UYUMLULUĞU): Müşteri ve son kullanıcı verilerinin işlenmesi, saklanması ve güvenliği ile ilgili yasal sorumluluklar.
-7. ÖDEME KOŞULLARI, GECİKME CEZALARI VE FESİH: Toplam Bütçe (${budgetText}) doğrultusundaki ödeme koşulları. Ödemelerin gecikmesi durumunda aylık %5 gecikme faizi uygulanır ve StarWebFlow hizmeti durdurma hakkına sahiptir. Tarafların fesih şartları ve ihlal durumundaki yükümlülükleri.
-8. MÜCBİR SEBEPLER VE YETKİLİ MAHKEMELER: Mücbir sebeplerin tanımı ve doğabilecek ihtilaflarda Speyer (Almanya) Mahkemelerinin yetkisi.
+2. GİZLİLİK VE VERİ GÜVENLİĞİ (GİZLİLİK SÖZLEŞMESİ / NDA): Müşterinin gizlilik ihlallerinde çok ağır cezalar uygulanırken, StarWebFlow'un veri gizliliği ile ilgili yükümlülükleri ve olası veri sızıntılarındaki yasal sorumluluğu kanuni asgari sınırlarda tutulmalıdır.
+3. FİKRİ VE SINAİ MÜLKİYET HAKLARI (IP RIGHTS - STARWEBFLOW LEHİNE): Geliştirilen yazılıma ait tüm kaynak kodları, mülkiyet ve telif hakları, Müşteri sözleşme bedelinin %100'ünü tamamen ödeyene kadar StarWebFlow mülkiyetindedir. Müşteri ödemeleri geciktirirse StarWebFlow lisansı tek taraflı iptal edebilir, hizmeti ve projeyi kapatabilir. Ödeme bitse dahi "Background IP" (StarWebFlow'un önceden geliştirdiği altyapılar, kütüphaneler, şablonlar ve hazır kod blokları) tamamen StarWebFlow mülkiyetinde kalır; müşteriye sadece devredilemez, kopyalanamaz ve satılamaz basit bir kullanım lisansı verilir.
+4. KAPSAM YÖNETİMİ VE EK TALEPLER (SCOPE CREEP): Projenin teknik sınırları sadece Pflichtenheft ile çizilmiştir. Pflichtenheft dışındaki en ufak bir ek talep, yeni özellik veya revizyon ek bütçeye ve ek sözleşmeye tabi olacaktır. StarWebFlow ek talepleri yapıp yapmamakta veya ek süre istemekte tamamen serbesttir.
+5. SORUMLULUK SINIRLANDIRILMASI (LIMITATION OF LIABILITY - KRİTİK): StarWebFlow'un herhangi bir hasar, gecikme, hata veya doğrudan/dolaylı zarar durumunda üstleneceği maksimum toplam yasal sorumluluk, müşterinin o ana kadar StarWebFlow'a fiilen ödediği toplam net tutarı hiçbir koşulda geçemez. Dolaylı zararlar, kâr kayıpları veya veri kayıpları için StarWebFlow'dan hiçbir tazminat talep edilemez.
+6. HİZMET SEVİYESİ TAAHHÜDÜ (SLA): Destek ve bakım müdahale süreleri tahmini hedefler olup, gecikmelerde StarWebFlow'a cezai veya mali yaptırım uygulanamaz. Üçüncü taraf servis sağlayıcılardan (Örn: AWS, Vercel, OpenAI vb.) kaynaklanan kesintilerden StarWebFlow sorumlu tutulamaz.
+7. GDPR & KVKK UYUMLULUĞU: Müşteri, son kullanıcıların verilerinin yasalara uygun olarak toplanmasından tek başına sorumludur ve bu verilerin işlenmesi konusunda StarWebFlow'u tüm yasal iddialardan muaf tutar.
+8. ÖDEME KOŞULLARI, GECİKME CEZALARI VE FESİH: Toplam Bütçe (${budgetText}) doğrultusundaki ödeme koşulları. Ödemelerin gecikmesi durumunda aylık %5 gecikme faizi uygulanır ve StarWebFlow işi anında askıya alma hakkına sahiptir. Müşteri sözleşmeyi haklı bir neden olmaksızın feshederse, o ana kadar yapılan tüm ödemeler irat (gelir) kaydedilir ve kalan bedelin tamamı derhal muaccel (hemen ödenebilir) hale gelir.
+9. MÜCBİR SEBEPLER VE YETKİLİ MAHKEMELER: Mücbir sebeplerin tanımı ve doğabilecek ihtilaflarda münhasıran Speyer (Almanya) Mahkemelerinin ve İcra Dairelerinin yetkisi.
 
 Müşteri Firma: ${data.clientName}
 Proje Adı: ${data.title}
@@ -371,7 +372,7 @@ ${data.lastenheft}
 TEKNİK ŞARTNAME (Pflichtenheft):
 ${data.pflichtenheft}
 
-Lütfen bu iki belgedeki teknik şartları ve yasal koruma maddelerini entegre ederek, çok detaylı, resmi bir Türkçe dil kullanarak Markdown formatında nihai B2B Hizmet Sözleşmesini oluştur. Başlık olarak doğrudan resmi sözleşme adı ile başla.`,
+Lütfen bu iki belgedeki teknik şartları ve StarWebFlow şirketimizin çıkarlarını azami seviyede koruyan yasal maddeleri entegre ederek, çok detaylı, resmi bir Türkçe dil kullanarak Markdown formatında nihai B2B Hizmet Sözleşmesini oluştur. Başlık olarak doğrudan resmi sözleşme adı ile başla.`,
     });
     return { success: true, data: text };
   } catch (error) {
