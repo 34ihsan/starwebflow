@@ -968,3 +968,12 @@ model SocialEngagement {
   @@index([externalUsername])
   @@map("social_engagements")
 }
+
+model EmailWarmupContactLog {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("email_warmup_contact_logs")
+}
+
