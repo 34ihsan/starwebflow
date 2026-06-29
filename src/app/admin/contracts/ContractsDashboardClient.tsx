@@ -643,6 +643,36 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
     }
   };
 
+  const handleGenerateMainContract = async () => {
+    if (!editContent || editContent.trim() === '') {
+      alert("Lütfen önce Pflichtenheft teknik şartname içeriğinin hazır olduğundan emin olun.");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const res = await generateOfficialContract({
+        lastenheft: "Pflichtenheft dokümanında belirtilen iş gereksinimleri.",
+        pflichtenheft: editContent,
+        clientName: editClientName || "Müşteri",
+        title: editTitle || "B2B Projesi",
+        value: editValue ? Number(editValue) : undefined,
+        currency: editCurrency
+      });
+      if (res.success && res.data) {
+        setEditContent(res.data);
+        setEditType('MSA');
+        alert("Teknik şartname (Pflichtenheft) başarıyla tüm yasal ve teknik maddeleri (NDA, SLA vb.) içeren Ana B2B Hizmet Sözleşmesine dönüştürüldü!");
+      } else {
+        alert(res.error || "Dönüştürme sırasında bir hata oluştu.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Dönüştürme başarısız oldu.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   // Stats
   const totalContracts = contracts.length;
   const pendingContracts = contracts.filter(c => c.status?.toUpperCase() === 'PENDING' || c.status === 'draft').length;
@@ -1784,7 +1814,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         className={`p-4 rounded-xl border flex flex-col justify-between h-28 transition-all cursor-pointer hover:bg-white/5 ${
                           editType === 'LASTENHEFT' 
                             ? 'bg-blue-500/10 border-blue-500/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-                            : ['PFLICHTENHEFT', 'NDA', 'SLA'].includes(editType)
+                            : ['PFLICHTENHEFT', 'NDA', 'SLA', 'MSA'].includes(editType)
                             ? 'bg-emerald-500/5 border-emerald-500/20 text-slate-400'
                             : 'bg-white/[0.02] border-white/5 text-slate-500'
                         }`}
@@ -1792,7 +1822,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         <div>
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold tracking-wider uppercase">Aşama 1</span>
-                            {['PFLICHTENHEFT', 'NDA', 'SLA'].includes(editType) && <span className="text-xs text-emerald-400">✓ Tamamlandı</span>}
+                            {['PFLICHTENHEFT', 'NDA', 'SLA', 'MSA'].includes(editType) && <span className="text-xs text-emerald-400">✓ Tamamlandı</span>}
                             {editType === 'LASTENHEFT' && <span className="text-xs text-blue-400 animate-pulse">● Aktif Aşamada</span>}
                           </div>
                           <h4 className="font-bold text-sm text-white">Lastenheft (İş Gereksinimleri)</h4>
@@ -1817,7 +1847,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         className={`p-4 rounded-xl border flex flex-col justify-between h-28 transition-all cursor-pointer hover:bg-white/5 ${
                           editType === 'PFLICHTENHEFT' 
                             ? 'bg-blue-500/10 border-blue-500/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-                            : ['NDA', 'SLA'].includes(editType)
+                            : ['NDA', 'SLA', 'MSA'].includes(editType)
                             ? 'bg-emerald-500/5 border-emerald-500/20 text-slate-400'
                             : 'bg-white/[0.02] border-white/5 text-slate-500'
                         }`}
@@ -1825,7 +1855,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         <div>
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold tracking-wider uppercase">Aşama 2</span>
-                            {['NDA', 'SLA'].includes(editType) && <span className="text-xs text-emerald-400">✓ Tamamlandı</span>}
+                            {['NDA', 'SLA', 'MSA'].includes(editType) && <span className="text-xs text-emerald-400">✓ Tamamlandı</span>}
                             {editType === 'PFLICHTENHEFT' && <span className="text-xs text-blue-400 animate-pulse">● Aktif Aşamada</span>}
                           </div>
                           <h4 className="font-bold text-sm text-white">Pflichtenheft (Teknik Şartname)</h4>
@@ -1835,14 +1865,20 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
 
                       {/* Step 3 */}
                       <div 
-                        onClick={() => {
-                          setEditType('NDA');
-                          if (confirm('Bu aşamaya geçip "NDA" (Gizlilik Sözleşmesi) hazır şablonunu yüklemek ister misiniz? (Dilerseniz form alanından SLA şablonunu da seçip yükleyebilirsiniz.)')) {
-                            setEditContent(CONTRACT_TEMPLATES.NDA || '');
+                        onClick={async () => {
+                          setEditType('MSA');
+                          if (editContent && editContent.length > 50 && editType === 'PFLICHTENHEFT') {
+                            if (confirm('Pflichtenheft teknik şartnamesini, tüm yasal maddeleri (NDA, SLA vb.) içeren Ana B2B Sözleşmesine (MSA) AI ile otomatik dönüştürmek ister misiniz?')) {
+                              await handleGenerateMainContract();
+                              return;
+                            }
+                          }
+                          if (confirm('Ana B2B Hizmet Sözleşmesi (MSA) hazır şablonunu yüklemek ister misiniz?')) {
+                            setEditContent(CONTRACT_TEMPLATES.MSA || '');
                           }
                         }}
                         className={`p-4 rounded-xl border flex flex-col justify-between h-28 transition-all cursor-pointer hover:bg-white/5 ${
-                          ['NDA', 'SLA'].includes(editType)
+                          ['NDA', 'SLA', 'MSA'].includes(editType)
                             ? 'bg-blue-500/10 border-blue-500/30 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
                             : 'bg-white/[0.02] border-white/5 text-slate-500'
                         }`}
@@ -1851,7 +1887,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold tracking-wider uppercase">Aşama 3</span>
                             {editStatus === 'SIGNED' && <span className="text-xs text-emerald-400">✓ İmzalandı</span>}
-                            {['NDA', 'SLA'].includes(editType) && editStatus !== 'SIGNED' && <span className="text-xs text-blue-400 animate-pulse">● Uzlaşma Bekliyor</span>}
+                            {['NDA', 'SLA', 'MSA'].includes(editType) && editStatus !== 'SIGNED' && <span className="text-xs text-blue-400 animate-pulse">● Uzlaşma Bekliyor</span>}
                           </div>
                           <h4 className="font-bold text-sm text-white">Resmi Sözleşme & Hukuki Onay</h4>
                           <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">NDA ve SLA şartları belirlenerek karşılıklı ıslak veya dijital imza sürecine geçilir.</p>
@@ -1958,6 +1994,16 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                             className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded hover:bg-purple-500/20 transition-colors disabled:opacity-50 ml-2"
                           >
                             {generating ? 'Üretiliyor...' : "Lastenheft'ten AI ile Üret (Wie/Womit)"}
+                          </button>
+                        )}
+                        {['MSA', 'NDA', 'SLA'].includes(editType) && (
+                          <button
+                            type="button"
+                            disabled={generating}
+                            onClick={handleGenerateMainContract}
+                            className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded hover:bg-blue-500/20 transition-colors disabled:opacity-50 ml-2 animate-pulse"
+                          >
+                            {generating ? 'Üretiliyor...' : "Pflichtenheft'ten AI ile Ana Sözleşme Üret"}
                           </button>
                         )}
                       </div>
