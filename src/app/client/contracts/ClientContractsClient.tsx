@@ -440,7 +440,7 @@ export default function ClientContractsClient({
           alert("Kayıt sırasında hata oluştu.");
         }
       } else {
-        alert(res.error || "Gereksinimler derlenirken hata oluştu.");
+        alert(res?.error || "Gereksinimler derlenirken hata oluştu. Sunucu zaman aşımına uğramış olabilir.");
       }
     } catch (e) {
       console.error(e);

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 import { generateText } from 'ai';
-import { getProModel } from '@/lib/ai/gemini-client';
+import { getProModel, getFlashModel } from '@/lib/ai/gemini-client';
 
 function getFallbackTemplate(clientName: string, title: string, type: string, serviceType: string, value?: number, currency?: string) {
   const serviceName = {
@@ -299,7 +299,7 @@ export async function generateLastenheftFromChoices(data: {
     const sectorName = data.sector ? (sectorLabels[data.sector] || data.sector) : 'Diğer / Genel Sektör';
 
     const { text } = await generateText({
-      model: getProModel(),
+      model: getFlashModel(),
       prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
 Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
 

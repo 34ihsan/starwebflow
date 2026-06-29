@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Müşteri Sözleşmeleri',
 }
 
+export const maxDuration = 60;
+
 export default async function ClientContractsPage() {
   const res = await getClientDashboardData('default-tenant');
   const contracts = res.success ? res.data?.contracts || [] : [];
