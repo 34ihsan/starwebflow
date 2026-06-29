@@ -240,8 +240,9 @@ export async function deleteContract(id: string) {
   }
 }
 
-export async function generatePflichtenheftFromLastenheft(lastenheftContent: string) {
+export async function generatePflichtenheftFromLastenheft(lastenheftContent: string, language?: string) {
   try {
+    const langText = language === 'en' ? 'English' : language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
     const { text } = await generateText({
       model: getProModel(),
       prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin.
@@ -254,7 +255,8 @@ Gereksinimleri "Wie & Womit" (Nasıl & Ne ile?) prensibine göre teknik detaylar
 Lastenheft Dökümanı:
 ${lastenheftContent}
 
-Dönüştürülecek Pflichtenheft dökümanını Türkçe ve Markdown formatında oluştur. Başlık olarak doğrudan teknik şartname adı ile başla.`,
+Dönüştürülecek Pflichtenheft dökümanını ${langText} dilinde ve Markdown formatında oluştur. Başlık olarak doğrudan teknik şartname adı ile başla.
+Please write the document in ${langText}.`,
     });
     return { success: true, data: text };
   } catch (error) {
@@ -274,6 +276,7 @@ export async function generateLastenheftFromChoices(data: {
   customNotes?: string;
   sector?: string;
   projectDescription?: string;
+  language?: string;
 }) {
   try {
     const serviceLabels: Record<string, string> = {
@@ -297,6 +300,7 @@ export async function generateLastenheftFromChoices(data: {
     
     const serviceName = serviceLabels[data.serviceType] || data.serviceType;
     const sectorName = data.sector ? (sectorLabels[data.sector] || data.sector) : 'Diğer / Genel Sektör';
+    const langText = data.language === 'en' ? 'English' : data.language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
 
     const { text } = await generateText({
       model: getFlashModel(),
@@ -325,7 +329,8 @@ ${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
 Müşterinin Hedefleri ve Notları (Niçin?):
 ${data.customNotes || 'Belirtilmedi'}
 
-Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Müşterinin girdiği serbest metin açıklaması içerisindeki detayları (Örn: özel menüler, posta kodu sınırlamaları, üyelik-abonelik kuralları vb.) mutlaka dokümana entegre et. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
+Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak ${langText} dilinde ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Müşterinin girdiği serbest metin açıklaması içerisindeki detayları (Örn: özel menüler, posta kodu sınırlamaları, üyelik-abonelik kuralları vb.) mutlaka dokümana entegre et. Başlık olarak doğrudan iş gereksinimleri adı ile başla.
+Please write the document in ${langText}.`,
     });
     return { success: true, data: text };
   } catch (error) {
@@ -341,9 +346,12 @@ export async function generateOfficialContract(data: {
   title: string;
   value?: number;
   currency?: string;
+  language?: string;
 }) {
   try {
     const budgetText = data.value ? `${data.value} ${data.currency || 'TRY'}` : 'Belirtilmedi';
+    const langText = data.language === 'en' ? 'English' : data.language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
+    
     const { text } = await generateText({
       model: getFlashModel(),
       prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
@@ -372,7 +380,8 @@ ${data.lastenheft}
 TEKNİK ŞARTNAME (Pflichtenheft):
 ${data.pflichtenheft}
 
-Lütfen bu iki belgedeki teknik şartları ve StarWebFlow şirketimizin çıkarlarını azami seviyede koruyan yasal maddeleri entegre ederek, çok detaylı, resmi bir Türkçe dil kullanarak Markdown formatında nihai B2B Hizmet Sözleşmesini oluştur. Başlık olarak doğrudan resmi sözleşme adı ile başla.`,
+Lütfen bu iki belgedeki teknik şartları ve StarWebFlow şirketimizin çıkarlarını azami seviyede koruyan yasal maddeleri entegre ederek, çok detaylı, resmi bir ${langText} dil kullanarak Markdown formatında nihai B2B Hizmet Sözleşmesini oluştur. Başlık olarak doğrudan resmi sözleşme adı ile başla.
+Please write the document in ${langText}.`,
     });
     return { success: true, data: text };
   } catch (error) {

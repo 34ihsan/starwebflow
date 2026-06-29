@@ -454,6 +454,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
 
   // Edit states for unified Viewer/Editor Modal
   const [editContent, setEditContent] = useState("");
+  const [editLanguage, setEditLanguage] = useState("tr");
   const [editTitle, setEditTitle] = useState("");
   const [editSignedPdfUrl, setEditSignedPdfUrl] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -627,7 +628,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
     }
     setGenerating(true);
     try {
-      const res = await generatePflichtenheftFromLastenheft(editContent);
+      const res = await generatePflichtenheftFromLastenheft(editContent, editLanguage);
       if (res.success && res.data) {
         setEditContent(res.data);
         setEditType('PFLICHTENHEFT');
@@ -656,7 +657,8 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
         clientName: editClientName || "Müşteri",
         title: editTitle || "B2B Projesi",
         value: editValue ? Number(editValue) : undefined,
-        currency: editCurrency
+        currency: editCurrency,
+        language: editLanguage
       });
       if (res.success && res.data) {
         setEditContent(res.data);
@@ -985,6 +987,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         onClick={() => {
                           setSelectedContract(contract);
                           setEditContent(contract.content || "");
+                          setEditLanguage("tr");
                           setEditTitle(contract.title || "");
                           setEditValue(contract.value ? String(contract.value) : "");
                           setEditCurrency(contract.currency || "TRY");
@@ -1936,6 +1939,18 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                         <option value="LASTENHEFT">Lastenheft</option>
                         <option value="PFLICHTENHEFT">Pflichtenheft</option>
                         <option value="MSA">Ana Hizmet Sözleşmesi (MSA)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-[#64748B] uppercase mb-1">Belge Dili (AI)</label>
+                      <select 
+                        value={editLanguage}
+                        onChange={e => setEditLanguage(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50"
+                      >
+                        <option value="tr" className="bg-[#0A0A0F] text-white">Türkçe (TR)</option>
+                        <option value="en" className="bg-[#0A0A0F] text-white">English (EN)</option>
+                        <option value="de" className="bg-[#0A0A0F] text-white">Deutsch (DE)</option>
                       </select>
                     </div>
                     <div>

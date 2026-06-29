@@ -400,7 +400,8 @@ export default function ClientContractsClient({
         selectedNeeds: wizardData.selectedNeeds,
         customNotes: wizardData.customNotes,
         sector: wizardData.selectedSector,
-        projectDescription: wizardData.projectDescription
+        projectDescription: wizardData.projectDescription,
+        language: language
       });
       
       if (res && res.success && res.data) {
