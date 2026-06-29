@@ -348,7 +348,7 @@ export default function ClientContractsClient({
         title: editTitle,
         content: editContent
       });
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setContracts(prev => prev.map(c => c.id === res.data.id ? res.data : c));
         setIsEditModalOpen(false);
         setSelectedContract(null);
@@ -401,7 +401,7 @@ export default function ClientContractsClient({
         sector: wizardData.selectedSector
       });
       
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setIsSaving(true);
         const dbRes = await createContract({
           tenantId: 'default-tenant',
@@ -414,11 +414,11 @@ export default function ClientContractsClient({
           status: "draft"
         });
         
-        if (dbRes.success && dbRes.data) {
+        if (dbRes && dbRes.success && dbRes.data) {
           const updated = await updateContract(dbRes.data.id, {
             content: res.data
           });
-          if (updated.success && updated.data) {
+          if (updated && updated.success && updated.data) {
             setContracts(prev => [updated.data, ...prev]);
             setIsGeneratorModalOpen(false);
             setWizardData({
@@ -645,7 +645,7 @@ export default function ClientContractsClient({
               <button 
                 onClick={async () => {
                   const res = await updateContractStatus(selectedContract.id, 'SIGNED');
-                  if (res.success && res.data) {
+                  if (res && res.success && res.data) {
                     setContracts(prev => prev.map(c => c.id === res.data.id ? res.data : c));
                   }
                   setIsSignModalOpen(false);

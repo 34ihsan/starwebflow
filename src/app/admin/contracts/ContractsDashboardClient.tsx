@@ -1488,11 +1488,11 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                               currency: wizardData.currency,
                               status: "draft"
                             });
-                            if (res.success && res.data) {
+                            if (res && res.success && res.data) {
                               const updated = await updateContract(res.data.id, {
                                 content: wizardData.lastenheftContent
                               });
-                              if (updated.success && updated.data) {
+                              if (updated && updated.success && updated.data) {
                                 setContracts(prev => [updated.data, ...prev]);
                                 setIsGeneratorModalOpen(false);
                                 setWizardStep(1);
@@ -1543,11 +1543,11 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                                 currency: wizardData.currency,
                                 status: "draft"
                               });
-                              if (res.success && res.data) {
+                              if (res && res.success && res.data) {
                                 const updated = await updateContract(res.data.id, {
                                   content: wizardData.pflichtenheftContent
                                 });
-                                if (updated.success && updated.data) {
+                                if (updated && updated.success && updated.data) {
                                   setContracts(prev => [updated.data, ...prev]);
                                   setIsGeneratorModalOpen(false);
                                   setWizardStep(1);
@@ -1692,7 +1692,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
               <button 
                 onClick={async () => {
                   const res = await updateContractStatus(selectedContract.id, 'SIGNED');
-                  if (res.success && res.data) {
+                  if (res && res.success && res.data) {
                     setContracts(prev => prev.map(c => c.id === res.data.id ? res.data : c));
                   }
                   setIsSignModalOpen(false);
@@ -2117,7 +2117,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                   onClick={async () => {
                     if (confirm('Bu sözleşmeyi tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) {
                       const res = await deleteContract(selectedContract.id);
-                      if (res.success) {
+                      if (res && res.success) {
                         setContracts(prev => prev.filter(c => c.id !== selectedContract.id));
                         setIsViewEditModalOpen(false);
                         setSelectedContract(null);
@@ -2156,7 +2156,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                       status: editStatus,
                       signedPdfUrl: editSignedPdfUrl || undefined
                     });
-                    if (res.success && res.data) {
+                    if (res && res.success && res.data) {
                       if (editStatus === 'SIGNED' && selectedContract.status !== 'SIGNED') {
                         const templates = taskTemplates[editType] || [];
                         if (templates.length > 0) {
