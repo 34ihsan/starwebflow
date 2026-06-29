@@ -359,7 +359,7 @@ SÖZLEŞME YAPISI VE ZORUNLU BÖLÜMLER:
 5. HİZMET SEVİYESİ TAAHHÜDÜ (SLA): Bakım, destek, hata bildirimleri, müdahale ve çözüm süreleri.
 6. KİŞİSEL VERİLERİN KORUNMASI (GDPR & KVKK UYUMLULUĞU): Müşteri ve son kullanıcı verilerinin işlenmesi, saklanması ve güvenliği ile ilgili yasal sorumluluklar.
 7. ÖDEME KOŞULLARI, GECİKME CEZALARI VE FESİH: Toplam Bütçe (${budgetText}) doğrultusundaki ödeme koşulları. Ödemelerin gecikmesi durumunda aylık %5 gecikme faizi uygulanır ve StarWebFlow hizmeti durdurma hakkına sahiptir. Tarafların fesih şartları ve ihlal durumundaki yükümlülükleri.
-8. MÜCBİR SEBEPLER VE YETKİLİ MAHKEMELER: Mücbir sebeplerin tanımı ve doğabilecek ihtilaflarda İstanbul (Çağlayan) Mahkemeleri ve İcra Dairelerinin yetkisi.
+8. MÜCBİR SEBEPLER VE YETKİLİ MAHKEMELER: Mücbir sebeplerin tanımı ve doğabilecek ihtilaflarda Speyer (Almanya) Mahkemelerinin yetkisi.
 
 Müşteri Firma: ${data.clientName}
 Proje Adı: ${data.title}
