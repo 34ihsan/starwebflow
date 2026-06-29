@@ -374,6 +374,7 @@ export default function ClientContractsClient({
     selectedSector: "OTHER",
     selectedNeeds: [] as string[],
     customNotes: "",
+    projectDescription: "",
     lastenheftContent: ""
   });
   const [generatingLastenheft, setGeneratingLastenheft] = useState(false);
@@ -398,7 +399,8 @@ export default function ClientContractsClient({
         currency: wizardData.currency,
         selectedNeeds: wizardData.selectedNeeds,
         customNotes: wizardData.customNotes,
-        sector: wizardData.selectedSector
+        sector: wizardData.selectedSector,
+        projectDescription: wizardData.projectDescription
       });
       
       if (res && res.success && res.data) {
@@ -429,6 +431,7 @@ export default function ClientContractsClient({
               selectedSector: "OTHER",
               selectedNeeds: [],
               customNotes: "",
+              projectDescription: "",
               lastenheftContent: ""
             });
             alert(language === 'tr' ? "Proje talebiniz (Lastenheft) başarıyla oluşturuldu ve ekibe iletildi!" : "Project request (Lastenheft) successfully created and sent!");
@@ -996,6 +999,18 @@ export default function ClientContractsClient({
                     <option value="USD">USD ($)</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Proje Fikri / Açıklaması */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Proje Fikri / Detaylı Açıklaması (Müşteri ne yapmak istediğini yazıyor)</label>
+                <textarea 
+                  rows={5}
+                  placeholder="Örn: Site bir online shop olacak. Ürün kategorileri, üyelik, abonelik vs. Kategori 1: Marie Kocht haftalık sabit menü..."
+                  value={wizardData.projectDescription}
+                  onChange={(e) => setWizardData(prev => ({ ...prev, projectDescription: e.target.value }))}
+                  className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-[#06B6D4] transition-colors resize-none"
+                />
               </div>
 
               {/* Ekstra Notlar */}

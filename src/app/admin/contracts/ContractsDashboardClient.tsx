@@ -443,6 +443,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
     selectedSector: "OTHER",
     selectedNeeds: [] as string[],
     customNotes: "",
+    projectDescription: "",
     lastenheftContent: "",
     pflichtenheftContent: "",
     officialContractContent: ""
@@ -479,7 +480,8 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
         currency: wizardData.currency,
         selectedNeeds: wizardData.selectedNeeds,
         customNotes: wizardData.customNotes,
-        sector: wizardData.selectedSector
+        sector: wizardData.selectedSector,
+        projectDescription: wizardData.projectDescription
       });
       if (res.success && res.data) {
         setWizardData(prev => ({ ...prev, lastenheftContent: res.data || "" }));
@@ -580,6 +582,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
             selectedSector: "OTHER",
             selectedNeeds: [],
             customNotes: "",
+            projectDescription: "",
             lastenheftContent: "",
             pflichtenheftContent: "",
             officialContractContent: ""
@@ -1366,6 +1369,18 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                     </div>
                   </div>
 
+                  {/* Proje Fikri / Açıklaması */}
+                  <div>
+                    <label className="block text-xs text-[#94A3B8] mb-1.5 font-bold uppercase tracking-wider">Proje Fikri / Detaylı Açıklaması (Müşteri ne yapmak istediğini yazıyor)</label>
+                    <textarea 
+                      rows={5} 
+                      value={wizardData.projectDescription}
+                      onChange={(e) => setWizardData({...wizardData, projectDescription: e.target.value})}
+                      className="w-full bg-black/40 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50"
+                      placeholder="Örn: Site bir online shop olacak. Ürün kategorileri, üyelik, abonelik vb. Kategori 1: Marie Kocht haftalık sabit menü..."
+                    />
+                  </div>
+
                   {/* Custom Notes */}
                   <div>
                     <label className="block text-xs text-[#94A3B8] mb-1.5 font-medium">Ek Şartlar ve Ekstra Notlar (İsteğe Bağlı)</label>
@@ -1506,6 +1521,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                                   selectedSector: "OTHER",
                                   selectedNeeds: [],
                                   customNotes: "",
+                                  projectDescription: "",
                                   lastenheftContent: "",
                                   pflichtenheftContent: "",
                                   officialContractContent: ""
@@ -1561,6 +1577,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                                     selectedSector: "OTHER",
                                     selectedNeeds: [],
                                     customNotes: "",
+                                    projectDescription: "",
                                     lastenheftContent: "",
                                     pflichtenheftContent: "",
                                     officialContractContent: ""

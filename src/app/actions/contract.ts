@@ -273,6 +273,7 @@ export async function generateLastenheftFromChoices(data: {
   selectedNeeds: string[];
   customNotes?: string;
   sector?: string;
+  projectDescription?: string;
 }) {
   try {
     const serviceLabels: Record<string, string> = {
@@ -300,7 +301,7 @@ export async function generateLastenheftFromChoices(data: {
     const { text } = await generateText({
       model: getProModel(),
       prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
-Aşağıda seçilen hizmet türü, müşteri tercihleri ve girilen bilgilere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
+Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
 
 KRİTİK UYARI: Bu doküman bir yasal sözleşme değildir! Kesinlikle yasal sözleşme maddeleri (Madde 1: Taraflar, Cezai Şartlar, Ödeme Şartları, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. 
 Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden/niçin istediğini açıklayan iş gereksinimleri şartnamesi olmalıdır.
@@ -315,13 +316,16 @@ Proje Detayları:
 - Hizmet Türü: ${serviceName}
 - Hedeflenen Bütçe: ${data.budget ? `${data.budget} ${data.currency}` : 'Belirtilmedi'}
 
+Müşterinin Proje Fikri / Açıklaması (Serbest Metin):
+${data.projectDescription || 'Belirtilmedi'}
+
 Müşterinin Seçtiği İhtiyaçlar ve İşlevler (Ne?):
 ${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
 
 Müşterinin Hedefleri ve Notları (Niçin?):
 ${data.customNotes || 'Belirtilmedi'}
 
-Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
+Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak Türkçe ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Müşterinin girdiği serbest metin açıklaması içerisindeki detayları (Örn: özel menüler, posta kodu sınırlamaları, üyelik-abonelik kuralları vb.) mutlaka dokümana entegre et. Başlık olarak doğrudan iş gereksinimleri adı ile başla.`,
     });
     return { success: true, data: text };
   } catch (error) {
