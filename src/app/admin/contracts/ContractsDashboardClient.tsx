@@ -1085,12 +1085,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                   >
                     <option value="LASTENHEFT" className="bg-[#0A0A0F] text-white">Lastenheft</option>
                     <option value="PFLICHTENHEFT" className="bg-[#0A0A0F] text-white">Pflichtenheft</option>
-                    <option value="SLA" className="bg-[#0A0A0F] text-white">SLA</option>
-                    <option value="NDA" className="bg-[#0A0A0F] text-white">NDA</option>
                     <option value="MSA" className="bg-[#0A0A0F] text-white">Ana Hizmet Sözleşmesi (MSA)</option>
-                    <option value="SEO" className="bg-[#0A0A0F] text-white">SEO Sözleşmesi</option>
-                    <option value="MAINTENANCE" className="bg-[#0A0A0F] text-white">Bakım Sözleşmesi</option>
-                    <option value="SOCIAL" className="bg-[#0A0A0F] text-white">Sosyal Medya Yönetimi</option>
                   </select>
                 </div>
                 <div>
@@ -1940,12 +1935,7 @@ export default function ContractsDashboardClient({ initialContracts }: { initial
                       >
                         <option value="LASTENHEFT">Lastenheft</option>
                         <option value="PFLICHTENHEFT">Pflichtenheft</option>
-                        <option value="SLA">SLA</option>
-                        <option value="NDA">NDA</option>
                         <option value="MSA">Ana Hizmet Sözleşmesi (MSA)</option>
-                        <option value="SEO">SEO Sözleşmesi</option>
-                        <option value="MAINTENANCE">Bakım Sözleşmesi</option>
-                        <option value="SOCIAL">Sosyal Medya Yönetimi</option>
                       </select>
                     </div>
                     <div>
