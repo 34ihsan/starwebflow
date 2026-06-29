@@ -38,7 +38,7 @@ export async function processInboundEmails(config: ImapConfig) {
     // Search for unread emails
     const searchCriteria = ['UNSEEN'];
     const fetchOptions = {
-      bodies: ['HEADER', 'TEXT'],
+      bodies: ['HEADER', 'TEXT', ''], // Empty string gets full raw message (RFC822)
       markSeen: false
     };
 
@@ -51,6 +51,7 @@ export async function processInboundEmails(config: ImapConfig) {
       const id = item.attributes.uid;
       const headerPart = allParts.find(part => part.which === 'HEADER');
       const textPart = allParts.find(part => part.which === 'TEXT');
+      const rawPart = allParts.find(part => part.which === '');
       
       const subject = headerPart?.body?.subject?.[0] || '';
       const from = headerPart?.body?.from?.[0] || '';
@@ -60,10 +61,12 @@ export async function processInboundEmails(config: ImapConfig) {
       let htmlContent = '';
       
       try {
-        const fullMessage = await connection.getParts([item]);
-        const parsed = await simpleParser(fullMessage);
-        bodyText = parsed.text || '';
-        htmlContent = parsed.html || '';
+        const rawMail = rawPart?.body || '';
+        if (rawMail) {
+          const parsed = await simpleParser(rawMail);
+          bodyText = parsed.text || '';
+          htmlContent = parsed.html || '';
+        }
       } catch (err) {
         console.error('Mail parsing failed', err);
       }
