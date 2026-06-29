@@ -2,14 +2,15 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 
-process.chdir(__dirname);
+const PROJECT_DIR = 'c:\\Users\\sinan\\Desktop\\projeler\\starwebflow';
+process.chdir(PROJECT_DIR);
 
 const dev = false;
 const hostname = 'localhost';
 const port = parseInt(process.env.PORT || '3005', 10);
 
 // Set the directory explicitly to the current folder to prevent any resolution issues
-const app = next({ dev, dir: __dirname, hostname, port });
+const app = next({ dev, dir: PROJECT_DIR, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
