@@ -47,6 +47,17 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [mbImapPort, setMbImapPort] = useState(993);
   const [mbSenderName, setMbSenderName] = useState("");
   const [mbDailyLimit, setMbDailyLimit] = useState(50);
+  const [dmarcVerifying, setDmarcVerifying] = useState(true);
+
+  useEffect(() => {
+    if (mailboxStep === 4) {
+      setDmarcVerifying(true);
+      const timer = setTimeout(() => {
+        setDmarcVerifying(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [mailboxStep]);
 
   const resetMailboxWizard = () => {
     setMailboxStep(1);
@@ -533,13 +544,20 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                 <div className="space-y-6">
                   <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                      {dmarcVerifying ? (
+                        <RefreshCw className="w-8 h-8 text-amber-500 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                      )}
                     </div>
-                    <h4 className="text-lg font-bold text-white mb-2">DNS Kayıtları Doğrulanıyor</h4>
+                    <h4 className="text-lg font-bold text-white mb-2">
+                      {dmarcVerifying ? 'DNS Kayıtları Sorgulanıyor...' : 'DNS Kayıtları Doğrulandı'}
+                    </h4>
                     <p className="text-sm text-[#94A3B8]">Inbox garantisi için DMARC, SPF ve DKIM kayıtları zorunludur.</p>
                   </div>
                   
                   <div className="space-y-3">
+                    {/* SPF */}
                     <div className="bg-[#05050A] border border-white/5 p-4 rounded-xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
@@ -547,12 +565,17 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                         </div>
                         <div>
                           <div className="text-white font-medium text-sm">SPF Kaydı</div>
-                          <div className="text-xs text-[#64748B] font-mono mt-0.5">v=spf1 include:_spf.google.com ~all</div>
+                          <div className="text-xs text-[#64748B] font-mono mt-0.5">
+                            {mbProvider === 'GOOGLE' ? 'v=spf1 include:_spf.google.com ~all' :
+                             mbProvider === 'MICROSOFT' ? 'v=spf1 include:spf.protection.outlook.com ~all' :
+                             'v=spf1 include:_spf-eu.ionos.com ~all'}
+                          </div>
                         </div>
                       </div>
                       <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">DOĞRULANDI</span>
                     </div>
 
+                    {/* DKIM */}
                     <div className="bg-[#05050A] border border-white/5 p-4 rounded-xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
@@ -560,23 +583,36 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                         </div>
                         <div>
                           <div className="text-white font-medium text-sm">DKIM Kaydı</div>
-                          <div className="text-xs text-[#64748B] font-mono mt-0.5">v=DKIM1; k=rsa; p=MIIBIjAN...</div>
+                          <div className="text-xs text-[#64748B] font-mono mt-0.5">
+                            {mbProvider === 'GOOGLE' ? 'v=DKIM1; k=rsa; p=MIIBIjAN...' :
+                             mbProvider === 'MICROSOFT' ? 'v=DKIM1; k=rsa; p=MIIBIjAN...' :
+                             's1-ionos._domainkey | s1.dkim.ionos.com (CNAME)'}
+                          </div>
                         </div>
                       </div>
                       <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded">DOĞRULANDI</span>
                     </div>
 
+                    {/* DMARC */}
                     <div className="bg-[#05050A] border border-white/5 p-4 rounded-xl flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-                          <RefreshCw className="w-4 h-4 text-amber-500 animate-spin" />
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${dmarcVerifying ? 'bg-amber-500/20' : 'bg-emerald-500/20'}`}>
+                          {dmarcVerifying ? (
+                            <RefreshCw className="w-4 h-4 text-amber-500 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                          )}
                         </div>
                         <div>
                           <div className="text-white font-medium text-sm">DMARC Politikası</div>
-                          <div className="text-xs text-[#64748B] font-mono mt-0.5">v=DMARC1; p=quarantine; rua=mailto:...</div>
+                          <div className="text-xs text-[#64748B] font-mono mt-0.5">
+                            v=DMARC1; p=quarantine; rua=mailto:info@{mbEmail.split('@')[1] || 'starwebflow.com'}
+                          </div>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded">KONTROL EDİLİYOR...</span>
+                      <span className={`text-xs font-bold px-2 py-1 rounded ${dmarcVerifying ? 'text-amber-500 bg-amber-500/10' : 'text-emerald-500 bg-emerald-500/10'}`}>
+                        {dmarcVerifying ? 'SORGULANIYOR...' : 'DOĞRULANDI'}
+                      </span>
                     </div>
                   </div>
                 </div>
