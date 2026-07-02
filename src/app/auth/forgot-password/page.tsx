@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { Zap, Mail, ArrowRight, Loader2, CheckCircle2, Info } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useSettings } from '@/lib/settings/SettingsContext';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 export default function ForgotPasswordPage() {
   const { settings } = useSettings();
+  const { getToken } = useRecaptcha();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [requested, setRequested] = useState(false);
@@ -17,11 +19,18 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setLoading(true);
 
+    let recaptchaToken: string | undefined;
+    try {
+      recaptchaToken = await getToken('forgot_password');
+    } catch (err) {
+      console.error('reCAPTCHA error:', err);
+    }
+
     try {
       const res = await fetch('/api/v1/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, recaptchaToken })
       });
 
       const data = await res.json();

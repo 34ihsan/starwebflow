@@ -5,9 +5,11 @@ import Link from 'next/link'
 import { Zap, ArrowRight, Lock, Mail, User, Loader2, CheckCircle2, Info } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useSettings } from '@/lib/settings/SettingsContext'
+import { useRecaptcha } from '@/hooks/useRecaptcha'
 
 export default function RegisterPage() {
   const { settings } = useSettings()
+  const { getToken } = useRecaptcha()
   const [loading, setLoading] = useState(false)
   const [registered, setRegistered] = useState(false)
   const [name, setName] = useState('')
@@ -19,11 +21,18 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     
+    let recaptchaToken: string | undefined;
+    try {
+      recaptchaToken = await getToken('register');
+    } catch (err) {
+      console.error('reCAPTCHA error:', err);
+    }
+    
     try {
       const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, recaptchaToken }),
       });
       
       const result = await response.json();

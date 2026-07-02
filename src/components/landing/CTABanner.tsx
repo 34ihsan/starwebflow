@@ -10,7 +10,7 @@ import {
   Mail, User, Phone, Building2, HelpCircle,
   TrendingUp, Check, Loader2
 } from 'lucide-react'
-
+import { useRecaptcha } from '@/hooks/useRecaptcha'
 import { CURRENCIES as currencies } from '@/lib/utils'
 
 const budgetRangesByCurrency: Record<string, { id: string; label: string; approxVal: number }[]> = {
@@ -221,6 +221,7 @@ export default function CTABanner() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const { getToken } = useRecaptcha()
 
   useEffect(() => {
     const el = sectionRef.current
@@ -253,6 +254,7 @@ export default function CTABanner() {
 
     setLoading(true)
     try {
+      const recaptchaToken = await getToken('cta_contact_form')
       const activeBudgetRanges = budgetRangesByCurrency[currencyCode] || budgetRangesByCurrency.TRY
       const selectedBudgetObj = activeBudgetRanges.find(b => b.id === budget)
       const selectedTypeLabel = projectTypes.find(p => p.id === projectType)?.label || 'Bilinmiyor'
@@ -264,9 +266,26 @@ export default function CTABanner() {
         company: company || undefined,
         source: `Iletisim Formu (${selectedTypeLabel})`,
         value: selectedBudgetObj?.approxVal || 0,
+        recaptchaToken,
       })
 
       if (res.success) {
+        // E-posta bildirimi gönder (admin + ziyaretçiye teşekkür)
+        fetch('/api/email/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            phone: phone.trim() || undefined,
+            company: company || undefined,
+            projectType: selectedTypeLabel,
+            budget: selectedBudgetObj?.label,
+            message,
+            language,
+          }),
+        }).catch(console.error) // fire-and-forget
+
         setSubmitted(true)
       } else {
         setError(c.valError)
@@ -278,6 +297,7 @@ export default function CTABanner() {
       setLoading(false)
     }
   }
+
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden border-t border-white/[0.04] bg-[#0A0A0F]">

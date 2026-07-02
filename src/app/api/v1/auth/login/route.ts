@@ -3,11 +3,25 @@ import { loginSchema } from '../../../../../modules/auth/auth.schema';
 import { AuthService } from '../../../../../modules/auth/auth.service';
 import { signJWT } from '../../../../../modules/auth/auth.jwt';
 import { getJwtSecret } from '../../../../../lib/config';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const result = loginSchema.safeParse(body);
+    const { recaptchaToken, ...loginBody } = body;
+
+    // reCAPTCHA doğrulaması
+    if (recaptchaToken) {
+      const captcha = await verifyRecaptcha(recaptchaToken);
+      if (!captcha.success) {
+        return NextResponse.json({
+          success: false,
+          error: { code: 'RECAPTCHA_FAILED', message: captcha.error || 'Bot doğrulaması başarısız.' }
+        }, { status: 400 });
+      }
+    }
+
+    const result = loginSchema.safeParse(loginBody);
 
     if (!result.success) {
       return NextResponse.json({

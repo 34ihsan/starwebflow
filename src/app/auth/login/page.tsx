@@ -5,9 +5,11 @@ import Link from 'next/link'
 import { Zap, ArrowRight, Lock, Mail, Loader2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useSettings } from '@/lib/settings/SettingsContext'
+import { useRecaptcha } from '@/hooks/useRecaptcha'
 
 export default function LoginPage() {
   const { settings } = useSettings()
+  const { getToken } = useRecaptcha()
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,12 +22,19 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
     
+    let recaptchaToken: string | undefined;
+    try {
+      recaptchaToken = await getToken('login');
+    } catch (err) {
+      console.error('reCAPTCHA error:', err);
+    }
+    
     try {
       if (loginMode === 'magic') {
         const response = await fetch('/api/auth/magic-link', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, recaptchaToken }),
         });
         
         const result = await response.json();
@@ -39,7 +48,7 @@ export default function LoginPage() {
         const response = await fetch('/api/v1/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, recaptchaToken }),
         });
         
         const result = await response.json();

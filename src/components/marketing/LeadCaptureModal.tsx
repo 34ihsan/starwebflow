@@ -5,6 +5,7 @@ import { createLeadWithProposal } from '@/app/actions/lead';
 import { X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSectionTracker } from '@/hooks/useSectionTracker';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 // Replace with your actual tenant ID
 const DEFAULT_TENANT_ID = 'default-tenant'; // This should ideally be passed as a prop or fetched from context
@@ -15,6 +16,7 @@ export default function LeadCaptureModal() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { getToken } = useRecaptcha();
 
   const { activeSection } = useSectionTracker(['hero', 'services', 'pricing', 'process', 'roi']);
 
@@ -80,13 +82,21 @@ export default function LeadCaptureModal() {
 
     const finalIndustry = formData.industry === 'Diğer' ? (formData.customIndustry || 'Belirtilmedi') : formData.industry;
 
+    let recaptchaToken: string | undefined;
+    try {
+      recaptchaToken = await getToken('lead_capture_modal');
+    } catch (err) {
+      console.error('reCAPTCHA error:', err);
+    }
+
     const res = await createLeadWithProposal({
       tenantId: DEFAULT_TENANT_ID,
       name: formData.name,
       email: formData.email,
       industry: finalIndustry,
       serviceType: formData.serviceType,
-      source: 'Exit Intent Popup'
+      source: 'Exit Intent Popup',
+      recaptchaToken,
     });
 
     setIsSubmitting(false);

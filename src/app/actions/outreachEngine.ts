@@ -3,10 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
-import { Resend } from 'resend';
-
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+import { sendOutreachEmail } from '@/lib/email';
 
 // Helper to deduce language & industry
 export async function analyzeLeadProfile(email: string, name: string | null, company: string | null) {
@@ -114,27 +111,18 @@ export async function processOutreachBatch(bulkOutreachId: string, tenantId: str
       const unsubscribeLink = `${appUrl}/api/unsubscribe?email=${encodeURIComponent(item.email)}`;
       const finalHtmlBody = htmlBody.replace(/\[Abonelikten Çık\]/g, `<a href="${unsubscribeLink}" style="color: #6b7280; text-decoration: underline;">Abonelikten Çık</a>`);
 
-      // 5. Send via Resend with High Priority
-      const subjectText = profile.language === 'TR' 
-        ? `StarWebflow - ${profile.industry} Sektörüne Özel Davet` 
+      // 5. Send via Resend (merkezi email servisi)
+      const subjectText = profile.language === 'TR'
+        ? `StarWebflow - ${profile.industry} Sektörüne Özel Davet`
         : `StarWebflow - Exclusive Invitation for ${item.company || profile.industry}`;
 
-      if (process.env.RESEND_API_KEY) {
-        await resend.emails.send({
-          from: `StarWebflow <${senderEmail}>`,
-          to: item.email,
-          subject: subjectText,
-          html: finalHtmlBody,
-          replyTo: senderEmail,
-          headers: {
-            'X-Priority': '1',
-            'X-MSMail-Priority': 'High',
-            'Importance': 'high'
-          }
-        });
-      } else {
-        console.warn(`Simulating email to ${item.email} via ${senderEmail} with priority HIGH`);
-      }
+      await sendOutreachEmail({
+        from: senderEmail,
+        to: item.email,
+        subject: subjectText,
+        html: finalHtmlBody,
+      });
+
 
       // 6. Stealth Delay (Simulated 2-5 seconds for dev, normally 3-12 minutes)
       const stealthDelayMs = Math.floor(Math.random() * 3000) + 2000;

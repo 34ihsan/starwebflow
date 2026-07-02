@@ -7,6 +7,7 @@ import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import TrackingScripts from '@/components/marketing/TrackingScripts'
 import { prisma } from '@/lib/prisma'
 import { SettingsProvider } from '@/lib/settings/SettingsContext'
+import { RecaptchaProvider } from '@/components/ui/RecaptchaProvider'
 
 export const metadata: Metadata = {
   title: 'StarWebFlow — Premium AI Otomasyon & Web Geliştirme Ekosistemi',
@@ -74,9 +75,11 @@ export default async function RootLayout({
       <body className="bg-[#0A0A0F] text-white antialiased overflow-x-hidden" suppressHydrationWarning>
         <SettingsProvider initialSettings={dbSettings}>
           <LanguageProvider>
-            {children}
-            <CookieConsent />
-            <SystemHealthWidget />
+            <RecaptchaProvider>
+              {children}
+              <CookieConsent />
+              <SystemHealthWidget />
+            </RecaptchaProvider>
           </LanguageProvider>
         </SettingsProvider>
       </body>

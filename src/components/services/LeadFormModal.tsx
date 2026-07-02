@@ -5,6 +5,7 @@ import { createPublicLead } from '@/app/actions/lead'
 import Button from '@/components/ui/Button'
 import { Sparkles, ShieldCheck, Mail, User, Phone, Building2, Loader2, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import { useRecaptcha } from '@/hooks/useRecaptcha'
 
 interface LeadFormModalProps {
   isOpen: boolean
@@ -24,6 +25,7 @@ export default function LeadFormModal({
   onSubmitSuccess,
 }: LeadFormModalProps) {
   const { language } = useLanguage()
+  const { getToken } = useRecaptcha()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -123,6 +125,7 @@ export default function LeadFormModal({
 
     setLoading(true)
     try {
+      const recaptchaToken = await getToken('lead_form_modal')
       const res = await createPublicLead({
         name,
         email,
@@ -130,9 +133,26 @@ export default function LeadFormModal({
         company: company || undefined,
         source,
         value,
+        recaptchaToken,
       })
 
       if (res.success) {
+        // E-posta bildirimi gönder (admin + ziyaretçiye)
+        fetch('/api/email/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            company: company || undefined,
+            projectType: source,
+            budget: value ? value.toString() : undefined,
+            message: 'Bu lead servis modal/popup üzerinden geldi.',
+            language,
+          }),
+        }).catch(console.error)
+
         onSubmitSuccess({ name, email, phone, company })
       } else {
         setError(c.valError)

@@ -1,12 +1,10 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { Resend } from 'resend';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
-
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+import { verifyRecaptcha } from '@/lib/recaptcha';
+import { sendProposalEmail, sendLeadNotification } from '@/lib/email';
 
 // Helper to generate dynamic template based on industry and service
 function generateProposalTemplate(name: string, industry: string, serviceType: string) {
@@ -60,8 +58,16 @@ export async function createLeadWithProposal(data: {
   industry: string;
   serviceType: string;
   source?: string;
+  recaptchaToken?: string;
 }) {
   try {
+    // 0. reCAPTCHA doğrulaması
+    if (data.recaptchaToken) {
+      const captcha = await verifyRecaptcha(data.recaptchaToken);
+      if (!captcha.success) {
+        return { success: false, error: captcha.error || 'Bot doğrulaması başarısız.' };
+      }
+    }
     // 1. Create Lead
     const lead = await prisma.lead.create({
       data: {
@@ -86,26 +92,24 @@ export async function createLeadWithProposal(data: {
     // 3. Generate Template
     const { subject, html } = generateProposalTemplate(data.name, data.industry, data.serviceType);
 
-    // 4. Send Email via Resend
-    const fromEmail = process.env.OUTBOUND_EMAIL_ADDRESS || `reply+${thread.id}@starwebflow.com`;
+    // 4. Send Email via Resend (merkezi email servisi)
     let emailSent = false;
+    const sendResult = await sendProposalEmail({
+      to: lead.email!,
+      name: data.name,
+      subject,
+      html,
+    });
+    emailSent = sendResult.success;
 
-    if (process.env.RESEND_API_KEY) {
-      try {
-        await resend.emails.send({
-          from: `StarWebflow <${fromEmail}>`,
-          to: lead.email!,
-          subject: subject,
-          html: html,
-          replyTo: fromEmail,
-        });
-        emailSent = true;
-      } catch (e) {
-        console.error('Resend API error:', e);
-      }
-    } else {
-      console.warn('RESEND_API_KEY not set. Email dispatch simulated.');
-    }
+    // 4.5 Admin'e lead bildirimi gönder
+    await sendLeadNotification({
+      name: data.name,
+      email: data.email,
+      industry: data.industry,
+      serviceType: data.serviceType,
+      source: data.source,
+    }).catch(console.error);
 
     // 5. Save the sent email to Chat messages
     // Strip HTML for the chat view, or keep it simple
@@ -160,8 +164,24 @@ export async function createLead(data: any) {
   }
 }
 
-export async function createPublicLead(data: any) {
-  return createLead({ ...data, tenantId: 'default-tenant' });
+export async function createPublicLead(data: {
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  source?: string;
+  value?: number;
+  recaptchaToken?: string;
+}) {
+  // reCAPTCHA doğrulaması
+  if (data.recaptchaToken) {
+    const captcha = await verifyRecaptcha(data.recaptchaToken);
+    if (!captcha.success) {
+      return { success: false, error: captcha.error || 'Bot doğrulaması başarısız.' };
+    }
+  }
+  const { recaptchaToken: _token, ...leadData } = data;
+  return createLead({ ...leadData, tenantId: 'default-tenant' });
 }
 
 export async function createLeadWithAIEmail(data: {
@@ -265,21 +285,23 @@ Lütfen yukarıdaki bilgilere göre müşteriye gidecek olan tanışma / ilk ad�
         }
       });
 
-      const fromEmail = process.env.OUTBOUND_EMAIL_ADDRESS || `info@starwebflow.com`;
-      
-      if (process.env.RESEND_API_KEY) {
-        try {
-          await resend.emails.send({
-            from: `StarWebflow <${fromEmail}>`,
-            to: data.email,
-            subject: subject,
-            html: emailHtml,
-            replyTo: fromEmail,
-          });
-        } catch (e) {
-          console.error('Resend API error:', e);
-        }
-      }
+      // Merkezi email servisi kullan
+      await sendProposalEmail({
+        to: data.email,
+        name: data.name,
+        subject,
+        html: emailHtml,
+      }).catch(console.error);
+
+      // Admin'e bildirim
+      await sendLeadNotification({
+        name: data.name,
+        email: data.email,
+        company: data.company || undefined,
+        industry: data.industry || undefined,
+        serviceType: data.serviceType || undefined,
+        source: 'Admin CRM',
+      }).catch(console.error);
 
       const plainTextContent = emailHtml.replace(/<[^>]*>?/gm, '');
       

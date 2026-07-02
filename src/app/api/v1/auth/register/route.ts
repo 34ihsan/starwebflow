@@ -3,12 +3,25 @@ import { prisma } from '@/lib/prisma';
 import { AuthService } from '@/modules/auth/auth.service';
 import { Resend } from 'resend';
 import crypto from 'crypto';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const body = await req.json();
+    const { name, email, password, recaptchaToken } = body;
+
+    // reCAPTCHA doğrulaması
+    if (recaptchaToken) {
+      const captcha = await verifyRecaptcha(recaptchaToken);
+      if (!captcha.success) {
+        return NextResponse.json({
+          success: false,
+          error: captcha.error || 'Bot doğrulaması başarısız.'
+        }, { status: 400 });
+      }
+    }
 
     if (!name || !email || !password) {
       return NextResponse.json({ success: false, error: 'Tüm alanlar zorunludur.' }, { status: 400 });

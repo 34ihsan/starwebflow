@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { createLeadWithProposal } from '@/app/actions/lead';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 const DEFAULT_TENANT_ID = 'default-tenant'; // To be replaced dynamically if needed
 
@@ -73,6 +74,7 @@ export default function QuickQuoteForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { getToken } = useRecaptcha();
 
   const servicesList = language === 'tr' 
     ? ['Web Tasarım', 'SEO', 'Sosyal Medya', 'Mobil Uygulama', 'E-Ticaret', 'Özel Yazılım', 'AI Otomasyon', 'AI Agents']
@@ -107,13 +109,21 @@ export default function QuickQuoteForm() {
 
     const finalIndustry = activeIndustry === otherValue ? (formData.customIndustry || 'Belirtilmedi') : activeIndustry;
 
+    let recaptchaToken: string | undefined;
+    try {
+      recaptchaToken = await getToken('quick_quote_form');
+    } catch (err) {
+      console.error('reCAPTCHA error:', err);
+    }
+
     const res = await createLeadWithProposal({
       tenantId: DEFAULT_TENANT_ID,
       name: formData.name,
       email: formData.email,
       industry: finalIndustry,
       serviceType: activeService,
-      source: 'Quick Quote Form'
+      source: 'Quick Quote Form',
+      recaptchaToken,
     });
 
     setIsSubmitting(false);
