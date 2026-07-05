@@ -219,6 +219,7 @@ model Invoice {
   
   invoiceDate     DateTime @default(now()) @map("invoice_date")
   deliveryDate    DateTime @default(now()) @map("delivery_date")
+  deliveryEndDate DateTime? @map("delivery_end_date")
   dueDate         DateTime @default(now()) @map("due_date")
   
   status          String   @default("draft")

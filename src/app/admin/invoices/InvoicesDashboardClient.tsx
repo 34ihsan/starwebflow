@@ -722,7 +722,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                   </div>
                   <div class="meta-row">
                     <span class="meta-label">${labels.deliveryDate}</span>
-                    <span class="meta-value">${formatDate(invoice.deliveryDate)}</span>
+                    <span class="meta-value">${formatDate(invoice.deliveryDate)}${invoice.deliveryEndDate ? ' - ' + formatDate(invoice.deliveryEndDate) : ''}</span>
                   </div>
                   <div class="meta-row" style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb;">
                     <span class="meta-label" style="font-weight: 600; color: #4f46e5;">${labels.dueDate}</span>
@@ -744,10 +744,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                     <p>${client.addressCountry || ''}</p>
                   </div>
                 </div>
-                ${(client.vatId || client.taxId) ? `
+                ${(client.vatId) ? `
                   <div class="client-tax-info">
                     ${client.vatId ? `<div class="tax-row"><span>USt-IdNr.:</span> <span style="font-weight: 500; color: #374151;">${client.vatId}</span></div>` : ''}
-                    ${client.taxId ? `<div class="tax-row"><span>Steuernummer:</span> <span style="font-weight: 500; color: #374151;">${client.taxId}</span></div>` : ''}
                   </div>
                 ` : ''}
               </div>
@@ -892,6 +891,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     taxRate: 19,
     invoiceDate: new Date().toISOString().split('T')[0],
     deliveryDate: new Date().toISOString().split('T')[0],
+    deliveryEndDate: "",
     dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     notes: "",
     items: [{ description: "", quantity: 1, unitPrice: 0 }]
@@ -1835,7 +1835,10 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                     </div>
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">Hizmet Tarihi (Leistungsdatum)</label>
-                      <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryDate} onChange={e => setInvoiceData({...invoiceData, deliveryDate: e.target.value})}/>
+                      <div className="flex gap-2">
+                        <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryDate} onChange={e => setInvoiceData({...invoiceData, deliveryDate: e.target.value})}/>
+                        <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryEndDate} onChange={e => setInvoiceData({...invoiceData, deliveryEndDate: e.target.value})}/>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">Son Ödeme (Fälligkeitsdatum)</label>

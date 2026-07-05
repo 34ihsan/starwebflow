@@ -135,7 +135,10 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-zinc-500">{dict.deliveryDate}</span>
-                  <span className="font-medium text-zinc-800">{format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}</span>
+                  <span className="font-medium text-zinc-800">
+                    {format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}
+                    {invoice.deliveryEndDate && ` - ${format(new Date(invoice.deliveryEndDate), 'dd.MM.yyyy')}`}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-zinc-100">
                   <span className="text-indigo-600 font-medium">{dict.dueDate}</span>
@@ -156,10 +159,9 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
               <p className="text-zinc-600 text-sm leading-relaxed">{client.addressZip} {client.addressCity}</p>
               <p className="text-zinc-600 text-sm leading-relaxed">{client.addressCountry}</p>
               
-              {(client.vatId || client.taxId) && (
+              {(client.vatId) && (
                 <div className="mt-4 pt-4 border-t border-zinc-200 text-xs text-zinc-500 space-y-1">
                   {client.vatId && <div className="flex justify-between"><span className="text-zinc-400">USt-IdNr.:</span> <span className="font-medium text-zinc-700">{client.vatId}</span></div>}
-                  {client.taxId && <div className="flex justify-between"><span className="text-zinc-400">Steuernummer:</span> <span className="font-medium text-zinc-700">{client.taxId}</span></div>}
                 </div>
               )}
             </div>

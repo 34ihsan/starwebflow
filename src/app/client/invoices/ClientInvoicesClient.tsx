@@ -25,7 +25,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
   const logoHtml = companySettings.logo ? '<img src="' + companySettings.logo + '" alt="Logo" class="h-12 mb-4" />' : '<h1 class="text-2xl font-bold text-slate-900 mb-2">' + companySettings.name + '</h1>';
   const clientVatHtml = client.vatId ? '<p>USt-IdNr: ' + client.vatId + '</p>' : '';
-  const clientTaxHtml = client.taxId ? '<p>Steuernummer: ' + client.taxId + '</p>' : '';
+  const clientTaxHtml = '';
   const notesHtml = invoice.notes ? '<div class="mb-16 text-xs"><h4 class="font-semibold text-slate-800 mb-1">Notlar:</h4><p class="text-slate-600 whitespace-pre-wrap">' + invoice.notes + '</p></div>' : '';
 
   printWindow.document.write(`
@@ -76,7 +76,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               <span class="text-slate-500">Tarih:</span>
               <span class="font-medium text-slate-800">${formatDate(invoice.invoiceDate)}</span>
               <span class="text-slate-500">Hizmet Tarihi:</span>
-              <span class="font-medium text-slate-800">${formatDate(invoice.deliveryDate)}</span>
+              <span class="font-medium text-slate-800">${formatDate(invoice.deliveryDate)}${invoice.deliveryEndDate ? ' - ' + formatDate(invoice.deliveryEndDate) : ''}</span>
               <span class="text-slate-500">Son Ödeme:</span>
               <span class="font-medium text-slate-800">${formatDate(invoice.dueDate)}</span>
             </div>

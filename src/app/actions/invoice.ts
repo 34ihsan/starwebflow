@@ -35,6 +35,7 @@ export async function createInvoice(data: {
   status?: string;
   invoiceDate?: Date;
   deliveryDate?: Date;
+  deliveryEndDate?: Date;
   dueDate?: Date;
   currency?: string;
   notes?: string;
@@ -81,6 +82,7 @@ export async function createInvoice(data: {
         status: data.status || 'draft',
         invoiceDate: data.invoiceDate || new Date(),
         deliveryDate: data.deliveryDate || new Date(),
+        deliveryEndDate: data.deliveryEndDate,
         dueDate: data.dueDate || new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
         notes: data.notes,
         items: {
@@ -164,6 +166,7 @@ export async function updateInvoice(id: string, tenantId: string, data: any) {
         status: data.status,
         invoiceDate: data.invoiceDate,
         deliveryDate: data.deliveryDate,
+        deliveryEndDate: data.deliveryEndDate,
         dueDate: data.dueDate,
         notes: data.notes,
         items: {
