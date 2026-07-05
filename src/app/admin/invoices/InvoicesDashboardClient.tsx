@@ -1061,6 +1061,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         invoiceNo: "TASLAK-001",
         invoiceDate: new Date(invoiceData.invoiceDate),
         deliveryDate: new Date(invoiceData.deliveryDate),
+        deliveryEndDate: invoiceData.deliveryEndDate ? new Date(invoiceData.deliveryEndDate) : undefined,
         dueDate: new Date(invoiceData.dueDate),
         netAmount,
         taxRate: invoiceData.taxRate,
@@ -1290,6 +1291,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       taxRate: invoice.taxRate || 19,
       invoiceDate: new Date(invoice.invoiceDate).toISOString().split('T')[0],
       deliveryDate: new Date(invoice.deliveryDate).toISOString().split('T')[0],
+      deliveryEndDate: invoice.deliveryEndDate ? new Date(invoice.deliveryEndDate).toISOString().split('T')[0] : "",
       dueDate: new Date(invoice.dueDate).toISOString().split('T')[0],
       notes: invoice.notes || "",
       items: invoice.items.length > 0 ? invoice.items.map((item: any) => ({
