@@ -66,7 +66,20 @@ export async function createInvoice(data: {
         if (!isNaN(lastNum)) nextNumber = lastNum + 1;
       }
     }
-    const newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    let newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    
+    let isUnique = false;
+    while (!isUnique) {
+      const existing = await prisma.invoice.findUnique({
+        where: { invoiceNo: newInvoiceNo }
+      });
+      if (existing) {
+        nextNumber++;
+        newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+      } else {
+        isUnique = true;
+      }
+    }
 
     const invoice = await prisma.invoice.create({
       data: {
@@ -115,7 +128,7 @@ export async function createInvoice(data: {
     return { success: true, data: invoice };
   } catch (error) {
     console.error('createInvoice error:', error);
-    return { success: false, error: 'Failed to create invoice' };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to create invoice' };
   }
 }
 

@@ -54,6 +54,8 @@ const localDict = {
     invoiceNo: 'Fatura No',
     invoiceDate: 'Fatura Tarihi',
     deliveryDate: 'Hizmet Tarihi',
+    deliveryStartDate: 'Hizmet Başlangıcı',
+    deliveryEndDate: 'Hizmet Bitişi',
     dueDate: 'Son Ödeme',
     description: 'Açıklama',
     quantity: 'Miktar',
@@ -72,6 +74,8 @@ const localDict = {
     invoiceNo: 'Rechnungsnr.',
     invoiceDate: 'Rechnungsdatum',
     deliveryDate: 'Leistungsdatum',
+    deliveryStartDate: 'Leistungsbeginn',
+    deliveryEndDate: 'Leistungsende',
     dueDate: 'Fälligkeitsdatum',
     description: 'Beschreibung',
     quantity: 'Menge',
@@ -134,13 +138,29 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
                   <span className="text-zinc-500">{dict.invoiceDate}</span>
                   <span className="font-medium text-zinc-800">{format(new Date(invoice.invoiceDate), 'dd.MM.yyyy')}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-500">{dict.deliveryDate}</span>
-                  <span className="font-medium text-zinc-800">
-                    {format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}
-                    {invoice.deliveryEndDate && ` - ${format(new Date(invoice.deliveryEndDate), 'dd.MM.yyyy')}`}
-                  </span>
-                </div>
+                {invoice.deliveryEndDate ? (
+                  <>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-zinc-500">{dict.deliveryStartDate}</span>
+                      <span className="font-medium text-zinc-800">
+                        {format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm mt-2">
+                      <span className="text-zinc-500">{dict.deliveryEndDate}</span>
+                      <span className="font-medium text-zinc-800">
+                        {format(new Date(invoice.deliveryEndDate), 'dd.MM.yyyy')}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-zinc-500">{dict.deliveryDate}</span>
+                    <span className="font-medium text-zinc-800">
+                      {format(new Date(invoice.deliveryDate), 'dd.MM.yyyy')}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center text-sm mt-3 pt-3 border-t border-zinc-100">
                   <span className="text-indigo-600 font-medium">{dict.dueDate}</span>
                   <span className="font-bold text-indigo-700">{format(new Date(invoice.dueDate), 'dd.MM.yyyy')}</span>

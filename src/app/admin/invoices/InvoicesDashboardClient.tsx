@@ -918,7 +918,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   });
 
   const calculateTotals = () => {
-    const netAmount = invoiceData.items.reduce((acc, item) => acc + (item.quantity * item.unitPrice), 0);
+    const netAmount = invoiceData.items.reduce((acc, item) => acc + ((item.quantity || 0) * (item.unitPrice || 0)), 0);
     const taxAmount = tenantSettings.isKleinunternehmer ? 0 : netAmount * (invoiceData.taxRate / 100);
     const grossAmount = netAmount + taxAmount;
     return { netAmount, taxAmount, grossAmount };
@@ -994,9 +994,9 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       
       const formattedItems = invoiceData.items.map(item => ({
         description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        total: item.quantity * item.unitPrice
+        quantity: item.quantity || 0,
+        unitPrice: item.unitPrice || 0,
+        total: (item.quantity || 0) * (item.unitPrice || 0)
       }));
 
       const payload = {
@@ -1009,9 +1009,10 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         grossAmount,
         currency: invoiceData.currency,
         status: 'PENDING',
-        invoiceDate: new Date(invoiceData.invoiceDate),
-        deliveryDate: new Date(invoiceData.deliveryDate),
-        dueDate: new Date(invoiceData.dueDate),
+        invoiceDate: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate) : undefined,
+        deliveryDate: invoiceData.deliveryDate ? new Date(invoiceData.deliveryDate) : undefined,
+        deliveryEndDate: invoiceData.deliveryEndDate ? new Date(invoiceData.deliveryEndDate) : undefined,
+        dueDate: invoiceData.dueDate ? new Date(invoiceData.dueDate) : undefined,
         notes: invoiceData.notes,
         items: formattedItems
       };

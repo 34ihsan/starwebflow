@@ -42,9 +42,31 @@ export async function getTenantSettings(tenantId: string) {
       settings = await prisma.tenantSettings.create({
         data: {
           tenant: { connect: { id: tenantId } },
-          companyName: 'StarWebFlow',
+          companyName: 'StarWebFlow Digital Agent',
           apiKeys: { stripe: 'sk_live_51Mxyz...93jK' },
-          preferences: { language: 'tr', timezone: 'Europe/Istanbul' }
+          preferences: {
+            language: 'de',
+            timezone: 'Europe/Berlin',
+            general: {
+              currency: "EUR"
+            },
+            billing: {
+              legalName: "StarWebFlow Digital Agent",
+              taxOffice: "Speyer-Germersheim",
+              taxNumber: "41/056/80705",
+              vatId: "DE4105680705",
+              address: "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+              bankName: "Sparkasse Vorderpfalz",
+              iban: "DE98545500100194489159",
+              swift: "LUHSDE6AXXX",
+              bankCurrency: "EUR",
+              invoicePrefix: "INV-",
+              vatRate: "0",
+              isEInvoice: false,
+              invoiceNote: "Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen auf das angegebene Bankkonto unter Angabe der Rechnungsnummer. Vielen Dank für Ihr Vertrauen.",
+              isKleinunternehmer: true
+            }
+          }
         }
       });
     }
