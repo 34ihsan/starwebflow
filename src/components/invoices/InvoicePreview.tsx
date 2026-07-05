@@ -30,6 +30,7 @@ export interface InvoicePreviewProps {
     invoiceNo: string;
     invoiceDate: Date;
     deliveryDate: Date;
+    deliveryEndDate?: Date;
     dueDate: Date;
     netAmount: number;
     taxRate: number;
