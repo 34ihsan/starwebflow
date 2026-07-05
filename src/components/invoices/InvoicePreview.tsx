@@ -180,11 +180,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
               <p className="text-zinc-600 text-sm leading-relaxed">{client.addressZip} {client.addressCity}</p>
               <p className="text-zinc-600 text-sm leading-relaxed">{client.addressCountry}</p>
               
-              {(client.vatId) && (
-                <div className="mt-4 pt-4 border-t border-zinc-200 text-xs text-zinc-500 space-y-1">
-                  {client.vatId && <div className="flex justify-between"><span className="text-zinc-400">USt-IdNr.:</span> <span className="font-medium text-zinc-700">{client.vatId}</span></div>}
-                </div>
-              )}
+
             </div>
           </div>
         </div>

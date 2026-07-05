@@ -744,11 +744,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                     <p>${client.addressCountry || ''}</p>
                   </div>
                 </div>
-                ${(client.vatId) ? `
-                  <div class="client-tax-info">
-                    ${client.vatId ? `<div class="tax-row"><span>USt-IdNr.:</span> <span style="font-weight: 500; color: #374151;">${client.vatId}</span></div>` : ''}
-                  </div>
-                ` : ''}
+
               </div>
             </div>
 
@@ -1838,11 +1834,12 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                       <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.invoiceDate} onChange={e => setInvoiceData({...invoiceData, invoiceDate: e.target.value})}/>
                     </div>
                     <div>
-                      <label className="block text-xs text-[#94A3B8] mb-1">Hizmet Tarihi (Leistungsdatum)</label>
-                      <div className="flex gap-2">
-                        <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryDate} onChange={e => setInvoiceData({...invoiceData, deliveryDate: e.target.value})}/>
-                        <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryEndDate} onChange={e => setInvoiceData({...invoiceData, deliveryEndDate: e.target.value})}/>
-                      </div>
+                      <label className="block text-xs text-[#94A3B8] mb-1">Hizmet Başlangıç (Leistungsbeginn)</label>
+                      <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryDate} onChange={e => setInvoiceData({...invoiceData, deliveryDate: e.target.value})}/>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#94A3B8] mb-1">Hizmet Bitiş (Leistungsende)</label>
+                      <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.deliveryEndDate} onChange={e => setInvoiceData({...invoiceData, deliveryEndDate: e.target.value})}/>
                     </div>
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">Son Ödeme (Fälligkeitsdatum)</label>
