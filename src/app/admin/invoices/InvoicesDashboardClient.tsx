@@ -1218,6 +1218,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         invoiceNo: viewInvoice.invoiceNo,
         invoiceDate: new Date(viewInvoice.invoiceDate || viewInvoice.createdAt),
         deliveryDate: new Date(viewInvoice.deliveryDate || viewInvoice.createdAt),
+        deliveryEndDate: viewInvoice.deliveryEndDate ? new Date(viewInvoice.deliveryEndDate) : undefined,
         dueDate: new Date(viewInvoice.dueDate),
         netAmount: Number(viewInvoice.netAmount || 0),
         taxRate: Number(viewInvoice.taxRate !== undefined && viewInvoice.taxRate !== null ? viewInvoice.taxRate : 19),
