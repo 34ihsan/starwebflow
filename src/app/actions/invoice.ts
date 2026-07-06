@@ -17,7 +17,7 @@ export async function getInvoices(tenantId: string) {
       },
       orderBy: { createdAt: 'desc' },
     });
-    return { success: true, data: invoices };
+    return { success: true, data: JSON.parse(JSON.stringify(invoices)) };
   } catch (error) {
     console.error('getInvoices error:', error);
     return { success: false, error: 'Failed to fetch invoices' };
@@ -125,7 +125,7 @@ export async function createInvoice(data: {
     });
 
     safeRevalidatePath('/admin/invoices');
-    return { success: true, data: invoice };
+    return { success: true, data: JSON.parse(JSON.stringify(invoice)) };
   } catch (error) {
     console.error('createInvoice error:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create invoice' };
@@ -209,7 +209,7 @@ export async function updateInvoice(id: string, tenantId: string, data: any) {
     });
 
     safeRevalidatePath('/admin/invoices');
-    return { success: true, data: invoice };
+    return { success: true, data: JSON.parse(JSON.stringify(invoice)) };
   } catch (error) {
     console.error('updateInvoice error:', error);
     return { success: false, error: 'Failed to update invoice' };
