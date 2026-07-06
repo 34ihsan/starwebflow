@@ -615,6 +615,5 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
           )}
         </div>
       </div>
-    </div>
   );
 }
