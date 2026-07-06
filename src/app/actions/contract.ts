@@ -333,9 +333,9 @@ Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak ${langText} dilind
 Please write the document in ${langText}.`,
     });
     return { success: true, data: text };
-  } catch (error) {
+  } catch (error: any) {
     console.error('generateLastenheftFromChoices error:', error);
-    return { success: false, error: 'Lastenheft üretilirken AI hatası oluştu.' };
+    return { success: false, error: `Lastenheft üretilirken AI hatası oluştu: ${error?.message || String(error)}` };
   }
 }
 
