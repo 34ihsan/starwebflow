@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/modules/auth/auth.helpers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
+import { PrintButtons } from './PrintButtons';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,39 +94,13 @@ async function PrintContent({ contractId }: { contractId: string }) {
   const isSigned = contract.status === 'SIGNED' || contract.status === 'signed';
   const contentHtml = mdToHtml(contract.content || '');
 
+
   return (
     <>
-      {/* Auto-print script */}
-      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.addEventListener('load', function() {
-              // Give fonts 800ms to load before auto-print
-              // (user can still manually click the button)
-            });
-          `,
-        }}
-      />
-
-      <div className="no-print control-bar">
-        <button onClick={undefined} id="btn-print" className="btn-print">
-          🖨️ PDF Olarak Kaydet / Yazdır
-        </button>
-        <button id="btn-close" className="btn-close">
-          ✕ Kapat
-        </button>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              document.getElementById('btn-print').onclick = function() { window.print(); };
-              document.getElementById('btn-close').onclick = function() { window.close(); };
-            `,
-          }}
-        />
-      </div>
+      <PrintButtons />
 
       {/* ═══ COVER PAGE ═══ */}
+
       <div className="cover-page">
         {/* Accent bar via ::before in CSS */}
         <div className="cover-header">
@@ -633,18 +608,7 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
         `}</style>
       </head>
       <body>
-        <div className="no-print control-bar">
-          <button id="btn-print" className="btn-print">🖨️ PDF Olarak Kaydet / Yazdır</button>
-          <button id="btn-close" className="btn-close">✕ Kapat</button>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                document.getElementById('btn-print').onclick = function() { window.print(); };
-                document.getElementById('btn-close').onclick = function() { window.close(); };
-              `,
-            }}
-          />
-        </div>
+        <PrintButtons />
         <div className="page-wrap">
           {contractId ? (
             <Suspense fallback={<div style={{ padding: '4rem', textAlign: 'center', color: '#64748b', fontFamily: 'sans-serif' }}>Yükleniyor…</div>}>
