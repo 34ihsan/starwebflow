@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { analyzeLeadProfile, metamorphicRewrite, omniRouteSelector } from '@/app/actions/outreachEngine';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+import { sendOutreachEmail } from '@/lib/email';
 
 const NEXT_STEPS: Record<number, { nextStep: number, daysToAdd: number } | null> = {
   1: { nextStep: 3, daysToAdd: 2 },   // Step 1 done -> Next is step 3 (in 2 days)
@@ -100,19 +98,14 @@ export async function GET(request: Request) {
           .replace('{Industry}', profile.industry || 'sektörünüz')
           .replace('{Company}', company || profile.industry || 'şirketiniz');
 
-        // Send Email
-        if (process.env.RESEND_API_KEY) {
-          await resend.emails.send({
-            from: `StarWebflow <${senderEmail}>`,
-            to: email,
-            subject: subjectText,
-            html: finalHtmlBody,
-            replyTo: senderEmail,
-            headers: { 'X-Priority': '1' }
-          });
-        } else {
-           console.warn('Simulated Send (No Resend API Key):', subjectText);
-        }
+        // Send Email via Nodemailer + Hostinger SMTP
+        await sendOutreachEmail({
+          from: senderEmail,
+          to: email,
+          subject: subjectText,
+          html: finalHtmlBody,
+          replyTo: senderEmail,
+        });
 
         // Calculate next step
         const stepProgression = NEXT_STEPS[sequence.currentStep];

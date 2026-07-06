@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { metamorphicRewrite } from '@/app/actions/outreachEngine';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+import { sendOutreachEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -29,18 +27,15 @@ export async function POST(request: Request) {
     // Simulate unsubscribe link
     const finalHtmlBody = htmlBody.replace(/\[Abonelikten Çık\]/g, `<a href="#" style="color: #6b7280; text-decoration: underline;">Abonelikten Çık (Test)</a>`);
 
-    const senderEmail = process.env.OUTBOUND_EMAIL_ADDRESS || 'info@starwebflow.com';
+    const senderEmail = process.env.SMTP_USER || 'info@starwebflow.com';
 
-    if (process.env.RESEND_API_KEY) {
-      await resend.emails.send({
-        from: `StarWebflow <${senderEmail}>`,
-        to: toEmail,
-        subject: `[TEST] ${finalSubject}`,
-        html: finalHtmlBody,
-      });
-    } else {
-      console.warn('RESEND_API_KEY is not set. Simulating send:', finalHtmlBody);
-    }
+    await sendOutreachEmail({
+      from: senderEmail,
+      to: toEmail,
+      subject: `[TEST] ${finalSubject}`,
+      html: finalHtmlBody,
+      replyTo: senderEmail,
+    });
 
     return NextResponse.json({ success: true, message: 'Test e-postası başarıyla gönderildi.' });
   } catch (error: any) {

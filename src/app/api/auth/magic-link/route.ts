@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
+import { sendMagicLinkEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
   try {
@@ -31,21 +32,22 @@ export async function POST(req: Request) {
       },
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
     const magicLink = `${appUrl}/api/auth/magic-link/verify?token=${token}`;
 
-    // Test/Dev ortamı için konsola basıyoruz. Canlıda Resend veya SendGrid ile gönderilecek.
-    console.log('✨ Magic Link Generated for:', email);
-    console.log('👉', magicLink);
+    // Mail gönder (Nodemailer + Hostinger SMTP)
+    const mailResult = await sendMagicLinkEmail({
+      to: email,
+      name: user.name || email,
+      magicLink,
+    });
 
-    // TODO: Send via Resend
-    // await resend.emails.send({
-    //   from: 'StarWebflow <login@starwebflow.com>',
-    //   to: email,
-    //   subject: 'Sihirli Giriş Bağlantınız',
-    //   html: `<p>Merhaba ${user.name},</p><p>Aşağıdaki bağlantıya tıklayarak şifresiz giriş yapabilirsiniz:</p><p><a href="${magicLink}">${magicLink}</a></p>`,
-    // });
+    if (!mailResult.success && !mailResult.simulated) {
+      console.error('[Magic Link] Mail gönderilemedi:', mailResult.error);
+      // Mail gönderimi başarısız olsa bile token oluşturuldu, devam ediyoruz
+    }
 
+    console.log('[Magic Link] ✅ Link oluşturuldu:', email, '→', magicLink);
     return NextResponse.json({ success: true, message: 'Sihirli bağlantı e-posta adresinize gönderildi.' });
   } catch (error: any) {
     console.error('Magic Link Error:', error);

@@ -1,27 +1,101 @@
 /**
- * ─── StarWebflow — Merkezi Email Servisi ──────────────────────────────────────
- * Tüm Resend gönderim işlemleri bu dosyadan yönetilir.
+ * ─── StarWebflow — Merkezi Email Servisi (Nodemailer + Hostinger SMTP) ─────────
  *
- * Kullanım:
- *   import { sendLeadNotification, sendProposalEmail } from '@/lib/email'
+ * Resend'den Hostinger SMTP'ye geçildi.
+ * Tamamen ücretsiz, sınırsız (VPS kapasitesiyle).
  *
- * "From" adresi .env'den okunur:
- *   - Test (domain doğrulanmadan): RESEND_FROM_EMAIL=StarWebflow <onboarding@resend.dev>
- *   - Prod (domain doğrulandıktan): RESEND_FROM_EMAIL=StarWebflow <info@starwebflow.com>
+ * .env gereksinimleri:
+ *   SMTP_HOST=smtp.hostinger.com
+ *   SMTP_PORT=465
+ *   SMTP_USER=info@starwebflow.com
+ *   SMTP_PASS=<hostinger_mail_şifreniz>
+ *   SMTP_FROM_NAME=StarWebflow
+ *   RESEND_ADMIN_EMAIL=info@starwebflow.com
+ *   NEXT_PUBLIC_APP_URL=https://www.starwebflow.com
  */
 
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// ─── SMTP Transporter ──────────────────────────────────────────────────────────
+function createTransporter() {
+  const host = process.env.SMTP_HOST || 'smtp.ionos.de';
+  const port = parseInt(process.env.SMTP_PORT || '587', 10);
+  const user = process.env.SMTP_USER || 'info@starwebflow.com';
+  const pass = process.env.SMTP_PASS || '';
 
-/** Standart "from" adresi — tüm outbound mailler bu adresten çıkar */
-const FROM = process.env.RESEND_FROM_EMAIL || 'StarWebflow <onboarding@resend.dev>';
+  if (!pass) {
+    console.warn('[Email] SMTP_PASS ayarlanmamış — mail gönderimi simüle edilecek');
+  }
 
-/** Admin bildirimleri bu adrese gider (info@starwebflow.com) */
-const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'info@starwebflow.com';
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,   // 465 → SSL/TLS, 587 → STARTTLS (IONOS için false)
+    auth: { user, pass },
+    pool: true,             // Bağlantı havuzu — performans
+    maxConnections: 5,
+    socketTimeout: 30000,
+    connectionTimeout: 30000,
+    // IONOS 2024'ten itibaren gönderen adresi auth.user ile aynı olmalı
+    tls: {
+      rejectUnauthorized: true, // IONOS güvenilir CA kullanıyor
+    },
+  });
+}
+
+const transporter = createTransporter();
+
+/** Standart "from" adresi */
+const FROM_NAME = process.env.SMTP_FROM_NAME || 'StarWebflow';
+const FROM_USER = process.env.SMTP_USER || 'info@starwebflow.com';
+const FROM = `${FROM_NAME} <${FROM_USER}>`;
+
+/** Admin bildirimleri bu adrese gider */
+const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || FROM_USER;
+
+/** APP URL (mail içindeki linkler için) */
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
+
+// ─── Temel gönderim fonksiyonu ──────────────────────────────────────────────────
+async function sendMail({
+  to,
+  subject,
+  html,
+  from,
+  replyTo,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+  replyTo?: string;
+}): Promise<{ success: boolean; data?: any; error?: string; simulated?: boolean }> {
+  const smtpPass = process.env.SMTP_PASS;
+
+  // SMTP şifresi yoksa simüle et (geliştirme ortamı)
+  if (!smtpPass) {
+    console.warn(`[Email] SMTP_PASS yok — simüle edildi → ${to} | Konu: ${subject}`);
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: from || FROM,
+      to,
+      subject,
+      html,
+      replyTo: replyTo || ADMIN_EMAIL,
+    });
+    console.log(`[Email] ✅ Gönderildi → ${to} | MessageId: ${info.messageId}`);
+    return { success: true, data: { messageId: info.messageId } };
+  } catch (error: any) {
+    console.error(`[Email] ❌ Gönderilemedi → ${to}`, error.message);
+    return { success: false, error: error.message };
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. Lead / İletişim Formu — Ziyaretçiye giden hoş geldin maili
+// 1. Ziyaretçiye Teklif / Teşekkür Maili
 // ─────────────────────────────────────────────────────────────────────────────
 export async function sendProposalEmail({
   to,
@@ -36,28 +110,11 @@ export async function sendProposalEmail({
   html: string;
   replyTo?: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn(`[Email] RESEND_API_KEY yok — simüle edildi → ${to}`);
-    return { success: true, simulated: true };
-  }
-  try {
-    const result = await resend.emails.send({
-      from: FROM,
-      to,
-      subject,
-      html,
-      replyTo: replyTo || ADMIN_EMAIL,
-    });
-    console.log(`[Email] Proposal gönderildi → ${to}`, result);
-    return { success: true, data: result };
-  } catch (error: any) {
-    console.error(`[Email] Proposal gönderilemedi → ${to}`, error);
-    return { success: false, error: error.message };
-  }
+  return sendMail({ to, subject, html, replyTo: replyTo || ADMIN_EMAIL });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. Admin Bildirimi — Her yeni lead geldiğinde info@starwebflow.com'a gönderilir
+// 2. Admin Bildirimi — Her yeni lead geldiğinde info@starwebflow.com'a
 // ─────────────────────────────────────────────────────────────────────────────
 export async function sendLeadNotification({
   name,
@@ -80,11 +137,6 @@ export async function sendLeadNotification({
   source?: string;
   budget?: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn(`[Email] RESEND_API_KEY yok — admin bildirim simüle edildi`);
-    return { success: true, simulated: true };
-  }
-
   const rowData: [string, string][] = [
     ['Ad Soyad', name],
     ['E-posta', email],
@@ -104,7 +156,6 @@ export async function sendLeadNotification({
     )
     .join('');
 
-
   const html = `
     <div style="font-family:system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;padding:32px;border-radius:12px;max-width:600px;margin:0 auto;">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
@@ -119,29 +170,21 @@ export async function sendLeadNotification({
       <div style="margin-top:24px;padding:16px;background:#1e1b4b;border-radius:8px;border-left:3px solid #8b5cf6;">
         <p style="margin:0;font-size:13px;color:#a78bfa;">
           Bu bildirim otomatik olarak StarWebflow sisteminden gönderilmiştir.<br/>
-          Lead detayları için → <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin/leads" style="color:#8b5cf6;">Admin Paneli</a>
+          Lead detayları için → <a href="${APP_URL}/admin/leads" style="color:#8b5cf6;">Admin Paneli</a>
         </p>
       </div>
     </div>
   `;
 
-  try {
-    const result = await resend.emails.send({
-      from: FROM,
-      to: ADMIN_EMAIL,
-      subject: `🔔 Yeni Lead: ${name} — ${source || 'Website'}`,
-      html,
-    });
-    console.log(`[Email] Admin bildirimi gönderildi`, result);
-    return { success: true, data: result };
-  } catch (error: any) {
-    console.error(`[Email] Admin bildirimi gönderilemedi`, error);
-    return { success: false, error: error.message };
-  }
+  return sendMail({
+    to: ADMIN_EMAIL,
+    subject: `🔔 Yeni Lead: ${name} — ${source || 'Website'}`,
+    html,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. Outreach Maili — Toplu kampanya için (outreachEngine.ts kullanır)
+// 3. Outreach Maili — Toplu kampanya (outreachEngine.ts kullanır)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function sendOutreachEmail({
   from,
@@ -156,32 +199,17 @@ export async function sendOutreachEmail({
   html: string;
   replyTo?: string;
 }) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn(`[Email] RESEND_API_KEY yok — outreach simüle edildi → ${to}`);
-    return { success: true, simulated: true };
-  }
-  try {
-    const result = await resend.emails.send({
-      from: `StarWebflow <${from}>`,
-      to,
-      subject,
-      html,
-      replyTo: replyTo || from,
-      headers: {
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
-        'Importance': 'high',
-      },
-    });
-    return { success: true, data: result };
-  } catch (error: any) {
-    console.error(`[Email] Outreach gönderilemedi → ${to}`, error);
-    return { success: false, error: error.message };
-  }
+  return sendMail({
+    from: `StarWebflow <${from}>`,
+    to,
+    subject,
+    html,
+    replyTo: replyTo || from,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. Genel İletişim Formu Bildirim Maili (CTABanner'daki proje başvuru formu)
+// 4. İletişim Formu Bildirimi (CTABanner + LeadFormModal)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function sendContactFormNotification({
   name,
@@ -215,9 +243,6 @@ export async function sendContactFormNotification({
   });
 
   // Ziyaretçiye otomatik teşekkür maili gönder
-  const isEN = language === 'en';
-  const isDE = language === 'de';
-
   const subjectMap: Record<string, string> = {
     tr: `Başvurunuzu aldık, ${name}! — StarWebflow`,
     en: `We received your request, ${name}! — StarWebflow`,
@@ -252,13 +277,13 @@ export async function sendContactFormNotification({
   const html = `
     <div style="font-family:system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;padding:32px;border-radius:12px;max-width:600px;margin:0 auto;">
       <div style="text-align:center;margin-bottom:32px;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/starwebflow_banner_1.png" alt="StarWebflow" style="height:48px;object-fit:contain;" />
+        <img src="${APP_URL}/starwebflow_banner_1.png" alt="StarWebflow" style="height:48px;object-fit:contain;" />
       </div>
       <div style="background:#131b2a;border-radius:12px;padding:24px;line-height:1.7;font-size:15px;">
         ${bodyContent}
       </div>
       <div style="margin-top:24px;text-align:center;">
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}" style="display:inline-block;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;">
+        <a href="${APP_URL}" style="display:inline-block;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;">
           starwebflow.com
         </a>
       </div>
@@ -269,4 +294,123 @@ export async function sendContactFormNotification({
   `;
 
   return sendProposalEmail({ to: email, name, subject, html });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. Magic Link Giriş Maili
+// ─────────────────────────────────────────────────────────────────────────────
+export async function sendMagicLinkEmail({
+  to,
+  name,
+  magicLink,
+}: {
+  to: string;
+  name: string;
+  magicLink: string;
+}) {
+  const html = `
+    <div style="font-family:system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;padding:32px;border-radius:12px;max-width:600px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <img src="${APP_URL}/starwebflow_banner_1.png" alt="StarWebflow" style="height:48px;object-fit:contain;" />
+      </div>
+      <div style="background:#131b2a;border-radius:12px;padding:24px;line-height:1.7;font-size:15px;">
+        <p>Merhaba <strong>${name}</strong>,</p>
+        <p>Aşağıdaki butona tıklayarak şifresiz giriş yapabilirsiniz. Bu bağlantı <strong>24 saat</strong> geçerlidir.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${magicLink}" style="display:inline-block;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;">
+            ✨ Giriş Yap
+          </a>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;">Butona tıklayamıyorsanız bu bağlantıyı tarayıcınıza kopyalayın:<br/><a href="${magicLink}" style="color:#8b5cf6;word-break:break-all;">${magicLink}</a></p>
+        <p style="font-size:12px;color:#64748b;margin-top:24px;">Bu bağlantıyı siz talep etmediyseniz bu e-postayı görmezden gelebilirsiniz.</p>
+      </div>
+    </div>
+  `;
+
+  return sendMail({
+    to,
+    subject: '✨ StarWebflow — Sihirli Giriş Bağlantınız',
+    html,
+    replyTo: ADMIN_EMAIL,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. Şifre Sıfırlama Maili
+// ─────────────────────────────────────────────────────────────────────────────
+export async function sendPasswordResetEmail({
+  to,
+  name,
+  resetLink,
+}: {
+  to: string;
+  name: string;
+  resetLink: string;
+}) {
+  const html = `
+    <div style="font-family:system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;padding:32px;border-radius:12px;max-width:600px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <img src="${APP_URL}/starwebflow_banner_1.png" alt="StarWebflow" style="height:48px;object-fit:contain;" />
+      </div>
+      <div style="background:#131b2a;border-radius:12px;padding:24px;line-height:1.7;font-size:15px;">
+        <p>Merhaba <strong>${name}</strong>,</p>
+        <p>Hesabınız için şifre sıfırlama talebinde bulundunuz. Şifrenizi yenilemek için aşağıdaki butona tıklayın. Bu bağlantı <strong>1 saat</strong> geçerlidir.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${resetLink}" style="display:inline-block;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;">
+            🔐 Şifremi Sıfırla
+          </a>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;">Butona tıklayamıyorsanız:<br/><a href="${resetLink}" style="color:#8b5cf6;word-break:break-all;">${resetLink}</a></p>
+        <p style="font-size:12px;color:#64748b;margin-top:24px;">Bu talebi siz yapmadıysanız bu e-postayı görmezden gelebilirsiniz.</p>
+      </div>
+    </div>
+  `;
+
+  return sendMail({
+    to,
+    subject: '🔐 StarWebflow — Şifre Sıfırlama Talebi',
+    html,
+    replyTo: ADMIN_EMAIL,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. E-posta Doğrulama Maili
+// ─────────────────────────────────────────────────────────────────────────────
+export async function sendVerificationEmail({
+  to,
+  name,
+  verifyLink,
+}: {
+  to: string;
+  name: string;
+  verifyLink: string;
+}) {
+  const html = `
+    <div style="font-family:system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;padding:32px;border-radius:12px;max-width:600px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <img src="${APP_URL}/starwebflow_banner_1.png" alt="StarWebflow" style="height:48px;object-fit:contain;" />
+      </div>
+      <div style="background:#131b2a;border-radius:12px;padding:24px;line-height:1.7;font-size:15px;">
+        <p>Merhaba <strong>${name}</strong>,</p>
+        <p>StarWebflow platformuna başarıyla kayıt oldunuz! Hesabınızı etkinleştirmek için lütfen aşağıdaki butona tıklayarak e-posta adresinizi doğrulayın.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${verifyLink}" style="display:inline-block;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;">
+            ✅ E-postamı Doğrula
+          </a>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;">Butona tıklayamıyorsanız:<br/><a href="${verifyLink}" style="color:#8b5cf6;word-break:break-all;">${verifyLink}</a></p>
+      </div>
+      <p style="margin-top:24px;font-size:11px;color:#475569;text-align:center;">
+        © ${new Date().getFullYear()} StarWebflow. Bu e-posta otomatik olarak gönderilmiştir.
+      </p>
+    </div>
+  `;
+
+  return sendMail({
+    to,
+    subject: '✅ StarWebflow — E-posta Adresinizi Doğrulayın',
+    html,
+    replyTo: ADMIN_EMAIL,
+  });
 }
