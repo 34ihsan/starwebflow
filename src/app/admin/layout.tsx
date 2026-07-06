@@ -40,6 +40,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { settings } = useSettings()
 
+  if (pathname.includes('/print/')) {
+    return <>{children}</>;
+  }
+
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href
     return pathname === href || pathname.startsWith(href + '/')
