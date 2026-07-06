@@ -197,18 +197,13 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
   const contractId = params?.id;
 
   return (
-    <html lang="de">
-      <head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Sözleşme — StarWebFlow</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600;1,700&display=swap"
-          rel="stylesheet"
-        />
-        <style>{`
+    <div className="print-container">
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+      />
+      <style>{`
           *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
           :root {
@@ -226,7 +221,7 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
             --red:       #dc2626;
           }
 
-          body {
+          .print-container {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--slate-50);
             color: var(--slate-800);
@@ -585,7 +580,7 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
 
           /* ─── Print ─── */
           @media print {
-            body { background: #fff; }
+            .print-container { background: #fff; }
             .no-print { display: none !important; }
             .page-wrap { padding: 0; max-width: 100%; }
             .cover-page {
@@ -606,8 +601,6 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
             }
           }
         `}</style>
-      </head>
-      <body>
         <PrintButtons />
         <div className="page-wrap">
           {contractId ? (
@@ -621,7 +614,7 @@ export default async function ContractPrintPage({ searchParams }: ContractPrintP
             </div>
           )}
         </div>
-      </body>
-    </html>
+      </div>
+    </div>
   );
 }
