@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { 
@@ -33,41 +33,41 @@ function renderMarkdownToHtmlSimple(md: string): string {
 
 const WIZARD_NEEDS: Record<string, string[]> = {
   WEB: [
-    "Was (Ne): Headless CMS (örn. Strapi, Sanity) mimarisi ile Next.js 14 App Router entegrasyonu / Wofür (Neden): Pazarlama ekibinin yazılım geliştiriciye bağımlı olmadan dinamik içerik yönetebilmesi ve site performansının korunması için",
-    "Was (Ne): Edge Middleware tabanlı dinamik i18n (çoklu dil) ve coğrafi yönlendirme / Wofür (Neden): Farklı ülkelerdeki kullanıcıların sayfayı kendi yerel dillerinde ve milisaniyeler içinde sıfır gecikmeyle açabilmesi için",
-    "Was (Ne): Google Core Web Vitals (LCP, FID, CLS) standartlarında 95+ Lighthouse skoru optimizasyonu / Wofür (Neden): SEO görünürlüğünü en üst seviyeye çıkarmak ve organik arama sıralamalarında rakiplerin önüne geçmek için",
-    "Was (Ne): HubSpot veya Salesforce CRM ile çift yönlü API entegrasyonu / Wofür (Neden): Siteden gelen lead ve teklif taleplerinin anlık olarak satış ekiplerine aktarılması ve hiçbir müşterinin kaçırılmaması için",
-    "Was (Ne): Gizlilik dostu analitik araçlarının (Fathom, Plausible) ve KVKK/GDPR uyumlu dinamik çerez yönetiminin kurulması / Wofür (Neden): Kişisel verilerin korunması kanununa tam uyum sağlamak ve yasal riskleri sıfıra indirmek için",
-    "Was (Ne): Tailwind CSS ve Framer Motion ile tasarlanmış premium mikro-animasyonlar ve etkileşimli öğeler / Wofür (Neden): Markanın dijital prestijini artırmak, modern ve premium bir kullanıcı deneyimi (UX) sunmak için"
+    "Ne: Kurumsal Dijital Prestij ve Ultra-Hızlı Altyapı / Niçin: Ziyaretçilere saniyenin altında yüklenen, rakipsiz ve güven veren premium bir marka deneyimi yaşatmak için",
+    "Ne: Esnek ve Bağımsız İçerik Yönetimi / Niçin: Pazarlama ekibinin yazılımcıya ihtiyaç duymadan kampanya sayfalarını ve blogları anında güncelleyebilmesi için",
+    "Ne: Maksimum Arama Motoru Görünürlüğü (SEO) / Niçin: Organik aramalarda rakipleri geride bırakarak yüksek kaliteli, ücretsiz potansiyel müşteri trafiği çekmek için",
+    "Ne: Kesintisiz Satış ve CRM Entegrasyonu / Niçin: Siteden gelen teklif ve iletişim taleplerinin saniye kaybı yaşanmadan doğrudan satış ekibinin önüne düşmesi için",
+    "Ne: Yasal Uyumluluk (KVKK/GDPR) ve Gelişmiş Veri Analitiği / Niçin: Kullanıcı verilerini uluslararası ceza risklerinden uzak, %100 yasalara uygun bir şekilde işleyip, aynı zamanda ziyaretçi davranışlarını analiz edebilmek için",
+    "Ne: Zengin Mikro-Animasyonlar ve Akıcı Tasarım (UX) / Niçin: Kullanıcının sitedeki yolculuğunu sıkıcı bir okumadan çıkarıp, markaya olan güvenini artıracak elit bir görsel deneyime dönüştürmek için"
   ],
   SAAS: [
-    "Was (Ne): Auth0 veya NextAuth ile SSO (Single Sign-On) ve Multi-Tenant veri izolasyon yapısı / Wofür (Neden): Kurumsal B2B müşterilerin güvenle sisteme giriş yapabilmesi ve farklı tenant verilerinin birbirine asla karışmaması için",
-    "Was (Ne): Rol Tabanlı Erişim Denetimi (RBAC) ve detaylı kullanıcı işlem loglama modülü (Audit Log) / Wofür (Neden): Güvenlik ve uyumluluk (compliance) denetimlerinde tam şeffaflık sağlamak ve veri sızıntılarını önlemek için",
-    "Was (Ne): Stripe Billing API ile karmaşık abonelik (SaaS), faturalandırma ve kullanım bazlı (metered usage) ödeme planlarının entegrasyonu / Wofür (Neden): Gelir akışını otomatik yönetmek ve manuel fatura takibini ortadan kaldırmak için",
-    "Was (Ne): RESTful / GraphQL API mimarisi ve Swagger/Redoc entegrasyonu / Wofür (Neden): B2B müşterilerin kendi yazılımlarını sistemimize güvenle entegre edebilmesi ve API ekosistemi oluşturabilmek için",
-    "Was (Ne): Shadcn UI ve TanStack Table tabanlı gelişmiş veri tabloları (filtreleme, sıralama, Excel/CSV dışa aktarma) / Wofür (Neden): Operasyonel ve finansal verilerin analist ve yöneticiler tarafından hızlıca işlenebilmesi için",
-    "Was (Ne): Redis önbellekleme (Caching) ve PostgreSQL okuma/yazma replikasyon altyapısı / Wofür (Neden): Eşzamanlı binlerce kullanıcının sorgularında minimum gecikme ve yüksek veritabanı kararlılığı sağlamak için"
+    "Ne: Kurumsal Düzeyde Çoklu Müşteri (Multi-Tenant) İzolasyonu / Niçin: Birbirinden bağımsız kurumsal B2B müşterilerinizin sisteme giriş yapabilmesi ve verilerinin %100 güvenlik duvarlarıyla birbirine karışmadan korunması için",
+    "Ne: Gelişmiş Rol ve Yetkilendirme Yönetimi / Niçin: Şirket içi veya müşteri tarafındaki personellerin sadece görmesi gereken verileri görmesini sağlayarak bilgi sızıntılarını sıfıra indirmek için",
+    "Ne: Esnek Abonelik ve Otomatik Faturalandırma / Niçin: Gelir akışını tamamen otonom hale getirerek paket yükseltme, iptal veya kullanım bazlı ücretlendirmelerde insan hatasını ortadan kaldırmak için",
+    "Ne: Üçüncü Parti Sistemlerle Bütünleşme (API Açıklığı) / Niçin: Müşterilerinizin halihazırda kullandıkları diğer yazılımları, sizin sisteminizle zahmetsizce konuşturabilmesi ve platforma bağımlılığının artması için",
+    "Ne: Gerçek Zamanlı Yönetici Raporları ve Finansal Tablolar / Niçin: İşletme yöneticilerinin devasa veriler içinde kaybolmadan en kritik operasyonel ve finansal metrikleri saniyeler içinde analiz edebilmesi için",
+    "Ne: Kesintisiz Performans (Yüksek Eşzamanlılık) Altyapısı / Niçin: Binlerce kullanıcının aynı anda işlem yaptığı zirve anlarında dahi sistemin yavaşlamaması ve çökmemesi için"
   ],
   AGENTS: [
-    "Was (Ne): LangChain / LangGraph ile dallanan iş akışlarına sahip otonom karar verici AI Agent mimarisi / Wofür (Neden): Basit botların aksine karmaşık müşteri taleplerini analiz edip bağımsız kararlar alabilen dijital çalışanlar kurgulamak için",
-    "Was (Ne): Pinecone / pgvector veritabanı ile RAG (Retrieval-Augmented Generation) tabanlı kurumsal bilgi yönetim sistemi / Wofür (Neden): Yapay zekanın halüsinasyon görmesini engellemek ve sadece şirketinizin güncel belgelerine (PDF, Wiki, SQL) dayanarak %100 doğru yanıt vermesini sağlamak için",
-    "Was (Ne): OpenAI GPT-4o ve Gemini 1.5 Pro API modellerinin fallback (yedekli) hibrit entegrasyonu / Wofür (Neden): Ana yapay zeka modelinde kesinti veya kota aşımı yaşandığında sistemin durmadan diğer model üzerinden çalışmaya devam etmesi için",
-    "Was (Ne): Kullanıcı profilleriyle entegre geçmiş konuşma ve bağlam hafızası (Short/Long-term Memory) / Wofür (Neden): Yapay zekanın sonraki etkileşimlerde müşteriyi tanımasını ve kişiselleştirilmiş, tutarlı çözümler sunmasını sağlamak için",
-    "Was (Ne): AI çıktı denetimi ve veri maskeleme katmanı (Guardrails) / Wofür (Neden): Müşteriyle paylaşılan AI yanıtlarında uygunsuz ifadeleri engellemek ve hassas müşteri verilerinin (KK numarası, şifre vb.) LLM sunucularına sızmasını önlemek için"
+    "Ne: Otonom Karar Verebilen Kurumsal Dijital Çalışanlar / Niçin: Basit, kural tabanlı botların aksine, karşılaştığı karmaşık müşteri sorunlarını analiz edip şirket adına insansı inisiyatifler alabilen yapay zeka çalışanları kurgulamak için",
+    "Ne: Kurum Hafızasına (Belge/Veri) Dayalı Kusursuz Yanıtlama / Niçin: Yapay zekanın hayal kurmasını (halüsinasyon) kesin olarak engelleyip, yalnızca şirketinize ait güncel PDF, sözleşme ve iç dokümanlara bakarak %100 doğru ve güvenilir cevaplar vermesi için",
+    "Ne: Kesintisiz Yedekli Yapay Zeka Altyapısı / Niçin: Ana yapay zeka sağlayıcısında (örn. OpenAI) yaşanabilecek global bir çöküşte, sistemin otonom olarak yedek zekalara geçip müşteri hizmetlerini asla durdurmaması için",
+    "Ne: Müşteriyi Tanıyan ve Hatırlayan Bağlam Hafızası / Niçin: Müşterinin aylar önceki konuşmasını bile hatırlayarak onlara kendilerini özel hissettiren, ultra-kişiselleştirilmiş elit bir hizmet sunmak için",
+    "Ne: Güvenlik Filtreleri ve Çıktı Denetimi / Niçin: Yapay zekanın müşteriye uygunsuz bir dil kullanmasını veya hassas şirket sırlarını dışarı sızdırmasını imkansız hale getiren yasal koruma kalkanları kurmak için"
   ],
   AUTOMATION: [
-    "Was (Ne): Kendi sunucumuzda barındırılan (Self-Hosted) n8n veya Airbyte veri entegrasyon altyapısı / Wofür (Neden): Bulut lisans maliyetlerinden tasarruf etmek ve hassas müşteri/şirket verilerini tamamen kendi güvenli sunucumuzda tutmak için",
-    "Was (Ne): E-posta, PDF fatura ve sözleşmelerden OCR (Google Document AI) ile veri ayıklayıp ERP sistemine işleyen akışlar / Wofür (Neden): Muhasebe ve operasyon ekiplerinin haftalık 20+ saatlik veri giriş yükünü saniyeler düzeyine indirmek için",
-    "Was (Ne): Slack, Microsoft Teams ve E-posta kanallarına bağlı merkezi hata bildirim ve kuyruk (Queue) yönetimi / Wofür (Neden): Başarısız olan API isteklerini otomatik tespit edip yeniden denemek ve veri kayıplarının önüne geçmek için",
-    "Was (Ne): CRM (Salesforce/Pipedrive) ve ERP/Muhasebe (Logo, SAP vb.) sistemleri arasında iki yönlü gerçek zamanlı senkronizasyon / Wofür (Neden): Satış gerçekleştikten sonra fatura kesim ve envanter güncelleme adımlarını otonom hale getirmek için",
-    "Was (Ne): API Hız Sınırlandırıcı (Rate Limiting) ve JWT yetkilendirmeli Webhook altyapısı / Wofür (Neden): Dışarıdan gelecek webhook çağrılarının güvenliğini sağlamak ve sunucuyu aşırı istek yükünden korumak için"
+    "Ne: %100 Kurum İçi ve Veri Gizliliği Odaklı Entegrasyon / Niçin: Hassas müşteri ve finans verilerinizin dış bulut sunucularına çıkmadan, tamamen size ait güvenli ortamda işlenmesi ve lisans maliyetlerinden tasarruf için",
+    "Ne: Manuel Belge ve Fatura İşleme Süreçlerinin Otonomlaştırılması / Niçin: Muhasebe ve operasyon ekiplerinin PDF'lerden elle veri kopyalayarak kaybettiği yüzlerce saati ortadan kaldırıp sıfır hatayla sisteme işlenmesi için",
+    "Ne: Akıllı Hata Yakalama ve Sistem İyileştirme Merkezi / Niçin: Arka planda bir entegrasyon koptuğunda veya veri aktarımı başarısız olduğunda sistemin durumu tespit edip veri kaybetmeden kendi kendine yeniden denemesi için",
+    "Ne: Satış ve Muhasebe Arasında Anında (Gerçek Zamanlı) Senkronizasyon / Niçin: Satış kapanır kapanmaz fatura kesim, envanter düşümü ve müşteri karşılama adımlarının saniyeler içinde insan dokunuşu olmadan tamamlanması için",
+    "Ne: Kurumsal Düzeyde Dış Veri Güvenliği (Webhook Kalkanı) / Niçin: Şirket sistemlerinize dışarıdan gelen otomatik verilerin kötü niyetli saldırılara karşı filtrelenmesi ve sunucuların kilitlenmesinin önlenmesi için"
   ],
   MARKETING: [
-    "Was (Ne): AI destekli kreatif otomasyon ve çok varyasyonlu dinamik görsel/video reklam içeriği üretimi / Wofür (Neden): Reklam kanallarında 'ad fatigue' (reklam körlüğü) etkisini kırmak ve dönüşüm maliyetlerini düşürmek için",
-    "Was (Ne): Meta Conversions API (CAPI) ve Server-Side Tracking kurulumu / Wofür (Neden): iOS 14+ kısıtlamaları ve tarayıcı çerez engellerini aşarak reklam dönüşüm verilerini %100 doğrulukla ölçümlemek ve pikseli doğru eğitmek için",
-    "Was (Ne): Yapay zeka destekli akıllı bütçe optimizasyonu (Advantage+ / CBO) ve kitle segmentasyonu / Wofür (Neden): Reklam bütçesini günün en aktif saatlerine ve en yüksek dönüşüm getiren niş kitlelere otonom dağıtmak için",
-    "Was (Ne): Google Analytics 4 (GA4) e-ticaret gelişmiş ölçümleme ve özel dönüşüm hunisi (Funnel) raporları / Wofür (Neden): Ziyaretçilerin sitedesindeki alışveriş yolculuğunu uçtan uca takip edip sepeti terk etme noktalarını optimize etmek için",
-    "Was (Ne): Otomatik rakip reklam izleme ve sektörel trend analiz paneli / Wofür (Neden): Rakiplerin hangi reklam kreatifleri ve kampanyalar ile pazara çıktığını anlık analiz ederek pazar payını korumak ve geliştirmek için"
+    "Ne: Dinamik ve Çok Çeşitli Yapay Zeka Kreatifleri / Niçin: Hedef kitlenin sürekli aynı reklamları görmekten sıkılmasını engelleyerek reklam maliyetlerini düşürmek ve dönüşümleri katlamak için",
+    "Ne: Çerez Engellerini Aşan %100 Doğru Veri Ölçümleme / Niçin: Apple (iOS) gibi katı gizlilik kurallarına rağmen reklamlarınıza kimin tıklayıp ne aldığını hiçbir kayıp olmadan en net şekilde takip edebilmek için",
+    "Ne: Bütçenin Otonom ve Karlı Dağıtımı / Niçin: Milyonluk reklam bütçelerinin insan tahminiyle değil, hangi kitlenin en çok satın alım yapacağını saniye saniye hesaplayan yapay zekaya emanet edilmesi için",
+    "Ne: Müşteri Satın Alma Yolculuğu ve Darboğaz Analizi / Niçin: Reklamdan tıklayıp siteye giren müşterilerin hangi sayfada veya sepette neden terk ettiğini tespit edip o noktaları iyileştirmek için",
+    "Ne: Anlık Rakip Zekası ve Sektör Takibi / Niçin: Rakiplerin hangi yeni reklam stratejileri ve kampanyalarla sahaya çıktığını sürekli izleyerek pazar liderliğini elden bırakmamak için"
   ]
 };
 
@@ -414,7 +414,7 @@ export default function ContractsDashboardClient({ initialContracts, tenantSetti
     }
     setGeneratingPflichtenheft(true);
     try {
-      const res = await generatePflichtenheftFromLastenheft(wizardData.lastenheftContent);
+      const res = await generatePflichtenheftFromLastenheft(wizardData.lastenheftContent, undefined, wizardData.serviceType);
       if (res.success && res.data) {
         setWizardData(prev => ({ ...prev, pflichtenheftContent: res.data || "" }));
       } else {
@@ -441,7 +441,8 @@ export default function ContractsDashboardClient({ initialContracts, tenantSetti
         clientName: wizardData.clientName,
         title: wizardData.title,
         value: wizardData.budget ? Number(wizardData.budget) : undefined,
-        currency: wizardData.currency
+        currency: wizardData.currency,
+        serviceType: wizardData.serviceType
       });
       if (res.success && res.data) {
         setWizardData(prev => ({ ...prev, officialContractContent: res.data || "" }));

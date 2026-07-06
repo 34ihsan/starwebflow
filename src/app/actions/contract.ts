@@ -253,12 +253,27 @@ export async function deleteContract(id: string) {
   }
 }
 
-export async function generatePflichtenheftFromLastenheft(lastenheftContent: string, language?: string) {
+export async function generatePflichtenheftFromLastenheft(lastenheftContent: string, language?: string, serviceType?: string) {
   try {
     const langText = language === 'en' ? 'English' : language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
+    
+    let domainExpertise = "";
+    if (serviceType === 'WEB') {
+      domainExpertise = "Senin uzmanlığın: Headless mimari, Edge caching, Core Web Vitals, teknik SEO ve sub-second hız metrikleridir. Uygulamayı Next.js App Router, TailwindCSS ve Fathom Analytics gibi modern araçlarla tasarla.";
+    } else if (serviceType === 'SAAS') {
+      domainExpertise = "Senin uzmanlığın: Multi-tenant veri izolasyonu, RBAC yetkilendirme, Stripe metered billing, ölçeklenebilir veritabanı replikasyonu ve API Rate Limiting mimarileridir. Uygulamayı NextAuth, Prisma/Drizzle ve PostgreSQL ile tasarla.";
+    } else if (serviceType === 'AGENTS') {
+      domainExpertise = "Senin uzmanlığın: RAG (Retrieval-Augmented Generation), Pinecone Vector Database, LLM Context yönetimi, Halüsinasyon önleme (Guardrails), LangChain/LangGraph ve yedekli model mimarisidir.";
+    } else if (serviceType === 'AUTOMATION') {
+      domainExpertise = "Senin uzmanlığın: Webhook güvenliği, Retry mekanizmaları, n8n/Airbyte self-hosted veri gizliliği, OCR (Document AI) ve ERP/CRM gerçek zamanlı senkronizasyonudur.";
+    } else if (serviceType === 'MARKETING') {
+      domainExpertise = "Senin uzmanlığın: Server-Side Tracking (CAPI), A/B test altyapısı, Dinamik reklam içerik otomasyonu, GA4 E-ticaret ölçümleme ve veri mahremiyetidir (Cookie-less tracking).";
+    }
+
     const { text } = await generateText({
       model: getProModel(),
       prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
+${domainExpertise}
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) dökümanını incele.
 Bu dökümandaki her bir iş ihtiyacını analiz ederek; bunların "Hangi teknolojilerle, nasıl, ne şekilde ve hangi mimari araçlarla" çözüleceğini açıklayan net bir "TEKNİK UYGULAMA ŞARTNAMESİ (PFLICHTENHEFT)" oluştur.
 
@@ -274,13 +289,13 @@ LÜTFEN AŞAĞIDAKİ ŞABLONA BİREBİR UY:
 [Kullanılacak temel teknolojiler: Frontend (örn. Next.js), Backend (örn. Node.js), Veritabanı (örn. PostgreSQL), Sunucu/Hosting altyapısı]
 
 ## BÖLÜM 2: TEKNİK GEREKSİNİMLERİN UYGULANMASI (Nasıl & Ne İle)
-[Lastenheft'teki her bir müşteri talebinin teknik olarak nasıl çözüleceğini madde madde yaz. Örnek: "Kategoriler: Prisma ORM ile dinamik kategori şeması oluşturulacak, Zustand ile state yönetimi sağlanacak."]
+[Lastenheft'teki her bir müşteri talebinin teknik olarak nasıl çözüleceğini madde madde yaz. Örnek: "Gelişmiş B2B Müşteri Girişi: NextAuth ile SSO sağlanacak ve PostgreSQL satır bazlı güvenlik (RLS) ile multi-tenant izolasyon uygulanacak."]
 
 ## BÖLÜM 3: VERİTABANI VE GÜVENLİK
 [Veri saklama standartları, şifreleme, yetkilendirme (Auth), KVKK/GDPR teknik altyapısı]
 
-## BÖLÜM 4: PERFORMANS VE SEO ALTYAPISI
-[SSR/SSG stratejisi, Caching mekanizmaları, CDN kullanımı, Core Web Vitals hedefleri]
+## BÖLÜM 4: PERFORMANS VE ALTYAPI OPTİMİZASYONU
+[SSR/SSG stratejisi, Caching mekanizmaları, CDN kullanımı, model/API yanıt optimizasyonu]
 
 ## BÖLÜM 5: KALİTE KONTROL VE YAYIN SÜRECİ
 [Test adımları, staging (test ortamı) ve canlıya alma (deployment) süreci]
@@ -403,11 +418,25 @@ export async function generateOfficialContract(data: {
   value?: number;
   currency?: string;
   language?: string;
+  serviceType?: string;
 }) {
   try {
     const budgetText = data.value ? `${data.value} ${data.currency || 'TRY'}` : 'Belirtilmedi';
     const langText = data.language === 'en' ? 'English' : data.language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
     
+    let domainLegalExpertise = "";
+    if (data.serviceType === 'WEB') {
+      domainLegalExpertise = "Web Sitesi Geliştirme Yasal Odak: Hosting kesintileri, domain sahipliği devri, üçüncü taraf eklenti lisansları ve tasarımın fikri mülkiyeti konularında korumacı maddeler ekle.";
+    } else if (data.serviceType === 'SAAS') {
+      domainLegalExpertise = "SaaS Yasal Odak: Çoklu kiracı (multi-tenant) veri ihlallerinde sorumluluk reddi, API kötüye kullanımında (rate limit aşımı) hesabı tek taraflı kapatma hakkı ve abonelik ödemelerinde gecikme faizi maddeleri ekle.";
+    } else if (data.serviceType === 'AGENTS') {
+      domainLegalExpertise = "Yapay Zeka Yasal Odak: LLM halüsinasyonları ve yapay zekanın vereceği hatalı/zararlı cevaplardan doğacak ticari/hukuki kayıplardan StarWebFlow'un KESİNLİKLE sorumlu tutulamayacağına dair çok katı sorumluluk reddi beyanları (Disclaimer) ekle.";
+    } else if (data.serviceType === 'AUTOMATION') {
+      domainLegalExpertise = "Otomasyon Yasal Odak: Üçüncü taraf API'lerin (Webhook, ERP, CRM) çökmesi veya kurallarının değişmesi durumunda entegrasyonun bozulmasından StarWebFlow'un sorumlu olmadığına dair koruyucu maddeler ekle.";
+    } else if (data.serviceType === 'MARKETING') {
+      domainLegalExpertise = "Pazarlama Yasal Odak: Reklam platformlarının (Google, Meta vb.) hesap kapatma (Ban) işlemlerinden, reklam performansı/ROAS düşüşünden veya beklenen satış hedeflerine ulaşılamamasından StarWebFlow'un sorumlu tutulamayacağına dair maddeler ekle.";
+    }
+
     const { text } = await generateText({
       model: getFlashModel(),
       prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
@@ -426,6 +455,9 @@ STARWEBFLOW LEHİNE KRİTİK YASAL MADDELER VE YAPISI:
 7. GDPR & KVKK UYUMLULUĞU: Müşteri, son kullanıcıların verilerinin yasalara uygun olarak toplanmasından tek başına sorumludur ve bu verilerin işlenmesi konusunda StarWebFlow'u tüm yasal iddialardan muaf tutar.
 8. ÖDEME KOŞULLARI, GECİKME CEZALARI VE FESİH: Toplam Bütçe (${budgetText}) doğrultusundaki ödeme koşulları. Ödemelerin gecikmesi durumunda aylık %5 gecikme faizi uygulanır ve StarWebFlow işi anında askıya alma hakkına sahiptir. Müşteri sözleşmeyi haklı bir neden olmaksızın feshederse, o ana kadar yapılan tüm ödemeler irat (gelir) kaydedilir ve kalan bedelin tamamı derhal muaccel (hemen ödenebilir) hale gelir.
 9. MÜCBİR SEBEPLER VE YETKİLİ MAHKEMELER: Mücbir sebeplerin tanımı ve doğabilecek ihtilaflarda münhasıran Speyer (Almanya) Mahkemelerinin ve İcra Dairelerinin yetkisi.
+
+**ALANA ÖZEL YASAL ODAK:**
+${domainLegalExpertise}
 
 Müşteri Firma: ${data.clientName}
 Proje Adı: ${data.title}
