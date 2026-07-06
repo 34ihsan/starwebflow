@@ -1306,7 +1306,7 @@ export default function ContractsDashboardClient({ initialContracts, tenantSetti
                         <Eye className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handlePrintContract(contract)}
+                        onClick={() => handlePrintContract(contract, companySettings)}
                         className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" 
                         title="PDF İndir"
                       >
