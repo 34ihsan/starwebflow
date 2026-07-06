@@ -2340,72 +2340,113 @@ export default function ContractsDashboardClient({ initialContracts, tenantSetti
                         currency: editCurrency,
                         content: editContent,
                         status: editStatus
-                      })}
+                      }, companySettings)}
                       className="flex items-center gap-2 px-4 py-2 bg-[#06B6D4] hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition-colors"
                     >
                       <Download className="w-4 h-4" /> Yazdır / PDF Kaydet
                     </button>
                   </div>
 
-                  <div className="bg-white p-8 sm:p-12 text-slate-900 shadow-2xl rounded-xl max-w-3xl mx-auto text-sm border border-slate-200" style={{ minHeight: '842px' }}>
-                    {/* Header */}
-                    <div className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-start">
-                      <div>
-                        <h1 className="text-xl font-bold tracking-tight text-slate-900">STARWEBFLOW</h1>
-                        <p className="text-[10px] text-slate-500 max-w-xs mt-1">Musterstr. 1, 12345 Berlin, Germany<br/>info@starwebflow.com | www.starwebflow.com</p>
+                  {/* Elite Preview Container */}
+                  <div className="bg-slate-100 dark:bg-zinc-950 p-4 sm:p-8 rounded-2xl border border-white/5 space-y-8 overflow-y-auto max-h-[60vh]">
+                    
+                    {/* CARD 1: COVER PAGE PREVIEW */}
+                    <div className="bg-white text-slate-900 shadow-xl rounded-xl p-8 sm:p-12 border border-slate-200 relative overflow-hidden flex flex-col justify-between" style={{ minHeight: '800px' }}>
+                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500"></div>
+                      
+                      <div className="flex justify-between items-start border-b border-slate-100 pb-6">
+                        <div>
+                          <h2 className="text-lg font-bold tracking-tight text-slate-800">{companySettings.name.toUpperCase()}</h2>
+                          <p className="text-[10px] text-slate-400 mt-1">{companySettings.website}</p>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                          Belge No: {selectedContract.contractNo || selectedContract.id}
+                        </span>
                       </div>
-                      <div className="text-right">
-                        <h2 className="text-2xl font-light text-slate-400 uppercase tracking-widest">{editType}</h2>
-                        <p className="text-[10px] text-slate-600 mt-2 font-mono">Belge No: {selectedContract.contractNo || selectedContract.id}</p>
-                        <p className="text-[10px] text-slate-600 font-mono">Tarih: {new Date(selectedContract.createdAt || Date.now()).toLocaleDateString('tr-TR')}</p>
+
+                      <div className="my-auto py-12">
+                        <span className="text-xs font-bold text-indigo-600 tracking-widest uppercase mb-3 block">{editType} DOKÜMANI</span>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                          {editType === "LASTENHEFT" ? "LASTENHEFT / MÜŞTERİ TALEPLERİ" :
+                           editType === "PFLICHTENHEFT" ? "PFLICHTENHEFT / TEKNİK UYGULAMA ŞARTNAMESİ" :
+                           "B2B ANA HİZMET SÖZLEŞMESİ"}
+                        </h1>
+                        <div className="cover-divider"></div>
+                        <p className="text-slate-600 text-base font-medium">{editTitle || 'Proje Belgesi'}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-8 border-t border-slate-100 pt-6 text-xs text-slate-500">
+                        <div>
+                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">HAZIRLAYAN</h4>
+                          <p className="font-semibold text-slate-800">{companySettings.name}</p>
+                          <p className="text-[11px] mt-1">{companySettings.address}</p>
+                          <p className="text-[11px]">E: {companySettings.email}</p>
+                          {companySettings.taxId && <p className="text-[9px] text-slate-400 mt-1">St-Nr.: {companySettings.taxId}</p>}
+                          {companySettings.vatId && <p className="text-[9px] text-slate-400">USt-IdNr.: {companySettings.vatId}</p>}
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">MUHATAP / MÜŞTERİ</h4>
+                          <p className="font-semibold text-slate-800">{editClientName || 'Müşteri'}</p>
+                          <p className="text-[11px] mt-1">{editClientEmail || '-'}</p>
+                          <p className="text-[11px]">Bütçe: {editValue ? `${Number(editValue).toLocaleString('tr-TR')} ${editCurrency}` : 'Belirtilmedi'}</p>
+                          <p className="text-[11px] mt-1">Tarih: {new Date(selectedContract.createdAt || Date.now()).toLocaleDateString('tr-TR')}</p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Info Box */}
-                    <div className="grid grid-cols-2 gap-8 mb-8 text-xs bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <div>
-                        <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET SAĞLAYICI</h3>
-                        <p className="font-semibold text-slate-800">StarWebFlow Gmbh</p>
-                        <p className="text-slate-600">Musterstr. 1, 12345 Berlin</p>
+                    {/* PAGE BREAK INDICATOR */}
+                    <div className="flex items-center justify-center gap-4 py-2">
+                      <div className="h-px border-dashed border-slate-300 dark:border-zinc-800 flex-1"></div>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase tracking-widest bg-slate-200 dark:bg-zinc-800 px-3 py-1 rounded-full border border-slate-300 dark:border-zinc-800">Sayfa Sonu / Belge İçeriği</span>
+                      <div className="h-px border-dashed border-slate-300 dark:border-zinc-800 flex-1"></div>
+                    </div>
+
+                    {/* CARD 2: DOCUMENT CONTENT PREVIEW */}
+                    <div className="bg-white text-slate-900 shadow-xl rounded-xl p-8 sm:p-12 border border-slate-200" style={{ minHeight: '800px' }}>
+                      <div className="border-b border-slate-200 pb-4 mb-6 flex justify-between items-end">
+                        <div>
+                          <span className="text-[10px] font-bold text-indigo-600 tracking-wider uppercase">
+                            {editType === "LASTENHEFT" ? "LASTENHEFT / MÜŞTERİ TALEPLERİ" :
+                             editType === "PFLICHTENHEFT" ? "PFLICHTENHEFT / TEKNİK UYGULAMA ŞARTNAMESİ" :
+                             "B2B ANA HİZMET SÖZLEŞMESİ"}
+                          </span>
+                          <h3 className="text-sm font-bold text-slate-800 mt-1">{editTitle || 'Proje Belgesi'}</h3>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono">Belge No: {selectedContract.contractNo || selectedContract.id}</span>
                       </div>
-                      <div>
-                        <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-1">MÜŞTERİ / ALICI</h3>
-                        <p className="font-semibold text-slate-800">{editClientName || 'Müşteri'}</p>
-                        <p className="text-slate-600">{editClientEmail || '-'}</p>
-                        <p className="text-slate-600">Bütçe: {editValue ? `${Number(editValue).toLocaleString('tr-TR')} ${editCurrency}` : 'Belirtilmedi'}</p>
+
+                      {/* Content */}
+                      <div className="prose prose-slate max-w-none text-slate-800 text-sm leading-relaxed mb-12">
+                        <ReactMarkdown>{editContent}</ReactMarkdown>
+                      </div>
+
+                      {/* Signatures */}
+                      <div className="grid grid-cols-2 gap-8 pt-6 border-t border-slate-200 text-xs mt-12">
+                        <div className="text-center">
+                          <p className="text-slate-500 mb-6">Hizmet Sağlayıcı İmza</p>
+                          <div className="h-12 flex items-center justify-center">
+                            <span className="font-signature text-2xl text-indigo-600 block">StarWebFlow</span>
+                          </div>
+                          <p className="font-semibold text-slate-800 mt-2">{companySettings.name}</p>
+                          <p className="text-[10px] text-slate-400">Dijital Olarak İmzalandı</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-slate-500 mb-6">Alıcı / Müşteri İmza</p>
+                          <div className="h-12 flex items-center justify-center">
+                            {editStatus === 'SIGNED' ? (
+                              <span className="font-signature text-2xl text-emerald-600 block">{editClientName}</span>
+                            ) : (
+                              <span className="text-slate-300 italic block">İmza Bekliyor</span>
+                            )}
+                          </div>
+                          <p className="font-semibold text-slate-800 mt-2">{editClientName}</p>
+                          <p className="text-[10px] text-slate-400">
+                            {editStatus === 'SIGNED' ? 'Dijital Olarak Onaylandı' : 'İmza Bekliyor'}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Markdown Content */}
-                    <div className="prose prose-slate max-w-none text-slate-800 text-sm leading-relaxed mb-16">
-                      <ReactMarkdown>{editContent}</ReactMarkdown>
-                    </div>
-
-                    {/* Signatures */}
-                    <div className="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 text-xs mt-12">
-                      <div className="text-center">
-                        <p className="text-slate-500 mb-6">Hizmet Sağlayıcı İmza</p>
-                        <span className="font-signature text-2xl text-blue-600 block">StarWebFlow</span>
-                        <p className="font-semibold text-slate-800 mt-2">StarWebFlow Gmbh</p>
-                        <p className="text-[10px] text-slate-400">Dijital Olarak İmzalandı</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-slate-500 mb-6">Alıcı / Müşteri İmza</p>
-                        {editStatus === 'SIGNED' ? (
-                          <>
-                            <span className="font-signature text-2xl text-emerald-600 block">{editClientName}</span>
-                            <p className="font-semibold text-slate-800 mt-2">{editClientName}</p>
-                            <p className="text-[10px] text-slate-400">Dijital Olarak Onaylandı</p>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-slate-300 italic block">İmza Bekliyor</span>
-                            <p className="font-semibold text-slate-800 mt-2">{editClientName}</p>
-                            <p className="text-[10px] text-slate-400">Beklemede</p>
-                          </>
-                        )}
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
