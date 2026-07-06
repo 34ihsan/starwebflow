@@ -247,19 +247,37 @@ export async function generatePflichtenheftFromLastenheft(lastenheftContent: str
       model: getProModel(),
       prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) dökümanını incele.
-Bu dökümandaki her bir iş ihtiyacını, teknik hedefleri ve müşteri taleplerini analiz ederek; bunların "Hangi teknolojilerle, nasıl, ne şekilde ve hangi mimari araçlarla" çözüleceğini açıklayan detaylı, profesyonel ve premium bir "PFLICHTENHEFT" (Teknik Uygulama Şartnamesi) dökümanına dönüştür.
+Bu dökümandaki her bir iş ihtiyacını analiz ederek; bunların "Hangi teknolojilerle, nasıl, ne şekilde ve hangi mimari araçlarla" çözüleceğini açıklayan net bir "TEKNİK UYGULAMA ŞARTNAMESİ (PFLICHTENHEFT)" oluştur.
 
-ÇOK KRİTİK UYARI: BU DOKÜMAN BİR YASAL SÖZLEŞME DEĞİLDİR! 
-- Kesinlikle hukuki sözleşme maddeleri (Madde 1: Taraflar, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. 
-- "İşbu sözleşme..." gibi yasal girişler yapma.
-- Sadece teknik uygulama planı, altyapı, kullanılacak kütüphaneler, veritabanı yapısı, sunucu mimarisi gibi teknik detayları (Wie & Womit) planla ve açıkla.
-Gereksinimleri "Wie & Womit" (Nasıl & Ne ile?) prensibine göre teknik detaylarıyla (Next.js, Tailwind, PostgreSQL, API mimarisi, Güvenlik filtreleri, sunucu mimarisi vb.) eşleştir ve planla.
+ÇOK KRİTİK UYARI: BU DOKÜMAN SADECE TEKNİK BİR PLANLAMADIR. Hukuki sözleşme maddeleri, fiyatlandırma, fesih veya taraflar gibi konular KESİNLİKLE YER ALMAMALIDIR! 
+
+LÜTFEN AŞAĞIDAKİ ŞABLONA BİREBİR UY:
+
+# TEKNİK UYGULAMA ŞARTNAMESİ (PFLICHTENHEFT)
+
+**Tarih:** [Günün Tarihi]
+
+## BÖLÜM 1: SİSTEM MİMARİSİ VE ALTYAPI
+[Kullanılacak temel teknolojiler: Frontend (örn. Next.js), Backend (örn. Node.js), Veritabanı (örn. PostgreSQL), Sunucu/Hosting altyapısı]
+
+## BÖLÜM 2: TEKNİK GEREKSİNİMLERİN UYGULANMASI (Nasıl & Ne İle)
+[Lastenheft'teki her bir müşteri talebinin teknik olarak nasıl çözüleceğini madde madde yaz. Örnek: "Kategoriler: Prisma ORM ile dinamik kategori şeması oluşturulacak, Zustand ile state yönetimi sağlanacak."]
+
+## BÖLÜM 3: VERİTABANI VE GÜVENLİK
+[Veri saklama standartları, şifreleme, yetkilendirme (Auth), KVKK/GDPR teknik altyapısı]
+
+## BÖLÜM 4: PERFORMANS VE SEO ALTYAPISI
+[SSR/SSG stratejisi, Caching mekanizmaları, CDN kullanımı, Core Web Vitals hedefleri]
+
+## BÖLÜM 5: KALİTE KONTROL VE YAYIN SÜRECİ
+[Test adımları, staging (test ortamı) ve canlıya alma (deployment) süreci]
+
+---
+
+Sadece yukarıdaki 5 bölümü ${langText} dilinde oluştur. Başka hiçbir giriş, sonuç veya yasal madde ekleme.
 
 Lastenheft Dökümanı:
-${lastenheftContent}
-
-Dönüştürülecek Pflichtenheft dökümanını ${langText} dilinde ve Markdown formatında oluştur. Başlık olarak doğrudan teknik şartname adı ile başla.
-Please write the document in ${langText}.`,
+${lastenheftContent}`,
     });
     return { success: true, data: text };
   } catch (error) {
