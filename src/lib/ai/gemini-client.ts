@@ -22,12 +22,12 @@ export function getGoogleProvider() {
 
 // Hızlı işlemler için: Chat botu, scoring
 export function getFlashModel() {
-  return getGoogleProvider()('gemini-1.5-flash');
+  return getGoogleProvider()('gemini-2.5-flash');
 }
 
 // Karmaşık görevler için: Şirket araştırması, uzun içerik üretimi
 export function getProModel() {
-  return getGoogleProvider()('gemini-1.5-pro');
+  return getGoogleProvider()('gemini-2.5-pro');
 }
 
 // ─── Google Generative AI SDK ────────────────────────────────────────────────
@@ -38,8 +38,8 @@ export function getGoogleGenAIClient(): GoogleGenerativeAI {
 
 // ─── Model Sabitleri ─────────────────────────────────────────────────────────
 export const GEMINI_MODELS = {
-  FLASH: 'gemini-1.5-flash',
-  PRO: 'gemini-1.5-pro',
+  FLASH: 'gemini-2.5-flash',
+  PRO: 'gemini-2.5-pro',
   IMAGEN: 'imagen-4.0-generate-001',
   VEO: 'veo-3.1-generate-preview',
   VEO_FAST: 'veo-3.1-fast-generate-preview',
