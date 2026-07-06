@@ -21,7 +21,7 @@ npm run build
 
 # Reload PM2 cleanly with zero-downtime
 echo "Reloading PM2 in cluster mode..."
-pm2 reload starwebflow --update-env || pm2 start ecosystem.config.js
+pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
 
 # Save PM2 state
 pm2 save

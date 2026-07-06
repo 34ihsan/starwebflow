@@ -13,5 +13,16 @@ module.exports = {
         PORT: 3005,
       },
     },
+    {
+      name: "starwebflow-cron",
+      cwd: "c:\\Users\\sinan\\Desktop\\projeler\\starwebflow",
+      script: "cron-runner.js",
+      instances: 1,
+      exec_mode: "fork",
+      watch: false,
+      env: {
+        NODE_ENV: "production",
+      },
+    },
   ],
 };

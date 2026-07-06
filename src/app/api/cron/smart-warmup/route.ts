@@ -2,12 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
-import { Resend } from 'resend';
+import { sendOutreachEmail } from '@/lib/email';
 import { processInboundEmails } from '@/lib/imap';
 import { subscribeToNewsletters } from '@/lib/newsletter';
-
-// Resend initialization (Ensure RESEND_API_KEY is available)
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 // Konular listesi, AI'ın her defasında farklı bir tema üzerinden sohbet başlatması için
 const WARMUP_TOPICS = [
@@ -157,14 +154,16 @@ Kurallar:
           }
         }
 
-        // Maili gönder
-        if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_dummy_key') {
-          await resend.emails.send({
+        // Maili gönder (Artık SMTP kullanılıyor)
+        try {
+          await sendOutreachEmail({
             from: sender.email,
-            to: [targetEmail],
+            to: targetEmail,
             subject,
             html: body,
           });
+        } catch (error) {
+          console.error("Warmup email sending failed via SMTP", error);
         }
 
         // İstatistikleri güncelle
