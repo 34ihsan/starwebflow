@@ -125,7 +125,7 @@ const WIZARD_SECTOR_NEEDS: Record<string, string[]> = {
   ]
 };
 
-export const handlePrintContract = (contract: any) => {
+export const handlePrintContract = (contract: any, companySettings?: any) => {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
 
@@ -139,25 +139,63 @@ export const handlePrintContract = (contract: any) => {
   const clientEmail = contract.clientEmail || '-';
   const valStr = contract.value ? `${Number(contract.value).toLocaleString('tr-TR')} ${contract.currency || 'TRY'}` : 'Belirtilmedi';
 
+  const company = companySettings || {
+    name: "StarWebFlow Digital Agent",
+    address: "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+    taxId: "41/056/80705",
+    vatId: "DE4105680705",
+    email: "info@starwebflow.com",
+    website: "www.starwebflow.com",
+    phone: "+49 179 492 4556"
+  };
+
+  let docTypeName = docType;
+  if (docType === "LASTENHEFT") {
+    docTypeName = "LASTENHEFT / MÜŞTERİ TALEPLERİ";
+  } else if (docType === "PFLICHTENHEFT") {
+    docTypeName = "PFLICHTENHEFT / TEKNİK UYGULAMA ŞARTNAMESİ";
+  } else if (docType === "CONTRACT" || docType === "MSA") {
+    docTypeName = "B2B ANA HİZMET SÖZLEŞMESİ";
+  }
+
   printWindow.document.write(`
     <html>
       <head>
         <title>${contract.title || 'Sözleşme'}</title>
         <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,600&display=swap');
+          
           body {
             font-family: 'Inter', sans-serif;
             background: #ffffff;
             color: #1e293b;
             margin: 0;
             padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
+          
           .font-signature {
             font-family: 'Playfair Display', serif;
             font-style: italic;
           }
+          
+          .cover-page {
+            min-height: 277mm; /* standard print printable height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            box-sizing: border-box;
+          }
+          
+          .document-page {
+            padding: 40px;
+            box-sizing: border-box;
+          }
+          
           @media print {
             body {
               background: #ffffff;
@@ -166,12 +204,23 @@ export const handlePrintContract = (contract: any) => {
             .no-print {
               display: none;
             }
+            .page-break {
+              page-break-before: always;
+              break-before: page;
+            }
+            .cover-page {
+              height: 100vh;
+              page-break-after: always;
+              break-after: page;
+              border: none !important;
+              box-shadow: none !important;
+            }
           }
         </style>
       </head>
-      <body class="p-12 max-w-4xl mx-auto">
+      <body class="max-w-4xl mx-auto p-4 md:p-12">
         <div class="no-print mb-8 flex justify-end gap-3 bg-slate-100 p-4 rounded-xl border border-slate-200">
-          <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors cursor-pointer shadow-sm">
+          <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors cursor-pointer shadow-sm">
             PDF Olarak Kaydet / Yazdır
           </button>
           <button onclick="window.close()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors cursor-pointer">
@@ -179,56 +228,81 @@ export const handlePrintContract = (contract: any) => {
           </button>
         </div>
 
-        <div class="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-start">
-          <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900">STARWEBFLOW</h1>
-            <p class="text-xs text-slate-500 max-w-xs mt-1">Musterstr. 1, 12345 Berlin, Germany<br/>info@starwebflow.com | www.starwebflow.com</p>
-          </div>
-          <div class="text-right">
-            <h2 class="text-3xl font-light text-slate-400 uppercase tracking-widest">${docType}</h2>
-            <p class="text-xs text-slate-600 mt-2 font-mono">Belge No: ${docNo}</p>
-            <p class="text-xs text-slate-600 font-mono">Tarih: ${dateStr}</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-8 mb-8 text-sm bg-slate-50 p-6 rounded-xl border border-slate-200">
-          <div>
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">HİZMET SAĞLAYICI</h3>
-            <p class="font-semibold text-slate-800">StarWebFlow Gmbh</p>
-            <p class="text-slate-600 text-xs">Musterstr. 1, 12345 Berlin</p>
-            <p class="text-slate-600 text-xs">Steuernummer: 12/345/67890</p>
-          </div>
-          <div>
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">MÜŞTERİ / ALICI</h3>
-            <p class="font-semibold text-slate-800">${clientName}</p>
-            <p class="text-slate-600 text-xs">${clientEmail}</p>
-            <p class="text-slate-600 text-xs">Sözleşme Tutarı: ${valStr}</p>
-            <p class="text-slate-600 text-xs">Geçerlilik: ${validUntilStr}</p>
-          </div>
-        </div>
-
-        <div class="prose prose-slate max-w-none text-slate-800 text-sm leading-relaxed mb-16">
-          ${renderMarkdownToHtmlSimple(contentHtml)}
-        </div>
-
-        <div class="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 text-sm">
-          <div class="text-center">
-            <p class="text-slate-500 mb-8">Hizmet Sağlayıcı İmza</p>
-            <div class="h-12 flex items-center justify-center">
-              <span class="font-signature text-2xl text-blue-600">StarWebFlow</span>
+        <!-- COVER PAGE -->
+        <div class="cover-page border border-slate-200/60 shadow-lg rounded-2xl mb-12">
+          <div class="flex justify-between items-start border-b border-slate-100 pb-6">
+            <div>
+              <h1 class="text-xl font-bold tracking-tight text-slate-800">${company.name.toUpperCase()}</h1>
+              <p class="text-xs text-slate-400 mt-1">${company.website}</p>
             </div>
-            <p class="font-semibold text-slate-800 mt-2">StarWebFlow Gmbh</p>
-            <p class="text-xs text-slate-400 mt-1">Dijital Olarak İmzalandı</p>
-          </div>
-          <div class="text-center">
-            <p class="text-slate-500 mb-8">Alıcı / Müşteri İmza</p>
-            <div class="h-12 flex items-center justify-center">
-              ${contract.status === 'SIGNED' || contract.status === 'signed' ? '<span class="font-signature text-2xl text-emerald-600">' + clientName + '</span>' : '<span class="text-slate-300 font-light italic">İmza Bekliyor</span>'}
+            <div class="text-right">
+              <span class="text-xs text-slate-400 font-mono">Belge No: ${docNo}</span>
             </div>
-            <p class="font-semibold text-slate-800 mt-2">${clientName}</p>
-            <p class="text-xs text-slate-400 mt-1">
-              ${contract.status === 'SIGNED' || contract.status === 'signed' ? 'Dijital Olarak Onaylandı' : 'İmza Bekliyor'}
-            </p>
+          </div>
+          
+          <div class="my-auto py-16">
+            <span class="text-xs font-bold text-indigo-600 tracking-widest uppercase mb-4 block">${docType} DOKÜMANI</span>
+            <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">${docTypeName}</h2>
+            <div class="h-1.5 w-24 bg-gradient-to-r from-indigo-500 to-cyan-500 my-6"></div>
+            <p class="text-slate-600 text-lg font-medium">${contract.title || 'Proje Belgesi'}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-8 border-t border-slate-100 pt-8 text-sm text-slate-500">
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">HAZIRLAYAN</h4>
+              <p class="font-semibold text-slate-800">${company.name}</p>
+              <p class="text-xs">${company.address}</p>
+              <p class="text-xs mt-1">E: ${company.email}</p>
+              ${company.taxId ? `<p class="text-[10px] text-slate-400 mt-1">St-Nr.: ${company.taxId}</p>` : ''}
+              ${company.vatId ? `<p class="text-[10px] text-slate-400">USt-IdNr.: ${company.vatId}</p>` : ''}
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">MUHATAP / MÜŞTERİ</h4>
+              <p class="font-semibold text-slate-800">${clientName}</p>
+              <p class="text-xs">${clientEmail}</p>
+              <p class="text-xs mt-1">Sözleşme Bedeli: ${valStr}</p>
+              <p class="text-xs">Tarih: ${dateStr}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- DOCUMENT PAGE -->
+        <div class="document-page">
+          <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
+            <div>
+              <span class="text-xs font-bold text-indigo-600 tracking-wider uppercase">${docTypeName}</span>
+              <h3 class="text-lg font-bold text-slate-800 mt-1">${contract.title || 'Proje Belgesi'}</h3>
+            </div>
+            <div class="text-right text-xs text-slate-400 font-mono">
+              <span>Belge No: ${docNo}</span>
+            </div>
+          </div>
+
+          <div class="prose prose-slate max-w-none text-slate-800 text-sm leading-relaxed mb-16">
+            ${renderMarkdownToHtmlSimple(contentHtml)}
+          </div>
+
+          <div class="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 text-sm">
+            <div class="text-center">
+              <p class="text-slate-500 mb-8">Hizmet Sağlayıcı İmza</p>
+              <div class="h-12 flex items-center justify-center">
+                <span class="font-signature text-2xl text-indigo-600">StarWebFlow</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-2">${company.name}</p>
+              <p class="text-xs text-slate-400 mt-1">Dijital Olarak İmzalandı</p>
+            </div>
+            <div class="text-center">
+              <p class="text-slate-500 mb-8">Alıcı / Müşteri İmza</p>
+              <div class="h-12 flex items-center justify-center">
+                ${contract.status === 'SIGNED' || contract.status === 'signed' ? '<span class="font-signature text-2xl text-emerald-600">' + clientName + '</span>' : '<span class="text-slate-300 font-light italic">İmza Bekliyor</span>'}
+              </div>
+              <p class="font-semibold text-slate-800 mt-2">${clientName}</p>
+              <p class="text-xs text-slate-400 mt-1">
+                ${contract.status === 'SIGNED' || contract.status === 'signed' ? 'Dijital Olarak Onaylandı' : 'İmza Bekliyor'}
+              </p>
+            </div>
           </div>
         </div>
       </body>
@@ -319,13 +393,28 @@ const localDict = {
 
 export default function ClientContractsClient({ 
   initialContracts, 
-  clientInfo 
+  clientInfo,
+  tenantSettings
 }: { 
   initialContracts: any[]; 
   clientInfo: { name: string; email: string } | null;
+  tenantSettings?: any;
 }) {
   const { language } = useLanguage()
   const dict = localDict[language] || localDict.tr
+  
+  const prefs: any = tenantSettings?.preferences || {};
+  const billingSettings = prefs.billing || {};
+  const companySettings = {
+    name: billingSettings.legalName || tenantSettings?.companyName || "StarWebFlow Digital Agent",
+    logo: prefs.branding?.logoUrl || "",
+    address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+    taxId: billingSettings.taxNumber || "41/056/80705",
+    vatId: billingSettings.vatId || "DE4105680705",
+    email: prefs.general?.supportEmail || "info@starwebflow.com",
+    website: prefs.general?.website || "www.starwebflow.com",
+    phone: prefs.general?.supportPhone || "+49 179 492 4556"
+  };
   
   const [contracts, setContracts] = useState<any[]>(initialContracts);
   const [searchQuery, setSearchQuery] = useState("");
@@ -608,7 +697,7 @@ export default function ClientContractsClient({
                             </button>
                           )}
                           <button 
-                            onClick={() => handlePrintContract(contract)}
+                            onClick={() => handlePrintContract(contract, companySettings)}
                             className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors" 
                             title="PDF İndir"
                           >
@@ -689,7 +778,7 @@ export default function ClientContractsClient({
               <div className="flex justify-between items-center bg-white/[0.02] border border-white/[0.05] p-4 rounded-xl">
                 <span className="text-sm text-slate-400">Belge Önizleme (A4 Kağıt Düzeni)</span>
                 <button 
-                  onClick={() => handlePrintContract(selectedContract)}
+                  onClick={() => handlePrintContract(selectedContract, companySettings)}
                   className="flex items-center gap-2 px-4 py-2 bg-[#06B6D4] hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition-colors"
                 >
                   <Download className="w-4 h-4" /> Yazdır / PDF Kaydet
@@ -700,8 +789,11 @@ export default function ClientContractsClient({
                 {/* Header */}
                 <div className="border-b-2 border-slate-900 pb-6 mb-8 flex justify-between items-start">
                   <div>
-                    <h1 className="text-xl font-bold tracking-tight text-slate-900">STARWEBFLOW</h1>
-                    <p className="text-[10px] text-slate-500 max-w-xs mt-1">Musterstr. 1, 12345 Berlin, Germany<br/>info@starwebflow.com | www.starwebflow.com</p>
+                    <h1 className="text-xl font-bold tracking-tight text-slate-900">{companySettings.name.toUpperCase()}</h1>
+                    <p className="text-[10px] text-slate-500 max-w-xs mt-1">
+                      {companySettings.address}<br/>
+                      {companySettings.email} | {companySettings.website}
+                    </p>
                   </div>
                   <div className="text-right">
                     <h2 className="text-2xl font-light text-slate-400 uppercase tracking-widest">{selectedContract.type}</h2>
@@ -714,8 +806,10 @@ export default function ClientContractsClient({
                 <div className="grid grid-cols-2 gap-8 mb-8 text-xs bg-slate-50 p-4 rounded-lg border border-slate-200">
                   <div>
                     <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET SAĞLAYICI</h3>
-                    <p className="font-semibold text-slate-800">StarWebFlow Gmbh</p>
-                    <p className="text-slate-600">Musterstr. 1, 12345 Berlin</p>
+                    <p className="font-semibold text-slate-800">{companySettings.name}</p>
+                    <p className="text-slate-600">{companySettings.address}</p>
+                    {companySettings.taxId && <p className="text-[10px] text-slate-500 mt-1">St-Nr.: {companySettings.taxId}</p>}
+                    {companySettings.vatId && <p className="text-[10px] text-slate-500">USt-IdNr.: {companySettings.vatId}</p>}
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-400 uppercase tracking-wider mb-1">MÜŞTERİ / ALICI</h3>
