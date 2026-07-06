@@ -245,11 +245,14 @@ export async function generatePflichtenheftFromLastenheft(lastenheftContent: str
     const langText = language === 'en' ? 'English' : language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
     const { text } = await generateText({
       model: getProModel(),
-      prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin.
+      prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) dökümanını incele.
 Bu dökümandaki her bir iş ihtiyacını, teknik hedefleri ve müşteri taleplerini analiz ederek; bunların "Hangi teknolojilerle, nasıl, ne şekilde ve hangi mimari araçlarla" çözüleceğini açıklayan detaylı, profesyonel ve premium bir "PFLICHTENHEFT" (Teknik Uygulama Şartnamesi) dökümanına dönüştür.
 
-KRİTİK UYARI: Bu doküman bir yasal sözleşme değildir! Kesinlikle hukuki sözleşme maddeleri (Madde 1: Taraflar, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. Sadece teknik uygulama planı olmalıdır.
+ÇOK KRİTİK UYARI: BU DOKÜMAN BİR YASAL SÖZLEŞME DEĞİLDİR! 
+- Kesinlikle hukuki sözleşme maddeleri (Madde 1: Taraflar, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. 
+- "İşbu sözleşme..." gibi yasal girişler yapma.
+- Sadece teknik uygulama planı, altyapı, kullanılacak kütüphaneler, veritabanı yapısı, sunucu mimarisi gibi teknik detayları (Wie & Womit) planla ve açıkla.
 Gereksinimleri "Wie & Womit" (Nasıl & Ne ile?) prensibine göre teknik detaylarıyla (Next.js, Tailwind, PostgreSQL, API mimarisi, Güvenlik filtreleri, sunucu mimarisi vb.) eşleştir ve planla.
 
 Lastenheft Dökümanı:
@@ -304,11 +307,13 @@ export async function generateLastenheftFromChoices(data: {
 
     const { text } = await generateText({
       model: getFlashModel(),
-      prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin.
+      prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
 Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
 
-KRİTİK UYARI: Bu doküman bir yasal sözleşme değildir! Kesinlikle yasal sözleşme maddeleri (Madde 1: Taraflar, Cezai Şartlar, Ödeme Şartları, Fesih, Yetkili Mahkemeler vb.) İÇERMEMELİDİR. 
-Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden/niçin istediğini açıklayan iş gereksinimleri şartnamesi olmalıdır.
+ÇOK KRİTİK UYARI: BU DOKÜMAN KESİNLİKLE BİR YASAL SÖZLEŞME DEĞİLDİR! 
+- ASLA "Madde 1: Taraflar", "Fesih", "Hizmet Sözleşmesi" gibi başlıklar kullanma.
+- ASLA "İşbu sözleşme...", "Taraflar arasında akdedilmiştir" gibi hukuki giriş cümleleri yazma.
+Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden/niçin istediğini açıklayan düz bir iş gereksinimleri şartnamesi olmalıdır.
 
 Müşteri/Firma Bilgileri:
 - Müşteri Adı: ${data.clientName}
@@ -357,7 +362,8 @@ export async function generateOfficialContract(data: {
       prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) ve "Pflichtenheft" (Teknik Uygulama Şartnamesi) dokümanlarını esas alarak, StarWebFlow şirketimizin haklarını, çıkarlarını ve yasal sınırlarını en üst düzeyde koruyan (Pro/Elit düzeyde tek taraflı korumacı), hukuki geçerliliği olan resmi bir "B2B ANA HİZMET SÖZLEŞMESİ" (Master Service Agreement) oluştur.
 
-Tüm hizmetler için bu ana sözleşme son yasal aşamadır. Aşağıdaki tüm koruyucu yasal bölümler StarWebFlow lehine olacak şekilde otomatik olarak sözleşmeye entegre edilmelidir:
+Tüm hizmetler için bu ana sözleşme son yasal ve bağlayıcı aşamadır. SADECE BU AŞAMADA sözleşme ve hukuk dili kullanılacaktır.
+Aşağıdaki tüm koruyucu yasal bölümler StarWebFlow lehine olacak şekilde otomatik olarak sözleşmeye entegre edilmelidir:
 
 STARWEBFLOW LEHİNE KRİTİK YASAL MADDELER VE YAPISI:
 1. SÖZLEŞMENİN TARAFLARI VE KONUSU: StarWebFlow ile ${data.clientName} arasındaki yazılım/web geliştirme projesinin genel çerçevesi.
