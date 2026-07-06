@@ -288,9 +288,6 @@ Projenin canlı ortama alınması veya Müşteri sunucularına kurulması ile te
 };
 
 export const handlePrintContract = (contract: any, companySettings?: any) => {
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) return;
-
   const contentHtml = contract.content || "";
   
   const docType = contract.type || "LASTENHEFT";
@@ -320,17 +317,19 @@ export const handlePrintContract = (contract: any, companySettings?: any) => {
     docTypeName = "B2B ANA HİZMET SÖZLEŞMESİ";
   }
 
-  printWindow.document.write(`
-    <html>
+  const htmlContent = `<!DOCTYPE html>
+    <html lang="de">
       <head>
+        <meta charset="UTF-8" />
         <title>${contract.title || 'Sözleşme'}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet" />
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,600&display=swap');
-          
+          *, *::before, *::after { box-sizing: border-box; }
           body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #ffffff;
+            background: #f8fafc;
             color: #1e293b;
             margin: 0;
             padding: 0;
@@ -338,355 +337,219 @@ export const handlePrintContract = (contract: any, companySettings?: any) => {
             print-color-adjust: exact;
             line-height: 1.6;
           }
-          
-          .max-w-4xl {
-            max-width: 56rem;
+          .page-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
           }
-          .mx-auto {
-            margin-left: auto;
-            margin-right: auto;
-          }
-          .p-4 {
-            padding: 1rem;
-          }
-          .p-12 {
-            padding: 3rem;
-          }
-
-          /* Flexbox utilities */
-          .flex {
+          /* Control bar */
+          .no-print {
             display: flex;
-          }
-          .justify-between {
-            justify-content: space-between;
-          }
-          .justify-end {
             justify-content: flex-end;
-          }
-          .items-start {
-            align-items: flex-start;
-          }
-          .items-end {
-            align-items: flex-end;
-          }
-          .items-center {
-            align-items: center;
-          }
-          .gap-3 {
             gap: 0.75rem;
+            background: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 2rem;
           }
-          .gap-8 {
-            gap: 2rem;
-          }
-          .gap-12 {
-            gap: 3rem;
-          }
-
-          /* Grid utilities */
-          .grid {
-            display: grid;
-          }
-          .grid-cols-2 {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
-          /* Spacings */
-          .mt-1 { margin-top: 0.25rem; }
-          .mt-2 { margin-top: 0.5rem; }
-          .mt-4 { margin-top: 1rem; }
-          .mt-6 { margin-top: 1.5rem; }
-          .mb-2 { margin-bottom: 0.5rem; }
-          .mb-4 { margin-bottom: 1rem; }
-          .mb-6 { margin-bottom: 1.5rem; }
-          .mb-8 { margin-bottom: 2rem; }
-          .mb-12 { margin-bottom: 3rem; }
-          .mb-16 { margin-bottom: 4rem; }
-          .pb-2 { padding-bottom: 0.5rem; }
-          .pb-4 { padding-bottom: 1rem; }
-          .pb-6 { padding-bottom: 1.5rem; }
-          .pt-8 { padding-top: 2rem; }
-
-          /* Colors */
-          .text-slate-900 { color: #0f172a; }
-          .text-slate-800 { color: #1e293b; }
-          .text-slate-700 { color: #334155; }
-          .text-slate-600 { color: #475569; }
-          .text-slate-500 { color: #64748b; }
-          .text-slate-400 { color: #94a3b8; }
-          .text-indigo-600 { color: #4f46e5; }
-          .text-blue-600 { color: #2563eb; }
-          .text-emerald-600 { color: #059669; }
-          .bg-slate-50 { background-color: #f8fafc; }
-          .bg-slate-100 { background-color: #f1f5f9; }
-
-          /* Borders */
-          .border { border: 1px solid #e2e8f0; }
-          .border-b { border-bottom: 1px solid #e2e8f0; }
-          .border-b-2 { border-bottom: 2px solid #0f172a; }
-          .border-t { border-top: 1px solid #e2e8f0; }
-          .border-slate-200 { border-color: #e2e8f0; }
-          .border-slate-200\/60 { border-color: rgba(226, 232, 240, 0.6); }
-
-          /* Typography */
-          .text-xs { font-size: 0.75rem; }
-          .text-sm { font-size: 0.875rem; }
-          .text-lg { font-size: 1.125rem; }
-          .text-xl { font-size: 1.25rem; }
-          .text-2xl { font-size: 1.5rem; }
-          .text-3xl { font-size: 1.875rem; }
-          .text-4xl { font-size: 2.25rem; }
-          .font-light { font-weight: 300; }
-          .font-medium { font-weight: 500; }
-          .font-semibold { font-weight: 600; }
-          .font-bold { font-weight: 700; }
-          .font-extrabold { font-weight: 800; }
-          .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-          .uppercase { text-transform: uppercase; }
-          .tracking-wider { letter-spacing: 0.05em; }
-          .tracking-widest { letter-spacing: 0.1em; }
-          .tracking-tight { letter-spacing: -0.025em; }
-          .leading-tight { line-height: 1.25; }
-          .leading-relaxed { line-height: 1.625; }
-          .text-right { text-align: right; }
-          .text-center { text-align: center; }
-
-          /* Signatures */
-          .font-signature {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-style: italic;
-          }
-
-          /* Control Buttons */
-          .no-print button {
-            padding: 0.625rem 1.25rem;
+          .btn-print {
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.25rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
           }
-          .btn-print {
-            background-color: #4f46e5;
-            color: #ffffff;
-            border: none;
-          }
-          .btn-print:hover {
-            background-color: #4338ca;
-          }
+          .btn-print:hover { background: #4338ca; }
           .btn-close {
-            background-color: #ffffff;
+            background: #fff;
             color: #475569;
             border: 1px solid #d1d5db;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
           }
-          .btn-close:hover {
-            background-color: #f8fafc;
-          }
-
-          /* Document Layout Structure */
+          .btn-close:hover { background: #f8fafc; }
+          /* Cover page */
           .cover-page {
-            box-sizing: border-box;
-            min-height: 277mm; /* standard A4 print height */
+            background: #fff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.07);
+            padding: 60px;
+            min-height: 277mm;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 60px;
-            background: #ffffff;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(226, 232, 240, 0.6);
-            border-radius: 1rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 3rem;
           }
           .cover-page::before {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
+            top: 0; left: 0;
+            width: 100%; height: 6px;
             background: linear-gradient(90deg, #4f46e5, #06b6d4);
           }
+          .cover-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding-bottom: 1.5rem; }
+          .cover-company-name { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.025em; color: #1e293b; margin: 0; }
+          .cover-website { font-size: 0.75rem; color: #94a3b8; margin: 0.25rem 0 0; }
+          .cover-doc-no { font-size: 0.75rem; color: #94a3b8; font-family: monospace; }
+          .cover-body { padding: 4rem 0; }
+          .cover-tag { font-size: 0.7rem; font-weight: 700; color: #4f46e5; letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 1rem; }
+          .cover-title { font-size: 2.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.025em; line-height: 1.2; margin: 0 0 1.5rem; }
+          .cover-divider { width: 60px; height: 4px; background: linear-gradient(90deg, #4f46e5, #06b6d4); border-radius: 9999px; margin: 0 0 1.5rem; }
+          .cover-subtitle { font-size: 1.125rem; color: #475569; font-weight: 500; margin: 0; }
+          .cover-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid #f1f5f9; padding-top: 2rem; }
+          .cover-footer-label { font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.5rem; }
+          .cover-footer-name { font-weight: 600; color: #1e293b; margin: 0; }
+          .cover-footer-detail { font-size: 0.75rem; color: #64748b; margin: 0.125rem 0 0; }
+          .cover-footer-micro { font-size: 0.65rem; color: #94a3b8; margin: 0.125rem 0 0; }
+          /* Document page */
           .document-page {
-            padding: 40px 0;
-            box-sizing: border-box;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            padding: 60px;
           }
-
-          /* Markdown parsing adjustments */
-          .prose {
-            font-size: 0.875rem;
-            line-height: 1.7;
-          }
-          .prose h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            color: #0f172a;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 0.5rem;
-          }
-          .prose h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-            color: #1e293b;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 0.25rem;
-          }
-          .prose h3 {
-            font-size: 1.125rem;
-            font-weight: 700;
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            color: #334155;
-          }
-          .prose p {
-            margin-top: 0;
-            margin-bottom: 1.25rem;
-            text-align: justify;
-            color: #334155;
-          }
-          .prose strong {
-            font-weight: 600;
-            color: #0f172a;
-          }
-          .prose li {
-            margin-left: 1rem;
-            margin-top: 0.25rem;
-            margin-bottom: 0.25rem;
-            color: #334155;
-          }
-          .prose ul {
-            list-style-type: disc;
-            margin-top: 0;
-            margin-bottom: 1.25rem;
-            padding-left: 1.25rem;
-          }
-
+          .doc-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 2rem; }
+          .doc-type-tag { font-size: 0.7rem; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.05em; display: block; }
+          .doc-header-title { font-size: 1.125rem; font-weight: 700; color: #1e293b; margin: 0.25rem 0 0; }
+          .doc-header-no { font-size: 0.7rem; color: #94a3b8; font-family: monospace; }
+          /* Prose */
+          .prose { font-size: 0.875rem; line-height: 1.8; }
+          .prose h1 { font-size: 1.375rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+          .prose h2 { font-size: 1.125rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem; }
+          .prose h3 { font-size: 1rem; font-weight: 700; margin: 1rem 0 0.5rem; color: #334155; }
+          .prose p { margin: 0 0 1rem; text-align: justify; color: #334155; }
+          .prose strong { font-weight: 600; color: #0f172a; }
+          .prose ul { list-style: disc; padding-left: 1.5rem; margin: 0 0 1rem; }
+          .prose ol { list-style: decimal; padding-left: 1.5rem; margin: 0 0 1rem; }
+          .prose li { color: #334155; margin-bottom: 0.25rem; }
+          /* Signature block */
+          .sig-block { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; border-top: 1px solid #e2e8f0; padding-top: 2rem; margin-top: 3rem; }
+          .sig-item { text-align: center; }
+          .sig-label { font-size: 0.8rem; color: #64748b; margin: 0 0 2rem; }
+          .sig-name-provider { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 1.5rem; color: #4f46e5; display: block; height: 3rem; display: flex; align-items: center; justify-content: center; }
+          .sig-name-client { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 1.5rem; color: #059669; display: flex; align-items: center; justify-content: center; height: 3rem; }
+          .sig-name-pending { font-size: 0.875rem; color: #cbd5e1; font-style: italic; display: flex; align-items: center; justify-content: center; height: 3rem; }
+          .sig-company { font-weight: 600; color: #1e293b; font-size: 0.875rem; margin: 0.5rem 0 0; }
+          .sig-status { font-size: 0.7rem; color: #94a3b8; margin: 0.25rem 0 0; }
           @media print {
-            body {
-              background: #ffffff;
-              color: #000000;
-            }
-            .no-print {
-              display: none !important;
-            }
-            .page-break {
-              page-break-before: always !important;
-              break-before: page !important;
-            }
+            body { background: #fff; }
+            .no-print { display: none !important; }
+            .page-wrapper { padding: 0; max-width: 100%; }
             .cover-page {
-              height: 100vh !important;
-              min-height: auto !important;
               border: none !important;
               border-radius: 0 !important;
               box-shadow: none !important;
+              min-height: 100vh !important;
               padding: 60px 40px !important;
+              margin-bottom: 0 !important;
               page-break-after: always !important;
               break-after: page !important;
-              margin: 0 !important;
             }
             .document-page {
-              padding: 40px 0 !important;
+              border: none !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+              padding: 40px !important;
             }
           }
         </style>
       </head>
-      <body class="max-w-4xl mx-auto p-4 md:p-12">
-        <div class="no-print mb-8 flex justify-end gap-3 bg-slate-100 p-4 rounded-xl border border-slate-200">
-          <button onclick="window.print()" class="btn-print">
-            PDF Olarak Kaydet / Yazdır
-          </button>
-          <button onclick="window.close()" class="btn-close">
-            Kapat
-          </button>
-        </div>
-
-        <!-- COVER PAGE -->
-        <div class="cover-page border border-slate-200/60 shadow-lg rounded-2xl mb-12">
-          <div class="flex justify-between items-start border-b border-slate-100 pb-6">
-            <div>
-              <h1 class="text-xl font-bold tracking-tight text-slate-800">${company.name.toUpperCase()}</h1>
-              <p class="text-xs text-slate-400 mt-1">${company.website}</p>
-            </div>
-            <div class="text-right">
-              <span class="text-xs text-slate-400 font-mono">Belge No: ${docNo}</span>
-            </div>
-          </div>
-          
-          <div class="my-auto py-16">
-            <span class="text-xs font-bold text-indigo-600 tracking-widest uppercase mb-4 block">${docType} DOKÜMANI</span>
-            <h2 class="text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">${docTypeName}</h2>
-            <div class="cover-divider"></div>
-            <p class="text-slate-600 text-lg font-medium">${contract.title || 'Proje Belgesi'}</p>
+      <body>
+        <div class="page-wrapper">
+          <div class="no-print">
+            <button onclick="window.print()" class="btn-print">PDF Olarak Kaydet / Yazdır</button>
+            <button onclick="window.close()" class="btn-close">Kapat</button>
           </div>
 
-          <div class="grid grid-cols-2 gap-8 border-t border-slate-100 pt-8 text-sm text-slate-500">
-            <div>
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">HAZIRLAYAN</h4>
-              <p class="font-semibold text-slate-800">${company.name}</p>
-              <p class="text-xs">${company.address}</p>
-              <p class="text-xs mt-1">E: ${company.email}</p>
-              ${company.taxId ? `<p class="text-[10px] text-slate-400 mt-1">St-Nr.: ${company.taxId}</p>` : ''}
-              ${company.vatId ? `<p class="text-[10px] text-slate-400">USt-IdNr.: ${company.vatId}</p>` : ''}
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">MUHATAP / MÜŞTERİ</h4>
-              <p class="font-semibold text-slate-800">${clientName}</p>
-              <p class="text-xs">${clientEmail}</p>
-              <p class="text-xs mt-1">Sözleşme Bedeli: ${valStr}</p>
-              <p class="text-xs">Tarih: ${dateStr}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="page-break"></div>
-
-        <!-- DOCUMENT PAGE -->
-        <div class="document-page">
-          <div class="border-b border-slate-200 pb-4 mb-8 flex justify-between items-end">
-            <div>
-              <span class="text-xs font-bold text-indigo-600 tracking-wider uppercase">${docTypeName}</span>
-              <h3 class="text-lg font-bold text-slate-800 mt-1">${contract.title || 'Proje Belgesi'}</h3>
-            </div>
-            <div class="text-right text-xs text-slate-400 font-mono">
-              <span>Belge No: ${docNo}</span>
-            </div>
-          </div>
-
-          <div class="prose prose-slate max-w-none text-slate-800 text-sm leading-relaxed mb-16">
-            ${renderMarkdownToHtmlSimple(contentHtml)}
-          </div>
-
-          <div class="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200 text-sm">
-            <div class="text-center">
-              <p class="text-slate-500 mb-8">Hizmet Sağlayıcı İmza</p>
-              <div class="h-12 flex items-center justify-center">
-                <span class="font-signature text-2xl text-indigo-600">StarWebFlow</span>
+          <!-- COVER PAGE -->
+          <div class="cover-page">
+            <div class="cover-header">
+              <div>
+                <p class="cover-company-name">${company.name.toUpperCase()}</p>
+                <p class="cover-website">${company.website}</p>
               </div>
-              <p class="font-semibold text-slate-800 mt-2">${company.name}</p>
-              <p class="text-xs text-slate-400 mt-1">Dijital Olarak İmzalandı</p>
+              <span class="cover-doc-no">Belge No: ${docNo}</span>
             </div>
-            <div class="text-center">
-              <p class="text-slate-500 mb-8">Alıcı / Müşteri İmza</p>
-              <div class="h-12 flex items-center justify-center">
-                ${contract.status === 'SIGNED' || contract.status === 'signed' ? '<span class="font-signature text-2xl text-emerald-600">' + clientName + '</span>' : '<span class="text-slate-300 font-light italic">İmza Bekliyor</span>'}
+
+            <div class="cover-body">
+              <span class="cover-tag">${docType} DOKÜMANI</span>
+              <h1 class="cover-title">${docTypeName}</h1>
+              <div class="cover-divider"></div>
+              <p class="cover-subtitle">${contract.title || 'Proje Belgesi'}</p>
+            </div>
+
+            <div class="cover-footer">
+              <div>
+                <p class="cover-footer-label">HAZIRLAYAN</p>
+                <p class="cover-footer-name">${company.name}</p>
+                <p class="cover-footer-detail">${company.address}</p>
+                <p class="cover-footer-detail">E: ${company.email}</p>
+                ${company.taxId ? `<p class="cover-footer-micro">St-Nr.: ${company.taxId}</p>` : ''}
+                ${company.vatId ? `<p class="cover-footer-micro">USt-IdNr.: ${company.vatId}</p>` : ''}
               </div>
-              <p class="font-semibold text-slate-800 mt-2">${clientName}</p>
-              <p class="text-xs text-slate-400 mt-1">
-                ${contract.status === 'SIGNED' || contract.status === 'signed' ? 'Dijital Olarak Onaylandı' : 'İmza Bekliyor'}
-              </p>
+              <div>
+                <p class="cover-footer-label">MUHATAP / MÜŞTERİ</p>
+                <p class="cover-footer-name">${clientName}</p>
+                <p class="cover-footer-detail">${clientEmail}</p>
+                <p class="cover-footer-detail">Sözleşme Bedeli: ${valStr}</p>
+                <p class="cover-footer-detail">Tarih: ${dateStr}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOCUMENT PAGE -->
+          <div class="document-page">
+            <div class="doc-header">
+              <div>
+                <span class="doc-type-tag">${docTypeName}</span>
+                <p class="doc-header-title">${contract.title || 'Proje Belgesi'}</p>
+              </div>
+              <span class="doc-header-no">Belge No: ${docNo}</span>
+            </div>
+
+            <div class="prose">
+              ${renderMarkdownToHtmlSimple(contentHtml)}
+            </div>
+
+            <div class="sig-block">
+              <div class="sig-item">
+                <p class="sig-label">Hizmet Sağlayıcı İmza</p>
+                <span class="sig-name-provider">StarWebFlow</span>
+                <p class="sig-company">${company.name}</p>
+                <p class="sig-status">Dijital Olarak İmzalandı</p>
+              </div>
+              <div class="sig-item">
+                <p class="sig-label">Alıcı / Müşteri İmza</p>
+                ${contract.status === 'SIGNED' || contract.status === 'signed'
+                  ? `<span class="sig-name-client">${clientName}</span><p class="sig-company">${clientName}</p><p class="sig-status">Dijital Olarak Onaylandı</p>`
+                  : `<span class="sig-name-pending">İmza Bekliyor</span><p class="sig-company">${clientName}</p><p class="sig-status">İmza Bekliyor</p>`
+                }
+              </div>
             </div>
           </div>
         </div>
       </body>
-    </html>
-  `);
+    </html>`;
 
-  printWindow.document.close();
-  printWindow.focus();
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+  const printWindow = window.open(blobUrl, '_blank');
+  if (printWindow) {
+    printWindow.addEventListener('load', () => {
+      URL.revokeObjectURL(blobUrl);
+    });
+  }
 };
 
 export default function ContractsDashboardClient({ initialContracts, tenantSettings }: { initialContracts: any[], tenantSettings?: any }) {
