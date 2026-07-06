@@ -307,35 +307,55 @@ export async function generateLastenheftFromChoices(data: {
 
     const { text } = await generateText({
       model: getFlashModel(),
-      prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
-Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak profesyonel bir "LASTENHEFT" (Müşteri İş Gereksinimleri / Proje Talebi) dokümanı oluştur.
+      prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin. 
+Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak kısa, özet ve net bir "HİZMET SÖZLEŞMESİ VE TEKNİK ŞARTNAME (LASTENHEFT)" dokümanı oluştur.
 
-ÇOK KRİTİK UYARI: BU DOKÜMAN KESİNLİKLE BİR YASAL SÖZLEŞME DEĞİLDİR! 
-- ASLA "Madde 1: Taraflar", "Fesih", "Hizmet Sözleşmesi" gibi başlıklar kullanma.
-- ASLA "İşbu sözleşme...", "Taraflar arasında akdedilmiştir" gibi hukuki giriş cümleleri yazma.
-Bu doküman sadece ve sadece "Ne ve Niçin" (Was & Wofür) mantığıyla hazırlanmalı, müşterinin ne istediğini ve bunu neden/niçin istediğini açıklayan düz bir iş gereksinimleri şartnamesi olmalıdır.
+ÇOK KRİTİK UYARI: BU DOKÜMAN SADECE VE SADECE 5 MADDEDEN OLUŞMALIDIR. Finansal ödemeler, gizlilik, fikri mülkiyet veya fesih gibi diğer yasal maddeler KESİNLİKLE YER ALMAMALIDIR! 
+
+LÜTFEN AŞAĞIDAKİ ŞABLONA BİREBİR UY (Sektöre ve projeye göre içerikleri uyarla):
+
+# ${serviceName.toUpperCase()} HİZMET SÖZLEŞMESİ VE TEKNİK ŞARTNAME (LASTENHEFT)
+
+**Sözleşme Numarası:** SWF-AE-${new Date().getFullYear()}-001 
+**Tarih:** [Günün Tarihi]
+
+## BÖLÜM 1: TARAFLAR VE KONU
+
+**Madde 1: Taraflar**
+1.1. Hizmet Sağlayıcı: StarWebFlow Bilişim Teknolojileri Ltd. Şti.
+1.2. Müşteri: ${data.clientName} (${data.clientEmail || 'Belirtilmedi'})
+
+**Madde 2: Sözleşmenin Konusu**
+Müşterinin ticari faaliyetleri kapsamında ihtiyaç duyduğu "${data.title}" başlıklı ${serviceName} projesinin geliştirilmesi ve teslim edilmesidir.
+
+## BÖLÜM 2: HİZMET KAPSAMI VE TEKNİK ŞARTNAME (LASTENHEFT)
+
+**Madde 3: Genel Hizmet Kapsamı**
+StarWebFlow, müşteri için [Projenin genel amacını 1-2 cümleyle özetle] geliştirmeyi taahhüt eder.
+
+**Madde 4: Teknik Gereksinimler ve Özellikler (Ne & Niçin)**
+(Burada projenin altyapısını ve müşterinin taleplerini KISA ve ÖZET olarak "NE ve NİÇİN" mantığıyla madde madde yaz. Örnek: "Kategoriler Bölümü: Ürünlerin belirli kategorilerde daha iyi tasnifi için.")
+[Burayı müşterinin seçtiği işlevler ve serbest metin notlarına göre doldur]
+
+**Madde 5: Kapsam Dışı Hizmetler**
+[Projeye dahil OLMAYAN hizmetleri madde madde listele (örn: Hosting, domain, veri girişi vb.)]
+
+---
 
 Müşteri/Firma Bilgileri:
-- Müşteri Adı: ${data.clientName}
-- İletişim E-Postası: ${data.clientEmail || 'Belirtilmedi'}
 - Sektör / Odak Alanı: ${sectorName}
-
-Proje Detayları:
-- Proje Başlığı: ${data.title}
-- Hizmet Türü: ${serviceName}
 - Hedeflenen Bütçe: ${data.budget ? `${data.budget} ${data.currency}` : 'Belirtilmedi'}
 
 Müşterinin Proje Fikri / Açıklaması (Serbest Metin):
 ${data.projectDescription || 'Belirtilmedi'}
 
-Müşterinin Seçtiği İhtiyaçlar ve İşlevler (Ne?):
+Müşterinin Seçtiği İhtiyaçlar ve İşlevler:
 ${data.selectedNeeds.map(need => `- ${need}`).join('\n')}
 
-Müşterinin Hedefleri ve Notları (Niçin?):
+Müşterinin Ek Notları:
 ${data.customNotes || 'Belirtilmedi'}
 
-Lütfen bu girdilerden akıcı, profesyonel cümleler kurarak ${langText} dilinde ve Markdown formatında detaylı, sektöre özel hazırlanmış ve zengin içerikli bir Lastenheft dokümanı oluştur. Müşterinin girdiği serbest metin açıklaması içerisindeki detayları (Örn: özel menüler, posta kodu sınırlamaları, üyelik-abonelik kuralları vb.) mutlaka dokümana entegre et. Başlık olarak doğrudan iş gereksinimleri adı ile başla.
-Please write the document in ${langText}.`,
+Lütfen ÇOK KISA ve ÖZET ol. Sadece yukarıdaki 5 maddeyi ${langText} dilinde oluştur. Madde 6 veya ötesine ASLA GEÇME.`,
     });
     return { success: true, data: text };
   } catch (error: any) {
