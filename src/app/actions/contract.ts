@@ -75,15 +75,29 @@ export async function createContract(data: {
     let content = "";
     if (data.serviceType) {
       try {
+        let systemPrompt = "";
+        
+        if (data.type === "LASTENHEFT") {
+          systemPrompt = `Sen uzman bir B2B iş analisti ve proje yöneticisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
+Aşağıdaki bilgilere dayanarak Müşteri İş Gereksinimleri (LASTENHEFT) belgesi oluştur.
+ÇOK KRİTİK UYARI: Bu belge sadece "Müşteri ne istiyor ve neden istiyor?" (Was & Wofür) sorularına cevap vermelidir. Hukuki terimler, taraflar, fesih şartları, ödeme planı gibi yasal sözleşme maddeleri KESİNLİKLE KULLANMA. Sadece işin kapsamını ve hedeflerini açıkla.`;
+        } else if (data.type === "PFLICHTENHEFT") {
+          systemPrompt = `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
+Aşağıdaki bilgilere dayanarak TEKNİK UYGULAMA ŞARTNAMESİ (PFLICHTENHEFT) belgesi oluştur.
+ÇOK KRİTİK UYARI: Bu belge sadece "Bu proje teknik olarak nasıl kodlanacak ve hangi teknolojiler kullanılacak?" (Wie & Womit) sorularına cevap vermelidir. Hukuki terimler, fiyatlandırma, fesih şartları, yetkili mahkemeler gibi yasal sözleşme maddeleri KESİNLİKLE KULLANMA.`;
+        } else {
+          systemPrompt = `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
+Aşağıdaki bilgilere dayanarak profesyonel, hukuki geçerliliği olan, premium bir sözleşme (Örn: MSA, NDA, SLA) oluştur. Şartları kesinlikle StarWebFlow şirketimiz lehine, korumacı bir şekilde, ancak profesyonel bir üslupla hazırla. Sözleşmede StarWebFlow'un haklarını güvence altına alacak yasal sınırlar ve maddeler mutlaka bulunsun.`;
+        }
+
         const { text } = await generateText({
           model: getProModel(),
-          prompt: `Sen uzman bir B2B hukuk ve teknoloji danışmanısın.
-Aşağıdaki bilgilere dayanarak profesyonel, hukuki geçerliliği olan, premium bir sözleşme/şartname taslağı (şablonu) oluştur. Şartları kesinlikle StarWebFlow şirketimiz lehine, korumacı bir şekilde, ancak profesyonel bir üslupla hazırla. Sözleşmede StarWebFlow'un haklarını güvence altına alacak yasal sınırlar ve maddeler mutlaka bulunsun.
+          prompt: `${systemPrompt}
 
 Müşteri/Firma Adı: ${data.clientName}
 Müşteri E-Postası: ${data.clientEmail || 'Bilinmiyor'}
 Proje/İş Başlığı: ${data.title}
-Sözleşme/Şartname Türü: ${data.type} (Örn: LASTENHEFT, PFLICHTENHEFT, SLA, NDA)
+Belge Türü: ${data.type}
 Hizmet Türü: ${data.serviceType} (Örn: WEB, SAAS, AGENTS, AUTOMATION, MARKETING)
 Bütçe/Tutar: ${data.value ? `${data.value} ${data.currency || 'TRY'}` : 'Belirtilmedi'}
 
@@ -94,8 +108,7 @@ Hizmet Türü Açıklamaları ve Şartları:
 - AUTOMATION: AI İş Akış Otomasyonları (n8n, API ve webhook entegrasyonlarıyla manuel işleri 10x hızlandırma)
 - MARKETING: Reklam & Sosyal Medya (Yapay zeka destekli kreatif tasarımlar ve ROAS odaklı Meta/Google reklam yönetimi)
 
-Lütfen sözleşmeyi çok detaylı, resmi bir dil kullanarak Türkçe olarak oluştur. Metin Markdown formatında veya düzgün paragraflar ve başlıklar şeklinde olsun.
-Sözleşme içerisinde tarafların hakları, hizmet kapsamı (seçilen hizmet türünün teknik detaylarını ve gereksinimlerini içerecek şekilde), bütçe ve ödeme planı, veri güvenliği (GDPR/KVKK uyumluluğu), süre ve fesih koşulları gibi standart maddeleri profesyonelce yerleştir.`,
+Lütfen belgeyi çok detaylı, profesyonel bir dil kullanarak Türkçe olarak oluştur. Metin Markdown formatında veya düzgün paragraflar ve başlıklar şeklinde olsun. Yukarıdaki KRİTİK UYARI kurallarına mutlak surette uy.`,
         });
         content = text;
       } catch (e) {
