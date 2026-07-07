@@ -4,29 +4,29 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const PORT = process.env.PORT || 3005;
-const BASE_URL = \http://localhost:\\;
+const BASE_URL = `http://localhost:${PORT}`;
 const CRON_SECRET = process.env.CRON_SECRET || '';
 
 const headers = {
-  'Authorization': \Bearer \\,
+  'Authorization': `Bearer ${CRON_SECRET}`,
   'Content-Type': 'application/json'
 };
 
 async function runJob(name, endpoint) {
-  console.log(\[\] Starting Job: \ -> \\);
+  console.log(`[${new Date().toISOString()}] Starting Job: ${name} -> ${endpoint}`);
   try {
-    const res = await fetch(\\\\, {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'GET',
       headers
     });
     const text = await res.text();
     if (res.ok) {
-      console.log(\[\] ✅ SUCCESS \:\, text);
+      console.log(`[${new Date().toISOString()}] ✅ SUCCESS ${name}:`, text);
     } else {
-      console.error(\[\] ❌ ERROR \ (\):\, text);
+      console.error(`[${new Date().toISOString()}] ❌ ERROR ${name} (${res.status}):`, text);
     }
   } catch (err) {
-    console.error(\[\] ❌ FAILED to run \:\, err.message);
+    console.error(`[${new Date().toISOString()}] ❌ FAILED to run ${name}:`, err.message);
   }
 }
 
@@ -45,4 +45,4 @@ cron.schedule('*/5 * * * *', () => {
   runJob('Sequence Runner', '/api/cron/sequence-runner');
 });
 
-console.log(\🚀 StarWebflow Cron Service Started. (Targeting \)\);
+console.log(`🚀 StarWebflow Cron Service Started. (Targeting ${BASE_URL})`);
