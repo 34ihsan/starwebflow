@@ -248,7 +248,7 @@ export default async function AnalyticsDashboardPage() {
               </div>
 
               <div className="relative pl-6 border-l border-white/[0.1] space-y-5 ml-2">
-                {lead.trackingSession?.pageViews.map((pv, idx) => (
+                {(lead.trackingSession?.pageViews as any[] || []).map((pv: any) => (
                   <div key={pv.id} className="relative">
                     <div className="absolute -left-[29px] top-1.5 w-3 h-3 rounded-full bg-[#0A0A0F] border-2 border-[#64748B]"></div>
                     <p className="text-sm text-[#E2E8F0]">

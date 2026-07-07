@@ -70,8 +70,8 @@ export async function getDashboardData(tenantId: string) {
     }
 
     // AiCommandCenter Stats
-    const totalMailboxes = await prisma.mailbox.count({ where: { tenantId } });
-    const activeMailboxes = await prisma.mailbox.count({ where: { tenantId, status: 'ACTIVE' } });
+    const totalMailboxes = await prisma.emailMailbox.count({ where: { tenantId } });
+    const activeMailboxes = await prisma.emailMailbox.count({ where: { tenantId, status: 'ACTIVE' } });
     const pendingSocialPosts = await prisma.socialPost.count({ where: { tenantId, status: 'PENDING' } });
 
     return {
