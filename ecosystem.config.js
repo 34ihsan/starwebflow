@@ -2,7 +2,6 @@ module.exports = {
   apps: [
     {
       name: "starwebflow",
-      cwd: "c:\\Users\\sinan\\Desktop\\projeler\\starwebflow",
       script: "server.js",
       instances: 1,
       exec_mode: "fork",
@@ -15,7 +14,6 @@ module.exports = {
     },
     {
       name: "starwebflow-cron",
-      cwd: "c:\\Users\\sinan\\Desktop\\projeler\\starwebflow",
       script: "cron-runner.js",
       instances: 1,
       exec_mode: "fork",
