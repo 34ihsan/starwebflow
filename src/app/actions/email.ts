@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
@@ -33,6 +33,9 @@ export async function createEmailCampaign(data: {
   tenantId: string;
   name: string;
   subject: string;
+  audience?: string;
+  htmlBody?: string;
+  scheduledAt?: string | null;
 }) {
   try {
     const campaign = await prisma.emailCampaign.create({
@@ -41,6 +44,20 @@ export async function createEmailCampaign(data: {
         name: data.name,
         subject: data.subject,
         status: 'ACTIVE',
+        audience: data.audience || 'Tüm Liste',
+        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+        templates: data.htmlBody ? {
+          create: [{
+            tenant: { connect: { id: data.tenantId } },
+            name: `${data.name} İçeriği`,
+            subject: data.subject,
+            htmlBody: data.htmlBody,
+            stepDay: 1
+          }]
+        } : undefined
+      },
+      include: {
+        templates: true
       }
     });
     safeRevalidatePath('/admin/email');

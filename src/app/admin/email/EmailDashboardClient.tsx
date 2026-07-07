@@ -30,6 +30,11 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [isAITemplateModalOpen, setIsAITemplateModalOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignSubject, setNewCampaignSubject] = useState("");
+  const [wizardStep, setWizardStep] = useState(1);
+  const [wizardAudience, setWizardAudience] = useState("Tüm Liste");
+  const [wizardContent, setWizardContent] = useState("");
+  const [wizardScheduleType, setWizardScheduleType] = useState("now");
+  const [wizardScheduledAt, setWizardScheduledAt] = useState("");
   const [selectedCampaignForRules, setSelectedCampaignForRules] = useState<any>(null);
   const [isAutoPilotActive, setIsAutoPilotActive] = useState(true);
   const [isProviderMatchActive, setIsProviderMatchActive] = useState(true);
@@ -320,58 +325,201 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
       </div>
       {isAddCampaignModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-md w-full shadow-2xl">
-            <div className="p-6 border-b border-white/5">
-              <h3 className="text-xl font-bold text-white">Yeni E-Posta Kampanyası</h3>
-            </div>
-            <div className="p-6 space-y-4">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center">
               <div>
-                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Kampanya Adı</label>
-                <input 
-                  type="text" 
-                  value={newCampaignName}
-                  onChange={e => setNewCampaignName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
-                  placeholder="Örn: Black Friday"
-                />
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-orange-500" />
+                  Yeni E-Posta Kampanyası
+                </h3>
+                <p className="text-[#94A3B8] text-sm mt-1">Adım {wizardStep} / 4</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Konu Başlığı</label>
-                <input 
-                  type="text" 
-                  value={newCampaignSubject}
-                  onChange={e => setNewCampaignSubject(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
-                  placeholder="Örn: Size Özel Teklif"
-                />
-              </div>
-            </div>
-            <div className="p-6 border-t border-white/5 flex items-center justify-end gap-3">
               <button 
-                onClick={() => setIsAddCampaignModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
-              >
-                İptal
-              </button>
-              <button 
-                onClick={async () => {
-                  if(!newCampaignName || !newCampaignSubject) return alert("Lütfen alanları doldurun.");
-                  const res = await createEmailCampaign({
-                    tenantId: 'default-tenant',
-                    name: newCampaignName,
-                    subject: newCampaignSubject
-                  });
-                  if(res.success && res.data) {
-                    setDbCampaigns(prev => [res.data, ...prev]);
-                  }
-                  setNewCampaignName("");
-                  setNewCampaignSubject("");
+                onClick={() => {
                   setIsAddCampaignModalOpen(false);
+                  setWizardStep(1);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:opacity-90 transition-opacity text-sm font-medium"
+                className="text-[#94A3B8] hover:text-white transition-colors"
               >
-                Oluştur
+                X
               </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* STEP 1 */}
+              {wizardStep === 1 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Kampanya Adı</label>
+                    <input 
+                      type="text" 
+                      value={newCampaignName}
+                      onChange={e => setNewCampaignName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
+                      placeholder="Örn: Black Friday"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Konu Başlığı</label>
+                    <input 
+                      type="text" 
+                      value={newCampaignSubject}
+                      onChange={e => setNewCampaignSubject(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
+                      placeholder="Örn: Size Özel Teklif"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2 */}
+              {wizardStep === 2 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Hedef Kitle Seçimi</label>
+                    <select
+                      value={wizardAudience}
+                      onChange={e => setWizardAudience(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
+                    >
+                      <option value="Tüm Liste" className="bg-[#0A0A0F]">Tüm Aboneler ve Müşteriler</option>
+                      <option value="Sıcak Adaylar" className="bg-[#0A0A0F]">Sıcak Adaylar (Skor &gt; 80)</option>
+                      <option value="Yeni Aboneler" className="bg-[#0A0A0F]">Son 30 Günde Eklenenler</option>
+                      <option value="VIP Müşteriler" className="bg-[#0A0A0F]">VIP Müşteriler</option>
+                    </select>
+                    <p className="text-xs text-[#94A3B8] mt-2">Bu kampanya seçtiğiniz hedef kitle segmentine gönderilecektir.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3 */}
+              {wizardStep === 3 && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-Posta İçeriği (HTML)</label>
+                    <textarea 
+                      value={wizardContent}
+                      onChange={e => setWizardContent(e.target.value)}
+                      rows={8}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors font-mono text-sm"
+                      placeholder="<h1>Merhaba!</h1><p>Kampanya detayları buraya gelecek...</p>"
+                    />
+                    <p className="text-xs text-[#94A3B8] mt-2">Düz metin veya HTML kodu yazabilirsiniz. Bu içerik şablon olarak kaydedilecektir.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4 */}
+              {wizardStep === 4 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-3">Gönderim Zamanlaması</label>
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => setWizardScheduleType("now")}
+                        className={`flex-1 p-4 rounded-xl border ${wizardScheduleType === "now" ? "border-orange-500 bg-orange-500/10" : "border-white/10 bg-white/5"} transition-all flex flex-col items-center justify-center gap-2`}
+                      >
+                        <Zap className={`w-6 h-6 ${wizardScheduleType === "now" ? "text-orange-500" : "text-[#94A3B8]"}`} />
+                        <span className={`text-sm font-medium ${wizardScheduleType === "now" ? "text-white" : "text-[#94A3B8]"}`}>Hemen Gönder</span>
+                      </button>
+                      <button
+                        onClick={() => setWizardScheduleType("later")}
+                        className={`flex-1 p-4 rounded-xl border ${wizardScheduleType === "later" ? "border-orange-500 bg-orange-500/10" : "border-white/10 bg-white/5"} transition-all flex flex-col items-center justify-center gap-2`}
+                      >
+                        <Settings className={`w-6 h-6 ${wizardScheduleType === "later" ? "text-orange-500" : "text-[#94A3B8]"}`} />
+                        <span className={`text-sm font-medium ${wizardScheduleType === "later" ? "text-white" : "text-[#94A3B8]"}`}>İleri Tarihli</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {wizardScheduleType === "later" && (
+                    <div className="animate-in fade-in duration-300">
+                      <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Gönderim Tarihi ve Saati</label>
+                      <input 
+                        type="datetime-local" 
+                        value={wizardScheduledAt}
+                        onChange={e => setWizardScheduledAt(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors [color-scheme:dark]"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-white/5 flex items-center justify-between">
+              <div>
+                {wizardStep > 1 && (
+                  <button 
+                    onClick={() => setWizardStep(prev => prev - 1)}
+                    className="px-5 py-2.5 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors text-sm font-medium"
+                  >
+                    Geri
+                  </button>
+                )}
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => {
+                    setIsAddCampaignModalOpen(false);
+                    setWizardStep(1);
+                  }}
+                  className="px-5 py-2.5 rounded-xl text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
+                >
+                  İptal
+                </button>
+                
+                {wizardStep < 4 ? (
+                  <button 
+                    onClick={() => {
+                      if (wizardStep === 1 && (!newCampaignName || !newCampaignSubject)) {
+                        return alert("Lütfen kampanya adı ve konusunu girin.");
+                      }
+                      if (wizardStep === 3 && !wizardContent) {
+                        return alert("Lütfen kampanya içeriğini girin.");
+                      }
+                      setWizardStep(prev => prev + 1);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    İleri
+                  </button>
+                ) : (
+                  <button 
+                    onClick={async () => {
+                      if(wizardScheduleType === "later" && !wizardScheduledAt) {
+                        return alert("Lütfen ileri tarihli gönderim için tarih seçin.");
+                      }
+                      
+                      const res = await createEmailCampaign({
+                        tenantId: 'default-tenant',
+                        name: newCampaignName,
+                        subject: newCampaignSubject,
+                        audience: wizardAudience,
+                        htmlBody: wizardContent,
+                        scheduledAt: wizardScheduleType === "later" ? wizardScheduledAt : null
+                      });
+                      
+                      if(res.success && res.data) {
+                        setDbCampaigns(prev => [res.data, ...prev]);
+                        setNewCampaignName("");
+                        setNewCampaignSubject("");
+                        setWizardContent("");
+                        setWizardScheduledAt("");
+                        setWizardScheduleType("now");
+                        setWizardStep(1);
+                        setIsAddCampaignModalOpen(false);
+                      } else {
+                        alert("Kampanya oluşturulurken bir hata oluştu.");
+                      }
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:opacity-90 transition-opacity text-sm font-medium flex items-center gap-2"
+                  >
+                    <Rocket className="w-4 h-4" />
+                    Oluştur
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
