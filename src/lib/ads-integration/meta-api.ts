@@ -25,29 +25,8 @@ export interface AdMetrics {
  */
 export async function fetchMetaCampaigns(tenantId: string): Promise<AdMetrics[]> {
   if (!META_GRAPH_API_KEY) {
-    console.log(`[SIMULATION] Fetching Mock Meta Campaigns for tenant: ${tenantId}`);
-    return [
-      {
-        id: "mock_meta_1",
-        name: "Yaz İndirimi 2026 (Retargeting)",
-        platform: "META",
-        status: "active",
-        spent: 1200,
-        roas: 4.5,
-        hookRate: 34.2,
-        ctr: 2.1
-      },
-      {
-        id: "mock_meta_2",
-        name: "Genel Kitle Deneme 1",
-        platform: "META",
-        status: "paused",
-        spent: 65,
-        roas: 0.8,
-        hookRate: 8.1, // Very low hook rate, caused the pause
-        ctr: 0.5
-      }
-    ];
+    console.error(`Meta Graph API Key not configured for tenant: ${tenantId}`);
+    return [];
   }
 
   // TODO: Implement actual `fetch('https://graph.facebook.com/v19.0/act_<ID>/campaigns')`
@@ -60,8 +39,8 @@ export async function fetchMetaCampaigns(tenantId: string): Promise<AdMetrics[]>
  */
 export async function sendLeadToConversionsAPI(leadData: { email: string; value: number }) {
   if (!META_GRAPH_API_KEY) {
-    console.log(`[SIMULATION] Sent Lead to Meta CAPI: ${leadData.email} with Value: $${leadData.value}`);
-    return { success: true, simulated: true };
+    console.error(`Meta Graph API Key not configured. Cannot send lead: ${leadData.email}`);
+    return { success: false, error: "Meta API Key missing" };
   }
 
   // TODO: Actual implementation for Meta CAPI

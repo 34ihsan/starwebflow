@@ -12,33 +12,10 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
   
   const token = process.env.APIFY_API_TOKEN;
   
-  // Eğer token yoksa veya değiştirilmemişse (placeholder ise) hata vermemek için mock dataya düş
+  // Eğer token yoksa veya değiştirilmemişse (placeholder ise) hata fırlat (Örnek veri kaldırıldı)
   if (!token || token === "apify_api_tokeniniz_buraya_gelecek") {
-    console.warn("[Apify Node] API Token not found or invalid. Using mock data.");
-    const mockDataset = [
-      { 
-        name: "Dr. Müller GmbH", 
-        website: "https://drmuller.de", 
-        phone: "+491234567",
-        reviews: [
-          "Sehr freundlicher Arzt, aber die Wartezeiten trotz Termin sind katastrophal. Telefonisch ist die Praxis auch fast nie erreichbar.",
-          "Tolles Team, aber online kann man keinen Termin vereinbaren, was heutzutage echt nervig ist."
-        ],
-        founder: "Hans Müller",
-        instagramUrl: "https://instagram.com/drmuller"
-      },
-      { 
-        name: "Zahnklinik Berlin", 
-        website: "https://zahnklinik-berlin.com", 
-        email: "info@zahnklinik-berlin.com",
-        reviews: [
-          "Super modern, aber die Website lädt ewig und auf dem Handy funktioniert sie gar nicht.",
-          "Gute Behandlung, aber ich musste 3x anrufen, nur um eine einfache Frage zu klären."
-        ],
-        team: "Dr. Sarah Schmidt (Leitende Zahnärztin)"
-      },
-    ];
-    return { rawScrapedData: mockDataset };
+    console.error("[Apify Node] API Token not found or invalid.");
+    throw new Error("Apify API Token not configured. Please check your settings.");
   }
 
   const client = new ApifyClient({ token });
@@ -181,7 +158,7 @@ ${JSON.stringify(rawData, null, 2)}
     return { cleanedData };
 
   } catch (error) {
-    console.error("[AI Cleaner Node] Error with Gemini API, falling back to basic mock:", error);
+    console.error("[AI Cleaner Node] Error with Gemini API, falling back to basic parsing:", error);
     // Fallback to basic cleaning if API fails
     const cleanedData = rawData.map((item: any) => {
       let cleanName = item.name ? item.name.replace(" GmbH", "").replace(" LLC", "") : "Unknown";

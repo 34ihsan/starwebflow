@@ -18,9 +18,9 @@ export default async function DashboardPage() {
     ? await getActivities('default-tenant', 10, clientId)
     : { success: true, data: [] };
   
-  // Default mock data in case DB fails
-  const data = res.success ? res.data : {
-    client: { name: 'Müşteri' },
+  // Default empty data if no client exists or DB fails
+  const data = res.success && res.data ? res.data : {
+    client: null,
     projects: [],
     contracts: [],
     recentInvoices: []

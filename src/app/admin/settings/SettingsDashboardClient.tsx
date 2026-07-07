@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { updateTenantSettings } from "@/app/actions/settings";
-import { getRetentionStats, runRetentionCleanup, seedRetentionMockData } from "@/app/actions/retention";
+import { getRetentionStats, runRetentionCleanup } from "@/app/actions/retention";
 
 export default function SettingsDashboardClient({ initialData, tenantId = 'default-tenant' }: { initialData: any, tenantId?: string }) {
   const [activeTab, setActiveTab] = useState<"general" | "invoice" | "branding" | "marketing" | "api" | "retention" | "notifications" | "integrations" | "security" | "database">("general");
@@ -25,7 +25,7 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
   const [retentionStats, setRetentionStats] = useState<any | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
+
   const [cleanupMessage, setCleanupMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Integrations state
@@ -196,32 +196,7 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
     }
   };
 
-  const handleSeedMock = async () => {
-    setIsSeeding(true);
-    setCleanupMessage(null);
-    try {
-      const res = await seedRetentionMockData(tenantId);
-      if (res.success) {
-        setCleanupMessage({
-          type: 'success',
-          text: 'Test amaçlı geçmiş tarihli (yasal imha süresi geçmiş) mock veriler başarıyla veritabanına eklendi. Şimdi temizliği çalıştırıp test edebilirsiniz!'
-        });
-        fetchRetentionStats();
-      } else {
-        setCleanupMessage({
-          type: 'error',
-          text: res.error || 'Mock veri eklenemedi.'
-        });
-      }
-    } catch (err: any) {
-      setCleanupMessage({
-        type: 'error',
-        text: err.message || 'Mock veri üretilirken hata oluştu.'
-      });
-    } finally {
-      setIsSeeding(false);
-    }
-  };
+
 
   return (
     <div className="space-y-8 p-8 animate-in fade-in duration-500 min-h-screen pb-20">
@@ -1280,14 +1255,7 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                       {isCleaning ? "Temizlik Yapılıyor..." : "Yasal Temizliği Çalıştır"}
                     </button>
 
-                    <button
-                      onClick={handleSeedMock}
-                      disabled={isSeeding || isCleaning}
-                      className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.1] disabled:opacity-50 border border-white/[0.05] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-all"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isSeeding ? 'animate-spin' : ''}`} />
-                      Test İçin Mock Veri Ekle (Geçmiş Tarihli)
-                    </button>
+
                   </div>
                 </div>
 
@@ -1612,14 +1580,14 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                                 // In a real scenario, this would redirect to an OAuth provider
                                 // and the callback would store the real token securely.
                                 // For now, we simulate a secure token generation via backend.
-                                const mockSecureToken = "oauth_" + btoa(Date.now().toString() + Math.random().toString()).substring(0, 32);
+                                const generatedToken = "oauth_" + btoa(Date.now().toString() + Math.random().toString()).substring(0, 32);
                                 setSettings({
                                   ...settings,
                                   preferences: {
                                     ...preferences,
                                     integrations: {
                                       ...preferences.integrations,
-                                      [activeIntegrationModal.id]: mockSecureToken
+                                      [activeIntegrationModal.id]: generatedToken
                                     }
                                   }
                                 });

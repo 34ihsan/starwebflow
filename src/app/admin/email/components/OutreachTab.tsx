@@ -65,17 +65,44 @@ export default function OutreachTab({
       });
       if(res.ok) {
         const data = await res.json();
-        // Mock progress update
-        let s = 0;
-        const interval = setInterval(() => {
-          s++;
-          setProgress(prev => ({...prev, sent: prev.sent + 1}));
-          if(s >= progress.total) {
-            clearInterval(interval);
-            setIsSending(false);
-            setCsvData(prev => prev.map(p => ({...p, status: 'SENT'})));
+        const bulkId = data.bulkOutreachId;
+        
+        // Gerçek API ile progress durumu kontrol ediliyor
+        const interval = setInterval(async () => {
+          try {
+            const statusRes = await fetch(`/api/outreach/status/${bulkId}`);
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+              if (statusData.success && statusData.data) {
+                const bulk = statusData.data;
+                const sentCount = bulk.processedCount || 0;
+                
+                setProgress(prev => ({...prev, sent: sentCount}));
+                
+                // update local rows if available
+                if (bulk.items && bulk.items.length > 0) {
+                  setCsvData(prev => {
+                    const newRows = [...prev];
+                    bulk.items.forEach((item: any) => {
+                      const idx = newRows.findIndex(r => r.Email === item.email || r.email === item.email);
+                      if (idx !== -1) {
+                        newRows[idx].status = item.status === 'SENT' ? 'SENT' : (item.status === 'FAILED' ? 'FAILED' : newRows[idx].status);
+                      }
+                    });
+                    return newRows;
+                  });
+                }
+
+                if (bulk.status === 'COMPLETED' || bulk.status === 'FAILED') {
+                  clearInterval(interval);
+                  setIsSending(false);
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Status poll error:', err);
           }
-        }, 1000);
+        }, 2000);
       } else {
         setIsSending(false);
       }
@@ -253,9 +280,9 @@ export default function OutreachTab({
                     </tr>
                   ) : (
                     csvData.map((row, idx) => {
-                      const mockIndustry = row.Company ? (idx % 2 === 0 ? 'Teknoloji' : 'E-Ticaret') : '-';
-                      const mockLang = idx % 3 === 0 ? 'EN' : 'TR';
-                      const mockRoute = idx % 2 === 0 ? 'Google WS' : 'Office365';
+                      const displayIndustry = row.Company ? (row.Industry || '-') : '-';
+                      const displayLang = row.Language || 'TR';
+                      const displayRoute = row.Route || 'Otonom';
                       
                       return (
                       <tr key={idx} className="hover:bg-white/[0.03] transition-colors group">
@@ -266,17 +293,17 @@ export default function OutreachTab({
                         <td className="py-3 px-4">
                           <div className="text-white">{row.Company || row.company || '-'}</div>
                           <div className="text-[10px] text-purple-400 mt-0.5 flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" /> {mockIndustry}
+                            <Sparkles className="w-3 h-3" /> {displayIndustry}
                           </div>
                         </td>
                         <td className="py-3 px-4">
                           <span className="text-xs bg-white/5 border border-white/10 px-2 py-1 rounded text-[#94A3B8] font-mono">
-                            {mockLang}
+                            {displayLang}
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`text-[10px] px-2 py-1 rounded border font-mono ${mockRoute === 'Google WS' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                            &rarr; {mockRoute}
+                          <span className={`text-[10px] px-2 py-1 rounded border font-mono bg-emerald-500/10 text-emerald-400 border-emerald-500/20`}>
+                            &rarr; {displayRoute}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right">

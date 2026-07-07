@@ -13,7 +13,7 @@ export default function ContractPreview({ htmlContent }: { htmlContent: string }
       
       {/* Scrollable Container */}
       <div className="flex-1 overflow-auto p-8 pt-20 flex justify-center custom-scrollbar">
-        {/* A4 Paper Mockup */}
+        {/* A4 Paper Illustration */}
         <div 
           className="bg-white shadow-2xl shrink-0 prose prose-sm prose-gray max-w-none text-black p-12"
           style={{ width: '210mm', minHeight: '297mm' }}

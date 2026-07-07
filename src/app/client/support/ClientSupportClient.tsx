@@ -27,12 +27,7 @@ const localDict = {
     statusMapping: {
       'OPEN': 'Açık',
       'CLOSED': 'Çözüldü'
-    },
-    tickets: [
-      { id: 'TKT-001', subject: 'Tasarım revizyonu hk.', status: 'OPEN', priority: 'Normal', lastUpdate: '2 saat önce' },
-      { id: 'TKT-002', subject: 'Sunucu geçiş planlaması', status: 'CLOSED', priority: 'Yüksek', lastUpdate: 'Dün' },
-      { id: 'TKT-003', subject: 'Yeni özellik talebi: Ödeme Sistemi', status: 'OPEN', priority: 'Düşük', lastUpdate: '3 gün önce' },
-    ]
+    }
   },
   en: {
     title: 'Support Center',
@@ -56,12 +51,7 @@ const localDict = {
     statusMapping: {
       'OPEN': 'Open',
       'CLOSED': 'Resolved'
-    },
-    tickets: [
-      { id: 'TKT-001', subject: 'Design revision request', status: 'OPEN', priority: 'Normal', lastUpdate: '2 hours ago' },
-      { id: 'TKT-002', subject: 'Server migration planning', status: 'CLOSED', priority: 'Yüksek', lastUpdate: 'Yesterday' },
-      { id: 'TKT-003', subject: 'New feature request: Payment System', status: 'OPEN', priority: 'Düşük', lastUpdate: '3 days ago' },
-    ]
+    }
   },
   de: {
     title: 'Support-Center',
@@ -85,12 +75,7 @@ const localDict = {
     statusMapping: {
       'OPEN': 'Offen',
       'CLOSED': 'Gelöst'
-    },
-    tickets: [
-      { id: 'TKT-001', subject: 'Design-Revisionsanfrage', status: 'OPEN', priority: 'Normal', lastUpdate: 'vor 2 Stunden' },
-      { id: 'TKT-002', subject: 'Server-Migrationsplanung', status: 'CLOSED', priority: 'Yüksek', lastUpdate: 'Gestern' },
-      { id: 'TKT-003', subject: 'Neue Feature-Anfrage: Zahlungssystem', status: 'OPEN', priority: 'Düşük', lastUpdate: 'vor 3 Tagen' },
-    ]
+    }
   }
 }
 
@@ -126,34 +111,7 @@ export default function ClientSupportClient({
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<{ priority: string, reason: string } | null>(null);
 
-  // Chatbot State
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'ai', content: string}[]>([
-    { role: 'ai', content: 'Merhaba! Ben StarWebFlow AI asistanıyım. Projenizle ilgili (Tasarım durumu, SEO verileri vb.) bana her şeyi sorabilirsiniz.' }
-  ]);
-  const [chatInput, setChatInput] = useState('');
 
-  const handleSendMessage = () => {
-    if (!chatInput.trim()) return;
-    const newMessages = [...chatMessages, { role: 'user', content: chatInput }] as any;
-    setChatMessages(newMessages);
-    setChatInput('');
-    
-    // Simulate AI response based on keywords
-    setTimeout(() => {
-      let response = 'Bu konuda müşteri temsilciniz en kısa sürede size dönecektir.';
-      const lower = chatInput.toLowerCase();
-      if (lower.includes('tasarım') || lower.includes('aşama')) {
-        response = 'Tasarım aşaması şu an %65 tamamlandı. Ana sayfa mockup onaylandı, alt sayfalar kodlanıyor.';
-      } else if (lower.includes('tık') || lower.includes('seo') || lower.includes('trafik')) {
-        response = 'Bu ay toplam organik trafiğiniz geçen aya göre %24 artışla 3,200 tekil ziyaretçiye ulaştı.';
-      } else if (lower.includes('sosyal') || lower.includes('reklam')) {
-        response = 'Aktif Meta reklamlarınız 3.2x ROAS ile çalışıyor. Yeni creative üretimleri planlandı.';
-      }
-
-      setChatMessages(prev => [...prev, { role: 'ai', content: response }]);
-    }, 1000);
-  };
 
   const handleEvaluate = async () => {
     if (!newTicket.description || newTicket.description.length < 5) return;
@@ -170,10 +128,7 @@ export default function ClientSupportClient({
     lastUpdate: new Date(t.updatedAt).toLocaleDateString()
   }));
 
-  // If no DB tickets, use mock for demo, otherwise use DB
-  const displayTickets = dbTickets.length > 0 ? dbTickets : [];
-
-  const filteredTickets = displayTickets.filter(t => {
+  const filteredTickets = dbTickets.filter(t => {
     const matchesSearch = t.subject.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab = 
       activeTab === "ALL" ? true :
@@ -567,56 +522,6 @@ export default function ClientSupportClient({
         </div>
       )}
 
-      {/* Floating AI Chatbot Widget */}
-      <div className="fixed bottom-6 right-6 z-40">
-        {!isChatOpen ? (
-          <button 
-            onClick={() => setIsChatOpen(true)}
-            className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
-          >
-            <Bot className="w-6 h-6 text-white" />
-          </button>
-        ) : (
-          <div className="bg-[#131B2A] border border-white/[0.1] rounded-2xl w-80 h-96 flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom-5">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 flex justify-between items-center">
-              <div className="flex items-center gap-2 text-white">
-                <Bot className="w-5 h-5" />
-                <span className="font-bold font-['Outfit']">Proje Asistanı</span>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="text-white/80 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0A0A0F]">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-3 rounded-xl text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white/10 text-slate-200 rounded-bl-none'}`}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="p-3 border-t border-white/[0.05] bg-[#131B2A] flex gap-2">
-              <input 
-                type="text" 
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Bir soru sorun..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
-              />
-              <button 
-                onClick={handleSendMessage}
-                className="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg flex items-center justify-center text-white transition-colors"
-              >
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }

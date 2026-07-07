@@ -8,7 +8,7 @@ import {
   FileText, LayoutDashboard, Settings, Users, ArrowLeft, 
   Activity, FileSpreadsheet, FolderKanban, ReceiptText, 
   Mail, Bot, Rocket, Calendar, MessageSquare, Target, Sparkles,
-  TicketCheck, LogOut, Bell, Globe
+  TicketCheck, LogOut, Bell, Globe, User
 } from 'lucide-react'
 
 const navItems = [
@@ -116,13 +116,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <ArrowLeft className="w-3 h-3" />
             Siteye Dön
           </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
-          >
-            <LogOut className="w-3 h-3" />
-            Çıkış Yap
-          </button>
         </div>
       </aside>
 
@@ -144,42 +137,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   <h3 className="font-semibold text-white">Son Aktiviteler</h3>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
-                  {/* Mock Notifications */}
-                  <div className="p-4 border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors cursor-pointer">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex flex-shrink-0 items-center justify-center">
-                        <Activity className="w-4 h-4 text-emerald-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white font-medium">Yeni Müşteri Kaydı</p>
-                        <p className="text-xs text-[#94A3B8] mt-0.5">Ahmet Kaya sisteme katıldı.</p>
-                        <p className="text-[10px] text-[#64748B] mt-1">10 dk önce</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors cursor-pointer">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-rose-500/10 flex flex-shrink-0 items-center justify-center">
-                        <TicketCheck className="w-4 h-4 text-rose-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white font-medium">Yeni Destek Talebi</p>
-                        <p className="text-xs text-[#94A3B8] mt-0.5">Acil: Sunucu bağlantı hatası</p>
-                        <p className="text-[10px] text-[#64748B] mt-1">1 saat önce</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 hover:bg-white/[0.02] transition-colors cursor-pointer">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-fuchsia-500/10 flex flex-shrink-0 items-center justify-center">
-                        <ReceiptText className="w-4 h-4 text-fuchsia-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white font-medium">Fatura Ödendi</p>
-                        <p className="text-xs text-[#94A3B8] mt-0.5">#INV-2024-001 ödendi.</p>
-                        <p className="text-[10px] text-[#64748B] mt-1">3 saat önce</p>
-                      </div>
-                    </div>
+                  <div className="p-8 text-center text-[#64748B] text-sm">
+                    Henüz bildirim bulunmuyor.
                   </div>
                 </div>
                 <div className="p-3 border-t border-white/[0.05] text-center">
@@ -188,8 +147,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
             
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center font-bold text-xs">
-              A
+            <div className="relative group">
+              <button className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center font-bold text-xs text-white">
+                A
+              </button>
+              
+              <div className="absolute right-0 mt-2 w-48 bg-[#131B2A] border border-white/[0.05] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
+                <Link href="/admin/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-[#94A3B8] hover:text-white hover:bg-white/[0.02] transition-colors">
+                  <User className="w-4 h-4" />
+                  Profilim
+                </Link>
+                <div className="h-px bg-white/[0.05] my-1"></div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Çıkış Yap
+                </button>
+              </div>
             </div>
           </div>
         </header>

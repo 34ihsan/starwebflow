@@ -68,21 +68,24 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
     }
   };
 
-  // AI Offer Modal State
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerGenerating, setOfferGenerating] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState("");
+  const [targetOfferLead, setTargetOfferLead] = useState<any>(null);
 
-  const handleGenerateOffer = () => {
+  const handleGenerateOffer = (lead: any) => {
+    if (!lead) return;
+    setTargetOfferLead(lead);
     setIsOfferModalOpen(true);
     setOfferGenerating(true);
     setGeneratedOffer("");
     
-    // Simulate AI generation delay
+    // Simulate AI generation delay (In a real app, this would call an AI action)
     setTimeout(() => {
       setOfferGenerating(false);
+      const companyOrName = lead.company || lead.name || (lead.firstName ? `${lead.firstName} ${lead.lastName}` : "Müşterimiz");
       setGeneratedOffer(
-        `Merhaba Yılmazlar A.Ş. Ekibi,\n\nVeri analizlerimiz ve platformumuz üzerindeki etkileşimleriniz doğrultusunda, dijital dönüşüm süreçlerinizde size özel bir değer katabileceğimize inanıyoruz.\n\nSizlere özel olarak hazırladığımız bu teklifte, tüm hizmetlerimizde geçerli anında %5 indirim veya ilk ay ücretsiz danışmanlık/destek paketi sunuyoruz. Hedefimiz, markanızın büyüme ivmesini hızlandırmak ve operasyonel verimliliğinizi maksimize etmektir.\n\nDetayları görüşmek ve bu özel teklifimizi aktif hale getirmek için uygun olduğunuz bir zaman diliminde 15 dakikalık kısa bir görüşme ayarlayabiliriz.\n\nSaygılarımızla,\nStarWebflow AI Büyüme Ekibi`
+        `Merhaba ${companyOrName} Ekibi,\n\nVeri analizlerimiz ve platformumuz üzerindeki etkileşimleriniz doğrultusunda, dijital dönüşüm süreçlerinizde size özel bir değer katabileceğimize inanıyoruz.\n\nSizlere özel olarak hazırladığımız bu teklifte, tüm hizmetlerimizde geçerli anında %5 indirim veya ilk ay ücretsiz danışmanlık/destek paketi sunuyoruz. Hedefimiz, markanızın büyüme ivmesini hızlandırmak ve operasyonel verimliliğinizi maksimize etmektir.\n\nDetayları görüşmek ve bu özel teklifimizi aktif hale getirmek için uygun olduğunuz bir zaman diliminde 15 dakikalık kısa bir görüşme ayarlayabiliriz.\n\nSaygılarımızla,\nStarWebflow AI Büyüme Ekibi`
       );
     }, 1500);
   };
@@ -110,6 +113,21 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
     .filter(l => l.winProbability && l.winProbability > 0.5)
     .sort((a, b) => b.winProbability - a.winProbability)
     .slice(0, 5);
+
+  const topLead = [...leads].sort((a,b) => (b.winProbability || 0) - (a.winProbability || 0))[0];
+  const topLeadName = topLead?.company || topLead?.name || (topLead?.firstName ? `${topLead.firstName} ${topLead.lastName}` : "");
+  const topLeadScore = topLead ? Math.round((topLead.winProbability || 0) * 100) : 0;
+
+  const totalPipelineValue = leads.reduce((sum, l) => sum + (Number(l.value) || 0), 0);
+  const wonLeadsCount = leads.filter(l => l.status === "won").length;
+  const conversionRate = leads.length > 0 ? Math.round((wonLeadsCount / leads.length) * 100) : 0;
+  
+  const todayTasksCount = todoTasks.filter(t => {
+    if (!t.dueAt) return false;
+    const today = new Date();
+    const due = new Date(t.dueAt);
+    return due.getDate() === today.getDate() && due.getMonth() === today.getMonth() && due.getFullYear() === today.getFullYear();
+  }).length;
 
   const moveTask = async (taskId: string, newStatus: Task["status"]) => {
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
@@ -163,11 +181,11 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
             </div>
             <div>
               <p className="text-sm font-medium text-[#94A3B8]">Tahmini Gelir (Pipeline)</p>
-              <h3 className="text-2xl font-bold text-white">{formatCurrency(62000, "TRY")}</h3>
+              <h3 className="text-2xl font-bold text-white">{formatCurrency(totalPipelineValue, "TRY")}</h3>
             </div>
           </div>
           <div className="text-xs text-[#10B981] font-medium flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> Geçen aya göre +15% artış
+            <TrendingUp className="w-3 h-3" /> Gerçek zamanlı veri
           </div>
         </div>
 
@@ -183,7 +201,7 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
             </div>
           </div>
           <div className="text-xs text-[#94A3B8] font-medium flex items-center gap-1">
-            Satışa dönüşme oranı: <span className="text-[#4F8EF7]">%24</span>
+            Satışa dönüşme oranı: <span className="text-[#4F8EF7]">%{conversionRate}</span>
           </div>
         </div>
 
@@ -199,7 +217,7 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
             </div>
           </div>
           <div className="text-xs text-[#94A3B8] font-medium flex items-center gap-1">
-            Bugün yapılması gereken: 2 görev
+            Bugün yapılması gereken: {todayTasksCount} görev
           </div>
         </div>
 
@@ -212,15 +230,23 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
           <div className="absolute inset-0 bg-gradient-to-tr from-[#8B5CF6]/5 to-[#4F8EF7]/5"></div>
           <div className="relative">
             <p className="text-sm font-medium text-[#94A3B8] mb-2">Akıllı Öneri</p>
-            <p className="text-sm text-white leading-relaxed">
-              &quot;Yılmazlar A.Ş.&quot; (Skor: 92) anlaşmayı kapatmaya çok yakın. Hemen %5 indirim veya ücretsiz destek teklifi iletilmesini öneriyoruz.
-            </p>
-            <button 
-              onClick={handleGenerateOffer}
-              className="mt-3 text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg transition-colors font-medium w-full"
-            >
-              Teklif Oluştur
-            </button>
+            {topLead ? (
+              <>
+                <p className="text-sm text-white leading-relaxed">
+                  &quot;{topLeadName}&quot; (Skor: {topLeadScore}) anlaşmayı kapatmaya çok yakın. Hemen bir teklif iletilmesini öneriyoruz.
+                </p>
+                <button 
+                  onClick={() => handleGenerateOffer(topLead)}
+                  className="mt-3 text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3 py-1.5 rounded-lg transition-colors font-medium w-full"
+                >
+                  Teklif Oluştur
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-white leading-relaxed">
+                Şu an için yeterli veri yok. Yeni lead'ler ekledikçe yapay zeka size akıllı öneriler sunacaktır.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -530,7 +556,7 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                   <div className="absolute inset-0 border-4 border-[#8B5CF6] rounded-full border-t-transparent animate-spin"></div>
                   <BrainCircuit className="absolute inset-0 m-auto w-6 h-6 text-[#8B5CF6] animate-pulse" />
                 </div>
-                <p className="text-[#94A3B8] font-medium animate-pulse">Yılmazlar A.Ş. için özel strateji ve teklif metni hazırlanıyor...</p>
+                <p className="text-[#94A3B8] font-medium animate-pulse">{targetOfferLead ? (targetOfferLead.company || targetOfferLead.name || targetOfferLead.firstName) : 'Müşteri'} için özel strateji ve teklif metni hazırlanıyor...</p>
               </div>
             ) : (
               <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">

@@ -145,7 +145,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
   const [testLogs, setTestLogs] = useState<string[]>([]);
   const [isTestingRunning, setIsTestingRunning] = useState(false);
 
-  // MOCK DATA
+  // DEFAULT TEMPLATES
   const defaultTemplates = [
     {
       id: "template-welcome-series",

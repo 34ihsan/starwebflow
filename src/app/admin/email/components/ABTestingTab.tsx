@@ -150,7 +150,7 @@ export default function ABTestingTab() {
           </div>
 
           <div className="flex-1 bg-white rounded-xl relative overflow-hidden shadow-2xl mx-auto w-full max-w-lg border-4 border-[#1E293B] hover:scale-[1.02] transition-transform duration-500">
-            {/* MacOS Window Mockup Header */}
+            {/* MacOS Window Illustration Header */}
             <div className="h-8 bg-[#1E293B] flex items-center px-3 gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></div>
               <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></div>

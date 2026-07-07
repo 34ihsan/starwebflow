@@ -1937,19 +1937,26 @@ export default function ContractsDashboardClient({ initialContracts, tenantSetti
                   <div className="flex justify-between items-center bg-white/[0.02] border border-white/[0.05] p-4 rounded-xl">
                     <span className="text-sm text-[#94A3B8]">Belge Önizleme (A4 Kağıt Standartı)</span>
                     <button 
-                      onClick={() => handlePrintContract({
-                        id: selectedContract.id,
-                        createdAt: selectedContract.createdAt,
-                        contractNo: selectedContract.contractNo,
-                        title: editTitle,
-                        clientName: editClientName,
-                        clientEmail: editClientEmail,
-                        type: editType,
-                        value: editValue,
-                        currency: editCurrency,
-                        content: editContent,
-                        status: editStatus
-                      }, companySettings)}
+                      onClick={async () => {
+                        const res = await updateContract(selectedContract.id, {
+                          title: editTitle,
+                          clientName: editClientName,
+                          clientEmail: editClientEmail,
+                          type: editType,
+                          value: editValue ? Number(editValue) : undefined,
+                          currency: editCurrency,
+                          content: editContent,
+                          status: editStatus,
+                          signedPdfUrl: editSignedPdfUrl || undefined
+                        });
+                        
+                        if (res && res.success && res.data) {
+                          setContracts(prev => prev.map(c => c.id === res.data.id ? res.data : c));
+                          handlePrintContract(res.data, companySettings);
+                        } else {
+                          alert("Yazdırmadan önce sözleşme güncellenirken bir hata oluştu.");
+                        }
+                      }}
                       className="flex items-center gap-2 px-4 py-2 bg-[#06B6D4] hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition-colors"
                     >
                       <Download className="w-4 h-4" /> Yazdır / PDF Kaydet

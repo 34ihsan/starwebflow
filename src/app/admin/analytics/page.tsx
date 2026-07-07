@@ -14,8 +14,8 @@ export default async function AnalyticsDashboardPage() {
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
 
-  const totalSessions = totalClicks || 120; // Fallback for UI if 0
-  const totalPageViews = await prisma.linkClick.count() || 340;
+  const totalSessions = totalClicks;
+  const totalPageViews = await prisma.linkClick.count();
   const avgPagesPerSession = totalSessions ? (totalPageViews / totalSessions).toFixed(1) : "0";
 
   // Aggregate traffic sources from LinkTracking
@@ -27,19 +27,12 @@ export default async function AnalyticsDashboardPage() {
 
   const trafficSources = linkTrackings.length > 0 
     ? linkTrackings.map(t => ({ name: t.utmSource || 'direct', value: t._count.clicks }))
-    : [
-      { name: "linkedin / social", value: 0 },
-      { name: "google / organic", value: 0 },
-      { name: "direct / none", value: 0 },
-    ];
+    : [];
 
-  // Since we don't have PageView in schema, we will mock topPages for now
-  const topPagesData = [
-    { path: "/", _count: { id: totalPageViews } },
-    { path: "/services/seo", _count: { id: Math.floor(totalPageViews * 0.4) } },
-    { path: "/portfolio", _count: { id: Math.floor(totalPageViews * 0.2) } },
-    { path: "/contact", _count: { id: Math.floor(totalPageViews * 0.1) } },
-  ];
+  const topPagesData = linkTrackings.map(t => ({
+    path: t.originalUrl,
+    _count: { id: t._count.clicks }
+  }));
 
   const recentLeads = await prisma.lead.findMany({
     orderBy: { createdAt: 'desc' },
@@ -55,25 +48,20 @@ export default async function AnalyticsDashboardPage() {
     createdAt: lead.createdAt.toISOString(),
     trackingSession: {
       utmSource: lead.source || 'organik',
-      pageViews: [
-        { id: "pv-lead", path: "/contact", createdAt: lead.createdAt.toISOString(), duration: 60 }
-      ]
+      pageViews: []
     }
   }));
 
+  const wonLeadsCount = await prisma.lead.count({ where: { status: 'won' } });
+
   const funnelData = [
     { step: "Ziyaretçi (Site Trafiği)", count: totalSessions, conversion: null },
-    { step: "İlgilenen (Hizmet/Ürün Sayfası)", count: Math.floor(totalSessions * 0.5), conversion: 50 },
-    { step: "Aday (İletişim/Lead Formu)", count: totalLeads, conversion: totalSessions ? Math.round((totalLeads / totalSessions) * 100) : 0 },
-    { step: "Müşteri (Satış)", count: await prisma.lead.count({ where: { status: 'won' } }), conversion: totalLeads ? Math.round((await prisma.lead.count({ where: { status: 'won' } }) / totalLeads) * 100) : 0 },
+    { step: "Tıklamalar (Kısa Linkler)", count: totalClicks, conversion: totalSessions ? Math.round((totalClicks / totalSessions) * 100) : 0 },
+    { step: "Aday (İletişim/Lead Formu)", count: totalLeads, conversion: totalClicks ? Math.round((totalLeads / totalClicks) * 100) : 0 },
+    { step: "Müşteri (Satış)", count: wonLeadsCount, conversion: totalLeads ? Math.round((wonLeadsCount / totalLeads) * 100) : 0 },
   ];
 
-  const cohortData = [
-    { month: "Ocak", total: 120, m1: 85, m2: 60, m3: 45, m4: 30 },
-    { month: "Şubat", total: 145, m1: 88, m2: 65, m3: 50, m4: null },
-    { month: "Mart", total: 180, m1: 90, m2: 70, m3: null, m4: null },
-    { month: "Nisan", total: 210, m1: 92, m2: null, m3: null, m4: null },
-  ];
+  const cohortData: any[] = [];
 
   const getCohortColor = (value: number | null) => {
     if (value === null) return "bg-transparent";

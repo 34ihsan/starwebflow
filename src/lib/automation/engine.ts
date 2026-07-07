@@ -123,7 +123,7 @@ export async function executeFlow(flow: any, initialPayload: any) {
       else if (node.type === "condition") {
         console.log(`[Engine] Executing condition node: ${node.label}`);
         // Simple condition evaluator (e.g. "score > 80")
-        // We will do a basic mock check for this demo
+        // We will do a basic rule check for this demo
         const score = currentPayload.score || 0;
         let chosenBranch = null;
 

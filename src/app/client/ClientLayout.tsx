@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell, ArrowLeft, LogOut } from 'lucide-react'
+import { Bell, ArrowLeft, LogOut, User } from 'lucide-react'
 import SidebarNav from './SidebarNav'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
@@ -13,18 +13,21 @@ const localDict = {
   tr: {
     portal: 'StarPortal',
     backToSite: 'Siteye Dön',
+    profile: 'Profilim',
     logout: 'Çıkış Yap',
     welcome: 'Hoş Geldiniz, Müşteri'
   },
   en: {
     portal: 'StarPortal',
     backToSite: 'Back to Site',
+    profile: 'My Profile',
     logout: 'Logout',
     welcome: 'Welcome, Client'
   },
   de: {
     portal: 'StarPortal',
     backToSite: 'Zurück zur Website',
+    profile: 'Mein Profil',
     logout: 'Abmelden',
     welcome: 'Willkommen, Kunde'
   }
@@ -69,10 +72,6 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
             <ArrowLeft className="w-4 h-4" />
             {dict.backToSite}
           </Link>
-          <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors">
-            <LogOut className="w-4 h-4" />
-            {dict.logout}
-          </button>
         </div>
       </aside>
 
@@ -85,8 +84,25 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-red-500 rounded-full" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#4F8EF7] to-[#06B6D4] flex items-center justify-center font-bold text-xs">
-              M
+            <div className="relative group">
+              <button className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#4F8EF7] to-[#06B6D4] flex items-center justify-center font-bold text-xs text-white">
+                M
+              </button>
+              
+              <div className="absolute right-0 mt-2 w-48 bg-[#131B2A] border border-white/[0.05] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
+                <Link href="/client/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-[#94A3B8] hover:text-white hover:bg-white/[0.02] transition-colors">
+                  <User className="w-4 h-4" />
+                  {dict.profile}
+                </Link>
+                <div className="h-px bg-white/[0.05] my-1"></div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 transition-colors text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  {dict.logout}
+                </button>
+              </div>
             </div>
           </div>
         </header>

@@ -5,20 +5,70 @@ import {
   Users, Search, Plus, Filter, 
   ShieldCheck, User, Code, CheckCircle2,
   MoreVertical, Mail, Lock, Shield,
-  History, Eye, Edit3, Trash2, Settings
+  History, Eye, Edit3, Trash2, Settings, X
 } from "lucide-react";
 
-import { createUser } from "@/app/actions/user";
+import { createUser, deleteUser, updateUserRole, resetUserPassword } from "@/app/actions/user";
+import { formatDistanceToNow } from "date-fns";
+import { tr } from "date-fns/locale";
 
-export default function UsersDashboardClient({ initialData }: { initialData: any[] }) {
+export default function UsersDashboardClient({ initialData, initialActivities }: { initialData: any[], initialActivities: any[] }) {
   const [activeTab, setActiveTab] = useState<"all" | "team" | "clients" | "audit">("all");
   const [users, setUsers] = useState<any[]>(initialData);
+  const [activities, setActivities] = useState<any[]>(initialActivities);
   const [isCreating, setIsCreating] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUserData, setNewUserData] = useState({ name: '', email: '', password: '', role: 'DEVELOPER' });
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreating(true);
+    const tenantId = users.length > 0 ? users[0].tenantId : 'default-tenant';
+    const res = await createUser({
+      tenantId,
+      email: newUserData.email,
+      name: newUserData.name,
+      password: newUserData.password,
+      role: newUserData.role
+    });
+    if (res.success && res.data) {
+      setUsers(prev => [res.data, ...prev]);
+      setShowAddUserModal(false);
+      setNewUserData({ name: '', email: '', password: '', role: 'DEVELOPER' });
+      showToast('Kullanıcı başarıyla eklendi', 'success');
+    } else {
+      showToast('Kullanıcı eklenemedi', 'error');
+    }
+    setIsCreating(false);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) return;
+    const tenantId = users.length > 0 ? users[0].tenantId : 'default-tenant';
+    const res = await deleteUser(userId, tenantId);
+    if (res.success) {
+      setUsers(users.filter(u => u.id !== userId));
+      showToast("Kullanıcı başarıyla silindi", "success");
+    } else {
+      showToast("Kullanıcı silinemedi", "error");
+    }
+  };
+
+  const handleResetPassword = async (userId: string) => {
+    if (!window.confirm("Bu kullanıcının şifresini sıfırlamak istiyor musunuz?")) return;
+    const tenantId = users.length > 0 ? users[0].tenantId : 'default-tenant';
+    const res = await resetUserPassword(userId, tenantId);
+    if (res.success) {
+      showToast(`Şifre sıfırlandı. Yeni şifre: ${res.newPassword}`, "success");
+    } else {
+      showToast("Şifre sıfırlanamadı", "error");
+    }
   };
 
   const filteredUsers = users.filter(u => {
@@ -53,24 +103,11 @@ export default function UsersDashboardClient({ initialData }: { initialData: any
             />
           </div>
           <button 
-            onClick={async () => {
-              setIsCreating(true);
-              const res = await createUser({
-                tenantId: 'default-tenant',
-                email: `yeni.kullanici.${Date.now()}@starwebflow.com`,
-                name: 'Yeni Ekip Üyesi',
-                role: 'DEVELOPER'
-              });
-              if(res.success && res.data) {
-                setUsers(prev => [res.data, ...prev]);
-              }
-              setIsCreating(false);
-            }}
-            disabled={isCreating}
+            onClick={() => setShowAddUserModal(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(225,29,72,0.3)] disabled:opacity-50"
           >
             <Plus className="w-4 h-4" />
-            {isCreating ? "Ekleniyor..." : "Yeni Kullanıcı (Demo)"}
+            Yeni Kullanıcı Ekle
           </button>
         </div>
       </div>
@@ -215,10 +252,10 @@ export default function UsersDashboardClient({ initialData }: { initialData: any
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => showToast('Şifre sıfırlama bağlantısı gönderildi', 'success')} className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" title="Şifre Sıfırla">
+                        <button onClick={() => handleResetPassword(user.id)} className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" title="Şifre Sıfırla">
                           <Lock className="w-4 h-4" />
                         </button>
-                        <button onClick={() => showToast('Kullanıcı silme işlemi onay bekliyor', 'error')} className="p-2 hover:bg-rose-500/10 rounded-lg text-rose-500 hover:text-rose-400 transition-colors" title="Kullanıcıyı Sil">
+                        <button onClick={() => handleDeleteUser(user.id)} className="p-2 hover:bg-rose-500/10 rounded-lg text-rose-500 hover:text-rose-400 transition-colors" title="Kullanıcıyı Sil">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -235,32 +272,115 @@ export default function UsersDashboardClient({ initialData }: { initialData: any
               Güvenlik Denetim Günlüğü (Audit Logs)
             </h3>
             <div className="space-y-4">
-              <div className="bg-[#05050A] border border-white/[0.05] p-4 rounded-xl flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-white font-medium">Ahmet Yılmaz <span className="text-[#94A3B8] font-normal">şifresini güncelledi.</span></div>
-                  <div className="text-xs text-[#64748B] mt-1">IP: 192.168.1.100 • 2 saat önce</div>
+              {activities.length === 0 ? (
+                <div className="text-[#64748B] text-sm py-4 text-center">Henüz kaydedilmiş bir aktivite bulunmuyor.</div>
+              ) : activities.map((activity) => (
+                <div key={activity.id} className="bg-[#05050A] border border-white/[0.05] p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <div className="text-sm text-white font-medium">
+                      {activity.user?.name || 'Sistem'} <span className="text-[#94A3B8] font-normal">{activity.details || activity.action}</span>
+                    </div>
+                    <div className="text-xs text-[#64748B] mt-1" suppressHydrationWarning>
+                      {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true, locale: tr })}
+                    </div>
+                  </div>
+                  <div className={`px-2 py-1 rounded text-xs font-bold border whitespace-nowrap text-center ${
+                    activity.action === 'USER_CREATED' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' :
+                    activity.action === 'USER_DELETED' ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' :
+                    activity.action === 'SECURITY' ? 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20' :
+                    activity.action === 'RBAC_UPDATE' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                    'bg-white/10 text-white border-white/20'
+                  }`}>
+                    {activity.action}
+                  </div>
                 </div>
-                <div className="px-2 py-1 bg-fuchsia-500/10 text-fuchsia-400 rounded text-xs font-bold border border-fuchsia-500/20">SECURITY</div>
-              </div>
-              <div className="bg-[#05050A] border border-white/[0.05] p-4 rounded-xl flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-white font-medium">Ayşe Demir <span className="text-[#94A3B8] font-normal">yeni bir yönetici rolü oluşturdu (SuperAdmin).</span></div>
-                  <div className="text-xs text-[#64748B] mt-1">IP: 88.243.21.4 • 5 saat önce</div>
-                </div>
-                <div className="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-xs font-bold border border-blue-500/20">RBAC_UPDATE</div>
-              </div>
-              <div className="bg-[#05050A] border border-white/[0.05] p-4 rounded-xl flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-white font-medium">Sistem <span className="text-[#94A3B8] font-normal">haftalık yedekleme işlemini tamamladı.</span></div>
-                  <div className="text-xs text-[#64748B] mt-1">Sistem • Dün 03:00</div>
-                </div>
-                <div className="px-2 py-1 bg-[#10B981]/10 text-[#10B981] rounded text-xs font-bold border border-[#10B981]/20">SYSTEM</div>
-              </div>
+              ))}
             </div>
           </div>
         )}
       </div>
       
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#0A0A0F] border border-white/[0.1] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-white/[0.05]">
+              <h3 className="text-xl font-bold text-white">Yeni Kullanıcı Ekle</h3>
+              <button 
+                onClick={() => setShowAddUserModal(false)}
+                className="text-[#64748B] hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">İsim Soyisim</label>
+                <input 
+                  type="text" 
+                  required
+                  value={newUserData.name}
+                  onChange={e => setNewUserData({...newUserData, name: e.target.value})}
+                  className="w-full bg-white/[0.02] border border-white/[0.05] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-fuchsia-500/50 transition-colors"
+                  placeholder="Kullanıcı adı"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-posta</label>
+                <input 
+                  type="email" 
+                  required
+                  value={newUserData.email}
+                  onChange={e => setNewUserData({...newUserData, email: e.target.value})}
+                  className="w-full bg-white/[0.02] border border-white/[0.05] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-fuchsia-500/50 transition-colors"
+                  placeholder="ornek@starwebflow.com"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Şifre</label>
+                <input 
+                  type="password" 
+                  required
+                  value={newUserData.password}
+                  onChange={e => setNewUserData({...newUserData, password: e.target.value})}
+                  className="w-full bg-white/[0.02] border border-white/[0.05] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-fuchsia-500/50 transition-colors"
+                  placeholder="Kullanıcı şifresi"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Rol</label>
+                <select 
+                  value={newUserData.role}
+                  onChange={e => setNewUserData({...newUserData, role: e.target.value})}
+                  className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-fuchsia-500/50 transition-colors"
+                >
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="DEVELOPER">Developer</option>
+                  <option value="CLIENT_MEMBER">Müşteri</option>
+                </select>
+              </div>
+              <div className="pt-4 flex items-center justify-end gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setShowAddUserModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-white transition-colors"
+                >
+                  İptal
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isCreating}
+                  className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:opacity-90 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-50"
+                >
+                  {isCreating ? "Ekleniyor..." : "Kullanıcıyı Kaydet"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-in slide-in-from-bottom z-50 ${toast.type === 'error' ? 'bg-rose-500 text-white' : 'bg-[#10B981] text-white'}`}>

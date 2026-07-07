@@ -10,24 +10,41 @@ interface CampaignsTabProps {
   setIsAutoResponderModalOpen: (open: boolean) => void;
 }
 
-const mockChartData = [
-  { name: 'Pzt', sent: 400, opened: 240, replied: 24 },
-  { name: 'Sal', sent: 300, opened: 139, replied: 22 },
-  { name: 'Çar', sent: 200, opened: 980, replied: 229 },
-  { name: 'Per', sent: 278, opened: 390, replied: 20 },
-  { name: 'Cum', sent: 189, opened: 480, replied: 21 },
-  { name: 'Cmt', sent: 239, opened: 380, replied: 25 },
-  { name: 'Paz', sent: 349, opened: 430, replied: 21 },
-];
 
 export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules, setIsAutoResponderModalOpen }: CampaignsTabProps) {
+  // Gerçek verilerle grafik verisi oluşturma
+  // Son 7 günün istatistiklerini hesaplayalım
+  const chartData = React.useMemo(() => {
+    if (!dbCampaigns || dbCampaigns.length === 0) {
+      return [
+        { name: 'Pzt', sent: 0, opened: 0, replied: 0 },
+        { name: 'Sal', sent: 0, opened: 0, replied: 0 },
+        { name: 'Çar', sent: 0, opened: 0, replied: 0 },
+        { name: 'Per', sent: 0, opened: 0, replied: 0 },
+        { name: 'Cum', sent: 0, opened: 0, replied: 0 },
+        { name: 'Cmt', sent: 0, opened: 0, replied: 0 },
+        { name: 'Paz', sent: 0, opened: 0, replied: 0 },
+      ];
+    }
+    
+    // Kampanyaları oluşturulma tarihine göre veya mevcut sent/open verilerini dağıtarak basit bir grafik yapabiliriz.
+    // Şimdilik kampanyaların metriklerini tek bir grafikte özetleyelim. 
+    // Veya her kampanya için bir veri noktası oluşturalım:
+    return dbCampaigns.slice(0, 7).map((camp: any, index: number) => ({
+      name: camp.name.substring(0, 10) + '...',
+      sent: camp.sentCount || 0,
+      opened: camp.openCount || 0,
+      replied: camp.clickCount || 0 // Tıklama sayısını yanıt olarak gösteriyoruz, DB'de repliedCount yok
+    })).reverse();
+  }, [dbCampaigns]);
+
   return (
     <div className="space-y-6 animate-in fade-in">
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-white mb-4">Haftalık Performans (Genel)</h3>
+        <h3 className="text-lg font-bold text-white mb-4">Kampanya Performansı (Genel)</h3>
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockChartData}>
+            <LineChart data={chartData.length > 0 ? chartData : [{name: '', sent:0, opened:0, replied:0}]}>
               <XAxis dataKey="name" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
               <Tooltip 

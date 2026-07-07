@@ -51,33 +51,14 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={async () => {
-              setIsCreating(true);
-              const startDate = new Date();
-              startDate.setHours(startDate.getHours() + 24);
-              const endDate = new Date(startDate);
-              endDate.setHours(endDate.getHours() + 1);
-
-              const res = await createAppointment({
-                tenantId: 'default-tenant',
-                title: 'Strateji Toplantısı',
-                clientName: 'Yeni Müşteri A.Ş.',
-                clientEmail: 'info@yenimusteri.com',
-                startTime: startDate,
-                endTime: endDate,
-                status: 'CONFIRMED',
-                meetLink: 'meet.google.com/test-link'
-              });
-              if(res.success && res.data) {
-                setAppointments(prev => [...prev, res.data]);
-              }
-              setIsCreating(false);
+            onClick={() => {
+              // TODO: Implement real modal for new appointment
+              alert("Bu özellik yakında eklenecektir.");
             }}
-            disabled={isCreating}
             className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50"
           >
             <Plus className="w-4 h-4" />
-            {isCreating ? "Oluşturuluyor..." : "Randevu Planla (Demo)"}
+            Randevu Planla
           </button>
         </div>
       </div>

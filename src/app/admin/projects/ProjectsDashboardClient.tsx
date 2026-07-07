@@ -29,7 +29,7 @@ export default function ProjectsDashboardClient({ initialProjects }: { initialPr
   const [projects, setProjects] = useState<any[]>(initialProjects);
   const [viewMode, setViewMode] = useState<"CARDS" | "GANTT">("CARDS");
 
-  // MOCK DATA REMOVED
+
   const [isAddProjectModalOpen, setIsAddProjectModalOpen] = useState(false);
   const [newProjectData, setNewProjectData] = useState({ name: "", type: "BESPOKE" as const, companyName: "" });
 
@@ -413,11 +413,11 @@ function ProjectCard({ project }: { project: any }) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-xs text-[#94A3B8] hover:text-white transition-colors cursor-pointer" title="Dosyalar">
             <FileText className="w-4 h-4" />
-            <span className="font-medium">{(project.id.length % 5) + 2} Dosya</span>
+            <span className="font-medium">{contracts.length} Dosya</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-[#94A3B8]" title="Zaman Takibi">
+          <div className="flex items-center gap-1.5 text-xs text-[#94A3B8]" title="Görevler">
             <Clock className="w-4 h-4" />
-            <span className="font-medium">{(project.id.length % 20) * 8} Saat</span>
+            <span className="font-medium">{project.tasks?.length || 0} Görev</span>
           </div>
         </div>
 

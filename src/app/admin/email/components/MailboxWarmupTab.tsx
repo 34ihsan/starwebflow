@@ -102,13 +102,13 @@ export default function MailboxWarmupTab({
           </div>
         </div>
 
-        {/* Spam Trapper Alert Mock */}
+        {/* Omni-Routing Active Alert (Generic) */}
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3 relative z-10">
-          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
+          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <h5 className="text-sm font-bold text-amber-500 mb-1">Otonom Yönlendirme Devrede (Spam-Trapper)</h5>
+            <h5 className="text-sm font-bold text-amber-500 mb-1">Otonom Yönlendirme Özelliği Aktif</h5>
             <p className="text-xs text-amber-500/80 leading-relaxed">
-              <strong>info@staragency.io</strong> adresinde Office365 sunucularına gönderimde %15 spam tepkisi algılandı. Bu adres 48 saat dinlenmeye (Warmup moduna) alındı ve tüm Office365 hedefleri otomatik olarak eski tarihli Outlook IP'mize (sinan@starwebflow.com) yönlendirildi.
+              Sistem gönderimlerinizde spam tepkisi algıladığında ilgili domaini otomatik olarak dinlenmeye alır (Warmup modu) ve trafiği anında yedek veya sağlıklı IP'lerinize yönlendirerek itibarınızı korur.
             </p>
           </div>
         </div>

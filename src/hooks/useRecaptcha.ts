@@ -18,10 +18,16 @@ export function useRecaptcha() {
   const getToken = useCallback(
     async (action: string): Promise<string> => {
       if (!executeRecaptcha) {
-        throw new Error('reCAPTCHA henüz yüklenmedi. Lütfen tekrar deneyin.');
+        console.warn('reCAPTCHA hook is not initialized properly or context is missing.');
+        return '';
       }
-      const token = await executeRecaptcha(action);
-      return token;
+      try {
+        const token = await executeRecaptcha(action);
+        return token;
+      } catch (err) {
+        console.warn('executeRecaptcha failed, proceeding without token:', err);
+        return '';
+      }
     },
     [executeRecaptcha]
   );

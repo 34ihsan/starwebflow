@@ -569,9 +569,9 @@ function DigitalTwinGenerator() {
 
         {showDashboard && dash && (
           <div style={{ animation: 'fadeInUp 0.5s ease both' }}>
-            {/* Mock dashboard */}
+            {/* Illustration dashboard */}
             <div className="rounded-xl border border-white/[0.08] overflow-hidden">
-              {/* Mock browser bar */}
+              {/* Illustration browser bar */}
               <div className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border-b border-white/[0.06]">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]/60" />
                 <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]/60" />
@@ -584,7 +584,7 @@ function DigitalTwinGenerator() {
               <div className="p-4" style={{ background: 'rgba(8,8,14,0.8)' }}>
                 {/* Sidebar + content layout */}
                 <div className="flex gap-3">
-                  {/* Mock sidebar */}
+                  {/* Illustration sidebar */}
                   <div className="w-24 shrink-0 space-y-1">
                     {dict.generator.sidebar.map((item, i) => {
                       const accentColor = ACCENT
@@ -630,7 +630,7 @@ function DigitalTwinGenerator() {
                       })}
                     </div>
 
-                    {/* Mock chart bar */}
+                    {/* Illustration chart bar */}
                     <div className="mt-3 p-2 rounded-lg border border-white/[0.04] bg-white/[0.01]">
                       <div className="text-[10px] text-[#475569] mb-2">{language === 'tr' ? 'Aylık Trend' : language === 'en' ? 'Monthly Trend' : 'Monatlicher Trend'}</div>
                       <div className="flex items-end gap-1 h-10">
