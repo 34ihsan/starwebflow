@@ -5,6 +5,7 @@ import { getFlashModel } from '@/lib/ai/gemini-client';
 import { sendOutreachEmail } from '@/lib/email';
 import { processInboundEmails } from '@/lib/imap';
 import { subscribeToNewsletters } from '@/lib/newsletter';
+import nodemailer from 'nodemailer';
 
 // Konular listesi, AI'ın her defasında farklı bir tema üzerinden sohbet başlatması için
 const WARMUP_TOPICS = [
@@ -115,53 +116,70 @@ export async function GET(req: Request) {
 
         if (isRealExternal) {
           // Dış siteler için Gemini ile gerçekçi iş teklifi maili oluştur
-          const { text: generatedEmail } = await generateText({
-            model: getFlashModel(),
-            system: `Sen bir potansiyel müşterisin ve bir web tasarım/yazılım ajansına projen hakkında fiyat teklifi almak için yazıyorsun.
+          try {
+            const { text: generatedEmail } = await generateText({
+              model: getFlashModel(),
+              system: `Sen bir potansiyel müşterisin ve bir web tasarım/yazılım ajansına projen hakkında fiyat teklifi almak için yazıyorsun.
 Kurallar:
 1. Kesinlikle otomatik/bot maili gibi görünmesin. Son derece doğal olsun.
 2. Web tasarım, Next.js portal, mobil uygulama veya SEO gibi makul bir hizmet talep et.
 3. Çıktıyı JSON formatında ver. Örn: {"subject": "Konu Başlığı", "body": "Html Gövde"}`,
-            prompt: "Lütfen teklif talebi e-postasını oluştur."
-          });
+              prompt: "Lütfen teklif talebi e-postasını oluştur."
+            });
 
-          try {
             const emailData = JSON.parse(generatedEmail);
             subject = emailData.subject || "Next.js Web Projesi Teklif Talebi";
             body = emailData.body || "Merhaba, web sitemiz için yenileme teklifi almak istiyoruz.";
           } catch (err) {
-            console.error("Failed to parse AI external warmup email", err);
+            console.error("Failed to generate or parse AI external warmup email", err);
           }
         } else {
           // Kendi aralarında normal sohbet konusu
           const topic = WARMUP_TOPICS[Math.floor(Math.random() * WARMUP_TOPICS.length)];
-          const { text: generatedEmail } = await generateText({
-            model: getFlashModel(),
-            system: `Sen bir çalışansın ve meslektaşına günlük sıradan bir konu hakkında e-posta yazıyorsun. Konu: "${topic}".
+          try {
+            const { text: generatedEmail } = await generateText({
+              model: getFlashModel(),
+              system: `Sen bir çalışansın ve meslektaşına günlük sıradan bir konu hakkında e-posta yazıyorsun. Konu: "${topic}".
 Kurallar:
 1. Pazarlama veya satış KESİNLİKLE YAPMA.
 2. 2-3 paragrafı geçmesin. Samimi bir dil kullan.
 3. Çıktıyı JSON formatında ver. Örn: {"subject": "Konu Başlığı", "body": "Html Gövde"}`,
-            prompt: "Lütfen e-postayı oluştur."
-          });
+              prompt: "Lütfen e-postayı oluştur."
+            });
 
-          try {
             const emailData = JSON.parse(generatedEmail);
-            subject = emailData.subject;
-            body = emailData.body;
+            subject = emailData.subject || "Warmup Mesajı";
+            body = emailData.body || generatedEmail;
           } catch (err) {
-            console.error("Failed to parse AI warmup email JSON", err);
+            console.error("Failed to generate or parse AI warmup email", err);
           }
         }
 
-        // Maili gönder (Artık SMTP kullanılıyor)
+        // Maili gönder (Kendi SMTP ayarlarıyla, yoksa ana SMTP ile)
         try {
-          await sendOutreachEmail({
-            from: sender.email,
-            to: targetEmail,
-            subject,
-            html: body,
-          });
+          if (sender.smtpHost && sender.smtpPassword) {
+            const dynamicTransporter = nodemailer.createTransport({
+              host: sender.smtpHost,
+              port: sender.smtpPort || 587,
+              secure: sender.smtpPort === 465,
+              auth: { user: sender.smtpUser || sender.email, pass: sender.smtpPassword },
+              tls: { rejectUnauthorized: false }
+            });
+            await dynamicTransporter.sendMail({
+              from: `${sender.senderName || 'StarWebflow'} <${sender.email}>`,
+              to: targetEmail,
+              subject,
+              html: body,
+            });
+          } else {
+            // Eğer özel SMTP girilmemişse, fallback global email (ancak gönderen ve auth uyuşmazsa red yiyebilir)
+            await sendOutreachEmail({
+              from: sender.email,
+              to: targetEmail,
+              subject,
+              html: body,
+            });
+          }
         } catch (error) {
           console.error("Warmup email sending failed via SMTP", error);
         }
