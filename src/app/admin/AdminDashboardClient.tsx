@@ -66,10 +66,10 @@ export default function AdminDashboardClient({ initialData, initialActivities }:
         <div className={`xl:col-span-1 transition-all duration-300 ${isEditMode ? 'p-4 border-2 border-dashed border-emerald-500/50 rounded-2xl bg-emerald-500/5' : ''}`}>
           <div className="sticky top-6">
             <AiCommandCenter 
-              activeMailboxes={3} 
-              totalMailboxes={5} 
-              dnsStatus="SAFE" 
-              pendingSocialPosts={12} 
+              activeMailboxes={initialData.aiStats?.activeMailboxes || 0} 
+              totalMailboxes={initialData.aiStats?.totalMailboxes || 0} 
+              dnsStatus={initialData.aiStats?.dnsStatus || "SAFE"} 
+              pendingSocialPosts={initialData.aiStats?.pendingSocialPosts || 0} 
             />
           </div>
         </div>

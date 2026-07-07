@@ -58,10 +58,33 @@ export async function getSocialData(tenantIdParam?: string) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return { success: true, data: { posts, ads } };
+    const totalClicks = await prisma.linkClick.count({
+      where: { link: { tenantId } }
+    });
+
+    const uniqueVisitorsResult = await prisma.linkClick.groupBy({
+      by: ['visitorId'],
+      where: { link: { tenantId }, visitorId: { not: null } },
+      _count: {
+        visitorId: true
+      }
+    });
+    const uniqueVisitors = uniqueVisitorsResult.length;
+
+    const socialLeads = await prisma.lead.count({
+      where: { tenantId, source: 'social' }
+    });
+
+    const analytics = {
+      clicks: totalClicks,
+      visitors: uniqueVisitors,
+      leads: socialLeads,
+    };
+
+    return { success: true, data: { posts, ads, analytics } };
   } catch (error) {
     console.error('getSocialData error:', error);
-    return { success: false, error: 'Failed to fetch social data', data: { posts: [], ads: [] } };
+    return { success: false, error: 'Failed to fetch social data', data: { posts: [], ads: [], analytics: { clicks: 0, visitors: 0, leads: 0 } } };
   }
 }
 

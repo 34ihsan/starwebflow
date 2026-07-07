@@ -16,15 +16,7 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
   // Son 7 günün istatistiklerini hesaplayalım
   const chartData = React.useMemo(() => {
     if (!dbCampaigns || dbCampaigns.length === 0) {
-      return [
-        { name: 'Pzt', sent: 0, opened: 0, replied: 0 },
-        { name: 'Sal', sent: 0, opened: 0, replied: 0 },
-        { name: 'Çar', sent: 0, opened: 0, replied: 0 },
-        { name: 'Per', sent: 0, opened: 0, replied: 0 },
-        { name: 'Cum', sent: 0, opened: 0, replied: 0 },
-        { name: 'Cmt', sent: 0, opened: 0, replied: 0 },
-        { name: 'Paz', sent: 0, opened: 0, replied: 0 },
-      ];
+      return [];
     }
     
     // Kampanyaları oluşturulma tarihine göre veya mevcut sent/open verilerini dağıtarak basit bir grafik yapabiliriz.
@@ -42,9 +34,14 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
     <div className="space-y-6 animate-in fade-in">
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl">
         <h3 className="text-lg font-bold text-white mb-4">Kampanya Performansı (Genel)</h3>
-        <div className="h-64 w-full">
+        <div className="h-64 w-full relative">
+          {chartData.length === 0 ? (
+            <div className="absolute inset-0 flex items-center justify-center text-[#64748B]">
+              Henüz bir kampanya verisi bulunmuyor.
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData.length > 0 ? chartData : [{name: '', sent:0, opened:0, replied:0}]}>
+            <LineChart data={chartData}>
               <XAxis dataKey="name" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
               <Tooltip 
@@ -56,6 +53,7 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
               <Line type="monotone" dataKey="replied" stroke="#8b5cf6" strokeWidth={3} dot={false} />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -72,6 +70,13 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.05] text-sm">
+            {dbCampaigns.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-[#64748B]">
+                  Henüz bir kampanya bulunmuyor.
+                </td>
+              </tr>
+            )}
             {dbCampaigns.map((camp) => {
               const safeStatus = camp.status?.toUpperCase() || 'ACTIVE';
               const sent = camp.sentCount || camp.sent || 0;

@@ -353,3 +353,30 @@ export async function getLeadActivities(leadId: string) {
     return { success: false, error: 'Failed to fetch activities' };
   }
 }
+export async function generateAIOffer(leadData: any) {
+  try {
+    const { text } = await generateText({
+      model: getFlashModel(),
+      system: `Sen StarWebflow (dijital ajans) için satış uzmanısın. Bize başvuran veya sistemimizde yer alan potansiyel müşterilere özel bir teklif mektubu oluşturuyorsun.
+Kurallar:
+1. Kısa, resmi ama sıcak bir dil kullan.
+2. Müşterinin sektörü ve değerine göre özelleştir.
+3. Direkt metin döndür (HTML veya Markdown olmadan).
+4. Sadece gövdeyi yaz, konu satırı yazma.
+5. Sonunda "Saygılarımızla, StarWebflow Büyüme Ekibi" yaz.`,
+      prompt: `Müşteri Bilgileri:
+- Adı: ${leadData.name || leadData.firstName || 'Bilinmiyor'}
+- Şirket: ${leadData.company || 'Bilinmiyor'}
+- Sektör: ${leadData.industry || 'Genel'}
+- İlgilendiği Hizmet: ${leadData.serviceType || 'Genel Ajans Hizmetleri'}
+- Potansiyel Değer: ${leadData.value ? leadData.value + ' TL' : 'Bilinmiyor'}
+
+Lütfen bu müşteriye özel, ilgisini çekecek, ürünlerimizi (Web Tasarım, SEO vb.) veya ücretsiz bir analizi sunan profesyonel bir teklif taslağı (yaklaşık 2-3 paragraf) yaz.`
+    });
+    return { success: true, text };
+  } catch (error: any) {
+    console.error('Error generating AI offer:', error);
+    return { success: false, error: 'AI teklif oluşturulamadı.' };
+  }
+}
+

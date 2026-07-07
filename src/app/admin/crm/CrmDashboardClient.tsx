@@ -73,21 +73,27 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
   const [generatedOffer, setGeneratedOffer] = useState("");
   const [targetOfferLead, setTargetOfferLead] = useState<any>(null);
 
-  const handleGenerateOffer = (lead: any) => {
+  const handleGenerateOffer = async (lead: any) => {
     if (!lead) return;
     setTargetOfferLead(lead);
     setIsOfferModalOpen(true);
     setOfferGenerating(true);
     setGeneratedOffer("");
     
-    // Simulate AI generation delay (In a real app, this would call an AI action)
-    setTimeout(() => {
+    try {
+      const { generateAIOffer } = await import('@/app/actions/lead');
+      const res = await generateAIOffer(lead);
+      if (res.success && res.text) {
+        setGeneratedOffer(res.text);
+      } else {
+        setGeneratedOffer("Teklif oluşturulurken bir hata oluştu veya bağlantı kurulamadı.");
+      }
+    } catch (error) {
+      console.error(error);
+      setGeneratedOffer("Sistemsel bir hata oluştu.");
+    } finally {
       setOfferGenerating(false);
-      const companyOrName = lead.company || lead.name || (lead.firstName ? `${lead.firstName} ${lead.lastName}` : "Müşterimiz");
-      setGeneratedOffer(
-        `Merhaba ${companyOrName} Ekibi,\n\nVeri analizlerimiz ve platformumuz üzerindeki etkileşimleriniz doğrultusunda, dijital dönüşüm süreçlerinizde size özel bir değer katabileceğimize inanıyoruz.\n\nSizlere özel olarak hazırladığımız bu teklifte, tüm hizmetlerimizde geçerli anında %5 indirim veya ilk ay ücretsiz danışmanlık/destek paketi sunuyoruz. Hedefimiz, markanızın büyüme ivmesini hızlandırmak ve operasyonel verimliliğinizi maksimize etmektir.\n\nDetayları görüşmek ve bu özel teklifimizi aktif hale getirmek için uygun olduğunuz bir zaman diliminde 15 dakikalık kısa bir görüşme ayarlayabiliriz.\n\nSaygılarımızla,\nStarWebflow AI Büyüme Ekibi`
-      );
-    }, 1500);
+    }
   };
 
   const filteredTasks = tasks.filter(task => {

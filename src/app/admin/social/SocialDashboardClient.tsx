@@ -14,12 +14,14 @@ import Papa from 'papaparse';
 import { NativePreview } from "./components/NativePreview";
 import { BrandProfileModal } from "./components/BrandProfileModal";
 
-export default function SocialDashboardClient({ initialData }: { initialData: { posts: any[], ads: any[] } }) {
+export default function SocialDashboardClient({ initialData }: { initialData: { posts: any[], ads: any[], analytics?: any } }) {
   const [activeTab, setActiveTab] = useState<"pending" | "scheduled" | "published" | "ads" | "audience">("pending");
   const [isGenerating, setIsGenerating] = useState(false);
   const [calendarViewMode, setCalendarViewMode] = useState<"list" | "grid">("grid");
   const [selectedPreviewPlatform, setSelectedPreviewPlatform] = useState<"linkedin" | "twitter" | "instagram">("linkedin");
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+
+  const analytics = initialData.analytics || { clicks: 0, visitors: 0, leads: 0 };
 
   // AI Content Studio State
   const [isAiStudioOpen, setIsAiStudioOpen] = useState(false);
@@ -1086,17 +1088,17 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="p-5 bg-white/[0.02] rounded-xl border border-white/5 hover:border-emerald-500/30 transition-all">
                   <div className="flex items-center gap-2 text-[#94A3B8] mb-2"><MousePointer className="w-4 h-4"/> Toplam Tıklama</div>
-                  <div className="text-3xl font-black text-emerald-400">1,240</div>
+                  <div className="text-3xl font-black text-emerald-400">{analytics.clicks.toLocaleString()}</div>
                   <div className="text-xs text-[#64748B] mt-2">Kısa linkler (Tracked Links) üzerinden gelen tıklamalar.</div>
                 </div>
                 <div className="p-5 bg-white/[0.02] rounded-xl border border-white/5">
                   <div className="flex items-center gap-2 text-[#94A3B8] mb-2"><UsersIcon className="w-4 h-4"/> Tekil Ziyaretçi</div>
-                  <div className="text-3xl font-black text-blue-400">890</div>
+                  <div className="text-3xl font-black text-blue-400">{analytics.visitors.toLocaleString()}</div>
                   <div className="text-xs text-[#64748B] mt-2">Benzersiz çerez (cookie) atanan ziyaretçi sayısı.</div>
                 </div>
                 <div className="p-5 bg-white/[0.02] rounded-xl border border-white/5">
                   <div className="flex items-center gap-2 text-[#94A3B8] mb-2"><Activity className="w-4 h-4"/> Kazanılan Müşteri (Lead)</div>
-                  <div className="text-2xl font-black text-fuchsia-400">+45</div>
+                  <div className="text-2xl font-black text-fuchsia-400">+{analytics.leads}</div>
                   <div className="text-xs text-[#64748B] mt-2">Tıklamaların form doldurarak dönüştüğü kişi sayısı.</div>
                 </div>
               </div>
@@ -1139,10 +1141,24 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
 
             {/* Ads Stats & Thresholds (From previous code) */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><DollarSign className="w-5 h-5 text-emerald-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Toplam Harcama</h3></div><p className="text-2xl font-bold text-white">$4,250</p></div>
-              <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Target className="w-5 h-5 text-blue-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Ortalama ROAS</h3></div><p className="text-2xl font-bold text-white">3.2x</p></div>
-              <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Users className="w-5 h-5 text-fuchsia-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Erişim</h3></div><p className="text-2xl font-bold text-white">245.8K</p></div>
-              <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Activity className="w-5 h-5 text-rose-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Dönüşüm Maliyeti (CPA)</h3></div><p className="text-2xl font-bold text-white">$12.40</p></div>
+              {(() => {
+                const totalSpent = ads.reduce((sum, ad) => sum + (ad.spent || 0), 0);
+                const totalRevenue = ads.reduce((sum, ad) => sum + (ad.revenue || 0), 0);
+                const totalReach = ads.reduce((sum, ad) => sum + (ad.reach || 0), 0);
+                const totalConversions = ads.reduce((sum, ad) => sum + (ad.conversions || 0), 0);
+                const avgRoas = totalSpent > 0 ? (totalRevenue / totalSpent).toFixed(1) : "0.0";
+                const cpa = totalConversions > 0 ? (totalSpent / totalConversions).toFixed(2) : "0.00";
+                const formatReach = (num: number) => num >= 1000 ? (num/1000).toFixed(1) + 'K' : num.toString();
+
+                return (
+                  <>
+                    <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><DollarSign className="w-5 h-5 text-emerald-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Toplam Harcama</h3></div><p className="text-2xl font-bold text-white">${totalSpent.toLocaleString()}</p></div>
+                    <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Target className="w-5 h-5 text-blue-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Ortalama ROAS</h3></div><p className="text-2xl font-bold text-white">{avgRoas}x</p></div>
+                    <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Users className="w-5 h-5 text-fuchsia-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Erişim</h3></div><p className="text-2xl font-bold text-white">{formatReach(totalReach)}</p></div>
+                    <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl"><div className="flex items-center gap-3 mb-2"><Activity className="w-5 h-5 text-rose-400" /><h3 className="text-sm font-medium text-[#94A3B8]">Dönüşüm Maliyeti (CPA)</h3></div><p className="text-2xl font-bold text-white">${cpa}</p></div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="bg-gradient-to-r from-[#0A0A0F] to-[#0A0A0F]/80 border border-amber-500/20 rounded-2xl p-6 relative overflow-hidden mb-8">
