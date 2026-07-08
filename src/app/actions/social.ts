@@ -258,10 +258,7 @@ export async function updateAdCampaign(
   }
 }
 
-// ─── AI Content Generation (OpenRouter → Llama 3.3 70B) ─────────────────────
-// Maliyet karşılaştırması:
-//   GPT-4o (direkt):  $15 / 1M token çıktı
-//   Llama 3.3 70B:    $0.30 / 1M token çıktı  (%98 tasarruf!)
+// ─── AI Content Generation (Gemini) ─────────────────────
 
 export async function generateAIContent(params: {
   framework: string;
@@ -323,106 +320,79 @@ JSON Formatı şu şekilde OLMALIDIR:
     let aiResult: any = {};
 
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (googleKey && googleKey !== 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-      const { generateText } = await import('ai');
-      const { getFlashModel } = await import('@/lib/ai/gemini-client');
-      
-      const { text } = await generateText({
-        model: getFlashModel(),
-        system: systemPrompt,
-        prompt: userPrompt,
-      });
-
-      let jsonStr = text.trim();
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-      } else if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.replace(/```/g, '').trim();
-      }
-      aiResult = JSON.parse(jsonStr);
-
-      if (visualEngine && visualEngine !== 'none' && !finalImagePrompt) {
-        const { text: promptText } = await generateText({
-           model: getFlashModel(),
-           system: 'Sen profesyonel bir AI Görsel Prompt Mühendisisin.',
-           prompt: `Şu konu için Google Imagen veya Midjourney'de kullanılmak üzere yüksek çözünürlüklü, çarpıcı, 1-2 cümlelik İngilizce bir image prompt'u yaz:\n\n${topic}\n\nSADECE prompt'u döndür.`,
-        });
-        finalImagePrompt = promptText.trim();
-      }
-
-      if (finalImagePrompt) {
-        if (visualEngine === 'google_ai_pro') {
-          try {
-            const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${googleKey}`;
-            const imagenRes = await fetch(imagenUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                instances: [{ prompt: finalImagePrompt }],
-                parameters: { sampleCount: 1 }
-              })
-            });
-            if (imagenRes.ok) {
-              const imagenData = await imagenRes.json();
-              if (imagenData.predictions && imagenData.predictions.length > 0) {
-                const base64Image = imagenData.predictions[0].bytesBase64Encoded;
-                finalMediaUrl = `data:image/jpeg;base64,${base64Image}`;
-              }
-            }
-          } catch (imagenError) {
-            console.error('Google Imagen API fetch failed:', imagenError);
-          }
-        }
-        
-        if (!finalMediaUrl) {
-          finalMediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalImagePrompt)}?width=1024&height=1024&nologo=true`; 
-        }
-      }
-      
-      return { 
-        success: true, 
-        omnichannel: aiResult.posts || {},
-        niche: aiResult.niche || '',
-        model: 'gemini-2.5-flash (Google AI)',
-        mediaPrompt: finalImagePrompt,
-        mediaUrl: finalMediaUrl
-      };
+    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+      throw new Error("GOOGLE_AI_API_KEY bulunamadı veya geçerli değil. İşlem iptal edildi.");
     }
 
-    // Demo Modu
-    const demoPosts: any = {};
-    platforms.forEach(p => {
-      demoPosts[p.toLowerCase()] = {
-        content: `[DEMO ${p.toUpperCase()}] ${topic} hakkında örnek bir post. API Key bulunamadığı için bu demo içeriktir.`,
-        hashtags: ['#demo', '#ai']
-      };
+    const { generateText } = await import('ai');
+    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    
+    const { text } = await generateText({
+      model: getFlashModel(),
+      system: systemPrompt,
+      prompt: userPrompt,
     });
 
-    const demoMediaUrl = (visualEngine && visualEngine !== 'none') 
-      ? 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400&auto=format&fit=crop'
-      : null;
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+    } else if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/```/g, '').trim();
+    }
+    aiResult = JSON.parse(jsonStr);
+
+    if (visualEngine && visualEngine !== 'none' && !finalImagePrompt) {
+      const { text: promptText } = await generateText({
+          model: getFlashModel(),
+          system: 'Sen profesyonel bir AI Görsel Prompt Mühendisisin.',
+          prompt: `Şu konu için Google Imagen veya Midjourney'de kullanılmak üzere yüksek çözünürlüklü, çarpıcı, 1-2 cümlelik İngilizce bir image prompt'u yaz:\n\n${topic}\n\nSADECE prompt'u döndür.`,
+      });
+      finalImagePrompt = promptText.trim();
+    }
+
+    if (finalImagePrompt) {
+      if (visualEngine === 'google_ai_pro') {
+        try {
+          const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${googleKey}`;
+          const imagenRes = await fetch(imagenUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              instances: [{ prompt: finalImagePrompt }],
+              parameters: { sampleCount: 1 }
+            })
+          });
+          if (imagenRes.ok) {
+            const imagenData = await imagenRes.json();
+            if (imagenData.predictions && imagenData.predictions.length > 0) {
+              const base64Image = imagenData.predictions[0].bytesBase64Encoded;
+              finalMediaUrl = `data:image/jpeg;base64,${base64Image}`;
+            }
+          }
+        } catch (imagenError) {
+          console.error('Google Imagen API fetch failed:', imagenError);
+        }
+      }
       
+      if (!finalMediaUrl) {
+        finalMediaUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalImagePrompt)}?width=1024&height=1024&nologo=true`; 
+      }
+    }
+    
     return { 
       success: true, 
-      omnichannel: demoPosts, 
-      niche: 'Demo Niche',
-      model: 'demo', 
-      mediaUrl: demoMediaUrl 
+      omnichannel: aiResult.posts || {},
+      niche: aiResult.niche || '',
+      model: 'gemini-2.5-flash (Google AI)',
+      mediaPrompt: finalImagePrompt,
+      mediaUrl: finalMediaUrl
     };
 
   } catch (error: any) {
     console.error('generateAIContent error:', error);
-    const errContent = 'API HATA VERDİ: ' + (error.stack || error.message || String(error));
-    const demoPosts: any = {};
-    platforms.forEach(p => {
-      demoPosts[p.toLowerCase()] = { content: errContent, hashtags: [] };
-    });
     return { 
-      success: true, 
-      omnichannel: demoPosts,
-      niche: 'Error',
-      model: 'demo-fallback', 
-      mediaUrl: null 
+      success: false, 
+      error: error.message || "İçerik üretilirken bir hata oluştu."
     };
   }
 }

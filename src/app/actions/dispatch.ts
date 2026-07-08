@@ -1,10 +1,9 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { Resend } from 'resend';
 import { logActivity } from './activity';
+import { sendMail } from '@/lib/email';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 export async function sendInvoiceToClient(invoiceId: string, tenantId: string) {
@@ -127,16 +126,11 @@ export async function sendInvoiceToClient(invoiceId: string, tenantId: string) {
       `;
     }
 
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_dummy_key') {
-      await resend.emails.send({
-        from: 'StarWebFlow <noreply@ankaexpress.de>',
-        to: clientEmail,
-        subject: portalUser ? `Yeni Fatura Bildirimi - ${invoice.invoiceNo}` : `Fatura Detayı - ${invoice.invoiceNo}`,
-        html: emailHtml,
-      });
-    } else {
-      console.warn(`[SIMULATION] Sending invoice email to ${clientEmail} (${portalUser ? 'Has Panel Account' : 'No Panel Account'})`);
-    }
+    await sendMail({
+      to: clientEmail,
+      subject: portalUser ? `Yeni Fatura Bildirimi - ${invoice.invoiceNo}` : `Fatura Detayı - ${invoice.invoiceNo}`,
+      html: emailHtml,
+    });
 
     await logActivity({
       tenantId,
@@ -233,16 +227,11 @@ export async function sendContractToClient(contractId: string, tenantId: string)
       `;
     }
 
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_dummy_key') {
-      await resend.emails.send({
-        from: 'StarWebFlow <noreply@ankaexpress.de>',
-        to: clientEmail,
-        subject: portalUser ? `Yeni Sözleşme Onay Bildirimi - ${contract.title}` : `Sözleşme Detayı - ${contract.title}`,
-        html: emailHtml,
-      });
-    } else {
-      console.warn(`[SIMULATION] Sending contract email to ${clientEmail} (${portalUser ? 'Has Panel Account' : 'No Panel Account'})`);
-    }
+    await sendMail({
+      to: clientEmail,
+      subject: portalUser ? `Yeni Sözleşme Onay Bildirimi - ${contract.title}` : `Sözleşme Detayı - ${contract.title}`,
+      html: emailHtml,
+    });
 
     await logActivity({
       tenantId,

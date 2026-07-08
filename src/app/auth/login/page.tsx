@@ -202,28 +202,7 @@ export default function LoginPage() {
                     )}
                   </Button>
 
-                  {/* Geçici Test Girişi - Daha sonra tamamen kaldırılacak */}
-                  {loginMode === 'password' && (
-                    <div className="mt-4 pt-4 border-t border-white/10">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full justify-center text-sm border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/10"
-                        onClick={() => {
-                          setEmail('client@starwebflow.com');
-                          setPassword('client123');
-                          // Küçük bir gecikmeyle formu gönder, React state güncellemelerinin yansımasını bekle
-                          setTimeout(() => {
-                            const form = document.querySelector('form');
-                            if (form) form.requestSubmit();
-                          }, 50);
-                        }}
-                      >
-                        Müşteri Test Girişi (Geçici)
-                      </Button>
-                      <p className="text-center text-[10px] text-[#64748B] mt-2">Daha sonra kaldırılıp gerçek e-posta doğrulama sistemi aktif edilecektir.</p>
-                    </div>
-                  )}
+                  
                 </form>
               )}
 

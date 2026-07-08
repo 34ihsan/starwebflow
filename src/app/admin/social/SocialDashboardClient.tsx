@@ -555,10 +555,8 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
 
             <div className="px-6 py-4 border-t border-white/[0.05] bg-[#05050A] flex items-center justify-between gap-3">
               <div className="text-[10px] text-[#64748B]">
-                {studioPreview?.model && studioPreview.model !== 'demo' && studioPreview.model !== 'demo-fallback' ? (
+                {studioPreview?.model ? (
                   <span className="text-emerald-400">✅ DB&apos;ye kaydedilecek</span>
-                ) : studioPreview?.model === 'demo' || studioPreview?.model === 'demo-fallback' ? (
-                  <span className="text-amber-400">⚠️ Demo mod (API key girin)</span>
                 ) : null}
               </div>
               <button 

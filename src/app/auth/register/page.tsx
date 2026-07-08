@@ -15,7 +15,6 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [simulatedLink, setSimulatedLink] = useState<string | null>(null)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,9 +38,6 @@ export default function RegisterPage() {
       
       if (response.ok && result.success) {
         setRegistered(true);
-        if (result.data?.verifyLinkSimulated) {
-          setSimulatedLink(result.data.verifyLinkSimulated);
-        }
       } else {
         alert(result.error || 'Kayıt başarısız oldu.');
         setLoading(false);
@@ -107,24 +103,6 @@ export default function RegisterPage() {
                     Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin.
                   </p>
                 </div>
-
-                {simulatedLink && (
-                  <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 text-left space-y-2 mt-4">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold text-xs">
-                      <Info className="w-4 h-4" />
-                      <span>DEVELOPMENT MODU (Simüle Edilen Bağlantı)</span>
-                    </div>
-                    <p className="text-slate-400 text-xs">
-                      E-posta sunucusu ayarlı olmadığı için doğrulama linki aşağıda simüle edilmiştir:
-                    </p>
-                    <a 
-                      href={simulatedLink} 
-                      className="text-xs text-blue-400 underline break-all block hover:text-blue-300"
-                    >
-                      {simulatedLink}
-                    </a>
-                  </div>
-                )}
 
                 <div className="pt-4">
                   <Link href="/auth/login">

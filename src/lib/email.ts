@@ -57,7 +57,7 @@ const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || FROM_USER;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
 
 // ─── Temel gönderim fonksiyonu ──────────────────────────────────────────────────
-async function sendMail({
+export async function sendMail({
   to,
   subject,
   html,
@@ -71,11 +71,11 @@ async function sendMail({
   replyTo?: string;
 }): Promise<{ success: boolean; data?: any; error?: string; simulated?: boolean }> {
   const smtpPass = process.env.SMTP_PASS;
-
-  // SMTP şifresi yoksa simüle et (geliştirme ortamı)
+  // SMTP şifresi yoksa hata fırlat (production fail-fast)
   if (!smtpPass) {
-    console.warn(`[Email] SMTP_PASS yok — simüle edildi → ${to} | Konu: ${subject}`);
-    return { success: true, simulated: true };
+    const errorMsg = "E-posta sunucusu (SMTP_PASS) ayarlanmamış. İşlem gerçekleştirilemez.";
+    console.error(`[Email] ❌ ${errorMsg}`);
+    return { success: false, error: errorMsg };
   }
 
   try {

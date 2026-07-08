@@ -2,10 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from '@/modules/auth/auth.server';
-import { Resend } from 'resend';
-
-// Configure Resend using environment variable
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+import { sendMail } from '@/lib/email';
 
 /**
  * Gets or creates a chat thread for a lead
@@ -69,30 +66,25 @@ export async function sendEmailMessageToLead(
     throw new Error('Lead does not have an email address');
   }
 
-  // 1. Send the email using Resend
+  // 1. Send the email using nodemailer
   const fromEmail = process.env.OUTBOUND_EMAIL_ADDRESS || `reply+${thread.id}@yourdomain.com`;
   
   try {
-    if (process.env.RESEND_API_KEY) {
-      await resend.emails.send({
-        from: `Support <${fromEmail}>`,
-        to: thread.lead.email,
-        subject: `Re: Your Inquiry with ${thread.tenant.name}`,
-        html: `
-          <div style="font-family: sans-serif; padding: 20px;">
-            <p>${content.replace(/\n/g, '<br/>')}</p>
-            <hr style="margin-top: 40px; border: 0; border-top: 1px solid #eaeaea;" />
-            <p style="color: #666; font-size: 12px;">Reply to this email to continue the conversation.</p>
-          </div>
-        `,
-        // Send In-Reply-To or just rely on Reply-To
-        replyTo: fromEmail,
-      });
-    } else {
-      console.warn('RESEND_API_KEY is not set. Email was not sent, just simulating.');
-    }
+    await sendMail({
+      from: `Support <${fromEmail}>`,
+      to: thread.lead.email,
+      subject: `Re: Your Inquiry with ${thread.tenant.name}`,
+      html: `
+        <div style="font-family: sans-serif; padding: 20px;">
+          <p>${content.replace(/\\n/g, '<br/>')}</p>
+          <hr style="margin-top: 40px; border: 0; border-top: 1px solid #eaeaea;" />
+          <p style="color: #666; font-size: 12px;">Reply to this email to continue the conversation.</p>
+        </div>
+      `,
+      replyTo: fromEmail,
+    });
   } catch (error) {
-    console.error('Error sending email via Resend:', error);
+    console.error('Error sending email:', error);
     throw new Error('Failed to send email');
   }
 

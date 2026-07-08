@@ -31,10 +31,10 @@ export async function createProject(data: {
   riskLevel?: string;
 }) {
   try {
-    // If no client provided, we can either create a dummy one or omit it.
-    // For now we assume a dummy user if none exists so relations don't break
-    // or we make clientId optional in schema? Wait, clientId is required in schema!
-    // Let's create a default client if missing
+    if (!data.clientId) {
+      return { success: false, error: 'Müşteri (Client) seçimi zorunludur.' };
+    }
+
     // Ensure tenant exists
     const defaultTenant = await prisma.tenant.upsert({
       where: { slug: data.tenantId || 'default-tenant' },
@@ -46,23 +46,7 @@ export async function createProject(data: {
       }
     });
 
-    let clientObj = undefined;
-    if (data.clientId) {
-      clientObj = { connect: { id: data.clientId } };
-    } else {
-      // Find or create default client
-      const defaultUser = await prisma.user.upsert({
-        where: { email: 'client@starwebflow.com' },
-        update: {},
-        create: {
-          tenantId: defaultTenant.id,
-          email: 'client@starwebflow.com',
-          passwordHash: 'dummy',
-          name: 'Default Client'
-        }
-      });
-      clientObj = { connect: { id: defaultUser.id } };
-    }
+    let clientObj = { connect: { id: data.clientId } };
 
     const project = await prisma.project.create({
       data: {

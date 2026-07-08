@@ -35,9 +35,14 @@ export async function createUser(data: {
   password?: string;
 }) {
   try {
-    let passwordHash = 'dummy_hash';
+    let passwordHash: string;
     if (data.password) {
       passwordHash = await hashPassword(data.password);
+    } else {
+      // Şifre verilmediyse (örneğin sadece sihirli bağlantı için oluşturuluyorsa)
+      // güvenli ve rastgele bir şifre üretip hashliyoruz, böylece sisteme asla dummy değer kaydedilmez.
+      const randomPass = randomBytes(16).toString('hex');
+      passwordHash = await hashPassword(randomPass);
     }
     
     const user = await prisma.user.create({

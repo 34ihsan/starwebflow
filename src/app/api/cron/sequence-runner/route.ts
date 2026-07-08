@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { analyzeLeadProfile, metamorphicRewrite, omniRouteSelector } from '@/app/actions/outreachEngine';
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
-
+import { sendMail } from '@/lib/email';
 // Helper to determine next step and day delay
 function getNextSequenceStep(currentStep: number) {
   const sequenceDays = [1, 3, 7, 12, 20];
@@ -82,22 +79,13 @@ export async function GET(req: Request) {
 
       // 6. Send Email
       try {
-        if (process.env.RESEND_API_KEY) {
-          await resend.emails.send({
-            from: `StarWebflow <${senderEmail}>`,
-            to: lead.email,
-            subject: subjectText,
-            html: htmlBody,
-            replyTo: senderEmail,
-            headers: {
-              'X-Priority': '1',
-              'X-MSMail-Priority': 'High',
-              'Importance': 'high'
-            }
-          });
-        } else {
-          console.log(`[SIMULATION] Sending Step ${seq.currentStep} to ${lead.email}`);
-        }
+        await sendMail({
+          from: `StarWebflow <${senderEmail}>`,
+          to: lead.email,
+          subject: subjectText,
+          html: htmlBody,
+          replyTo: senderEmail,
+        });
 
         // 7. Calculate Next Step
         const { nextStep, delayDays } = getNextSequenceStep(seq.currentStep);

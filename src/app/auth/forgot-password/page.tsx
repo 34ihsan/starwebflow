@@ -13,7 +13,6 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [requested, setRequested] = useState(false);
-  const [simulatedLink, setSimulatedLink] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +36,6 @@ export default function ForgotPasswordPage() {
 
       if (res.ok && data.success) {
         setRequested(true);
-        if (data.data?.resetLinkSimulated) {
-          setSimulatedLink(data.data.resetLinkSimulated);
-        }
       } else {
         alert(data.error || 'İşlem gerçekleştirilemedi.');
         setLoading(false);
@@ -102,24 +98,6 @@ export default function ForgotPasswordPage() {
                     Eğer e-posta adresi sistemimizde kayıtlı ise şifre sıfırlama talimatları <strong>{email}</strong> adresine gönderilecektir.
                   </p>
                 </div>
-
-                {simulatedLink && (
-                  <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 text-left space-y-2 mt-4">
-                    <div className="flex items-center gap-2 text-blue-400 font-bold text-xs">
-                      <Info className="w-4 h-4" />
-                      <span>DEVELOPMENT MODU (Simüle Edilen Bağlantı)</span>
-                    </div>
-                    <p className="text-slate-400 text-xs">
-                      E-posta sunucusu ayarlı olmadığı için şifre sıfırlama linki aşağıda simüle edilmiştir:
-                    </p>
-                    <a 
-                      href={simulatedLink} 
-                      className="text-xs text-blue-400 underline break-all block hover:text-blue-300"
-                    >
-                      {simulatedLink}
-                    </a>
-                  </div>
-                )}
 
                 <div className="pt-4">
                   <Link href="/auth/login">

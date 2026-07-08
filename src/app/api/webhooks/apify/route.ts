@@ -73,13 +73,7 @@ export async function POST(req: Request) {
       try {
         const cleanerResult = await aiCleanDataAction('default-tenant', { rawScrapedData: batches[i] }, {});
         
-        // Random AI Score for demonstration
-        const leadsWithScores = cleanerResult.cleanedData.map((lead: any) => ({
-          ...lead,
-          score: Math.floor(Math.random() * 30) + 70
-        }));
-
-        const createResult = await createLeadsAction('default-tenant', { cleanedData: leadsWithScores }, { location: null, country: null, industry: null }); // TODO: Pass location/industry if possible (need to save in DB when starting run)
+        const createResult = await createLeadsAction('default-tenant', { cleanedData: cleanerResult.cleanedData }, { location: null, country: null, industry: null }); // TODO: Pass location/industry if possible (need to save in DB when starting run)
         
         totalImported += createResult.importedCount;
       } catch (err) {
