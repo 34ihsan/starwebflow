@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { updateProfile, changePassword } from '@/app/actions/profile';
 import { 
   User, Lock, Loader2, CheckCircle2, AlertCircle, 
@@ -46,6 +46,47 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Apply theme to document
+  useEffect(() => {
+    const root = document.documentElement;
+    if (preferences.theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+  }, [preferences.theme]);
+
+  // Dictionary for basic translations to demonstrate it works
+  const dict: Record<string, any> = {
+    tr: {
+      general: 'Genel Bilgiler',
+      security: 'Güvenlik',
+      preferences: 'Tercihler',
+      advanced: 'Gelişmiş & API',
+      title: 'Profil & Hesap Ayarları',
+      subtitle: 'Hesap güvenliğinizi sağlayın, kişisel bilgilerinizi ve tercihlerinizi yönetin.'
+    },
+    en: {
+      general: 'General Info',
+      security: 'Security',
+      preferences: 'Preferences',
+      advanced: 'Advanced & API',
+      title: 'Profile & Account Settings',
+      subtitle: 'Secure your account, manage your personal information and preferences.'
+    },
+    de: {
+      general: 'Allgemein',
+      security: 'Sicherheit',
+      preferences: 'Einstellungen',
+      advanced: 'Erweitert & API',
+      title: 'Profil & Kontoeinstellungen',
+      subtitle: 'Sichern Sie Ihr Konto, verwalten Sie Ihre persönlichen Daten und Einstellungen.'
+    }
+  };
+  const t = dict[preferences.language || 'tr'] || dict['tr'];
 
   // Password States
   const [currentPassword, setCurrentPassword] = useState('');
@@ -177,11 +218,11 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
             <span className="bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-              Profil & Hesap Ayarları
+              {t.title}
             </span>
           </h1>
           <p className="text-slate-400 mt-2">
-            Hesap güvenliğinizi sağlayın, kişisel bilgilerinizi ve tercihlerinizi yönetin.
+            {t.subtitle}
           </p>
         </div>
         <div className="flex items-center gap-4 bg-[#0f172a] border border-white/5 rounded-2xl p-2 px-4 shadow-lg">
@@ -210,7 +251,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'genel' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
           >
             <User className="w-5 h-5" />
-            <span className="font-medium">Genel Bilgiler</span>
+            <span className="font-medium">{t.general}</span>
           </button>
           
           <button
@@ -218,7 +259,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'guvenlik' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
           >
             <ShieldCheck className="w-5 h-5" />
-            <span className="font-medium">Güvenlik</span>
+            <span className="font-medium">{t.security}</span>
           </button>
 
           <button
@@ -226,7 +267,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'tercihler' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
           >
             <Settings2 className="w-5 h-5" />
-            <span className="font-medium">Tercihler</span>
+            <span className="font-medium">{t.preferences}</span>
           </button>
 
           {isAdmin && (
@@ -237,7 +278,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'gelismis' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
               >
                 <Terminal className="w-5 h-5" />
-                <span className="font-medium">Gelişmiş & API</span>
+                <span className="font-medium">{t.advanced}</span>
               </button>
             </>
           )}
