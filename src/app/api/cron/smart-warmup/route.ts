@@ -2,12 +2,10 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
-import { sendOutreachEmail } from '@/lib/email';
 import { processInboundEmails } from '@/lib/imap';
 import { subscribeToNewsletters } from '@/lib/newsletter';
 import nodemailer from 'nodemailer';
 
-// Konular listesi, AI'ın her defasında farklı bir tema üzerinden sohbet başlatması için
 const WARMUP_TOPICS = [
   "Yapay zekanın geleceği ve iş dünyasındaki etkileri",
   "Uzaktan çalışma modelleri ve ofise dönüş tartışmaları",
@@ -19,15 +17,6 @@ const WARMUP_TOPICS = [
   "Elektrikli araçların yükselişi ve teknolojik yenilikler"
 ];
 
-// Dış ajanslar ve web siteleri (Örnek listesi - Güvenlik amaçlı sınırlandırılmış)
-const EXTERNAL_TARGET_AGENCIES = [
-  "hello@digitalagency-hamburg.de",
-  "contact@munich-webdesign.de",
-  "info@berlin-seo-experts.de",
-  "support@cologne-devs.de",
-  "inquiries@frankfurt-marketing.de"
-];
-
 export async function GET(req: Request) {
   // CRON endpoint authentication
   const authHeader = req.headers.get('authorization');
@@ -36,29 +25,29 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Sadece "WARMUP" statüsünde olan ve günlük limitini doldurmamış hesapları çek
+    // Tüm aktif WARMUP hesaplarını çek
     const mailboxes = await prisma.emailMailbox.findMany({
       where: {
         status: 'WARMUP',
-        sentToday: { lt: 50 } // Güvenlik limiti: Günde en fazla 50 warmup maili
+        isPaused: false
       }
     });
 
     if (mailboxes.length === 0) {
-      return NextResponse.json({ success: true, message: "Isıtılacak Warmup hesabı bulunamadı." });
+      return NextResponse.json({ success: true, message: "Isıtılacak aktif hesap bulunamadı." });
     }
 
     let inboundCount = 0;
     let outboundCount = 0;
+    let rescuedCount = 0;
 
-    // --- ADIM 1: GİRİŞ TRAFİĞİ (INBOUND NEWSLETTER & IMAP CHECK) ---
+    // --- ADIM 1: GİRİŞ TRAFİĞİ (IMAP SPAM RESCUE & BOUNCE) ---
     for (const mailbox of mailboxes) {
-      // Yeni eklenen mailler (warmupProgress === 0) için otomatik bülten kaydı tetikle
       if (mailbox.warmupProgress === 0) {
         await subscribeToNewsletters(mailbox.email);
       }
 
-      // IMAP üzerinden bülten onaylama ve mailleri okuma simülasyonu
+      // IMAP Taraması (Inbox + Spam klasörü)
       const imapRes = await processInboundEmails({
         email: mailbox.email,
         imapHost: mailbox.imapHost || undefined,
@@ -69,74 +58,89 @@ export async function GET(req: Request) {
       });
 
       if (imapRes.success) {
-        inboundCount += (imapRes.confirmedCount || 0) + (imapRes.readCount || 0);
-        // İtibarı başarılı okuma işlemine göre güncelle
+        inboundCount += (imapRes.readCount || 0);
+        rescuedCount += (imapRes.rescuedFromSpam || 0);
+
+        // Omni-Routing Failover: Bounce tespiti
+        const bounceIncrement = imapRes.bounceCount || 0;
+        let newStatus = mailbox.status;
+        let isPaused = mailbox.isPaused;
+
+        // Eşik değeri: Çok fazla bounce aldıysa hesabı durdur
+        if ((mailbox.bounceCount + bounceIncrement) >= 5) {
+          newStatus = 'PAUSED';
+          isPaused = true;
+          console.log(`[OMNI-ROUTING] Mailbox ${mailbox.email} paused due to excessive bounces!`);
+        }
+
         await prisma.emailMailbox.update({
           where: { id: mailbox.id },
           data: {
-            warmupProgress: { increment: imapRes.confirmedCount || 0 },
-            reputation: { increment: Math.min(5, imapRes.readCount || 0) }
+            bounceCount: { increment: bounceIncrement },
+            status: newStatus,
+            isPaused,
+            warmupProgress: { increment: (imapRes.rescuedFromSpam || 0) * 2 }, // Spam'den kurtarma x2 puan
+            reputation: { increment: (imapRes.readCount || 0) + (imapRes.rescuedFromSpam || 0) * 3 }
           }
         });
       }
     }
 
-    // --- ADIM 2: ÇIKIŞ TRAFİĞİ (PAIRED WARMUP & EXTERNAL OUTBOUND) ---
-    if (mailboxes.length >= 2) {
-      // Hesapları rastgele karıştır
-      const shuffled = [...mailboxes].sort(() => 0.5 - Math.random());
+    // --- ADIM 2: ÇIKIŞ TRAFİĞİ (ALGORITHMIC RAMP-UP & THREADING) ---
+    
+    // Güvenlik & Algoritma: Sadece günlük dinamik limiti dolmamış olanları gönderici yap
+    // Kural: warmupDay * 2 adede kadar gönder (Max: maxDailyLimit)
+    const activeSenders = mailboxes.filter(m => {
+      if (m.isPaused || m.status !== 'WARMUP') return false;
+      const dynamicLimit = Math.min(m.maxDailyLimit, m.warmupDay * 2);
+      return m.sentToday < dynamicLimit;
+    });
 
-      // Hesapları çiftler halinde eşleştir ve birbirlerine mail attır
-      for (let i = 0; i < shuffled.length; i += 2) {
+    if (activeSenders.length >= 1 && mailboxes.length >= 2) {
+      // Göndericileri karıştır
+      const shuffled = [...activeSenders].sort(() => 0.5 - Math.random());
+
+      for (let i = 0; i < shuffled.length; i++) {
         const sender = shuffled[i];
-        const recipient = shuffled[i + 1];
+        
+        // Rastgele başka bir mailbox seç (kendisi hariç)
+        const possibleTargets = mailboxes.filter(m => m.id !== sender.id);
+        if (possibleTargets.length === 0) continue;
+        const recipient = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
 
-        if (!sender || !recipient) continue;
-        if (sender.sentToday >= sender.limit) continue;
-
-        // %20 olasılıkla veya havuz dışı gerçek bir ajansa "Proje Teklif Talebi" gönder (External Outbound)
-        const isExternalOutbound = Math.random() < 0.2;
-        let targetEmail = recipient.email;
-        let isRealExternal = false;
-
-        if (isExternalOutbound) {
-          // Zaten contacted olmayan bir dış hedef seç
-          const contacted = await prisma.emailWarmupContactLog.findMany();
-          const contactedEmails = contacted.map(c => c.email);
-          const availableTargets = EXTERNAL_TARGET_AGENCIES.filter(e => !contactedEmails.includes(e));
-
-          if (availableTargets.length > 0) {
-            targetEmail = availableTargets[Math.floor(Math.random() * availableTargets.length)];
-            isRealExternal = true;
+        // Kendi aralarında açık bir Thread (Zincir) var mı kontrol et
+        const existingThread = await prisma.emailWarmupThread.findFirst({
+          where: {
+            mailboxId: sender.id,
+            targetEmail: recipient.email,
+            status: 'ACTIVE'
           }
-        }
+        });
 
         let subject = "Selamlar!";
         let body = "Nasılsın, umarım her şey yolundadır.";
+        let inReplyTo = undefined;
+        let isReply = false;
 
-        if (isRealExternal) {
-          // Dış siteler için Gemini ile gerçekçi iş teklifi maili oluştur
-          try {
+        try {
+          if (existingThread) {
+            // YANIT (THREAD) OLUŞTUR
+            isReply = true;
+            inReplyTo = existingThread.lastMessageId;
+            subject = existingThread.subject.startsWith('Re:') ? existingThread.subject : `Re: ${existingThread.subject}`;
+            
             const { text: generatedEmail } = await generateText({
               model: getFlashModel(),
-              system: `Sen bir potansiyel müşterisin ve bir web tasarım/yazılım ajansına projen hakkında fiyat teklifi almak için yazıyorsun.
+              system: `Sen bir çalışansın ve meslektaşına önceki maile kısa bir cevap yazıyorsun. Konu: "${existingThread.subject}".
 Kurallar:
-1. Kesinlikle otomatik/bot maili gibi görünmesin. Son derece doğal olsun.
-2. Web tasarım, Next.js portal, mobil uygulama veya SEO gibi makul bir hizmet talep et.
-3. Çıktıyı JSON formatında ver. Örn: {"subject": "Konu Başlığı", "body": "Html Gövde"}`,
-              prompt: "Lütfen teklif talebi e-postasını oluştur."
+1. Kısa tut (1-2 paragraf).
+2. Sadece HTML formatında <body> içeriğini ver, JSON döndürme, sadece metin.`,
+              prompt: "Lütfen e-postayı oluştur."
             });
-
-            const emailData = JSON.parse(generatedEmail);
-            subject = emailData.subject || "Next.js Web Projesi Teklif Talebi";
-            body = emailData.body || "Merhaba, web sitemiz için yenileme teklifi almak istiyoruz.";
-          } catch (err) {
-            console.error("Failed to generate or parse AI external warmup email", err);
-          }
-        } else {
-          // Kendi aralarında normal sohbet konusu
-          const topic = WARMUP_TOPICS[Math.floor(Math.random() * WARMUP_TOPICS.length)];
-          try {
+            body = generatedEmail.replace(/```html/g, '').replace(/```/g, '');
+          } else {
+            // YENİ KONU BAŞLAT
+            const topic = WARMUP_TOPICS[Math.floor(Math.random() * WARMUP_TOPICS.length)];
             const { text: generatedEmail } = await generateText({
               model: getFlashModel(),
               system: `Sen bir çalışansın ve meslektaşına günlük sıradan bir konu hakkında e-posta yazıyorsun. Konu: "${topic}".
@@ -149,13 +153,14 @@ Kurallar:
 
             const emailData = JSON.parse(generatedEmail);
             subject = emailData.subject || "Warmup Mesajı";
-            body = emailData.body || generatedEmail;
-          } catch (err) {
-            console.error("Failed to generate or parse AI warmup email", err);
+            body = emailData.body || "Merhaba, iyi çalışmalar dilerim.";
           }
+        } catch (err) {
+          console.error("AI Thread/Mail generation failed", err);
+          continue; // AI çöktüyse mail atma
         }
 
-        // Maili gönder (Kendi SMTP ayarlarıyla, yoksa ana SMTP ile)
+        // Maili gönder (Kendi SMTP ayarlarıyla)
         try {
           if (sender.smtpHost && sender.smtpPassword) {
             const dynamicTransporter = nodemailer.createTransport({
@@ -165,58 +170,64 @@ Kurallar:
               auth: { user: sender.smtpUser || sender.email, pass: sender.smtpPassword },
               tls: { rejectUnauthorized: false }
             });
-            await dynamicTransporter.sendMail({
+            
+            const mailOptions: any = {
               from: `${sender.senderName || 'StarWebflow'} <${sender.email}>`,
-              to: targetEmail,
+              to: recipient.email,
               subject,
               html: body,
-            });
-          } else {
-            // Eğer özel SMTP girilmemişse, fallback global email (ancak gönderen ve auth uyuşmazsa red yiyebilir)
-            await sendOutreachEmail({
-              from: sender.email,
-              to: targetEmail,
-              subject,
-              html: body,
+            };
+
+            if (inReplyTo) {
+              mailOptions.inReplyTo = inReplyTo;
+              mailOptions.references = [inReplyTo];
+            }
+
+            const info = await dynamicTransporter.sendMail(mailOptions);
+            const sentMessageId = info.messageId || `<${Date.now()}@starwebflow.com>`;
+
+            // Thread kaydını veritabanında güncelle/oluştur
+            if (existingThread) {
+              await prisma.emailWarmupThread.update({
+                where: { id: existingThread.id },
+                data: {
+                  lastMessageId: sentMessageId,
+                  messageCount: { increment: 1 }
+                }
+              });
+            } else {
+              await prisma.emailWarmupThread.create({
+                data: {
+                  tenantId: sender.tenantId,
+                  mailboxId: sender.id,
+                  targetEmail: recipient.email,
+                  subject: subject,
+                  lastMessageId: sentMessageId
+                }
+              });
+            }
+
+            outboundCount++;
+            
+            // Limit Güncelle
+            await prisma.emailMailbox.update({
+              where: { id: sender.id },
+              data: {
+                sentToday: { increment: 1 },
+                warmupProgress: { increment: 1 }
+              }
             });
           }
         } catch (error) {
-          console.error("Warmup email sending failed via SMTP", error);
+          console.error(`SMTP sending failed for ${sender.email}`, error);
+          // Hata durumunda (yanlış şifre vb.) hata sayacını artırıp PAUSE edebiliriz.
         }
-
-        // İstatistikleri güncelle
-        await prisma.emailMailbox.update({
-          where: { id: sender.id },
-          data: {
-            sentToday: { increment: 1 },
-            warmupProgress: { increment: 1 },
-            reputation: { increment: 1 }
-          }
-        });
-
-        if (isRealExternal) {
-          // Dış hedef logu ekle (Tekrar mail atmamak için)
-          await prisma.emailWarmupContactLog.create({
-            data: { email: targetEmail }
-          });
-        } else {
-          // Alıcı da veritabanında kayıtlı olduğu için onun da ilerlemesini güncelle
-          await prisma.emailMailbox.update({
-            where: { id: recipient.id },
-            data: {
-              warmupProgress: { increment: 1 },
-              reputation: { increment: 1 }
-            }
-          });
-        }
-
-        outboundCount++;
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: `Isıtma işlemi tamamlandı. Giriş Etkileşimi: ${inboundCount}, Gönderilen Mail: ${outboundCount}`
+      message: `P2P Isıtma tamamlandı. Okunan/Yıldızlanan: ${inboundCount}, Spam'den Kurtarılan: ${rescuedCount}, Gönderilen Mail (Threaded): ${outboundCount}`
     });
 
   } catch (error: any) {

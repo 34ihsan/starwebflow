@@ -32,6 +32,7 @@ model Tenant {
   emailCampaigns     EmailCampaign[]
   emailTemplates     EmailTemplate[]
   emailMailboxes     EmailMailbox[]
+  warmupThreads      EmailWarmupThread[]
   bulkOutreachs      BulkOutreach[]
   automationFlows    AutomationFlow[]
   webhookEndpoints   WebhookEndpoint[]
@@ -404,6 +405,16 @@ model EmailMailbox {
   sentToday         Int      @default(0) @map("sent_today")
   warmupProgress    Int      @default(0) @map("warmup_progress")
   spammed           Int      @default(0)
+  
+  // Advanced Warmup & Omni-Routing
+  warmupDay         Int      @default(1) @map("warmup_day")
+  maxDailyLimit     Int      @default(40) @map("max_daily_limit")
+  bounceCount       Int      @default(0) @map("bounce_count")
+  spamCount         Int      @default(0) @map("spam_count")
+  isPaused          Boolean  @default(false) @map("is_paused")
+
+  // Relations
+  warmupThreads     EmailWarmupThread[]
   
   // DNS Checks
   spfStatus         Boolean  @default(false) @map("spf_status")
@@ -981,3 +992,22 @@ model EmailWarmupContactLog {
   @@map("email_warmup_contact_logs")
 }
 
+
+model EmailWarmupThread {
+  id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mailboxId       String   @map("mailbox_id")
+  mailbox         EmailMailbox @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  targetEmail     String   @map("target_email")
+  subject         String
+  lastMessageId   String   @map("last_message_id")
+  messageCount    Int      @default(1) @map("message_count")
+  status          String   @default("ACTIVE") // ACTIVE, CLOSED
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([mailboxId])
+  @@index([tenantId])
+  @@map("email_warmup_threads")
+}
