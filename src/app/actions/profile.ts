@@ -29,6 +29,9 @@ export async function getProfile() {
         name: true,
         email: true,
         role: true,
+        avatarUrl: true,
+        preferences: true,
+        twoFactorEnabled: true,
       }
     });
 
@@ -46,7 +49,13 @@ export async function getProfile() {
 /**
  * Kullanıcı profil bilgilerini (name, email) günceller.
  */
-export async function updateProfile(data: { name: string; email: string }) {
+export async function updateProfile(data: { 
+  name: string; 
+  email: string;
+  avatarUrl?: string | null;
+  preferences?: any;
+  twoFactorEnabled?: boolean;
+}) {
   try {
     const cookieStore = cookies();
     const token = cookieStore.get('next-auth.session-token')?.value;
@@ -69,6 +78,9 @@ export async function updateProfile(data: { name: string; email: string }) {
       data: {
         name: data.name,
         email: data.email,
+        ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
+        ...(data.preferences !== undefined && { preferences: data.preferences }),
+        ...(data.twoFactorEnabled !== undefined && { twoFactorEnabled: data.twoFactorEnabled })
       }
     });
 
