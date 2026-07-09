@@ -69,9 +69,9 @@ export async function processInboundEmails(config: ImapConfig) {
           
           // Eğer bu bizim ağımızdan veya starwebflow'dan gelen bir mail ise kurtar!
           if (from.toLowerCase().includes('starwebflow')) {
-            const uid = item.attributes.uid;
+            const uid = item.attributes.uid as number;
             // IMAP Move command
-            await connection.moveMessage(uid, 'INBOX');
+            await connection.moveMessage(String(uid), 'INBOX');
             rescuedFromSpam++;
             console.log(`[SPAM RESCUE] Moved email from ${from} to INBOX for ${config.email}`);
           }
@@ -90,7 +90,7 @@ export async function processInboundEmails(config: ImapConfig) {
 
     for (const item of messages) {
       const allParts = item.parts;
-      const uid = item.attributes.uid;
+      const uid = item.attributes.uid as number;
       const headerPart = allParts.find(part => part.which === 'HEADER');
       const textPart = allParts.find(part => part.which === 'TEXT');
       const rawPart = allParts.find(part => part.which === '');
