@@ -125,7 +125,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
     if (!file) return;
     
     if (file.size > 5 * 1024 * 1024) {
-      setProfileMessage({ type: 'error', text: 'Dosya boyutu 5MB\\'dan küçük olmalıdır.' });
+      setProfileMessage({ type: 'error', text: "Dosya boyutu 5MB'dan küçük olmalıdır." });
       return;
     }
 

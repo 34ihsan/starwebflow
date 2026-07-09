@@ -2,15 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { auth } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import { verifyJWT } from '@/modules/auth/auth.jwt';
+import { getJwtSecret } from '@/lib/config';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user) {
+    const cookieStore = cookies();
+    const token = cookieStore.get('next-auth.session-token')?.value;
+    
+    if (!token) {
       return NextResponse.json({ error: 'Yetkisiz erişim' }, { status: 401 });
+    }
+    
+    const payload = await verifyJWT(token, getJwtSecret());
+    if (!payload || !payload.userId) {
+      return NextResponse.json({ error: 'Geçersiz oturum' }, { status: 401 });
     }
 
     const data = await req.formData();
