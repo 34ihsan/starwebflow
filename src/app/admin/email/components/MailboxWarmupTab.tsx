@@ -67,7 +67,7 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:border-emerald-500/40 transition-colors cursor-default">
             <div>
               <p className="text-xs text-[#94A3B8] mb-1">Ağ İtibarı (Network Rep.)</p>
-              <p className="text-xl font-bold text-emerald-400">%98.4</p>
+              <p className="text-xl font-bold text-emerald-400">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.reputation, 0) / dbMailboxes.length).toFixed(1) : "0.0"}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -76,7 +76,7 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-4 flex items-center justify-between hover:border-white/[0.1] transition-colors cursor-default">
             <div>
               <p className="text-xs text-[#94A3B8] mb-1">Aktif IP Sayısı</p>
-              <p className="text-xl font-bold text-white">12 <span className="text-xs text-[#64748B] font-normal">/ 15</span></p>
+              <p className="text-xl font-bold text-white">{dbMailboxes.filter(m => m.status === 'ACTIVE').length} <span className="text-xs text-[#64748B] font-normal">/ {dbMailboxes.length || 0}</span></p>
             </div>
             <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
               <Search className="w-5 h-5 text-[#94A3B8]" />
@@ -85,7 +85,7 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-rose-500/20 rounded-xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(244,63,94,0.05)] hover:border-rose-500/40 transition-colors cursor-default">
             <div>
               <p className="text-xs text-[#94A3B8] mb-1">Dinlendirilen Domain</p>
-              <p className="text-xl font-bold text-rose-500">2</p>
+              <p className="text-xl font-bold text-rose-500">{dbMailboxes.filter(m => m.status === 'WARNING').length}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center">
               <Pause className="w-5 h-5 text-rose-500" />
@@ -94,11 +94,11 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-blue-500/20 rounded-xl p-4 flex flex-col justify-center shadow-[0_0_15px_rgba(59,130,246,0.05)] hover:border-blue-500/40 transition-colors cursor-default">
              <p className="text-xs text-[#94A3B8] mb-2">Google Inbox Yerleşimi</p>
              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-               <div className="bg-blue-500 h-full w-[99%] shadow-[0_0_10px_rgba(59,130,246,0.8)] relative">
+               <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative" style={{ width: `${dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.warmupProgress, 0) / dbMailboxes.length).toFixed(0) : 0}%` }}>
                  <div className="absolute inset-0 bg-white/30 blur-[1px]"></div>
                </div>
              </div>
-             <p className="text-xs font-bold text-white mt-1 text-right">%99</p>
+             <p className="text-xs font-bold text-white mt-1 text-right">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.warmupProgress, 0) / dbMailboxes.length).toFixed(0) : "0"}</p>
           </div>
         </div>
 
@@ -164,15 +164,19 @@ export default function MailboxWarmupTab({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                <div className="bg-white/[0.02] p-3 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
-                  <div className="text-[10px] text-[#94A3B8] uppercase tracking-wider mb-1">Günlük Limit</div>
-                  <div className="font-mono text-sm font-bold text-white">{box.limit} <span className="text-xs text-[#64748B]">mail</span></div>
+              <div className="grid grid-cols-3 gap-2 mt-4">
+                <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
+                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Limit</div>
+                  <div className="font-mono text-xs font-bold text-white">{box.limit}</div>
                 </div>
-                <div className="bg-white/[0.02] p-3 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
-                  <div className="text-[10px] text-[#94A3B8] uppercase tracking-wider mb-1">Spam (7 Gün)</div>
-                  <div className={`font-mono text-sm font-bold ${box.spammed > 5 ? 'text-red-400 drop-shadow-[0_0_2px_rgba(239,68,68,0.8)]' : 'text-emerald-400'}`}>
-                    {box.spammed} <span className="text-xs opacity-50">mail</span>
+                <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
+                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Gönderilen</div>
+                  <div className="font-mono text-xs font-bold text-blue-400">{box.sentToday || 0}</div>
+                </div>
+                <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
+                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Spam</div>
+                  <div className={`font-mono text-xs font-bold ${box.spammed > 5 ? 'text-red-400' : 'text-emerald-400'}`}>
+                    {box.spammed || 0}
                   </div>
                 </div>
               </div>

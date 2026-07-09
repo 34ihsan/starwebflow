@@ -41,6 +41,7 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
   // Missing state variables
   const [pendingPosts, setPendingPosts] = useState<any[]>(initialData.posts.filter((p: any) => p.status === 'PENDING' || p.status === 'pending'));
   const [scheduledLocalPosts, setScheduledLocalPosts] = useState<any[]>(initialData.posts.filter((p: any) => p.status === 'SCHEDULED' || p.status === 'scheduled' || p.status === 'IDEA'));
+  const [publishedPosts, setPublishedPosts] = useState<any[]>(initialData.posts.filter((p: any) => p.status === 'PUBLISHED' || p.status === 'published' || p.status === 'active'));
   const [ads, setAds] = useState<any[]>(initialData.ads || []);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
@@ -797,8 +798,8 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
         {[
           { id: "pending", label: "AI Postları", count: pendingPosts.length },
           { id: "scheduled", label: "Takvim", count: scheduledLocalPosts.length },
-          { id: "published", label: "Yayınlananlar", count: 2 },
-          { id: "ads", label: "Reklam Yönetimi (Ads)", count: ads.length || 2 },
+          { id: "published", label: "Yayınlananlar", count: publishedPosts.length },
+          { id: "ads", label: "Reklam Yönetimi (Ads)", count: ads.length },
           { id: "audience", label: "Kitle Analitiği", count: 0 }
         ].map((tab) => (
           <button

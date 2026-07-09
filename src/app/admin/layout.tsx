@@ -32,6 +32,7 @@ const navItems = [
   { href: '/admin/monitoring', label: 'Servis Takibi', icon: Globe },
   { href: '/admin/tech-updates', label: 'Tech Güncellemeleri', icon: Bell, accent: 'purple' },
   { href: '/admin/technologies', label: 'Teknolojiler (RSS)', icon: Settings },
+  { href: '/admin/profile', label: 'Profilim (Hesabım)', icon: User, accent: 'violet' },
   { href: '/admin/settings', label: 'Ayarlar', icon: Settings },
 ]
 
