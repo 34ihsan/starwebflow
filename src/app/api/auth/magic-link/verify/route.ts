@@ -7,11 +7,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
 
     if (!token) {
-      return NextResponse.redirect(new URL('/auth/login?error=Geçersiz bağlantı', req.url));
+      return NextResponse.redirect(`${appUrl}/auth/login?error=Geçersiz bağlantı`);
     }
 
     const magicLinkToken = await prisma.magicLinkToken.findUnique({
@@ -20,15 +21,15 @@ export async function GET(req: Request) {
     });
 
     if (!magicLinkToken) {
-      return NextResponse.redirect(new URL('/auth/login?error=Geçersiz veya süresi dolmuş bağlantı', req.url));
+      return NextResponse.redirect(`${appUrl}/auth/login?error=Geçersiz veya süresi dolmuş bağlantı`);
     }
 
     if (magicLinkToken.used) {
-      return NextResponse.redirect(new URL('/auth/login?error=Bu bağlantı daha önce kullanılmış', req.url));
+      return NextResponse.redirect(`${appUrl}/auth/login?error=Bu bağlantı daha önce kullanılmış`);
     }
 
     if (magicLinkToken.expiresAt < new Date()) {
-      return NextResponse.redirect(new URL('/auth/login?error=Bu bağlantının süresi dolmuş', req.url));
+      return NextResponse.redirect(`${appUrl}/auth/login?error=Bu bağlantının süresi dolmuş`);
     }
 
     // Mark as used
@@ -50,7 +51,6 @@ export async function GET(req: Request) {
     
     const jwtToken = await signJWT(payload, getJwtSecret(), 86400);
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     // Müşteriler portalına, adminler dashbaord'a yönlendirilebilir
     const redirectUrl = user.role === 'CLIENT_MEMBER' || user.role === 'CLIENT_OWNER' 
       ? `${appUrl}/client`
@@ -70,6 +70,7 @@ export async function GET(req: Request) {
     return response;
   } catch (error: any) {
     console.error('Magic Link Verify Error:', error);
-    return NextResponse.redirect(new URL('/auth/login?error=Bir hata oluştu', req.url));
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return NextResponse.redirect(`${appUrl}/auth/login?error=Bir hata oluştu`);
   }
 }
