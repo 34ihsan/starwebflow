@@ -53,8 +53,8 @@ export async function GET(req: Request) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     // Müşteriler portalına, adminler dashbaord'a yönlendirilebilir
     const redirectUrl = user.role === 'CLIENT_MEMBER' || user.role === 'CLIENT_OWNER' 
-      ? `${appUrl}/client` 
-      : `${appUrl}/admin/dashboard`;
+      ? `${appUrl}/client`
+      : `${appUrl}/admin`;
 
     const response = NextResponse.redirect(redirectUrl);
 
