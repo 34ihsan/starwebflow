@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { updateProfile, changePassword } from '@/app/actions/profile';
 import { 
   User, Lock, Loader2, CheckCircle2, AlertCircle, 
   ShieldCheck, Settings2, Terminal, MonitorSmartphone, 
-  Key, Globe, Moon, BellRing, LogOut, Upload, ShieldAlert
+  Key, Globe, Moon, BellRing, LogOut, Upload, ShieldAlert, Copy, RefreshCw
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -19,6 +19,8 @@ interface UserProfile {
     language?: string;
     theme?: string;
     emailNotifications?: boolean;
+    apiKey?: string;
+    webhookUrl?: string;
   };
 }
 
@@ -35,10 +37,15 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
     language: 'tr',
     theme: 'dark',
     emailNotifications: true,
+    apiKey: '',
+    webhookUrl: ''
   });
 
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Password States
   const [currentPassword, setCurrentPassword] = useState('');
@@ -70,6 +77,51 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
       setProfileMessage({ type: 'error', text: res.error || 'Bir hata oluştu.' });
     }
     setProfileLoading(false);
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMessage({ type: 'error', text: 'Dosya boyutu 5MB\\'dan küçük olmalıdır.' });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setProfileMessage(null);
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.url) {
+        setAvatarUrl(data.url);
+        // Automatically save profile after upload
+        await updateProfile({ 
+          name, 
+          email,
+          avatarUrl: data.url,
+          preferences,
+          twoFactorEnabled
+        });
+        setProfileMessage({ type: 'success', text: 'Profil fotoğrafı güncellendi.' });
+        router.refresh();
+      } else {
+        setProfileMessage({ type: 'error', text: data.error || 'Yükleme başarısız.' });
+      }
+    } catch (error) {
+      setProfileMessage({ type: 'error', text: 'Yükleme sırasında hata oluştu.' });
+    }
+    
+    setUploadingAvatar(false);
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -105,6 +157,18 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
 
   const updatePreference = (key: string, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
+  };
+
+  const generateApiKey = () => {
+    const newKey = 'sw_' + Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
+    updatePreference('apiKey', newKey);
+    // Auto save
+    handleProfileUpdate(new Event('submit') as any);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Kopyalandı!');
   };
 
   return (
@@ -199,28 +263,58 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                 
                 {/* Avatar Preview */}
                 <div className="flex items-center gap-6 pb-6 border-b border-white/5">
-                  <div className="relative group cursor-pointer">
-                    {avatarUrl ? (
+                  <div 
+                    className="relative group cursor-pointer" 
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {uploadingAvatar ? (
+                      <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center bg-[#1e293b]">
+                        <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                      </div>
+                    ) : avatarUrl ? (
                        <img src={avatarUrl} alt="Avatar" className="w-20 h-20 rounded-full border border-white/10 object-cover" />
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
                         {name.charAt(0)}
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Upload className="w-6 h-6 text-white" />
-                    </div>
+                    {!uploadingAvatar && (
+                      <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Upload className="w-6 h-6 text-white" />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-white">Profil Fotoğrafı</h3>
                     <p className="text-xs text-slate-400 mt-1 mb-3">PNG, JPG 5MB'a kadar.</p>
                     <input 
-                      type="text" 
-                      placeholder="Görsel URL'si yapıştır (Geçici)" 
-                      value={avatarUrl}
-                      onChange={(e) => setAvatarUrl(e.target.value)}
-                      className="bg-[#1e293b] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/png, image/jpeg, image/jpg"
+                      onChange={handleAvatarChange}
                     />
+                    <div className="flex gap-2">
+                      <button 
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingAvatar}
+                        className="bg-[#1e293b] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white hover:bg-white/5 transition-colors"
+                      >
+                        {uploadingAvatar ? 'Yükleniyor...' : 'Yeni Fotoğraf Seç'}
+                      </button>
+                      {avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAvatarUrl('');
+                          }}
+                          className="text-xs text-rose-400 hover:text-rose-300 px-2 py-1.5"
+                        >
+                          Kaldır
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -510,13 +604,62 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                 
                 <div className="p-6 border border-white/5 rounded-xl bg-[#1e293b] text-center">
                   <Terminal className="w-10 h-10 text-slate-500 mx-auto mb-3" />
-                  <h3 className="text-white font-medium mb-1">Geliştirici Araçları</h3>
-                  <p className="text-sm text-slate-400 mb-4 max-w-sm mx-auto">
+                  <h3 className="text-white font-medium mb-1">Geliştirici Araçları & API</h3>
+                  <p className="text-sm text-slate-400 mb-6 max-w-sm mx-auto">
                     Kendi uygulamalarınızı StarWebflow ile entegre etmek için bir API anahtarı oluşturabilirsiniz.
                   </p>
-                  <button className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    + Yeni Anahtar Üret
-                  </button>
+                  
+                  {preferences.apiKey ? (
+                    <div className="bg-[#0f172a] border border-white/10 rounded-lg p-4 mb-6 flex items-center justify-between">
+                      <div className="text-left overflow-hidden">
+                        <p className="text-xs text-slate-400 mb-1">API Anahtarınız</p>
+                        <p className="text-sm font-mono text-emerald-400 truncate">{preferences.apiKey}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => copyToClipboard(preferences.apiKey!)}
+                          className="p-2 bg-white/5 hover:bg-white/10 rounded text-slate-300"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={generateApiKey}
+                          className="p-2 bg-white/5 hover:bg-white/10 rounded text-slate-300"
+                          title="Yenile"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={generateApiKey}
+                      className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors mb-6"
+                    >
+                      + Yeni Anahtar Üret
+                    </button>
+                  )}
+
+                  <div className="text-left mt-6 pt-6 border-t border-white/5">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Webhook URL (Gelişmiş)</label>
+                    <div className="flex gap-3">
+                      <input
+                        type="url"
+                        placeholder="https://siteniz.com/api/webhook"
+                        value={preferences.webhookUrl || ''}
+                        onChange={(e) => updatePreference('webhookUrl', e.target.value)}
+                        className="flex-1 bg-[#0f172a] border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500/50"
+                      />
+                      <button 
+                        onClick={() => handleProfileUpdate(new Event('submit') as any)}
+                        className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                      >
+                        Kaydet
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">Belirttiğiniz adrese önemli olaylarda (lead oluşturma vb.) POST istekleri gönderilir.</p>
+                  </div>
+
                 </div>
               </div>
 
