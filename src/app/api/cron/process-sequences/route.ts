@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { analyzeLeadProfile, metamorphicRewrite, omniRouteSelector } from '@/app/actions/outreachEngine';
 import { sendOutreachEmail } from '@/lib/email';
 
+
+export const dynamic = 'force-dynamic';
+
 const NEXT_STEPS: Record<number, { nextStep: number, daysToAdd: number } | null> = {
   1: { nextStep: 3, daysToAdd: 2 },   // Step 1 done -> Next is step 3 (in 2 days)
   3: { nextStep: 7, daysToAdd: 4 },   // Step 3 done -> Next is step 7 (in 4 days)

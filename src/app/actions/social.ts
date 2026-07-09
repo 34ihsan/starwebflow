@@ -383,7 +383,7 @@ JSON Formatı şu şekilde OLMALIDIR:
       success: true, 
       omnichannel: aiResult.posts || {},
       niche: aiResult.niche || '',
-      model: 'gemini-2.5-flash (Google AI)',
+      model: 'gemini-2.0-flash (Google AI)',
       mediaPrompt: finalImagePrompt,
       mediaUrl: finalMediaUrl
     };

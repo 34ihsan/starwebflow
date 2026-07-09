@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content: text,
       type,
-      model: usePro ? 'gemini-2.5-pro' : 'gemini-2.5-flash',
+      model: usePro ? 'gemini-2.0-pro-exp' : 'gemini-2.0-flash',
       wordCount: text.split(' ').length,
     });
   } catch (error: any) {

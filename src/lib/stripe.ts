@@ -1,7 +1,8 @@
 import Stripe from 'stripe';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_to_bypass_build', {
   apiVersion: '2024-06-20' as any,
 });
 
 export const isStripeEnabled = !!process.env.STRIPE_SECRET_KEY;
+

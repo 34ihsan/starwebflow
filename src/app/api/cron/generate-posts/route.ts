@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateAIContent } from '@/app/actions/social';
 
+
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     // Check authorization if needed, Vercel cron uses a bearer token
