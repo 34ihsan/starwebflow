@@ -243,6 +243,7 @@ export default function LeadCaptureModal() {
                       Kişisel verileriniz KVKK kapsamında işlenmekte ve site içi deneyiminiz size özel teklifler sunabilmek adına AI ile analiz edilmektedir. Spam göndermeyiz.
                     </p>
                   </form>
+                </div>
               </div>
             )}
             </div>
