@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Shield, ShieldCheck, ShieldX, AlertTriangle, CheckCircle2,
   XCircle, RefreshCw, Search, Zap, BarChart3, Globe,
-  AlertCircle, TrendingUp, Eye, FileText
+  AlertCircle, TrendingUp, Eye, FileText, Trash2
 } from 'lucide-react';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
-import { verifyMailboxDns } from '@/app/actions/email';
+import { verifyMailboxDns, deleteEmailMailbox } from '@/app/actions/email';
 
 interface Mailbox {
   id: string;
@@ -54,6 +54,16 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
   const [spamBody, setSpamBody] = useState('');
   const [activePanel, setActivePanel] = useState<'overview' | 'blacklist' | 'spam'>('overview');
   const [dnsVerifyLoading, setDnsVerifyLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Sync selected mailbox if it was deleted
+  useEffect(() => {
+    if (selectedMailbox && !dbMailboxes.find(m => m.id === selectedMailbox.id)) {
+      setSelectedMailbox(dbMailboxes[0] || null);
+      setBlacklistResult(null);
+      setSpamCheckResult(null);
+    }
+  }, [dbMailboxes, selectedMailbox]);
 
   const deliverability = selectedMailbox
     ? calculateDeliverabilityScore({
@@ -116,6 +126,20 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
     }
   }, [selectedMailbox]);
 
+  const deleteMailbox = useCallback(async () => {
+    if (!selectedMailbox) return;
+    if (!window.confirm(`${selectedMailbox.email} adresini sistemden silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) return;
+    
+    setDeleteLoading(true);
+    try {
+      await deleteEmailMailbox(selectedMailbox.id);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeleteLoading(false);
+    }
+  }, [selectedMailbox]);
+
   if (dbMailboxes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center animate-in fade-in">
@@ -145,21 +169,31 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
               Her mailbox&apos;ın teslim edilebilirlik puanı, blacklist durumu ve spam skoru gerçek zamanlı analiz edilir.
             </p>
           </div>
-          {/* Mailbox Selector */}
-          <select
-            value={selectedMailbox?.id || ''}
-            onChange={(e) => {
-              const mb = dbMailboxes.find(m => m.id === e.target.value);
-              setSelectedMailbox(mb || null);
-              setBlacklistResult(null);
-              setSpamCheckResult(null);
-            }}
-            className="bg-[#05050A] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 min-w-[220px] shrink-0"
-          >
-            {dbMailboxes.map(mb => (
-              <option key={mb.id} value={mb.id}>{mb.email}</option>
-            ))}
-          </select>
+          {/* Mailbox Selector and Actions */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <select
+              value={selectedMailbox?.id || ''}
+              onChange={(e) => {
+                const mb = dbMailboxes.find(m => m.id === e.target.value);
+                setSelectedMailbox(mb || null);
+                setBlacklistResult(null);
+                setSpamCheckResult(null);
+              }}
+              className="bg-[#05050A] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 min-w-[220px]"
+            >
+              {dbMailboxes.map(mb => (
+                <option key={mb.id} value={mb.id}>{mb.email}</option>
+              ))}
+            </select>
+            <button
+              onClick={deleteMailbox}
+              disabled={deleteLoading || !selectedMailbox}
+              className="text-xs flex items-center justify-center p-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-red-400 transition-colors disabled:opacity-50"
+              title="Mailbox'ı Sil"
+            >
+              {deleteLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
       </div>
 

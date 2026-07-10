@@ -172,6 +172,19 @@ export async function verifyMailboxDns(mailboxId: string) {
   }
 }
 
+export async function deleteEmailMailbox(mailboxId: string) {
+  try {
+    await prisma.emailMailbox.delete({
+      where: { id: mailboxId }
+    });
+    safeRevalidatePath('/admin/email');
+    return { success: true };
+  } catch (error) {
+    console.error('deleteEmailMailbox error:', error);
+    return { success: false, error: 'Failed to delete mailbox' };
+  }
+}
+
 export async function updateMailboxStatus(data: { id: string, status: string }) {
   try {
     const mailbox = await prisma.emailMailbox.update({
