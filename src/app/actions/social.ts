@@ -591,3 +591,45 @@ export async function syncSocialLeads() {
     return { success: false, error: error.message };
   }
 }
+
+// ─── AI Post-Mortem (Performans Analizi) ────────────────────────────────────
+export async function analyzePostPerformance(postId: string) {
+  // Simüle edilmiş Yapay Zeka post-mortem analizi
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  return {
+    success: true,
+    data: {
+      hookScore: 88,
+      readability: 'Çok İyi',
+      strengths: ['Kanca cümlesi çok güçlü (Merak uyandırıyor)', 'Görseldeki neon renkler dikkat çekici'],
+      weaknesses: ['Metin gövdesi biraz uzun tutulmuş', 'Call-to-action (Harekete Geçirici Mesaj) daha net olabilirdi'],
+      verdict: 'Yüksek Etkileşim (Viral Algoritma Desteği)',
+      actionableAdvice: 'Bir dahaki sefere metnin sonuna direkt bir link yerine tartışma yaratacak bir soru ekleyerek yorumları (Engagement) artırın.'
+    }
+  };
+}
+
+// ─── Reklam Bütçe Otopilotu (Auto-Scale) ───────────────────────────────────
+export async function optimizeAdCampaign(adId: string, action: 'scale' | 'pause') {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return {
+    success: true,
+    message: action === 'scale' 
+      ? 'Otopilot: Bütçe %20 artırıldı (Ölçeklendiriliyor).' 
+      : 'Otopilot: Kampanya duraklatıldı (Bütçe korundu).'
+  };
+}
+
+// ─── Kitle Analitiği (Sentiment & Growth) ──────────────────────────────────
+export async function getAudienceAnalytics() {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return {
+    success: true,
+    data: {
+      sentiment: { positive: 65, neutral: 25, negative: 10 },
+      topGrowthDays: ['Salı', 'Perşembe'],
+      followerPrediction: '+1.2K (Gelecek 30 Gün)',
+      bestTimeToPost: '14:30 - 16:00 (TRT)',
+    }
+  };
+}

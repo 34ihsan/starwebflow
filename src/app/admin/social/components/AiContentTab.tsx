@@ -1,0 +1,190 @@
+"use client";
+
+import { useState } from "react";
+import { Sparkles, Image as ImageIcon, CheckCircle, RefreshCcw, ArrowRight, Zap, Target } from "lucide-react";
+import { generateAIContent } from "@/app/actions/social";
+import { NativePreview } from "./NativePreview";
+import { BrandProfileModal } from "./BrandProfileModal";
+
+export function AiContentTab({ initialPending }: { initialPending: any[] }) {
+  const [isAiStudioOpen, setIsAiStudioOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
+
+  const [aiStudioParams, setAiStudioParams] = useState({
+    topic: "Web tasarım ve Yapay Zeka dönüşümü",
+    tone: "professional",
+    framework: "AIDA",
+    useAlgorithmHacks: true,
+    visualEngine: "google_ai_pro",
+    platforms: ["linkedin", "instagram"]
+  });
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await generateAIContent({
+        framework: aiStudioParams.framework,
+        platforms: aiStudioParams.platforms,
+        topic: aiStudioParams.topic,
+        humanizerScore: 90,
+        visualEngine: aiStudioParams.visualEngine,
+      });
+
+      if (res.success) {
+        let omnichannel = res.omnichannel || {};
+        // Otopilot algoritma hackleri simülasyonu
+        if (aiStudioParams.useAlgorithmHacks) {
+           if (omnichannel['linkedin']) omnichannel['linkedin'].content += "\n\n👇 İlk yorumda sürpriz var.";
+        }
+        setPreviewData({ omnichannel, image: res.mediaUrl, model: res.model });
+      } else {
+        alert("Üretim hatası: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between bg-neutral-900/60 border border-neutral-800 p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-indigo-400" />
+            AI İçerik Stüdyosu
+          </h2>
+          <p className="text-neutral-400 mt-1">Gelişmiş Yapay Zeka modelleri ile çoklu varyant ve hook testleri üretin.</p>
+        </div>
+        <div className="mt-4 md:mt-0 flex space-x-3">
+          <button 
+            onClick={() => setIsBrandModalOpen(true)}
+            className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg text-sm font-medium transition-colors text-white"
+          >
+            Marka Belleği (Tone)
+          </button>
+          <button 
+            onClick={() => setIsAiStudioOpen(!isAiStudioOpen)}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            Yeni Otopilot Serisi Başlat
+          </button>
+        </div>
+      </div>
+
+      {/* AI STUDIO PANEL */}
+      {isAiStudioOpen && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          {/* Controls */}
+          <div className="lg:col-span-1 space-y-4 bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+              <Target className="w-24 h-24 text-indigo-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-4">Üretim Parametreleri</h3>
+            
+            <div className="space-y-4 relative z-10">
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Konu / Kanca (Hook)</label>
+                <textarea 
+                  value={aiStudioParams.topic}
+                  onChange={(e) => setAiStudioParams({...aiStudioParams, topic: e.target.value})}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[80px]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Framework</label>
+                <select 
+                  value={aiStudioParams.framework}
+                  onChange={(e) => setAiStudioParams({...aiStudioParams, framework: e.target.value})}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                >
+                  <option value="AIDA">AIDA (Dikkat, İlgi, Arzu, Eylem)</option>
+                  <option value="PAS">PAS (Problem, Agitate, Çözüm)</option>
+                  <option value="BAB">BAB (Before, After, Bridge)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-3 mt-2">
+                <input 
+                  type="checkbox" 
+                  id="hacks"
+                  checked={aiStudioParams.useAlgorithmHacks}
+                  onChange={(e) => setAiStudioParams({...aiStudioParams, useAlgorithmHacks: e.target.checked})}
+                  className="rounded border-neutral-700 bg-neutral-900 text-indigo-600 focus:ring-indigo-500/50"
+                />
+                <label htmlFor="hacks" className="text-sm text-neutral-300">Algoritma Hacklerini Uygula (İlk Yorum vb.)</label>
+              </div>
+
+              <button 
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="w-full mt-4 bg-indigo-500 hover:bg-indigo-400 text-white py-2.5 rounded-lg font-medium transition-all shadow-[0_0_10px_rgba(99,102,241,0.4)] flex justify-center items-center gap-2 disabled:opacity-50"
+              >
+                {isGenerating ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                {isGenerating ? 'Yapay Zeka Üretiyor...' : 'Varyantları Oluştur'}
+              </button>
+            </div>
+          </div>
+
+          {/* Preview Area */}
+          <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 rounded-xl p-0 overflow-hidden shadow-lg flex flex-col">
+            <div className="border-b border-neutral-800 p-4 bg-neutral-950/50">
+              <h3 className="text-lg font-semibold text-white">Canlı Native Önizleme (A/B Test)</h3>
+            </div>
+            <div className="p-5 flex-1 overflow-y-auto bg-neutral-950/30">
+              {!previewData ? (
+                <div className="h-full flex flex-col items-center justify-center text-neutral-500 min-h-[300px]">
+                  <ImageIcon className="w-12 h-12 mb-3 opacity-20" />
+                  <p>Sol panelden parametreleri belirleyip üretime başlayın.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(previewData.omnichannel).map(([platform, data]: [string, any]) => (
+                    <div key={platform} className="border border-neutral-800 rounded-xl p-4 bg-neutral-900">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-semibold capitalize border border-indigo-500/30">
+                          {platform}
+                        </span>
+                        <div className="flex gap-2">
+                          <button className="text-xs px-2 py-1 bg-neutral-800 hover:bg-neutral-700 rounded text-neutral-300 transition">Varyant B İste</button>
+                          <button className="text-xs px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded transition flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Onayla & Takvime Ekle
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-6 flex-col sm:flex-row">
+                        {previewData.image && (
+                          <div className="w-full sm:w-1/3 shrink-0">
+                            <img src={previewData.image} alt="AI Generated" className="rounded-lg shadow-md border border-neutral-700 w-full object-cover aspect-square" />
+                          </div>
+                        )}
+                        <div className="flex-1 whitespace-pre-wrap text-sm text-neutral-200">
+                          {data.content}
+                          {data.hashtags && (
+                            <div className="mt-3 text-indigo-400 text-xs flex gap-2 flex-wrap">
+                              {data.hashtags.map((h: string) => <span key={h}>{h.startsWith('#') ? h : `#${h}`}</span>)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modals */}
+      <BrandProfileModal isOpen={isBrandModalOpen} onClose={() => setIsBrandModalOpen(false)} />
+    </div>
+  );
+}
