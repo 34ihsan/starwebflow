@@ -4,15 +4,27 @@ import { useState } from "react";
 import { 
   CalendarDays, Video, Clock, Users,
   Link as LinkIcon, Plus, ChevronRight,
-  Settings, Copy, Calendar, RefreshCw, Bell, Smartphone, MessageSquare
+  Settings, Copy, Calendar, RefreshCw, Bell, Smartphone, MessageSquare, Trash2, X
 } from "lucide-react";
 
-import { createAppointment } from "@/app/actions/appointment";
+import { createAppointment, deleteAppointment } from "@/app/actions/appointment";
 
 export default function AppointmentsDashboardClient({ initialData }: { initialData: any[] }) {
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "types">("upcoming");
   const [appointments, setAppointments] = useState<any[]>(initialData);
   const [isCreating, setIsCreating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Modal Form State
+  const [formData, setFormData] = useState({
+    title: "Keşif Görüşmesi",
+    clientName: "",
+    clientEmail: "",
+    date: "",
+    time: "10:00",
+    duration: "30",
+    sendMeetLink: true
+  });
 
   const now = new Date();
   const dbUpcoming = appointments.filter(a => new Date(a.endTime) >= now);
@@ -37,8 +49,63 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
     }
   ];
 
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.clientName || !formData.date || !formData.time) return;
+    setIsSubmitting(true);
+    
+    try {
+      const [year, month, day] = formData.date.split("-");
+      const [hour, minute] = formData.time.split(":");
+      
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+      const endDate = new Date(startDate.getTime() + parseInt(formData.duration) * 60000);
+      
+      let meetLink = "";
+      if (formData.sendMeetLink) {
+        // Otomatik mock Google Meet linki
+        const mockId = Math.random().toString(36).substring(2, 12);
+        meetLink = `https://meet.google.com/${mockId.substring(0,3)}-${mockId.substring(3,7)}-${mockId.substring(7,10)}`;
+      }
+
+      const res = await createAppointment({
+        tenantId: "default-tenant", // Gerçek senaryoda Auth context'ten alınmalı
+        title: formData.title,
+        clientName: formData.clientName,
+        clientEmail: formData.clientEmail,
+        startTime: startDate,
+        endTime: endDate,
+        meetLink: meetLink
+      });
+
+      if (res.success && res.data) {
+        setAppointments([...appointments, res.data]);
+        setIsCreating(false);
+        setFormData({ title: "Keşif Görüşmesi", clientName: "", clientEmail: "", date: "", time: "10:00", duration: "30", sendMeetLink: true });
+      } else {
+        alert("Randevu oluşturulamadı!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Bir hata oluştu.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Bu randevuyu iptal etmek istediğinize emin misiniz?")) return;
+    
+    const res = await deleteAppointment(id);
+    if (res.success) {
+      setAppointments(appointments.filter(a => a.id !== id));
+    } else {
+      alert("Randevu iptal edilemedi.");
+    }
+  };
+
   return (
-    <div className="space-y-8 p-8 animate-in fade-in duration-500 min-h-screen pb-20">
+    <div className="space-y-8 p-8 animate-in fade-in duration-500 min-h-screen pb-20 relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
         <div>
@@ -51,10 +118,7 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => {
-              // TODO: Implement real modal for new appointment
-              alert("Bu özellik yakında eklenecektir.");
-            }}
+            onClick={() => setIsCreating(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] disabled:opacity-50"
           >
             <Plus className="w-4 h-4" />
@@ -90,12 +154,12 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <div className="xl:col-span-2 space-y-4">
               {displayUpcoming.length > 0 ? displayUpcoming.map((apt) => {
-                const guestName = apt.clientName || apt.guest;
-                const typeName = apt.title || apt.type;
-                const platformName = apt.platform || "Google Meet";
+                const guestName = apt.clientName || "Misafir";
+                const typeName = apt.title || "Görüşme";
+                const platformName = "Google Meet";
                 
-                let dateStr = apt.date;
-                let timeStr = apt.time;
+                let dateStr = "";
+                let timeStr = "";
                 if (apt.startTime) {
                   const d = new Date(apt.startTime);
                   dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -113,7 +177,7 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">{guestName}</h3>
-                        <p className="text-sm text-[#94A3B8] mt-1">{typeName}</p>
+                        <p className="text-sm text-[#94A3B8] mt-1">{typeName} {apt.clientEmail && `(${apt.clientEmail})`}</p>
                         <div className="flex items-center gap-4 mt-3">
                           <span className="flex items-center gap-1.5 text-xs font-medium text-[#64748B]">
                             <Video className="w-4 h-4" />
@@ -127,15 +191,24 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <a 
-                        href={apt.meetLink?.startsWith('http') ? apt.meetLink : `https://${apt.meetLink}`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-blue-500/25"
+                      {apt.meetLink && (
+                        <a 
+                          href={apt.meetLink.startsWith('http') ? apt.meetLink : `https://${apt.meetLink}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-blue-500/25"
+                        >
+                          <Video className="w-4 h-4" />
+                          Görüşmeye Katıl
+                        </a>
+                      )}
+                      <button 
+                        onClick={() => handleDelete(apt.id)}
+                        className="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors border border-red-500/20"
+                        title="İptal Et"
                       >
-                        <Video className="w-4 h-4" />
-                        Görüşmeye Katıl
-                      </a>
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -232,7 +305,7 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
                 <div key={apt.id} className="bg-[#0A0A0F]/80 border border-white/[0.05] p-4 rounded-2xl flex items-center justify-between">
                   <div>
                     <h4 className="text-white font-bold">{apt.clientName}</h4>
-                    <p className="text-sm text-[#94A3B8]">{apt.title} • {dateStr} {timeStr}</p>
+                    <p className="text-sm text-[#94A3B8]">{apt.title} {apt.clientEmail && `(${apt.clientEmail})`} • {dateStr} {timeStr}</p>
                   </div>
                   <span className="px-3 py-1 bg-white/10 text-white rounded-md text-xs">Tamamlandı</span>
                 </div>
@@ -247,6 +320,114 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
           </div>
         )}
       </div>
+
+      {/* New Appointment Modal */}
+      {isCreating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#0A0A0F] border border-white/[0.1] rounded-2xl w-full max-w-lg shadow-2xl relative overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/[0.05]">
+              <h2 className="text-xl font-bold text-white">Yeni Randevu Planla</h2>
+              <button onClick={() => setIsCreating(false)} className="text-[#94A3B8] hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreate} className="p-6 space-y-5">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Görüşme Başlığı</label>
+                  <select 
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full bg-[#05050A] border border-white/[0.1] text-white rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  >
+                    <option value="Keşif Görüşmesi">Keşif Görüşmesi</option>
+                    <option value="Teknik Danışmanlık">Teknik Danışmanlık</option>
+                    <option value="Proje Toplantısı">Proje Toplantısı</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Müşteri Adı</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.clientName}
+                      onChange={(e) => setFormData({...formData, clientName: e.target.value})}
+                      placeholder="Örn: Ahmet Yılmaz"
+                      className="w-full bg-[#05050A] border border-white/[0.1] text-white rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-posta (İsteğe bağlı)</label>
+                    <input 
+                      type="email" 
+                      value={formData.clientEmail}
+                      onChange={(e) => setFormData({...formData, clientEmail: e.target.value})}
+                      placeholder="Email girin..."
+                      className="w-full bg-[#05050A] border border-white/[0.1] text-white rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Tarih</label>
+                    <input 
+                      type="date" 
+                      required
+                      value={formData.date}
+                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      className="w-full bg-[#05050A] border border-white/[0.1] text-white rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Saat</label>
+                    <input 
+                      type="time" 
+                      required
+                      value={formData.time}
+                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                      className="w-full bg-[#05050A] border border-white/[0.1] text-white rounded-xl px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <label className="relative flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={formData.sendMeetLink}
+                      onChange={(e) => setFormData({...formData, sendMeetLink: e.target.checked})}
+                    />
+                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                  </label>
+                  <span className="text-sm text-white">Google Meet Linki Oluştur</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-white/[0.05]">
+                <button 
+                  type="button"
+                  onClick={() => setIsCreating(false)}
+                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/[0.05] transition-colors"
+                >
+                  Vazgeç
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Oluşturuluyor..." : "Randevu Oluştur"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

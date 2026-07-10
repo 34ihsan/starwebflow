@@ -46,3 +46,16 @@ export async function createAppointment(data: {
     return { success: false, error: 'Failed to create appointment' };
   }
 }
+
+export async function deleteAppointment(id: string) {
+  try {
+    await prisma.appointment.delete({
+      where: { id },
+    });
+    safeRevalidatePath('/admin/appointments');
+    return { success: true };
+  } catch (error) {
+    console.error('deleteAppointment error:', error);
+    return { success: false, error: 'Failed to delete appointment' };
+  }
+}
