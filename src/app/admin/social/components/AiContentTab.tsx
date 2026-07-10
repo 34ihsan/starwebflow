@@ -12,14 +12,26 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
 
-  const [aiStudioParams, setAiStudioParams] = useState({
-    topic: "Web tasarım ve Yapay Zeka dönüşümü",
-    tone: "professional",
-    framework: "AIDA",
-    useAlgorithmHacks: true,
-    visualEngine: "google_ai_pro",
-    platforms: ["linkedin", "instagram"]
-  });
+  const [pendingQueue, setPendingQueue] = useState<any[]>(initialPending);
+  const [editingPost, setEditingPost] = useState<any | null>(null);
+
+  const handleApprove = async (id: string, updatedData?: any) => {
+    try {
+      const dataToUpdate = updatedData || { status: 'SCHEDULED' };
+      if (!dataToUpdate.status) dataToUpdate.status = 'SCHEDULED';
+      
+      const { updateSocialPost } = await import("@/app/actions/social");
+      const res = await updateSocialPost(id, dataToUpdate);
+      if (res.success) {
+        setPendingQueue(pendingQueue.filter(p => p.id !== id));
+        setEditingPost(null);
+      } else {
+        alert("Güncelleme başarısız: " + res.error);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -191,69 +203,149 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
             Onay Bekleyenler (Toplu Planlama Kuyruğu)
           </h3>
           <span className="px-2.5 py-0.5 bg-neutral-800 text-neutral-400 text-xs rounded-full font-medium border border-neutral-700">
-            2 Gönderi Onay Bekliyor
+            {pendingQueue.length} Gönderi Onay Bekliyor
           </span>
         </div>
         
         <div className="divide-y divide-neutral-800/50">
-          {/* Mock Item 1 */}
-          <div className="p-5 hover:bg-neutral-800/20 transition flex flex-col md:flex-row gap-5">
-            <div className="w-24 shrink-0 flex flex-col items-center justify-center bg-neutral-950 border border-neutral-800 rounded-lg py-3">
-              <span className="text-xs text-neutral-500 font-medium">17 NİSAN</span>
-              <span className="text-lg font-bold text-neutral-200">18:00</span>
+          {pendingQueue.length === 0 ? (
+            <div className="p-8 text-center text-neutral-500">
+              <CheckCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+              <p>Onay bekleyen gönderi bulunmuyor.</p>
             </div>
-            
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 bg-pink-500/10 text-pink-400 text-[10px] rounded border border-pink-500/20 font-bold tracking-wide uppercase">Instagram Reels</span>
-                <span className="text-xs font-medium text-neutral-500">Konu: Markanızı uçuracak 3 strateji</span>
+          ) : (
+            pendingQueue.map((post) => (
+              <div key={post.id} className="p-5 hover:bg-neutral-800/20 transition flex flex-col md:flex-row gap-5">
+                <div className="w-24 shrink-0 flex flex-col items-center justify-center bg-neutral-950 border border-neutral-800 rounded-lg py-3 text-center">
+                  <span className="text-xs text-neutral-500 font-medium">
+                    {post.scheduledFor ? new Date(post.scheduledFor).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : 'TARİHSİZ'}
+                  </span>
+                  <span className="text-lg font-bold text-neutral-200">
+                    {post.scheduledFor ? new Date(post.scheduledFor).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '-'}
+                  </span>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[10px] rounded border border-indigo-500/20 font-bold tracking-wide uppercase">
+                      {post.platform}
+                    </span>
+                    <span className="text-xs font-medium text-neutral-500">
+                      Oluşturuldu: {new Date(post.createdAt).toLocaleDateString('tr-TR')}
+                    </span>
+                  </div>
+                  <p className="text-sm text-neutral-300 line-clamp-2">
+                    {post.content}
+                  </p>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setEditingPost(post)}
+                    className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-sm font-medium rounded-lg transition border border-neutral-700"
+                  >
+                    Düzenle / Önizle
+                  </button>
+                  <button 
+                    onClick={() => handleApprove(post.id)}
+                    className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-1"
+                  >
+                    <CheckCircle className="w-4 h-4" /> Onayla
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-neutral-300 line-clamp-2">
-                Markanızın büyümesi neden durdu? İşte %90 işletmenin yaptığı 3 ölümcül hata ve bizim kullandığımız büyüme formülü! 👇 Link profilde.
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-sm font-medium rounded-lg transition border border-neutral-700">
-                Düzenle
-              </button>
-              <button className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-1">
-                <CheckCircle className="w-4 h-4" /> Onayla
-              </button>
-            </div>
-          </div>
-
-          {/* Mock Item 2 */}
-          <div className="p-5 hover:bg-neutral-800/20 transition flex flex-col md:flex-row gap-5">
-            <div className="w-24 shrink-0 flex flex-col items-center justify-center bg-neutral-950 border border-neutral-800 rounded-lg py-3">
-              <span className="text-xs text-neutral-500 font-medium">18 NİSAN</span>
-              <span className="text-lg font-bold text-neutral-200">10:30</span>
-            </div>
-            
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20 font-bold tracking-wide uppercase">LinkedIn Carousel</span>
-                <span className="text-xs font-medium text-neutral-500">Konu: B2B Satışlarda Soğuk Mail</span>
-              </div>
-              <p className="text-sm text-neutral-300 line-clamp-2">
-                Soğuk mailleriniz spam'e mi düşüyor? %40 açılma oranına ulaştığımız B2B e-posta şablonumuzu adım adım inceliyoruz. (Kaydırmalı post)
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-sm font-medium rounded-lg transition border border-neutral-700">
-                Düzenle
-              </button>
-              <button className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-1">
-                <CheckCircle className="w-4 h-4" /> Onayla
-              </button>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
 
       {/* Modals */}
       <BrandProfileModal isOpen={isBrandModalOpen} onClose={() => setIsBrandModalOpen(false)} />
+
+      {editingPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950/50 rounded-t-2xl">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-indigo-400" />
+                İçerik Düzenleme ve Önizleme
+              </h2>
+              <button onClick={() => setEditingPost(null)} className="text-neutral-400 hover:text-white">
+                Kapat
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Düzenleme Formu */}
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-400 mb-1">Gönderi Metni</label>
+                  <textarea 
+                    value={editingPost.content || ''}
+                    onChange={(e) => setEditingPost({...editingPost, content: e.target.value})}
+                    className="w-full h-48 bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-400 mb-1">Görsel URL</label>
+                  <input 
+                    type="text" 
+                    value={editingPost.mediaUrl || ''}
+                    onChange={(e) => setEditingPost({...editingPost, mediaUrl: e.target.value})}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50"
+                    placeholder="https://..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-400 mb-1">Planlanan Tarih & Saat</label>
+                  <input 
+                    type="datetime-local" 
+                    value={editingPost.scheduledFor ? new Date(new Date(editingPost.scheduledFor).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => setEditingPost({...editingPost, scheduledFor: new Date(e.target.value)})}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 [color-scheme:dark]"
+                  />
+                </div>
+              </div>
+
+              {/* Native Önizleme */}
+              <div className="bg-black/40 border border-neutral-800 rounded-xl p-4 flex flex-col items-center justify-center">
+                <p className="text-xs font-semibold text-neutral-500 uppercase tracking-widest mb-4">Native Cihaz Önizlemesi</p>
+                <NativePreview 
+                  platform={editingPost.platform?.toLowerCase() || 'linkedin'} 
+                  content={editingPost.content || ''} 
+                  image={editingPost.mediaUrl} 
+                />
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-neutral-800 bg-neutral-950/50 rounded-b-2xl flex justify-end gap-3">
+              <button 
+                onClick={() => handleApprove(editingPost.id, { 
+                  content: editingPost.content, 
+                  mediaUrl: editingPost.mediaUrl, 
+                  scheduledFor: editingPost.scheduledFor,
+                  status: 'IDEA' // just saving edits, not approving yet if clicked save
+                })}
+                className="px-5 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-lg transition"
+              >
+                Taslağı Kaydet
+              </button>
+              <button 
+                onClick={() => handleApprove(editingPost.id, { 
+                  content: editingPost.content, 
+                  mediaUrl: editingPost.mediaUrl, 
+                  scheduledFor: editingPost.scheduledFor,
+                  status: 'SCHEDULED'
+                })}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg transition shadow-[0_0_15px_rgba(79,70,229,0.4)] flex items-center gap-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                Değişiklikleri Kaydet ve Onayla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
