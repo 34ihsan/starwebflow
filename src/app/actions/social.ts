@@ -283,7 +283,8 @@ Hedef Kitle: ${brandProfile.targetAudience || 'B2B ve Kobi'}
 Yasaklı Kelimeler: ${brandProfile.forbiddenWords?.join(', ') || 'Yok'}`;
     }
 
-    const systemPrompt = `Sen StarWebFlow ajansının Kıdemli Sosyal Medya Metin Yazarı (Senior Copywriter) rolündesin.
+    const systemPrompt = `Rol: StarWebFlow ajansının Kıdemli Sosyal Medya Metin Yazarı (Senior Copywriter).
+ÖNEMLİ: KESİNLİKLE "Sen StarWebFlow olarak..." gibi ifadelere yer verme ve kendine "Sen" diye hitap etme. Gönderileri "biz" (StarWebFlow uzmanları olarak) diliyle veya doğrudan hedef kitleye hitap eden bir dille yaz.
 ${brandTone}
 Çıktı Dili: Türkçe${
       humanizerScore > 80
@@ -449,7 +450,7 @@ export async function suggestSocialIdeas(topicContext?: string) {
     const { getFlashModel } = await import('@/lib/ai/gemini-client');
     const model = getFlashModel();
 
-    const systemPrompt = `Sen StarWebFlow ajansının dijital pazarlama ve içerik stratejistisin.
+    const systemPrompt = `Rol: StarWebFlow ajansının dijital pazarlama ve içerik stratejistisin. KESİNLİKLE kendine "Sen" diye hitap etme ve "Sen StarWebFlow olarak" diye başlama.
 Görevin, projenin sunduğu TÜM HİZMETLERİ (Modern Web Tasarımı, SEO, Sosyal Medya Yönetimi, Dijital Dönüşüm, Yapay Zeka Çözümleri, İçerik Pazarlaması, Reklam Yönetimi) kapsayacak şekilde çeşitli ve profesyonel 5 adet harika sosyal medya post fikri üretmektir. Sadece tek bir hizmete odaklanma, farklı hizmetleri harmanla.
 Eğer kullanıcı özel bir bağlam verirse ona odaklan ama yine de ajansın profesyonel ve vizyoner dilini koru.
 Çıktıyı SADECE geçerli bir JSON array formatında ver. Başka hiçbir açıklama yazma.
