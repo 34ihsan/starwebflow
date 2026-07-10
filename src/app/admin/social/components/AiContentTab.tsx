@@ -183,6 +183,75 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
         </div>
       )}
 
+      {/* DRAFTS & PENDING APPROVALS QUEUE */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden shadow-lg mt-8">
+        <div className="p-5 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            Onay Bekleyenler (Toplu Planlama Kuyruğu)
+          </h3>
+          <span className="px-2.5 py-0.5 bg-neutral-800 text-neutral-400 text-xs rounded-full font-medium border border-neutral-700">
+            2 Gönderi Onay Bekliyor
+          </span>
+        </div>
+        
+        <div className="divide-y divide-neutral-800/50">
+          {/* Mock Item 1 */}
+          <div className="p-5 hover:bg-neutral-800/20 transition flex flex-col md:flex-row gap-5">
+            <div className="w-24 shrink-0 flex flex-col items-center justify-center bg-neutral-950 border border-neutral-800 rounded-lg py-3">
+              <span className="text-xs text-neutral-500 font-medium">17 NİSAN</span>
+              <span className="text-lg font-bold text-neutral-200">18:00</span>
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 bg-pink-500/10 text-pink-400 text-[10px] rounded border border-pink-500/20 font-bold tracking-wide uppercase">Instagram Reels</span>
+                <span className="text-xs font-medium text-neutral-500">Konu: Markanızı uçuracak 3 strateji</span>
+              </div>
+              <p className="text-sm text-neutral-300 line-clamp-2">
+                Markanızın büyümesi neden durdu? İşte %90 işletmenin yaptığı 3 ölümcül hata ve bizim kullandığımız büyüme formülü! 👇 Link profilde.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-sm font-medium rounded-lg transition border border-neutral-700">
+                Düzenle
+              </button>
+              <button className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-1">
+                <CheckCircle className="w-4 h-4" /> Onayla
+              </button>
+            </div>
+          </div>
+
+          {/* Mock Item 2 */}
+          <div className="p-5 hover:bg-neutral-800/20 transition flex flex-col md:flex-row gap-5">
+            <div className="w-24 shrink-0 flex flex-col items-center justify-center bg-neutral-950 border border-neutral-800 rounded-lg py-3">
+              <span className="text-xs text-neutral-500 font-medium">18 NİSAN</span>
+              <span className="text-lg font-bold text-neutral-200">10:30</span>
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[10px] rounded border border-blue-500/20 font-bold tracking-wide uppercase">LinkedIn Carousel</span>
+                <span className="text-xs font-medium text-neutral-500">Konu: B2B Satışlarda Soğuk Mail</span>
+              </div>
+              <p className="text-sm text-neutral-300 line-clamp-2">
+                Soğuk mailleriniz spam'e mi düşüyor? %40 açılma oranına ulaştığımız B2B e-posta şablonumuzu adım adım inceliyoruz. (Kaydırmalı post)
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button className="px-3 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-sm font-medium rounded-lg transition border border-neutral-700">
+                Düzenle
+              </button>
+              <button className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition shadow-[0_0_10px_rgba(16,185,129,0.3)] flex items-center gap-1">
+                <CheckCircle className="w-4 h-4" /> Onayla
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Modals */}
       <BrandProfileModal isOpen={isBrandModalOpen} onClose={() => setIsBrandModalOpen(false)} />
     </div>

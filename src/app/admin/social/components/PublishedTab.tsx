@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, TrendingUp, Search, MessageCircle, Share2, BrainCircuit, X } from "lucide-react";
+import { CheckCircle2, TrendingUp, Search, MessageCircle, Share2, BrainCircuit, X, Zap } from "lucide-react";
 import { analyzePostPerformance } from "@/app/actions/social";
 
 export function PublishedTab({ publishedPosts }: { publishedPosts: any[] }) {
@@ -83,10 +83,12 @@ export function PublishedTab({ publishedPosts }: { publishedPosts: any[] }) {
                     <div className="text-sm font-semibold text-white">{(Math.random() * 5000 + 500).toFixed(0)}</div>
                     <div className="text-[10px] text-neutral-500">Gösterim</div>
                   </div>
-                  <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50">
+                  <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50 relative">
                     <MessageCircle className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
-                    <div className="text-sm font-semibold text-white">{(Math.random() * 50 + 5).toFixed(0)}</div>
+                    <div className="text-sm font-semibold text-white">{(Math.random() * 50 + 20).toFixed(0)}</div>
                     <div className="text-[10px] text-neutral-500">Yorum</div>
+                    {/* High engagement mock badge */}
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-pink-500 rounded-full animate-ping"></span>
                   </div>
                   <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50">
                     <Share2 className="w-4 h-4 text-blue-400 mx-auto mb-1" />
@@ -95,17 +97,23 @@ export function PublishedTab({ publishedPosts }: { publishedPosts: any[] }) {
                   </div>
                 </div>
 
-                <button 
-                  onClick={() => handleAnalyze(post.id)}
-                  disabled={analyzingId === post.id}
-                  className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 border border-neutral-700 hover:border-neutral-600 disabled:opacity-50"
-                >
-                  {analyzingId === post.id ? (
-                    <span className="flex items-center gap-2"><BrainCircuit className="w-4 h-4 animate-pulse" /> Analiz Ediliyor...</span>
-                  ) : (
-                    <span className="flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-indigo-400" /> AI Post-Mortem İste</span>
-                  )}
-                </button>
+                <div className="space-y-2">
+                  <button 
+                    onClick={() => handleAnalyze(post.id)}
+                    disabled={analyzingId === post.id}
+                    className="w-full bg-neutral-800 hover:bg-neutral-700 text-neutral-200 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 border border-neutral-700"
+                  >
+                    {analyzingId === post.id ? (
+                      <span className="flex items-center gap-2"><BrainCircuit className="w-4 h-4 animate-pulse" /> Analiz Ediliyor...</span>
+                    ) : (
+                      <span className="flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> AI Post-Mortem Analizi</span>
+                    )}
+                  </button>
+                  <button className="w-full bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Reklama Çık (Viral Adayı)
+                  </button>
+                </div>
               </div>
 
             </div>

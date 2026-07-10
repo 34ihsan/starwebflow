@@ -569,8 +569,9 @@ model SocialPost {
   hasImage          Boolean  @default(false)
   mediaUrl          String?  @map("media_url")
   mediaType         String?  @map("media_type") // image, video
+  mediaFormat       String?  @map("media_format") // REELS, STORY, FEED, CAROUSEL
   mediaPrompt       String?  @db.Text @map("media_prompt")
-  status            String   @default("pending") 
+  status            String   @default("PENDING_GENERATION") // PENDING_GENERATION, PENDING_APPROVAL, SCHEDULED, PUBLISHED, FAILED
   scheduledFor      DateTime? @map("scheduled_for")
   aiGenerationStyle String?  @map("ai_generation_style") 
   humanizedScore    Float?   @map("humanized_score")     
