@@ -46,8 +46,8 @@ export async function checkDKIM(domain: string): Promise<boolean> {
   // Most common DKIM selectors (PRO level exhaustive list)
   const commonSelectors = [
     'google', 'default', 'mail', 'selector1', 's1', 's2', 'k1', 'k2', 'smtp',
-    'ionos', 'pic', 'zoho', 'protonmail', 'protonmail2', 'protonmail3',
-    'x', 'y', 'z', 'm1', 'm2', 'sg', 'sendgrid'
+    'ionos', 's1-ionos', 's2-ionos', 'pic', 'zoho', 'protonmail', 'protonmail2', 'protonmail3',
+    'x', 'y', 'z', 'm1', 'm2', 'sg', 'sendgrid', 'resend'
   ];
   for (const selector of commonSelectors) {
     try {
