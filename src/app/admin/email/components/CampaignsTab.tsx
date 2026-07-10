@@ -40,7 +40,7 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
               Henüz bir kampanya verisi bulunmuyor.
             </div>
           ) : (
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={256} minHeight={256}>
             <LineChart data={chartData}>
               <XAxis dataKey="name" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
