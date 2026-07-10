@@ -1,21 +1,13 @@
-import { Resolver } from 'dns/promises';
+import { resolveTxt } from 'dns/promises';
 
 const DNS_TIMEOUT_MS = 5000;
 
 async function resolveTxtWithTimeout(domain: string): Promise<string[][]> {
-  const resolver = new Resolver();
-  try {
-    // Use Google and Cloudflare public DNS servers
-    resolver.setServers(['8.8.8.8', '1.1.1.1']);
-  } catch (e) {
-    console.warn('Could not set custom DNS servers, using default:', e);
-  }
-
   const timeoutPromise = new Promise<never>((_, reject) =>
     setTimeout(() => reject(new Error('DNS Timeout')), DNS_TIMEOUT_MS)
   );
   return Promise.race([
-    resolver.resolveTxt(domain),
+    resolveTxt(domain),
     timeoutPromise
   ]);
 }
