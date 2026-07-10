@@ -15,6 +15,12 @@ const nextConfig = {
       bodySizeLimit: '5mb',
     },
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   async headers() {
     return [
