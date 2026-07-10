@@ -398,16 +398,13 @@ JSON Formatı şu şekilde OLMALIDIR:
   }
 }
 
-export async function bulkGenerateSocialContent(rows: { topic: string; platform: string; date?: string; framework?: string; imagePrompt?: string }[]) {
+export async function bulkGenerateSocialContent(rows: { topic: string; platforms: string[]; date?: string; framework?: string; format?: string; imagePrompt?: string }[]) {
   try {
     const tenantId = await getActiveTenantId();
     let createdCount = 0;
 
     for (const row of rows) {
-      if (!row.topic || !row.platform) continue;
-
-      const platformLabel = row.platform.toLowerCase().includes('linkedin') ? 'LinkedIn' :
-                            row.platform.toLowerCase().includes('twitter') ? 'Twitter' : 'Instagram';
+      if (!row.topic || !row.platforms || row.platforms.length === 0) continue;
 
       let scheduledFor = undefined;
       if (row.date) {
@@ -417,18 +414,56 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platform:
         }
       }
 
-      await prisma.socialPost.create({
-        data: {
-          tenant: { connect: { id: tenantId } },
-          platform: platformLabel,
-          content: row.topic, // Storing topic in content while in IDEA status
-          status: 'IDEA',
-          scheduledFor: scheduledFor,
-          aiGenerationStyle: 'gemini-bulk-intent',
-          mediaPrompt: row.imagePrompt,
-        },
+      // Her satır için AI içeriği üret
+      const aiResponse = await generateAIContent({
+        framework: (row.framework || 'AIDA') + (row.format ? ` (Format/Ebat: ${row.format})` : ''),
+        platforms: row.platforms,
+        topic: row.topic,
+        humanizerScore: 85,
+        visualEngine: row.imagePrompt ? 'google_ai_pro' : 'none',
+        imagePrompt: row.imagePrompt
       });
-      createdCount++;
+
+      if (!aiResponse.success) {
+        console.error('Bulk generate error for topic:', row.topic, aiResponse.error);
+        continue;
+      }
+
+      const omnichannelData = aiResponse.omnichannel as Record<string, { content: string; hashtags: string[] }>;
+      const mediaUrl = aiResponse.mediaUrl;
+      const finalImagePrompt = aiResponse.mediaPrompt;
+
+      // Üretilen her platform içeriğini kaydet
+      for (const platform of row.platforms) {
+        const pKey = platform.toLowerCase().includes('linkedin') ? 'linkedin' :
+                     platform.toLowerCase().includes('twitter') ? 'twitter' :
+                     platform.toLowerCase().includes('instagram') ? 'instagram' :
+                     platform.toLowerCase().includes('tiktok') ? 'tiktok' : platform.toLowerCase();
+
+        const platformContent = omnichannelData[pKey]?.content || row.topic;
+        const platformHashtags = omnichannelData[pKey]?.hashtags || [];
+
+        const platformLabel = platform.toLowerCase().includes('linkedin') ? 'LinkedIn' :
+                              platform.toLowerCase().includes('twitter') ? 'Twitter' : 
+                              platform.toLowerCase().includes('tiktok') ? 'TikTok' : 'Instagram';
+
+        await prisma.socialPost.create({
+          data: {
+            tenant: { connect: { id: tenantId } },
+            platform: platformLabel,
+            platforms: row.platforms,
+            content: platformContent,
+            status: 'PENDING_APPROVAL',
+            scheduledFor: scheduledFor,
+            aiGenerationStyle: 'gemini-bulk',
+            mediaPrompt: finalImagePrompt || row.imagePrompt,
+            mediaUrl: mediaUrl,
+            hasImage: !!mediaUrl,
+            hashtags: platformHashtags
+          },
+        });
+        createdCount++;
+      }
     }
 
     safeRevalidatePath('/admin/social');

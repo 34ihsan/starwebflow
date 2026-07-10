@@ -17,6 +17,8 @@ export default function BlogDashboardClient({ initialData }: { initialData: any[
   
   const [ideas, setIdeas] = useState<any[]>([]);
   const [isGeneratingIdeas, setIsGeneratingIdeas] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ title: '', content: '', coverImage: '' });
 
   const pendingPosts = posts.filter(p => p.status === 'PENDING_APPROVAL');
   const publishedPosts = posts.filter(p => p.status === 'PUBLISHED');
@@ -69,6 +71,36 @@ export default function BlogDashboardClient({ initialData }: { initialData: any[
     if (res.success && res.data) {
       setPosts(posts.map(p => p.id === id ? res.data : p));
       setSelectedPost(null);
+    }
+  };
+
+  const openEdit = (post: any) => {
+    setEditForm({ title: post.title, content: post.content, coverImage: post.coverImage || '' });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedPost) return;
+    const res = await updateBlogPost(selectedPost.id, { 
+      title: editForm.title, 
+      content: editForm.content,
+      coverImage: editForm.coverImage
+    });
+    if (res.success && res.data) {
+      setPosts(posts.map(p => p.id === selectedPost.id ? res.data : p));
+      setSelectedPost(res.data);
+      setIsEditing(false);
+      alert('Değişiklikler kaydedildi!');
+    } else {
+      alert('Hata: ' + res.error);
+    }
+  };
+
+  const handleAddImageToContent = () => {
+    const url = prompt('Eklemek istediğiniz görselin URL\'sini girin (Örn: Unsplash linki):');
+    if (url) {
+      const imgMarkdown = `\n\n![Görsel](${url})\n\n`;
+      setEditForm(prev => ({ ...prev, content: prev.content + imgMarkdown }));
     }
   };
 
@@ -273,27 +305,81 @@ export default function BlogDashboardClient({ initialData }: { initialData: any[
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{selectedPost.title}</h2>
-              <button onClick={() => setSelectedPost(null)} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+              {isEditing ? (
+                <input 
+                  type="text" 
+                  value={editForm.title} 
+                  onChange={e => setEditForm({ ...editForm, title: e.target.value })} 
+                  className="w-full text-2xl font-bold bg-transparent border-b border-slate-300 dark:border-slate-700 focus:outline-none text-slate-800 dark:text-slate-100"
+                />
+              ) : (
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{selectedPost.title}</h2>
+              )}
+              <button onClick={() => { setSelectedPost(null); setIsEditing(false); }} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ml-4">
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1 prose prose-slate dark:prose-invert max-w-none">
-              <ReactMarkdown>{selectedPost.content}</ReactMarkdown>
-            </div>
-            <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3">
-              <button onClick={() => setSelectedPost(null)} className="px-5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors">
-                Kapat
-              </button>
-              {selectedPost.status === 'PENDING_APPROVAL' && (
-                <button onClick={() => handlePublish(selectedPost.id)} className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium bg-green-600 hover:bg-green-700 text-white transition-colors">
-                  <CheckCircle className="w-5 h-5" /> Onayla ve Yayınla
-                </button>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              {isEditing ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kapak Görseli URL'si</label>
+                    <input 
+                      type="text" 
+                      value={editForm.coverImage} 
+                      onChange={e => setEditForm({ ...editForm, coverImage: e.target.value })} 
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">İçerik (Markdown)</label>
+                      <button onClick={handleAddImageToContent} className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
+                        + İçeriğe Görsel (URL) Ekle
+                      </button>
+                    </div>
+                    <textarea 
+                      value={editForm.content} 
+                      onChange={e => setEditForm({ ...editForm, content: e.target.value })} 
+                      rows={15}
+                      className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent text-slate-900 dark:text-slate-100 font-mono text-sm resize-y"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                  <ReactMarkdown>{selectedPost.content}</ReactMarkdown>
+                </div>
               )}
-              {selectedPost.status === 'PUBLISHED' && (
-                <button onClick={() => handleRepurpose(selectedPost.id)} className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
-                  <Share2 className="w-5 h-5" /> Sosyal Medya Çıktısı Al
-                </button>
+            </div>
+
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3 flex-wrap">
+              {isEditing ? (
+                <>
+                  <button onClick={() => setIsEditing(false)} className="px-5 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors">
+                    İptal
+                  </button>
+                  <button onClick={handleSaveEdit} className="px-5 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+                    Kaydet
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => openEdit(selectedPost)} className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium bg-amber-500 hover:bg-amber-600 text-white transition-colors">
+                    <Edit3 className="w-5 h-5" /> Düzenle
+                  </button>
+                  {selectedPost.status === 'PENDING_APPROVAL' && (
+                    <button onClick={() => handlePublish(selectedPost.id)} className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium bg-green-600 hover:bg-green-700 text-white transition-colors">
+                      <CheckCircle className="w-5 h-5" /> Onayla ve Yayınla
+                    </button>
+                  )}
+                  {selectedPost.status === 'PUBLISHED' && (
+                    <button onClick={() => handleRepurpose(selectedPost.id)} className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors">
+                      <Share2 className="w-5 h-5" /> Sosyal Medya Çıktısı Al
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
