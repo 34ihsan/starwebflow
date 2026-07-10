@@ -169,7 +169,7 @@ Kurallar:
               secure: sender.smtpPort === 465,
               auth: { user: sender.smtpUser || sender.email, pass: sender.smtpPassword || sender.appPassword },
               tls: { rejectUnauthorized: false }
-            });
+            } as any);
             
             const mailOptions: any = {
               from: `${sender.senderName || 'StarWebflow'} <${sender.email}>`,
