@@ -7,6 +7,7 @@ import {
   AlertCircle, TrendingUp, Eye, FileText
 } from 'lucide-react';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
+import { verifyMailboxDns } from '@/app/actions/email';
 
 interface Mailbox {
   id: string;
@@ -52,6 +53,7 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
   const [spamSubject, setSpamSubject] = useState('');
   const [spamBody, setSpamBody] = useState('');
   const [activePanel, setActivePanel] = useState<'overview' | 'blacklist' | 'spam'>('overview');
+  const [dnsVerifyLoading, setDnsVerifyLoading] = useState(false);
 
   const deliverability = selectedMailbox
     ? calculateDeliverabilityScore({
@@ -100,6 +102,19 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
       setSpamCheckLoading(false);
     }
   }, [spamSubject, spamBody]);
+
+  const refreshDns = useCallback(async () => {
+    if (!selectedMailbox) return;
+    setDnsVerifyLoading(true);
+    try {
+      await verifyMailboxDns(selectedMailbox.id);
+      // Data is revalidated via Server Action, so UI will update
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDnsVerifyLoading(false);
+    }
+  }, [selectedMailbox]);
 
   if (dbMailboxes.length === 0) {
     return (
@@ -230,10 +245,20 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
             </div>
 
             {/* DNS Status Panel */}
-            <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl">
-              <h4 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-purple-400" /> DNS Sağlık Durumu
-              </h4>
+            <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl relative">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-purple-400" /> DNS Sağlık Durumu
+                </h4>
+                <button
+                  onClick={refreshDns}
+                  disabled={dnsVerifyLoading}
+                  className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 rounded-lg text-[#94A3B8] hover:text-white transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${dnsVerifyLoading ? 'animate-spin' : ''}`} />
+                  {dnsVerifyLoading ? 'Yenileniyor...' : 'DNS Yenile'}
+                </button>
+              </div>
               <div className="space-y-3">
                 {[
                   { label: 'SPF', ok: selectedMailbox.spfStatus, hint: 'Gönderici doğrulaması' },

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
+import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
 
 export async function getEmailData(tenantId: string) {
   try {
@@ -91,6 +92,17 @@ export async function createEmailMailbox(data: {
   dailyLimit?: number;
 }) {
   try {
+    const domain = data.email.split('@')[1];
+    let spfStatus = false, dkimStatus = false, dmarcStatus = false;
+    
+    if (domain) {
+      [spfStatus, dkimStatus, dmarcStatus] = await Promise.all([
+        checkSPF(domain),
+        checkDKIM(domain),
+        checkDMARC(domain)
+      ]);
+    }
+
     const mailbox = await prisma.emailMailbox.create({
       data: {
         tenant: { connect: { id: data.tenantId } },
@@ -109,6 +121,9 @@ export async function createEmailMailbox(data: {
         imapPassword: data.imapPassword,
         appPassword: data.appPassword,
         senderName: data.senderName,
+        spfStatus,
+        dkimStatus,
+        dmarcStatus,
       }
     });
     safeRevalidatePath('/admin/email');
@@ -116,6 +131,44 @@ export async function createEmailMailbox(data: {
   } catch (error) {
     console.error('createEmailMailbox error:', error);
     return { success: false, error: 'Failed to create mailbox' };
+  }
+}
+
+export async function verifyMailboxDns(mailboxId: string) {
+  try {
+    const mailbox = await prisma.emailMailbox.findUnique({
+      where: { id: mailboxId }
+    });
+    
+    if (!mailbox || !mailbox.email) {
+      return { success: false, error: 'Mailbox not found' };
+    }
+    
+    const domain = mailbox.email.split('@')[1];
+    if (!domain) {
+      return { success: false, error: 'Invalid email format' };
+    }
+    
+    const [spfStatus, dkimStatus, dmarcStatus] = await Promise.all([
+      checkSPF(domain),
+      checkDKIM(domain),
+      checkDMARC(domain)
+    ]);
+    
+    const updatedMailbox = await prisma.emailMailbox.update({
+      where: { id: mailboxId },
+      data: {
+        spfStatus,
+        dkimStatus,
+        dmarcStatus
+      }
+    });
+    
+    safeRevalidatePath('/admin/email');
+    return { success: true, data: updatedMailbox };
+  } catch (error) {
+    console.error('verifyMailboxDns error:', error);
+    return { success: false, error: 'Failed to verify DNS records' };
   }
 }
 

@@ -57,10 +57,10 @@ Kurallar: Satış baskısı (aciliyet, "hemen al", "ücretsiz"), aşırı büyü
     }
 
     // Ek İstatistikler (Kelime, link vs)
-    const wordCount = fullText.split(/\\s+/).filter(Boolean).length;
-    const linkCount = (fullText.match(/https?:\\/\\//g) || []).length;
+    const wordCount = fullText.split(/\s+/).filter(Boolean).length;
+    const linkCount = (fullText.match(/https?:\/\//g) || []).length;
     const imageCount = (fullText.match(/<img/gi) || []).length;
-    const capsRatio = fullText.split(/\\s+/).filter(w => w.length > 2 && w === w.toUpperCase()).length / Math.max(1, wordCount);
+    const capsRatio = fullText.split(/\s+/).filter(w => w.length > 2 && w === w.toUpperCase()).length / Math.max(1, wordCount);
 
     return NextResponse.json({
       success: true,
