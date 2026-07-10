@@ -10,6 +10,7 @@ import {
   Mail, Bot, Rocket, Calendar, MessageSquare, Target, Sparkles,
   TicketCheck, LogOut, Bell, Globe, User
 } from 'lucide-react'
+import { NotificationBell } from '@/components/layout/NotificationBell'
 
 const navItems = [
   { href: '/admin', label: 'Komuta Merkezi', icon: LayoutDashboard, exact: true },
@@ -127,26 +128,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             {settings?.companyName ? `${settings.companyName} Paneli` : 'StarWebFlow Admin'}
           </h1>
           <div className="flex items-center gap-3">
-            <div className="relative group">
-              <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors text-[#94A3B8] hover:text-white relative">
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full border border-[#0A0A0F]"></span>
-              </button>
-              
-              <div className="absolute right-0 mt-2 w-80 bg-[#131B2A] border border-white/[0.05] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                <div className="p-4 border-b border-white/[0.05]">
-                  <h3 className="font-semibold text-white">Son Aktiviteler</h3>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  <div className="p-8 text-center text-[#64748B] text-sm">
-                    Henüz bildirim bulunmuyor.
-                  </div>
-                </div>
-                <div className="p-3 border-t border-white/[0.05] text-center">
-                  <button className="text-xs text-[#8B5CF6] hover:text-[#7C3AED] font-medium transition-colors">Tümünü Gör</button>
-                </div>
-              </div>
-            </div>
+            <NotificationBell />
             
             <div className="relative group">
               <button className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center font-bold text-xs text-white">

@@ -1,24 +1,32 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
     // Resend sends webhook payloads for inbound emails.
-    // The payload usually contains a 'html' or 'text' field, and 'from', 'to', 'subject' fields.
     const body = await req.json();
-
-    // Verify it's from Resend (usually done via signature header, omitted for simplicity)
-    // Detailed docs: https://resend.com/docs/knowledge-base/inbound-emails
 
     const { from, to, subject, html, text } = body;
     const content = html || text || 'No content';
 
+    // Basic heuristic to detect warmup/bot emails
+    const lowerFrom = (from || '').toLowerCase();
+    const lowerSubject = (subject || '').toLowerCase();
+    const isBot = 
+      lowerFrom.includes('warmup') || 
+      lowerFrom.includes('mailer-daemon') ||
+      lowerFrom.includes('postmaster') ||
+      lowerFrom.includes('no-reply') ||
+      lowerFrom.includes('bounce') ||
+      lowerSubject.includes('[warmup]') ||
+      lowerSubject.includes('auto-reply') ||
+      lowerSubject.includes('out of office');
+
     // We assume the thread ID is encoded in the 'to' address (e.g. reply+THREAD_ID@yourdomain.com)
-    // Or we parse it from the subject if it has [Thread:THREAD_ID]
     let threadId = null;
     
     if (to) {
-      // e.g., to: "reply+1234-5678-9012@mg.starwebflow.com"
       const match = to.match(/reply\+([a-zA-Z0-9-]+)@/);
       if (match && match[1]) {
         threadId = match[1];
@@ -33,6 +41,9 @@ export async function POST(req: Request) {
     // Find the thread
     const thread = await prisma.chatThread.findUnique({
       where: { id: threadId },
+      include: {
+        lead: true,
+      }
     });
 
     if (!thread) {
@@ -44,11 +55,23 @@ export async function POST(req: Request) {
     await prisma.chatMessage.create({
       data: {
         threadId: thread.id,
-        content, // A real parser would strip out quoted text
+        content,
         isEmail: true,
         isFromLead: true,
       },
     });
+
+    // Create Notification only if it's a real human
+    if (!isBot) {
+      const senderName = thread.lead?.name || from;
+      await createNotification({
+        tenantId: thread.tenantId,
+        title: `Yeni E-posta: ${senderName}`,
+        message: `${subject || 'Konu Yok'}\n\n${(text || content).substring(0, 100)}...`,
+        type: 'EMAIL',
+        link: `/admin/leads/${thread.leadId}?tab=chat`
+      });
+    }
 
     return NextResponse.json({ success: true });
 

@@ -54,6 +54,7 @@ model Tenant {
   technologies       Technology[]
   linkTrackings      LinkTracking[]
   socialEngagements  SocialEngagement[]
+  notifications      Notification[]
 
   @@index([slug])
   @@map("tenants")
@@ -684,6 +685,24 @@ model TenantSettings {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("tenant_settings")
+}
+
+// --- Notifications ---
+model Notification {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  title       String
+  message     String   @db.Text
+  type        String   @default("INFO") // INFO, SUCCESS, WARNING, ERROR, EMAIL
+  link        String?  
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([isRead])
+  @@map("notifications")
 }
 
 // --- Activity Logs ---
