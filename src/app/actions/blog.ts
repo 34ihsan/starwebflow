@@ -130,7 +130,13 @@ Makale dili: Türkçe. Markdown formatında çıktı ver.
 Makale hedef uzunluğu: Minimum 1500 - 2000 kelime arası olmalıdır (Çok kapsamlı ve detaylı yaz).
 ÖNEMLİ KURALLAR:
 1. Yazıya KESİNLİKLE "Sen StarWebFlow olarak..." gibi ifadelerle başlama. Kendine "Sen" diye hitap etme. Yazı doğrudan hedef kitleye (potansiyel müşterilere) hitap eden profesyonel bir makale olmalıdır. Ajansı temsil ederken daima "biz" veya "StarWebFlow olarak" ifadelerini kullan.
-2. Yazı içinde sahte veya var olmayan linkler (Örn: /services/seo) KULLANMA. Eğer yönlendirme yapacaksan sadece iletişim için (/contact) linkini kullan.
+2. Yazı içinde sahte veya var olmayan linkler (Örn: /services/seo) KULLANMA. Hizmetlerimizden bahsederken SADECE şu gerçek linkleri kullan:
+   - Web Geliştirme: /hizmetler/web-gelistirme
+   - Web Uygulaması: /hizmetler/web-uygulamasi
+   - AI Agents: /hizmetler/ai-agents
+   - AI Otomasyon: /hizmetler/ai-otomasyon
+   - Reklam & Sosyal Medya: /hizmetler/reklam-sosyal-medya
+Eğer iletişim veya randevu yönlendirmesi yapacaksan sadece /contact veya /iletisim kullan.
 3. Okuyucuyu sıkmayan, paragraf uzunlukları dengeli, başlık hiyerarşisi (H2, H3, H4) düzgün bir yazı olsun.
 ${includePAA ? '4. Yazının sonunda veya uygun yerlerinde "Sıkça Sorulan Sorular" veya "İnsanlar Bunları Da Sordu" başlığı altında sana verilen PAA sorularını detaylıca yanıtla.' : ''}
 5. Yazının sonunda "Ücretsiz Dijital Varlık Analizi Alın" veya benzeri bir CTA (Call to Action) kısmı ekle ve /contact sayfasına yönlendir.

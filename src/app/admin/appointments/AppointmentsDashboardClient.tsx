@@ -9,7 +9,7 @@ import {
 
 import { createAppointment, deleteAppointment } from "@/app/actions/appointment";
 
-export default function AppointmentsDashboardClient({ initialData }: { initialData: any[] }) {
+export default function AppointmentsDashboardClient({ initialData, isGoogleConnected = false }: { initialData: any[], isGoogleConnected?: boolean }) {
   const [activeTab, setActiveTab] = useState<"upcoming" | "past" | "types">("upcoming");
   const [appointments, setAppointments] = useState<any[]>(initialData);
   const [isCreating, setIsCreating] = useState(false);
@@ -61,13 +61,6 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
       const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
       const endDate = new Date(startDate.getTime() + parseInt(formData.duration) * 60000);
       
-      let meetLink = "";
-      if (formData.sendMeetLink) {
-        // Otomatik mock Google Meet linki
-        const mockId = Math.random().toString(36).substring(2, 12);
-        meetLink = `https://meet.google.com/${mockId.substring(0,3)}-${mockId.substring(3,7)}-${mockId.substring(7,10)}`;
-      }
-
       const res = await createAppointment({
         tenantId: "default-tenant", // Gerçek senaryoda Auth context'ten alınmalı
         title: formData.title,
@@ -75,7 +68,7 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
         clientEmail: formData.clientEmail,
         startTime: startDate,
         endTime: endDate,
-        meetLink: meetLink
+        sendMeetLink: formData.sendMeetLink
       });
 
       if (res.success && res.data) {
@@ -225,23 +218,36 @@ export default function AppointmentsDashboardClient({ initialData }: { initialDa
               <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6">
                 <h3 className="text-lg font-semibold text-white mb-6 flex items-center justify-between">
                   Takvim Senkronizasyonu
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                  <div className={`w-2 h-2 rounded-full ${isGoogleConnected ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'}`}></div>
                 </h3>
-                <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-5 relative overflow-hidden mb-4 group cursor-pointer hover:bg-white/[0.05] transition-colors">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                
+                {isGoogleConnected ? (
+                  <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-5 relative overflow-hidden mb-4 group cursor-pointer hover:bg-white/[0.05] transition-colors">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">Google Calendar</p>
+                        <p className="text-xs text-[#94A3B8]">Bağlı ve Senkronize</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
+                      <span className="flex items-center gap-1"><RefreshCw className="w-3 h-3" /> Canlı Senkronizasyon Aktif</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <p className="text-sm text-[#94A3B8] mb-4">Google Takviminizi bağlayarak randevularınız için otomatik Google Meet linkleri oluşturabilirsiniz.</p>
+                    <a 
+                      href="/api/v1/auth/google" 
+                      className="w-full py-3 rounded-xl border border-white/[0.1] bg-white/[0.05] hover:bg-white/[0.1] text-white transition-colors text-sm font-semibold flex items-center justify-center gap-2 shadow-lg"
+                    >
                       <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">Google Calendar</p>
-                      <p className="text-xs text-[#94A3B8]">sinan@starwebflow.com</p>
-                    </div>
+                      Google Takvimi Bağla
+                    </a>
                   </div>
-                  <div className="flex items-center justify-between text-xs font-medium text-[#64748B]">
-                    <span className="flex items-center gap-1"><RefreshCw className="w-3 h-3" /> Son sek. 2 dk önce</span>
-                    <button className="text-blue-400 hover:text-blue-300">Ayarlar</button>
-                  </div>
-                </div>
+                )}
 
                 <button className="w-full py-2.5 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] text-[#94A3B8] hover:text-white transition-colors text-sm font-semibold flex items-center justify-center gap-2">
                   <Plus className="w-4 h-4" /> Yeni Takvim Ekle
