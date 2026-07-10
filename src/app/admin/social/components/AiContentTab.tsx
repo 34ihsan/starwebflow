@@ -11,6 +11,13 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+  const [aiStudioParams, setAiStudioParams] = useState({
+    topic: '',
+    framework: 'AIDA',
+    platforms: ['linkedin'],
+    visualEngine: 'dalle3',
+    useAlgorithmHacks: false
+  });
 
   const [pendingQueue, setPendingQueue] = useState<any[]>(initialPending);
   const [editingPost, setEditingPost] = useState<any | null>(null);
