@@ -6,28 +6,9 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Eye, MousePointerClick, DollarSign, Activity } from 'lucide-react';
 
-const mockPerformanceData = [
-  { name: 'Pzt', spend: 120, roas: 3.2, engagement: 4500 },
-  { name: 'Sal', spend: 150, roas: 3.8, engagement: 5200 },
-  { name: 'Çar', spend: 180, roas: 4.1, engagement: 6800 },
-  { name: 'Per', spend: 140, roas: 3.5, engagement: 5900 },
-  { name: 'Cum', spend: 200, roas: 4.5, engagement: 8200 },
-  { name: 'Cmt', spend: 250, roas: 5.2, engagement: 11000 },
-  { name: 'Paz', spend: 220, roas: 4.8, engagement: 9500 },
-];
-
-const mockPlatformData = [
-  { name: 'Instagram', reach: 45000, interactions: 3200 },
-  { name: 'LinkedIn', reach: 12000, interactions: 1800 },
-  { name: 'Twitter (X)', reach: 28000, interactions: 2100 },
-  { name: 'TikTok', reach: 65000, interactions: 5400 },
-];
-
-const mockTopPosts = [
-  { id: 1, content: "Yapay Zeka ile Satışları %300 Artırma Rehberi", platform: "LinkedIn", clicks: 1240, roas: "4.8x" },
-  { id: 2, content: "B2B E-ticaret Sistemlerinin Geleceği", platform: "Instagram", clicks: 980, roas: "3.2x" },
-  { id: 3, content: "Startuplar İçin Webflow vs WordPress", platform: "Twitter", clicks: 1560, roas: "5.1x" },
-];
+const mockPerformanceData: any[] = [];
+const mockPlatformData: any[] = [];
+const mockTopPosts: any[] = [];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -71,10 +52,10 @@ export function AudienceTab() {
       {/* Kpi Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Toplam Erişim", value: "150.2K", change: "+12.5%", icon: Eye, color: "from-blue-500 to-cyan-400" },
-          { title: "Etkileşim Oranı", value: "8.4%", change: "+2.1%", icon: Activity, color: "from-indigo-500 to-purple-400" },
-          { title: "Ortalama ROAS", value: "4.2x", change: "+0.8", icon: TrendingUp, color: "from-emerald-400 to-teal-400" },
-          { title: "Reklam Harcaması", value: "$1,260", change: "-5.2%", icon: DollarSign, color: "from-rose-400 to-pink-500" }
+          { title: "Toplam Erişim", value: "0", change: "0%", icon: Eye, color: "from-blue-500 to-cyan-400" },
+          { title: "Etkileşim Oranı", value: "0%", change: "0%", icon: Activity, color: "from-indigo-500 to-purple-400" },
+          { title: "Ortalama ROAS", value: "0x", change: "0", icon: TrendingUp, color: "from-emerald-400 to-teal-400" },
+          { title: "Reklam Harcaması", value: "$0", change: "0%", icon: DollarSign, color: "from-rose-400 to-pink-500" }
         ].map((kpi, idx) => (
           <div key={idx} className="bg-[#0A0A0F] border border-white/[0.05] p-5 rounded-2xl relative overflow-hidden group hover:border-white/[0.1] transition-colors">
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${kpi.color} opacity-5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:opacity-10 transition-opacity`}></div>

@@ -84,11 +84,11 @@ export async function createAppointment(data: {
            // İsteğe bağlı: Token yenilendiyse DB'yi güncellemek için oauth2Client.on('tokens') dinlenebilir.
          } catch (googleError) {
            console.error('Google API Error:', googleError);
-           meetLink = `https://meet.google.com/mock-error-${Math.random().toString(36).substring(7)}`;
+           meetLink = undefined;
          }
       } else {
-         // Fallback to mock if not connected
-         meetLink = `https://meet.google.com/mock-${Math.random().toString(36).substring(7)}`;
+         // Fallback to undefined if not connected
+         meetLink = undefined;
       }
     }
 

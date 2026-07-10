@@ -80,19 +80,19 @@ export function PublishedTab({ publishedPosts }: { publishedPosts: any[] }) {
                 <div className="grid grid-cols-3 gap-2 mb-4">
                   <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50">
                     <TrendingUp className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                    <div className="text-sm font-semibold text-white">{(Math.random() * 5000 + 500).toFixed(0)}</div>
+                    <div className="text-sm font-semibold text-white">0</div>
                     <div className="text-[10px] text-neutral-500">Gösterim</div>
                   </div>
                   <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50 relative">
                     <MessageCircle className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
-                    <div className="text-sm font-semibold text-white">{(Math.random() * 50 + 20).toFixed(0)}</div>
+                    <div className="text-sm font-semibold text-white">0</div>
                     <div className="text-[10px] text-neutral-500">Yorum</div>
                     {/* High engagement mock badge */}
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-pink-500 rounded-full animate-ping"></span>
                   </div>
                   <div className="text-center bg-neutral-950/50 rounded-lg py-2 border border-neutral-800/50">
                     <Share2 className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-                    <div className="text-sm font-semibold text-white">{(Math.random() * 20).toFixed(0)}</div>
+                    <div className="text-sm font-semibold text-white">0</div>
                     <div className="text-[10px] text-neutral-500">Paylaşım</div>
                   </div>
                 </div>
