@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeSpamWords } from '@/lib/deliverability-score';
+import { generateText } from 'ai';
+import { getFlashModel } from '@/lib/ai/gemini-client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,44 +12,63 @@ export async function POST(req: NextRequest) {
     }
 
     const fullText = `${subject || ''} ${emailBody || ''}`;
-    const { found, riskScore } = analyzeSpamWords(fullText);
 
-    // Categorize risk
+    // YZ Tabanlı Semantik Spam Analizi
+    const { text } = await generateText({
+      model: getFlashModel(),
+      system: `Sen elit düzey bir E-Posta Deliverability ve Spam Analiz uzmanısın. Gönderilen metni analiz edip, JSON formatında yanıt dönmelisin.
+Format:
+{
+  "riskScore": 0-100 arası spam riski puanı (100 = kesin spam, 0 = güvenli),
+  "spamKeywordsFound": ["bulunan", "riskli", "kelimeler"],
+  "message": "Kısa ve net 1-2 cümlelik genel değerlendirme",
+  "suggestions": ["Spam riskini düşürmek için 1. öneri", "Spam riskini düşürmek için 2. öneri"]
+}
+Kurallar: Satış baskısı (aciliyet, "hemen al", "ücretsiz"), aşırı büyük harf, spammy kelimeler veya çok fazla link risk skorunu artırır. Eğer gayet doğal, kurumsal veya günlük bir yazışmaysa riskScore düşük (0-20) olsun.`,
+      prompt: `Konu: ${subject}\n\nİçerik: ${emailBody}`
+    });
+
+    let aiResult;
+    try {
+      aiResult = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim());
+    } catch (e) {
+      console.error("AI Parse error:", text);
+      return NextResponse.json({ error: 'YZ analizi parse edilemedi' }, { status: 500 });
+    }
+
+    const riskScore = aiResult.riskScore || 0;
+
+    // Risk Kategorizasyonu
     let riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
     let riskColor: string;
-    let message: string;
 
-    if (riskScore === 0) {
+    if (riskScore <= 15) {
       riskLevel = 'LOW';
       riskColor = 'emerald';
-      message = 'Harika! Spam riski tespit edilmedi. Bu içerik inbox\'a ulaşma olasılığı yüksek.';
-    } else if (riskScore <= 24) {
+    } else if (riskScore <= 40) {
       riskLevel = 'MEDIUM';
       riskColor = 'yellow';
-      message = 'Bazı riskli kelimeler tespit edildi. Göndermeden önce gözden geçirmeniz önerilir.';
-    } else if (riskScore <= 48) {
+    } else if (riskScore <= 75) {
       riskLevel = 'HIGH';
       riskColor = 'orange';
-      message = 'Yüksek spam riski! Bu içerik büyük olasılıkla spam klasörüne düşecek.';
     } else {
       riskLevel = 'CRITICAL';
       riskColor = 'red';
-      message = 'Kritik spam riski! Bu içerik gönderilemez düzeyde risklidir.';
     }
 
-    // Word count & other stats
-    const wordCount = fullText.split(/\s+/).filter(Boolean).length;
-    const linkCount = (fullText.match(/https?:\/\//g) || []).length;
+    // Ek İstatistikler (Kelime, link vs)
+    const wordCount = fullText.split(/\\s+/).filter(Boolean).length;
+    const linkCount = (fullText.match(/https?:\\/\\//g) || []).length;
     const imageCount = (fullText.match(/<img/gi) || []).length;
-    const capsRatio = fullText.split(/\s+/).filter(w => w.length > 2 && w === w.toUpperCase()).length / Math.max(1, wordCount);
+    const capsRatio = fullText.split(/\\s+/).filter(w => w.length > 2 && w === w.toUpperCase()).length / Math.max(1, wordCount);
 
     return NextResponse.json({
       success: true,
       riskScore,
       riskLevel,
       riskColor,
-      message,
-      spamKeywordsFound: found,
+      message: aiResult.message || 'Analiz tamamlandı.',
+      spamKeywordsFound: aiResult.spamKeywordsFound || [],
       stats: {
         wordCount,
         linkCount,
@@ -57,7 +77,7 @@ export async function POST(req: NextRequest) {
         subjectLength: (subject || '').length,
         hasPersonalization: fullText.includes('{{'),
       },
-      suggestions: generateSuggestions(found, capsRatio, linkCount, (subject || '').length)
+      suggestions: aiResult.suggestions || []
     });
 
   } catch (error: any) {

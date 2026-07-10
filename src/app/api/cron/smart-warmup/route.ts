@@ -162,12 +162,12 @@ Kurallar:
 
         // Maili gönder (Kendi SMTP ayarlarıyla)
         try {
-          if (sender.smtpHost && sender.smtpPassword) {
+          if (sender.smtpHost && (sender.smtpPassword || sender.appPassword)) {
             const dynamicTransporter = nodemailer.createTransport({
               host: sender.smtpHost,
               port: sender.smtpPort || 587,
               secure: sender.smtpPort === 465,
-              auth: { user: sender.smtpUser || sender.email, pass: sender.smtpPassword },
+              auth: { user: sender.smtpUser || sender.email, pass: sender.smtpPassword || sender.appPassword },
               tls: { rejectUnauthorized: false }
             });
             

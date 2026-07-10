@@ -1,13 +1,13 @@
 'use client'
 
-import { Zap, AtSign, Link2, Camera, Code2, Mail, Phone, MapPin } from 'lucide-react'
+import { Zap, AtSign, Link2, Instagram, Code2, Mail, Phone, MapPin } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
 
 const socials = [
   { icon: AtSign, label: 'Twitter', href: 'https://x.com/starwebflow' },
-  { icon: Link2, label: 'LinkedIn', href: 'https://linkedin.com/company/starwebflow' },
-  { icon: Camera, label: 'Instagram', href: 'https://instagram.com/starwebflow' },
+  { icon: Link2, label: 'LinkedIn', href: 'https://www.linkedin.com/in/star-webflow-496540421' },
+  { icon: Instagram, label: 'Instagram', href: 'https://instagram.com/starwebflow' },
   { icon: Code2, label: 'GitHub', href: 'https://github.com/starwebflow' },
 ]
 

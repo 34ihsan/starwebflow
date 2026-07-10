@@ -854,15 +854,33 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                     setMailboxStep(prev => prev + 1);
                   } else {
                     if(!mbEmail) return alert("Lütfen geçerli e-posta girin.");
+                    
+                    let finalSmtpHost = mbSmtpHost;
+                    let finalSmtpPort = mbSmtpPort;
+                    let finalImapHost = mbImapHost;
+                    let finalImapPort = mbImapPort;
+
+                    if (mbProvider === 'GOOGLE') {
+                      finalSmtpHost = 'smtp.gmail.com';
+                      finalSmtpPort = 465;
+                      finalImapHost = 'imap.gmail.com';
+                      finalImapPort = 993;
+                    } else if (mbProvider === 'MICROSOFT') {
+                      finalSmtpHost = 'smtp.office365.com';
+                      finalSmtpPort = 587;
+                      finalImapHost = 'outlook.office365.com';
+                      finalImapPort = 993;
+                    }
+
                     const res = await createEmailMailbox({
                       tenantId: 'default-tenant',
                       email: mbEmail,
                       provider: mbProvider,
                       appPassword: mbAppPassword,
-                      smtpHost: mbSmtpHost,
-                      smtpPort: mbSmtpPort,
-                      imapHost: mbImapHost,
-                      imapPort: mbImapPort,
+                      smtpHost: finalSmtpHost,
+                      smtpPort: finalSmtpPort,
+                      imapHost: finalImapHost,
+                      imapPort: finalImapPort,
                       senderName: mbSenderName,
                       dailyLimit: mbDailyLimit
                     });
