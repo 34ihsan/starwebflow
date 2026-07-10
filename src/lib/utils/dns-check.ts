@@ -3,13 +3,20 @@ import { resolveTxt } from 'dns/promises';
 const DNS_TIMEOUT_MS = 5000;
 
 async function resolveTxtWithTimeout(domain: string): Promise<string[][]> {
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('DNS Timeout')), DNS_TIMEOUT_MS)
-  );
-  return Promise.race([
-    resolveTxt(domain),
-    timeoutPromise
-  ]);
+  let timeoutId: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('DNS Timeout')), DNS_TIMEOUT_MS);
+  });
+  
+  try {
+    const result = await Promise.race([
+      resolveTxt(domain),
+      timeoutPromise
+    ]);
+    return result;
+  } finally {
+    clearTimeout(timeoutId!);
+  }
 }
 
 export async function checkSPF(domain: string): Promise<boolean> {
