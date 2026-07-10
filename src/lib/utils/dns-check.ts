@@ -51,9 +51,12 @@ export async function checkDMARC(domain: string): Promise<boolean> {
 }
 
 export async function checkDKIM(domain: string): Promise<boolean> {
-  // Most common DKIM selectors
-  const commonSelectors = ['google', 'default', 'mail', 'selector1', 's1', 'k1', 'smtp'];
-  
+  // Most common DKIM selectors (PRO level exhaustive list)
+  const commonSelectors = [
+    'google', 'default', 'mail', 'selector1', 's1', 's2', 'k1', 'k2', 'smtp',
+    'ionos', 'pic', 'zoho', 'protonmail', 'protonmail2', 'protonmail3',
+    'x', 'y', 'z', 'm1', 'm2', 'sg', 'sendgrid'
+  ];
   for (const selector of commonSelectors) {
     try {
       const records = await resolveTxtWithTimeout(`${selector}._domainkey.${domain}`);
