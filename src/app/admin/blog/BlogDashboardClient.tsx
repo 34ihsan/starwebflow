@@ -24,26 +24,38 @@ export default function BlogDashboardClient({ initialData }: { initialData: any[
   const handleGenerate = async () => {
     if (!topic) return alert('Lütfen konu girin');
     setIsGenerating(true);
-    const res = await generateAIBlog(topic, keywords, includePAA, authorName);
-    setIsGenerating(false);
-    if (res.success && res.data) {
-      setPosts([res.data, ...posts]);
-      setTopic('');
-      setKeywords('');
-      alert('Blog yazısı üretildi ve onaya sunuldu!');
-    } else {
-      alert('Hata: ' + res.error);
+    try {
+      const res = await generateAIBlog(topic, keywords, includePAA, authorName);
+      if (res?.success && res?.data) {
+        setPosts([res.data, ...posts]);
+        setTopic('');
+        setKeywords('');
+        alert('Blog yazısı üretildi ve onaya sunuldu!');
+      } else {
+        alert('Hata: ' + (res?.error || 'Ağ hatası veya sunucu zaman aşımı.'));
+      }
+    } catch (e: any) {
+      alert('Sunucuyla bağlantı koptu veya zaman aşımına uğradı. Lütfen sayfayı yenileyip tekrar deneyin.');
+      console.error(e);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   const handleGetIdeas = async () => {
     setIsGeneratingIdeas(true);
-    const res = await suggestBlogIdeas();
-    setIsGeneratingIdeas(false);
-    if (res.success && res.data) {
-      setIdeas(res.data);
-    } else {
-      alert('Fikirler alınırken hata oluştu: ' + res.error);
+    try {
+      const res = await suggestBlogIdeas();
+      if (res?.success && res?.data) {
+        setIdeas(res.data);
+      } else {
+        alert('Fikirler alınırken hata oluştu: ' + (res?.error || 'Ağ hatası veya sunucu zaman aşımı.'));
+      }
+    } catch (e: any) {
+      alert('Sunucuyla bağlantı koptu veya zaman aşımına uğradı. Lütfen sayfayı yenileyip tekrar deneyin.');
+      console.error(e);
+    } finally {
+      setIsGeneratingIdeas(false);
     }
   };
 
