@@ -57,7 +57,7 @@ export default function ChatWidget() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end font-sans">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans pointer-events-none">
       <AnimatePresence>
         {isOpen && (
           <motion.div 
@@ -65,7 +65,7 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.92 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-[calc(100vw-3rem)] sm:w-[380px] h-[550px] max-h-[calc(100vh-110px)] mb-4 bg-[#0B0B14]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden relative"
+            className="w-full sm:w-[380px] h-[600px] max-h-[calc(100dvh-120px)] mb-4 bg-[#0B0B14]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden relative pointer-events-auto"
           >
             {/* Glowing Accent Top border */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#6366F1]" />
@@ -75,7 +75,7 @@ export default function ChatWidget() {
             <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-[#6366F1]/10 rounded-full blur-2xl pointer-events-none" />
 
             {/* Header */}
-            <div className="bg-[#121220]/75 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-white/5 relative z-10">
+            <div className="bg-[#121220]/75 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-white/5 relative z-10 shrink-0">
               <div className="flex items-center gap-3">
                 {/* Agent Avatar with Green status dot */}
                 <div className="relative">
@@ -94,16 +94,17 @@ export default function ChatWidget() {
               </div>
               <button 
                 onClick={() => setIsOpen(false)} 
-                className="p-1.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-lg transition-all duration-200"
+                className="p-2 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl transition-all duration-200 active:scale-95"
+                aria-label="Kapat"
               >
-                <ChevronDown className="w-5 h-5" />
+                <ChevronDown className="w-6 h-6" />
               </button>
             </div>
 
             {/* Chat Body */}
             <div className="flex-1 overflow-hidden flex flex-col bg-[#05050A]/70 relative z-10">
               {/* Chat View */}
-              <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
+              <div className="flex-1 p-4 overflow-y-auto overflow-x-hidden flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                 {messages.map((msg: any) => (
                   <div 
                     key={msg.id} 
@@ -117,7 +118,7 @@ export default function ChatWidget() {
                     )}
                     
                     <div 
-                      className={`rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm whitespace-pre-wrap ${
+                      className={`rounded-2xl px-4 py-3 text-[15px] sm:text-sm leading-relaxed shadow-sm whitespace-pre-wrap break-words ${
                         msg.role === 'user' 
                           ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white rounded-tr-none' 
                           : 'bg-[#181826]/90 border border-white/5 text-slate-200 rounded-tl-none'
@@ -171,7 +172,7 @@ export default function ChatWidget() {
               </div>
               
               {/* Input Area */}
-              <div className="p-4 bg-[#0E0E18]/80 border-t border-white/5">
+              <div className="p-4 bg-[#0E0E18]/80 border-t border-white/5 shrink-0">
                 <form onSubmit={handleSubmit} className="flex gap-2 items-center">
                   <div className="flex-1 relative">
                     <input 
@@ -204,7 +205,8 @@ export default function ChatWidget() {
       {/* Floating Button with Agent Icon */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-2xl bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white shadow-[0_8px_30px_rgba(139,92,246,0.35)] hover:shadow-[0_8px_40px_rgba(139,92,246,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 relative group overflow-hidden border border-white/10"
+        className="w-[3.5rem] h-[3.5rem] sm:w-16 sm:h-16 rounded-full sm:rounded-2xl bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white shadow-[0_8px_30px_rgba(139,92,246,0.35)] hover:shadow-[0_8px_40px_rgba(139,92,246,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 relative group overflow-hidden border border-white/10 pointer-events-auto"
+        aria-label="Chat toggle"
       >
         {/* Pulsing glow ring around the button */}
         {!isOpen && (

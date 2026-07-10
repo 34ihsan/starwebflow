@@ -150,7 +150,7 @@ export default function QuickQuoteForm() {
   }
 
   return (
-    <div className="bg-[#0A0A0F] border border-white/5 rounded-3xl p-8 md:p-12 max-w-5xl mx-auto relative overflow-hidden shadow-2xl">
+    <div className="bg-[#0A0A0F] border border-white/5 rounded-3xl p-6 md:p-12 max-w-5xl mx-auto relative overflow-hidden shadow-2xl">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#8B5CF6]/10 blur-[100px] rounded-full pointer-events-none" />
       

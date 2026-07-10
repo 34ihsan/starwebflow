@@ -166,13 +166,13 @@ export default function LeadFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-[#0A0A0F]/90 backdrop-blur-md" />
 
       {/* Modal Card */}
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#12121F]/90 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-hidden"
+        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#12121F]/90 p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-y-auto max-h-[calc(100dvh-2rem)]"
         style={{ animation: 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both' }}
       >
         {/* Glow Effects */}

@@ -104,10 +104,10 @@ export default function InteractiveAIDemo() {
           </motion.p>
         </div>
 
-        <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[600px] md:h-[500px]">
+        <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[750px] sm:h-[650px] md:h-[550px]">
           {/* Sidebar */}
-          <div className="md:w-1/3 bg-black/40 border-r border-white/5 p-6 flex flex-col gap-4">
-            <h3 className="text-white font-semibold mb-2">Sektör Seçin</h3>
+          <div className="md:w-1/3 bg-black/40 border-b md:border-b-0 md:border-r border-white/5 p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 shrink-0 z-10">
+            <h3 className="text-white font-semibold mb-1 sm:mb-2">Sektör Seçin</h3>
             {[
               { id: 'ecommerce', label: 'E-Ticaret & Perakende' },
               { id: 'b2b', label: 'Kurumsal (B2B)' },
@@ -116,7 +116,7 @@ export default function InteractiveAIDemo() {
               <button
                 key={sector.id}
                 onClick={() => setActiveSector(sector.id as any)}
-                className={`p-4 rounded-xl text-left transition-all ${
+                className={`p-3 sm:p-4 rounded-xl text-left transition-all ${
                   activeSector === sector.id 
                     ? 'bg-[#8B5CF6]/20 border border-[#8B5CF6]/50 text-white' 
                     : 'bg-white/5 border border-transparent text-gray-400 hover:bg-white/10'
@@ -137,9 +137,9 @@ export default function InteractiveAIDemo() {
           </div>
 
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col bg-[#0A0A0F]/80">
+          <div className="flex-1 min-h-0 flex flex-col bg-[#0A0A0F]/80">
             {/* Header */}
-            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20">
+            <div className="p-4 border-b border-white/5 flex items-center justify-between bg-black/20 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#D946EF] flex items-center justify-center">
                   <Bot className="w-5 h-5 text-white" />
@@ -154,7 +154,7 @@ export default function InteractiveAIDemo() {
             </div>
 
             {/* Messages */}
-            <div ref={chatRef} className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">
+            <div ref={chatRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 scroll-smooth scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               <AnimatePresence>
                 {messages.map((msg, idx) => (
                   <motion.div
@@ -195,7 +195,7 @@ export default function InteractiveAIDemo() {
             </div>
 
             {/* Input (Decorative) */}
-            <div className="p-4 border-t border-white/5 bg-black/20">
+            <div className="p-4 border-t border-white/5 bg-black/20 shrink-0">
               <div className="relative">
                 <input 
                   type="text" 

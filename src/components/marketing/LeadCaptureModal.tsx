@@ -112,7 +112,7 @@ export default function LeadCaptureModal() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -125,19 +125,21 @@ export default function LeadCaptureModal() {
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="relative w-full max-w-lg bg-[#0A0A0F] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-lg bg-[#0A0A0F] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[90vh]"
           >
             {/* Close Button */}
             <button 
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-black/20 rounded-full transition-colors z-10"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2.5 text-slate-300 hover:text-white bg-[#131B2A]/90 backdrop-blur-md border border-white/10 rounded-full transition-all active:scale-95 z-20 shadow-lg"
+              aria-label="Kapat"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            {isSuccess ? (
-              <div className="p-12 text-center flex flex-col items-center">
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
+            <div className="overflow-y-auto w-full flex-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {isSuccess ? (
+                <div className="p-8 sm:p-12 pt-16 sm:pt-12 text-center flex flex-col items-center">
+                  <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
                   <CheckCircle2 className="w-10 h-10 text-green-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">Harika! Talebiniz Alındı</h3>
@@ -153,9 +155,9 @@ export default function LeadCaptureModal() {
               </div>
             ) : (
               <div className="flex flex-col md:flex-row">
-                <div className="p-8 w-full">
-                  <h3 className="text-2xl font-bold text-white mb-2 font-['Outfit']">{getSectionTitle()}</h3>
-                  <p className="text-slate-400 mb-6 text-sm">
+                <div className="p-5 sm:p-8 pt-16 sm:pt-8 sm:pr-14 w-full">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 font-['Outfit'] pr-8 sm:pr-0">{getSectionTitle()}</h3>
+                  <p className="text-slate-400 mb-6 text-[13px] sm:text-sm">
                     {getSectionSubtitle()}
                   </p>
 
@@ -185,13 +187,13 @@ export default function LeadCaptureModal() {
                       </div>
                       <div className="col-span-2">
                         <label className="block text-xs font-medium text-slate-400 mb-2">Hizmet Türü</label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {servicesList.map(service => (
                             <button
                               key={service}
                               type="button"
                               onClick={() => setFormData({...formData, serviceType: service})}
-                              className={`px-3 py-1.5 text-xs rounded-lg transition-all border ${
+                              className={`px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs rounded-lg transition-all border ${
                                 formData.serviceType === service 
                                   ? 'bg-[#8B5CF6]/20 border-[#8B5CF6] text-[#8B5CF6]' 
                                   : 'bg-[#131B2A] border-white/5 text-slate-400 hover:border-white/10'
@@ -232,7 +234,7 @@ export default function LeadCaptureModal() {
                     <button 
                       type="submit" 
                       disabled={isSubmitting}
-                      className="w-full mt-4 bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] text-white font-medium py-4 px-6 rounded-xl hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
+                      className="w-full mt-4 sm:mt-6 bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] text-white font-medium py-3.5 sm:py-4 px-6 rounded-xl hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
                     >
                       {isSubmitting ? 'Hazırlanıyor...' : 'Ücretsiz Analizi Gönder'}
                       {!isSubmitting && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
@@ -241,9 +243,9 @@ export default function LeadCaptureModal() {
                       Kişisel verileriniz KVKK kapsamında işlenmekte ve site içi deneyiminiz size özel teklifler sunabilmek adına AI ile analiz edilmektedir. Spam göndermeyiz.
                     </p>
                   </form>
-                </div>
               </div>
             )}
+            </div>
           </motion.div>
         </div>
       )}
