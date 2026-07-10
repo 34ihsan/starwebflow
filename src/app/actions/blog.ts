@@ -218,7 +218,7 @@ export async function suggestBlogIdeas() {
     const { getFlashModel } = await import('@/lib/ai/gemini-client');
     const model = getFlashModel();
 
-    const systemPrompt = \`Sen StarWebFlow adlı B2B dijital ajansın baş içerik stratejistisin.
+    const systemPrompt = `Sen StarWebFlow adlı B2B dijital ajansın baş içerik stratejistisin.
 Ajansın hizmetleri şunlar: SEO, Web Tasarımı, Webflow Geliştirme, Sosyal Medya Yönetimi, Dijital Pazarlama.
 Amacın, StarWebFlow'un potansiyel müşterilerini (KOBİ'ler, Kurumsal şirketler, B2B firmalar) çekebilecek, ilgi çekici, tıklanabilir ve SEO uyumlu 5 adet yepyeni blog yazısı fikri önermektir.
 
@@ -230,7 +230,7 @@ Amacın, StarWebFlow'un potansiyel müşterilerini (KOBİ'ler, Kurumsal şirketl
     "keywords": "webflow, b2b web tasarım, kurumsal web sitesi",
     "description": "Neden B2B firmaları WordPress yerine Webflow tercih etmeli?"
   }
-]\`;
+]`;
 
     const { text } = await generateText({
       model,
@@ -239,8 +239,8 @@ Amacın, StarWebFlow'un potansiyel müşterilerini (KOBİ'ler, Kurumsal şirketl
     });
 
     let jsonStr = text.trim();
-    if (jsonStr.startsWith('\`\`\`json')) {
-      jsonStr = jsonStr.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
     }
     const ideas = JSON.parse(jsonStr);
     
