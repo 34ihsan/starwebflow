@@ -100,7 +100,7 @@ function generateSlug(title: string) {
     .replace(/(^-|-$)+/g, '');
 }
 
-export async function generateAIBlog(topic: string, keywords: string, includePAA: boolean = true) {
+export async function generateAIBlog(topic: string, keywords: string, includePAA: boolean = true, authorName?: string) {
   try {
     const tenantId = await getActiveTenantId();
     const googleKey = process.env.GOOGLE_AI_API_KEY;
@@ -142,6 +142,7 @@ Ayrıca yazı içeriğini sarmalayan metadata bilgilerini JSON formatında, \`\`
   "seoDescription": "Makalenin 150-160 karakterlik SEO açıklaması",
   "excerpt": "Blog ana sayfasında görünecek 2-3 cümlelik kısa özet",
   "unsplashKeyword": "business,technology",
+  "authorName": "Yazarın adı (varsa)",
   "readingTime": 5
 }
 \`\`\`
@@ -191,6 +192,7 @@ Lütfen makaleyi Markdown olarak yaz ve sonuna istediğim JSON formatındaki met
         keywords: keywords.split(',').map((k: string) => k.trim()).filter(Boolean),
         readingTime: metadata.readingTime || 3,
         coverImage: coverImage,
+        authorName: authorName || metadata.authorName || 'StarWebFlow Ekibi',
         status: 'PENDING_APPROVAL',
       },
     });
@@ -199,6 +201,52 @@ Lütfen makaleyi Markdown olarak yaz ve sonuna istediğim JSON formatındaki met
     return { success: true, data: post };
   } catch (error: any) {
     console.error('generateAIBlog error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ─── AI Blog Idea Generation ──────────────────────────────────────────────────
+
+export async function suggestBlogIdeas() {
+  try {
+    const googleKey = process.env.GOOGLE_AI_API_KEY;
+    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+      return { success: false, error: 'Google AI API Key bulunamadı.' };
+    }
+
+    const { generateText } = await import('ai');
+    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const model = getFlashModel();
+
+    const systemPrompt = \`Sen StarWebFlow adlı B2B dijital ajansın baş içerik stratejistisin.
+Ajansın hizmetleri şunlar: SEO, Web Tasarımı, Webflow Geliştirme, Sosyal Medya Yönetimi, Dijital Pazarlama.
+Amacın, StarWebFlow'un potansiyel müşterilerini (KOBİ'ler, Kurumsal şirketler, B2B firmalar) çekebilecek, ilgi çekici, tıklanabilir ve SEO uyumlu 5 adet yepyeni blog yazısı fikri önermektir.
+
+Çıktıyı SADECE JSON formatında ver. Başka hiçbir açıklama yazma.
+Örnek JSON yapısı:
+[
+  {
+    "topic": "B2B Şirketler İçin Webflow ile Kurumsal Site Geliştirmenin Avantajları",
+    "keywords": "webflow, b2b web tasarım, kurumsal web sitesi",
+    "description": "Neden B2B firmaları WordPress yerine Webflow tercih etmeli?"
+  }
+]\`;
+
+    const { text } = await generateText({
+      model,
+      system: systemPrompt,
+      prompt: "Bana 5 adet blog yazısı fikri öner.",
+    });
+
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('\`\`\`json')) {
+      jsonStr = jsonStr.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    }
+    const ideas = JSON.parse(jsonStr);
+    
+    return { success: true, data: ideas };
+  } catch (error: any) {
+    console.error('suggestBlogIdeas error:', error);
     return { success: false, error: error.message };
   }
 }

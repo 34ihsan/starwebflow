@@ -639,6 +639,7 @@ model BlogPost {
   content           String   @db.Text
   excerpt           String?  @db.Text
   coverImage        String?  @map("cover_image")
+  authorName        String?  @map("author_name")
   status            String   @default("PENDING_APPROVAL") // PENDING_APPROVAL, PUBLISHED
   seoTitle          String?  @map("seo_title")
   seoDescription    String?  @map("seo_description")
