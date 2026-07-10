@@ -1,8 +1,24 @@
-import dns from 'dns/promises';
+import { Resolver } from 'dns/promises';
+
+const resolver = new Resolver();
+// Use Google and Cloudflare public DNS servers to avoid Vercel/local DNS blockages
+resolver.setServers(['8.8.8.8', '1.1.1.1']);
+
+const DNS_TIMEOUT_MS = 5000;
+
+async function resolveTxtWithTimeout(domain: string): Promise<string[][]> {
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('DNS Timeout')), DNS_TIMEOUT_MS)
+  );
+  return Promise.race([
+    resolver.resolveTxt(domain),
+    timeoutPromise
+  ]);
+}
 
 export async function checkSPF(domain: string): Promise<boolean> {
   try {
-    const records = await dns.resolveTxt(domain);
+    const records = await resolveTxtWithTimeout(domain);
     for (const record of records) {
       const txt = record.join('');
       if (txt.includes('v=spf1')) {
@@ -17,7 +33,7 @@ export async function checkSPF(domain: string): Promise<boolean> {
 
 export async function checkDMARC(domain: string): Promise<boolean> {
   try {
-    const records = await dns.resolveTxt(`_dmarc.${domain}`);
+    const records = await resolveTxtWithTimeout(`_dmarc.${domain}`);
     for (const record of records) {
       const txt = record.join('');
       if (txt.includes('v=DMARC1')) {
@@ -36,7 +52,7 @@ export async function checkDKIM(domain: string): Promise<boolean> {
   
   for (const selector of commonSelectors) {
     try {
-      const records = await dns.resolveTxt(`${selector}._domainkey.${domain}`);
+      const records = await resolveTxtWithTimeout(`${selector}._domainkey.${domain}`);
       for (const record of records) {
         const txt = record.join('');
         // DKIM record usually has v=DKIM1 or k=rsa or p=...
