@@ -6,18 +6,21 @@ import {
   Flame, CheckCircle2, Play, Pause, Search, Plus, 
   Settings, MoreHorizontal, BarChart3, Target, Activity, Zap,
   LayoutTemplate, Type, Image as ImageIcon, Link2, Sparkles, SlidersHorizontal,
-  Users, UploadCloud, RefreshCw, FileSpreadsheet, Rocket, Database, Settings2
+  Users, UploadCloud, RefreshCw, FileSpreadsheet, Rocket, Database, Settings2,
+  ShieldCheck, FileText
 } from "lucide-react";
 
 import { createEmailCampaign, createEmailMailbox, updateMailboxStatus } from '@/app/actions/email';
 import ABTestingTab from './components/ABTestingTab';
 import CampaignsTab from './components/CampaignsTab';
+import DeliverabilityTab from './components/DeliverabilityTab';
 import MailboxWarmupTab from './components/MailboxWarmupTab';
 import OutreachTab from './components/OutreachTab';
 import TemplatesTab from './components/TemplatesTab';
 
 export default function EmailDashboardClient({ initialData }: { initialData: { campaigns: any[], templates: any[], mailboxes: any[] } }) {
-  const [activeTab, setActiveTab] = useState<"campaigns" | "ab_testing" | "mailboxes" | "templates" | "outreach">("campaigns");
+  const [activeTab, setActiveTab] = useState<"campaigns" | "ab_testing" | "mailboxes" | "templates" | "outreach" | "deliverability">("campaigns");
+  const [wizardMailboxPool, setWizardMailboxPool] = useState<string[]>([]);
   
   // OUTREACH STATE
   const [csvData, setCsvData] = useState<any[]>([]);
@@ -263,6 +266,7 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
           { id: "outreach", label: "Toplu Gönderim", icon: Users },
           { id: "ab_testing", label: "A/B Testleri & Isı Haritası", icon: Target },
           { id: "mailboxes", label: "Akıllı IP/Domain Isıtma", icon: Flame },
+          { id: "deliverability", label: "Deliverability", icon: ShieldCheck },
           { id: "templates", label: "Şablonlar", icon: FileText }
         ].map((tab) => (
           <button
@@ -321,6 +325,11 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
 
         {activeTab === "templates" && (
           <TemplatesTab setIsAITemplateModalOpen={setIsAITemplateModalOpen} />
+        )}
+
+        {/* DELIVERABILITY */}
+        {activeTab === "deliverability" && (
+          <DeliverabilityTab dbMailboxes={dbMailboxes} />
         )}
       </div>
       {isAddCampaignModalOpen && (
@@ -389,6 +398,37 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                     </select>
                     <p className="text-xs text-[#94A3B8] mt-2">Bu kampanya seçtiğiniz hedef kitle segmentine gönderilecektir.</p>
                   </div>
+                  {/* Mailbox Pool */}
+                  {dbMailboxes.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-[#94A3B8] mb-2">Mailbox Havuzu (Inbox Rotation)</label>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {dbMailboxes.map((mb: any) => (
+                          <label key={mb.id} className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl cursor-pointer hover:bg-white/[0.04] transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={wizardMailboxPool.includes(mb.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) setWizardMailboxPool(prev => [...prev, mb.id]);
+                                else setWizardMailboxPool(prev => prev.filter(id => id !== mb.id));
+                              }}
+                              className="accent-orange-500"
+                            />
+                            <div>
+                              <div className="text-sm text-white">{mb.email}</div>
+                              <div className="text-xs text-[#64748B]">İtibar: {mb.reputation} · Günlük: {mb.sentToday}/{mb.limit}</div>
+                            </div>
+                            <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded ${
+                              mb.status === 'WARMUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'
+                            }`}>{mb.status}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <p className="text-xs text-[#64748B] mt-2">
+                        {wizardMailboxPool.length === 0 ? 'Seçim yapılmadı — varsayılan gönderici kullanılacak' : `${wizardMailboxPool.length} mailbox seçildi`}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -397,14 +437,37 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                 <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
                   <div>
                     <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-Posta İçeriği (HTML)</label>
+                    {/* Personalization Variable Buttons */}
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <span className="text-xs text-[#64748B] flex items-center">Kişiselleştir:</span>
+                      {[
+                        { label: '{{ad}}', desc: 'Ad' },
+                        { label: '{{soyad}}', desc: 'Soyad' },
+                        { label: '{{sirket}}', desc: 'Şirket' },
+                        { label: '{{sehir}}', desc: 'Şehir' },
+                        { label: '{{sektor}}', desc: 'Sektör' },
+                        { label: '{{url_1}}', desc: 'Link 1' },
+                      ].map(v => (
+                        <button
+                          key={v.label}
+                          type="button"
+                          onClick={() => setWizardContent(prev => prev + v.label)}
+                          className="text-xs px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-lg hover:bg-orange-500/20 transition-colors font-mono"
+                          title={v.desc}
+                        >
+                          {v.label}
+                        </button>
+                      ))}
+                    </div>
                     <textarea 
+                      id="wizardContentArea"
                       value={wizardContent}
                       onChange={e => setWizardContent(e.target.value)}
                       rows={8}
                       className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors font-mono text-sm"
-                      placeholder="<h1>Merhaba!</h1><p>Kampanya detayları buraya gelecek...</p>"
+                      placeholder="<h1>Merhaba {{ad}}!</h1><p>{{sirket}} şirketiniz için özel bir teklifimiz var...</p>"
                     />
-                    <p className="text-xs text-[#94A3B8] mt-2">Düz metin veya HTML kodu yazabilirsiniz. Bu içerik şablon olarak kaydedilecektir.</p>
+                    <p className="text-xs text-[#94A3B8] mt-2">Değişkenler gönderim sırasında otomatik doldurulur. HTML veya düz metin desteklenir.</p>
                   </div>
                 </div>
               )}
@@ -497,7 +560,8 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                         subject: newCampaignSubject,
                         audience: wizardAudience,
                         htmlBody: wizardContent,
-                        scheduledAt: wizardScheduleType === "later" ? wizardScheduledAt : null
+                        scheduledAt: wizardScheduleType === "later" ? wizardScheduledAt : null,
+                        mailboxPool: wizardMailboxPool,
                       });
                       
                       if(res.success && res.data) {
@@ -507,6 +571,7 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                         setWizardContent("");
                         setWizardScheduledAt("");
                         setWizardScheduleType("now");
+                        setWizardMailboxPool([]);
                         setWizardStep(1);
                         setIsAddCampaignModalOpen(false);
                       } else {
@@ -942,28 +1007,4 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
       )}
     </div>
   );
-}
-
-// Temporary dummy icon since it's missing in some lucid versions
-function FileText(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" x2="8" y1="13" y2="13" />
-      <line x1="16" x2="8" y1="17" y2="17" />
-      <line x1="10" x2="8" y1="9" y2="9" />
-    </svg>
-  )
 }

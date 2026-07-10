@@ -31,22 +31,6 @@ export default function MailboxWarmupTab({
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <button 
-              onClick={() => {
-                const interval = setInterval(() => {
-                  setDbMailboxes(prev => prev.map(m => {
-                    if (m.status === 'WARMUP' && m.warmupProgress < 100) {
-                      return { ...m, warmupProgress: Math.min(100, m.warmupProgress + 5), reputation: Math.min(100, m.reputation + 2) };
-                    }
-                    return m;
-                  }));
-                }, 1000);
-                setTimeout(() => clearInterval(interval), 10000);
-              }}
-              className="bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 border border-white/10 transition-colors"
-            >
-              Simülasyonu Başlat
-            </button>
-            <button 
               onClick={() => setIsAddMailboxModalOpen(true)}
               className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-transform"
             >

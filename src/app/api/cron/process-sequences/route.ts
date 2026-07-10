@@ -3,7 +3,6 @@ import { prisma } from '@/lib/prisma';
 import { analyzeLeadProfile, metamorphicRewrite, omniRouteSelector } from '@/app/actions/outreachEngine';
 import { sendOutreachEmail } from '@/lib/email';
 
-
 export const dynamic = 'force-dynamic';
 
 const NEXT_STEPS: Record<number, { nextStep: number, daysToAdd: number } | null> = {
@@ -14,7 +13,52 @@ const NEXT_STEPS: Record<number, { nextStep: number, daysToAdd: number } | null>
   20: null                            // Step 20 done -> sequence ends
 };
 
-// Legacy sector determining logic (removed since we use CampaignId now)
+/**
+ * Spintax parser
+ * Supports nested spintax like {Hi|Hello {there|friend}}
+ */
+function parseSpintax(text: string): string {
+  let result = text;
+  while (/\{[^{}]*\}/.test(result)) {
+    result = result.replace(/\{([^{}]*)\}/g, (match, contents) => {
+      const parts = contents.split('|');
+      return parts[Math.floor(Math.random() * parts.length)];
+    });
+  }
+  return result;
+}
+
+/**
+ * Personalization variable replacer
+ * Supports: {{ad}}, {{soyad}}, {{sirket}}, {{sehir}}, {{sektor}}, {{url_1}}
+ * Also handles legacy {Name}, {Company}, {Industry} tokens
+ */
+function replacePersonalizationVars(
+  text: string,
+  lead: { name?: string | null; company?: string | null },
+  aiProfile?: { industry?: string; language?: string }
+): string {
+  const nameParts = (lead.name || '').split(' ');
+  const firstName = nameParts[0] || 'Değerli Müşteri';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  const company = lead.company || aiProfile?.industry || 'şirketiniz';
+  const sector = aiProfile?.industry || 'sektörünüz';
+
+  return text
+    // Turkish variable tokens
+    .replace(/\{\{ad\}\}/gi, firstName)
+    .replace(/\{\{soyad\}\}/gi, lastName)
+    .replace(/\{\{isim\}\}/gi, firstName)
+    .replace(/\{\{sirket\}\}/gi, company)
+    .replace(/\{\{şirket\}\}/gi, company)
+    .replace(/\{\{sektor\}\}/gi, sector)
+    .replace(/\{\{sektör\}\}/gi, sector)
+    .replace(/\{\{url_1\}\}/gi, '')
+    // Legacy tokens
+    .replace(/\{Name\}/g, firstName)
+    .replace(/\{Company\}/g, company)
+    .replace(/\{Industry\}/g, sector);
+}
 
 export async function GET(request: Request) {
   try {
@@ -24,6 +68,19 @@ export async function GET(request: Request) {
     }
 
     const now = new Date();
+
+    // Business Hours Protection (06:00 UTC to 15:00 UTC -> 09:00 to 18:00 TRT)
+    const utcHour = now.getUTCHours();
+    const dayOfWeek = now.getUTCDay(); // 0 = Sunday, 6 = Saturday
+    
+    if (dayOfWeek === 0 || dayOfWeek === 6 || utcHour < 6 || utcHour >= 15) {
+      return NextResponse.json({ 
+        message: 'Out of business hours (Weekends or outside 09:00-18:00). Paused until next window.', 
+        success: true, 
+        processed: 0, 
+        sent: 0 
+      });
+    }
 
     // Find sequences ready to run
     const sequences = await prisma.leadSequence.findMany({
@@ -84,8 +141,11 @@ export async function GET(request: Request) {
           continue;
         }
 
+        // Parse Spintax FIRST before AI rewrite
+        const spunTemplate = parseSpintax(dbTemplate.htmlBody);
+
         // AI Metamorphic Template Rewrite
-        const htmlBody = await metamorphicRewrite(dbTemplate.htmlBody, { ...profile, name, company });
+        const htmlBody = await metamorphicRewrite(spunTemplate, { ...profile, name, company });
 
         // Omni-Routing
         const senderEmail = await omniRouteSelector(email, sequence.tenantId);
@@ -93,20 +153,24 @@ export async function GET(request: Request) {
         // Process Unsubscribe Link
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
         const unsubscribeLink = `${appUrl}/api/unsubscribe?email=${encodeURIComponent(email)}`;
-        const finalHtmlBody = htmlBody.replace(/\\[Abonelikten Çık\\]/g, `<a href="${unsubscribeLink}" style="color: #6b7280; text-decoration: underline;">Abonelikten Çık</a>`);
+        
+        // Apply personalization variables + unsubscribe link
+        const personalizedHtml = replacePersonalizationVars(htmlBody, { name, company }, profile)
+          .replace(/\[Abonelikten Çık\]/g, `<a href="${unsubscribeLink}" style="color: #6b7280; text-decoration: underline;">Abonelikten Çık</a>`);
 
-        // Update subject for the user's language/industry if needed
-        const subjectText = dbTemplate.subject
-          .replace('{Name}', name || 'Müşterimiz')
-          .replace('{Industry}', profile.industry || 'sektörünüz')
-          .replace('{Company}', company || profile.industry || 'şirketiniz');
+        // Apply personalization to subject
+        const subjectText = replacePersonalizationVars(
+          dbTemplate.subject,
+          { name, company },
+          profile
+        );
 
-        // Send Email via Nodemailer + Hostinger SMTP
+        // Send Email via Nodemailer + SMTP
         await sendOutreachEmail({
           from: senderEmail,
           to: email,
           subject: subjectText,
-          html: finalHtmlBody,
+          html: personalizedHtml,
           replyTo: senderEmail,
         });
 

@@ -97,27 +97,34 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
 
   const isAdmin = initialProfile.role === 'SUPER_ADMIN' || initialProfile.role === 'AGENCY_OWNER';
 
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveSettings = async (overrides: { preferences?: any, twoFactorEnabled?: boolean } = {}) => {
     setProfileLoading(true);
     setProfileMessage(null);
+    
+    const newPreferences = overrides.preferences !== undefined ? overrides.preferences : preferences;
+    const newTwoFactor = overrides.twoFactorEnabled !== undefined ? overrides.twoFactorEnabled : twoFactorEnabled;
 
     const res = await updateProfile({ 
       name, 
       email,
       avatarUrl,
-      preferences,
-      twoFactorEnabled
+      preferences: newPreferences,
+      twoFactorEnabled: newTwoFactor
     });
 
     if (res.success) {
-      setProfileMessage({ type: 'success', text: res.message || 'Profil başarıyla güncellendi.' });
+      setProfileMessage({ type: 'success', text: res.message || 'Ayarlar başarıyla güncellendi.' });
       router.refresh();
       setTimeout(() => setProfileMessage(null), 3000);
     } else {
       setProfileMessage({ type: 'error', text: res.error || 'Bir hata oluştu.' });
     }
     setProfileLoading(false);
+  };
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await saveSettings();
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,19 +199,25 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
     setPasswordLoading(false);
   };
 
-  const toggle2FA = () => {
-    setTwoFactorEnabled(!twoFactorEnabled);
+  const toggle2FA = async () => {
+    const newVal = !twoFactorEnabled;
+    setTwoFactorEnabled(newVal);
+    await saveSettings({ twoFactorEnabled: newVal });
   };
 
   const updatePreference = (key: string, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
   };
 
-  const generateApiKey = () => {
+  const autosavePreference = async (key: string, value: any) => {
+    const newPrefs = { ...preferences, [key]: value };
+    setPreferences(newPrefs);
+    await saveSettings({ preferences: newPrefs });
+  };
+
+  const generateApiKey = async () => {
     const newKey = 'sw_' + Math.random().toString(36).substr(2, 9) + Math.random().toString(36).substr(2, 9);
-    updatePreference('apiKey', newKey);
-    // Auto save
-    handleProfileUpdate(new Event('submit') as any);
+    await autosavePreference('apiKey', newKey);
   };
 
   const copyToClipboard = (text: string) => {
@@ -501,7 +514,6 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                   <button 
                     onClick={() => {
                       toggle2FA();
-                      handleProfileUpdate(new Event('submit') as any);
                     }}
                     className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${twoFactorEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
                   >
@@ -570,8 +582,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                       <button
                         key={lang}
                         onClick={() => {
-                          updatePreference('language', lang);
-                          handleProfileUpdate(new Event('submit') as any);
+                          autosavePreference('language', lang);
                         }}
                         className={`p-4 rounded-xl border text-center transition-all ${preferences.language === lang ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-[#1e293b] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white'}`}
                       >
@@ -591,8 +602,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                       <button
                         key={theme}
                         onClick={() => {
-                          updatePreference('theme', theme);
-                          handleProfileUpdate(new Event('submit') as any);
+                          autosavePreference('theme', theme);
                         }}
                         className={`p-4 rounded-xl border text-center transition-all ${preferences.theme === theme ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-[#1e293b] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white'}`}
                       >
@@ -614,8 +624,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                     </div>
                     <button 
                       onClick={() => {
-                        updatePreference('emailNotifications', !preferences.emailNotifications);
-                        handleProfileUpdate(new Event('submit') as any);
+                        autosavePreference('emailNotifications', !preferences.emailNotifications);
                       }}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.emailNotifications ? 'bg-blue-500' : 'bg-slate-700'}`}
                     >
@@ -692,7 +701,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                         className="flex-1 bg-[#0f172a] border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500/50"
                       />
                       <button 
-                        onClick={() => handleProfileUpdate(new Event('submit') as any)}
+                        onClick={() => saveSettings()}
                         className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                       >
                         Kaydet

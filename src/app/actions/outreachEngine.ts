@@ -62,17 +62,28 @@ export async function omniRouteSelector(targetEmail: string, tenantId: string) {
   const domain = targetEmail.split('@')[1] || '';
   
   const mailboxes = await prisma.emailMailbox.findMany({
-    where: { tenantId, status: 'WARMUP' },
+    where: { tenantId, status: { in: ['WARMUP', 'ACTIVE'] } },
     orderBy: { reputation: 'desc' }
   });
 
   if (mailboxes.length === 0) {
-    return process.env.OUTBOUND_EMAIL_ADDRESS || 'info@starwebflow.com';
+    throw new Error('No active mailboxes available for this tenant.');
   }
 
-  // Ideally, match google MX to google sending IPs, Microsoft to Office365 IPs.
-  // For MVP, we return the highest reputation mailbox.
-  return mailboxes[0].email;
+  // Find a mailbox that hasn't reached its max daily limit
+  const availableMailbox = mailboxes.find(mb => mb.sentToday < mb.maxDailyLimit);
+  
+  if (!availableMailbox) {
+    throw new Error('All mailboxes have reached their daily sending limit.');
+  }
+
+  // Increment the sentToday counter for the selected mailbox
+  await prisma.emailMailbox.update({
+    where: { id: availableMailbox.id },
+    data: { sentToday: { increment: 1 } }
+  });
+
+  return availableMailbox.email;
 }
 
 export async function processOutreachBatch(bulkOutreachId: string, tenantId: string, basePrompt: string) {

@@ -1,6 +1,8 @@
 import { getProfile } from '@/app/actions/profile';
 import ProfileDashboardClient from '@/components/profile/ProfileDashboardClient';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminProfilePage() {
   const res = await getProfile();
 

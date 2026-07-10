@@ -36,6 +36,7 @@ export async function createEmailCampaign(data: {
   audience?: string;
   htmlBody?: string;
   scheduledAt?: string | null;
+  mailboxPool?: string[];
 }) {
   try {
     const campaign = await prisma.emailCampaign.create({
@@ -46,6 +47,11 @@ export async function createEmailCampaign(data: {
         status: 'ACTIVE',
         audience: data.audience || 'Tüm Liste',
         scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : null,
+        // Store mailboxPool IDs as JSON in the audience field for now
+        // (pending schema migration for dedicated column)
+        ...(data.mailboxPool && data.mailboxPool.length > 0 ? {
+          audience: `${data.audience || 'Tüm Liste'}||mailboxPool:${JSON.stringify(data.mailboxPool)}`
+        } : {}),
         templates: data.htmlBody ? {
           create: [{
             tenant: { connect: { id: data.tenantId } },

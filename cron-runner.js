@@ -40,9 +40,9 @@ cron.schedule('*/10 * * * *', () => {
   runJob('Process Sequences', '/api/cron/process-sequences');
 });
 
-// 3. Sequence Runner (Send emails): Run every 5 minutes
-cron.schedule('*/5 * * * *', () => {
-  runJob('Sequence Runner', '/api/cron/sequence-runner');
+// 4. Daily Reset (Reset sentToday and increment warmupDay): Run every night at 00:00
+cron.schedule('0 0 * * *', () => {
+  runJob('Daily Reset', '/api/cron/daily-reset');
 });
 
 console.log(`🚀 StarWebflow Cron Service Started. (Targeting ${BASE_URL})`);
