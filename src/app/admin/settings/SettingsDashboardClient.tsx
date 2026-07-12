@@ -78,6 +78,38 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
     }
   };
 
+  const handleRemoveLogo = () => {
+    if (confirm("Logoyu kaldırmak istediğinize emin misiniz?")) {
+      setSettings({
+        ...settings,
+        preferences: {
+          ...preferences,
+          branding: {
+            ...(preferences.branding || {}),
+            logoUrl: null
+          }
+        }
+      });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveFavicon = () => {
+    if (confirm("Faviconu kaldırmak istediğinize emin misiniz?")) {
+      setSettings({
+        ...settings,
+        preferences: {
+          ...preferences,
+          branding: {
+            ...(preferences.branding || {}),
+            faviconUrl: null
+          }
+        }
+      });
+      if (faviconInputRef.current) faviconInputRef.current.value = "";
+    }
+  };
+
   const handleAddWebhook = () => {
     const url = prompt("Webhook URL'sini girin:");
     if (url) {
@@ -738,12 +770,23 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                             accept="image/*" 
                             className="hidden" 
                           />
-                          <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
-                          >
-                            Yeni Logo Seç
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => fileInputRef.current?.click()}
+                              className="bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors"
+                            >
+                              Yeni Logo Seç
+                            </button>
+                            {preferences.branding?.logoUrl && (
+                              <button 
+                                onClick={handleRemoveLogo}
+                                className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-center"
+                                title="Logoyu Kaldır"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                           <p className="text-[10px] text-[#64748B]">Maks 2MB (SVG, PNG önerilir).</p>
                         </div>
                       </div>
@@ -767,12 +810,23 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                             accept="image/*" 
                             className="hidden" 
                           />
-                          <button 
-                            onClick={() => faviconInputRef.current?.click()}
-                            className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] text-[#94A3B8] hover:text-white px-3 py-1.5 rounded-lg text-xs transition-colors"
-                          >
-                            Favicon Yükle
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => faviconInputRef.current?.click()}
+                              className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] text-[#94A3B8] hover:text-white px-3 py-1.5 rounded-lg text-xs transition-colors"
+                            >
+                              Favicon Yükle
+                            </button>
+                            {preferences.branding?.faviconUrl && (
+                              <button 
+                                onClick={handleRemoveFavicon}
+                                className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 px-2 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-center"
+                                title="Faviconu Kaldır"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
