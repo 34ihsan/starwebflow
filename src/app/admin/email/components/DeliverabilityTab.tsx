@@ -319,7 +319,7 @@ export default function DeliverabilityTab({ dbMailboxes }: DeliverabilityTabProp
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-white/5">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-white">{selectedMailbox.reputation}</div>
+                  <div className="text-lg font-bold text-white">{Math.min(100, selectedMailbox.reputation)}</div>
                   <div className="text-[10px] text-[#64748B]">İtibar</div>
                 </div>
                 <div className="text-center">

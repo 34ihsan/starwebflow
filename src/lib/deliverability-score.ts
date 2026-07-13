@@ -31,10 +31,12 @@ export interface DeliverabilityResult {
 }
 
 export function calculateDeliverabilityScore(input: DeliverabilityInput): DeliverabilityResult {
+  const cappedReputation = Math.min(100, Math.max(0, input.reputation));
+  
   const spf = input.spfStatus ? 20 : 0;
   const dkim = input.dkimStatus ? 20 : 0;
   const dmarc = input.dmarcStatus ? 20 : 0;
-  const reputationBonus = Math.round((input.reputation / 100) * 25);
+  const reputationBonus = Math.round((cappedReputation / 100) * 25);
   const bouncePenalty = Math.min(input.bounceCount * 5, 30);
   const spamPenalty = Math.min(input.spamCount * 8, 40);
 
@@ -57,7 +59,7 @@ export function calculateDeliverabilityScore(input: DeliverabilityInput): Delive
   if (!input.dmarcStatus) recommendations.push('DMARC politikası tanımlı değil');
   if (input.bounceCount > 2) recommendations.push(`${input.bounceCount} bounce tespit edildi — listeyi temizleyin`);
   if (input.spamCount > 0) recommendations.push(`${input.spamCount} spam şikayeti var — içerik gözden geçirilmeli`);
-  if (input.reputation < 70) recommendations.push('İtibar puanı düşük — warmup süresini uzatın');
+  if (cappedReputation < 70) recommendations.push('İtibar puanı düşük — warmup süresini uzatın');
   if (input.warmupDay < 14) recommendations.push(`Hesap ${input.warmupDay}. günde — en az 30 gün ısınma önerilir`);
 
   return {
