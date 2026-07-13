@@ -151,7 +151,11 @@ Kurallar:
               prompt: "Lütfen e-postayı oluştur."
             });
 
-            const emailData = JSON.parse(generatedEmail);
+            let cleanJson = generatedEmail.trim();
+            if (cleanJson.startsWith('```')) {
+              cleanJson = cleanJson.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+            }
+            const emailData = JSON.parse(cleanJson);
             subject = emailData.subject || "Warmup Mesajı";
             body = emailData.body || "Merhaba, iyi çalışmalar dilerim.";
           }
