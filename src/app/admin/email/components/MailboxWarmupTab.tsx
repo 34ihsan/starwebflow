@@ -51,7 +51,7 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:border-emerald-500/40 transition-colors cursor-default">
             <div>
               <p className="text-xs text-[#94A3B8] mb-1">Ağ İtibarı (Network Rep.)</p>
-              <p className="text-xl font-bold text-emerald-400">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.reputation, 0) / dbMailboxes.length).toFixed(1) : "0.0"}</p>
+              <p className="text-xl font-bold text-emerald-400">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + Math.min(100, m.reputation), 0) / dbMailboxes.length).toFixed(1) : "0.0"}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -78,11 +78,11 @@ export default function MailboxWarmupTab({
           <div className="bg-[#05050A] border border-blue-500/20 rounded-xl p-4 flex flex-col justify-center shadow-[0_0_15px_rgba(59,130,246,0.05)] hover:border-blue-500/40 transition-colors cursor-default">
              <p className="text-xs text-[#94A3B8] mb-2">Google Inbox Yerleşimi</p>
              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-               <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative" style={{ width: `${dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.warmupProgress, 0) / dbMailboxes.length).toFixed(0) : 0}%` }}>
+               <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative" style={{ width: `${dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + Math.min(100, m.warmupProgress), 0) / dbMailboxes.length).toFixed(0) : 0}%` }}>
                  <div className="absolute inset-0 bg-white/30 blur-[1px]"></div>
                </div>
              </div>
-             <p className="text-xs font-bold text-white mt-1 text-right">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + m.warmupProgress, 0) / dbMailboxes.length).toFixed(0) : "0"}</p>
+             <p className="text-xs font-bold text-white mt-1 text-right">%{dbMailboxes.length > 0 ? (dbMailboxes.reduce((acc, m) => acc + Math.min(100, m.warmupProgress), 0) / dbMailboxes.length).toFixed(0) : "0"}</p>
           </div>
         </div>
 

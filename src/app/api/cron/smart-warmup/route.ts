@@ -80,7 +80,8 @@ export async function GET(req: Request) {
             status: newStatus,
             isPaused,
             warmupProgress: { increment: (imapRes.rescuedFromSpam || 0) * 2 }, // Spam'den kurtarma x2 puan
-            reputation: { increment: (imapRes.readCount || 0) + (imapRes.rescuedFromSpam || 0) * 3 }
+            reputation: { increment: (imapRes.readCount || 0) + (imapRes.rescuedFromSpam || 0) * 3 },
+            receivedToday: { increment: (imapRes.readCount || 0) + (imapRes.rescuedFromSpam || 0) }
           }
         });
       }

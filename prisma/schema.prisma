@@ -404,6 +404,7 @@ model EmailMailbox {
   reputation        Int      @default(100)
   limit             Int      @default(50)
   sentToday         Int      @default(0) @map("sent_today")
+  receivedToday     Int      @default(0) @map("received_today")
   warmupProgress    Int      @default(0) @map("warmup_progress")
   spammed           Int      @default(0)
   
