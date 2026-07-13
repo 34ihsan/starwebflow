@@ -416,7 +416,7 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                             />
                             <div>
                               <div className="text-sm text-white">{mb.email}</div>
-                              <div className="text-xs text-[#64748B]">İtibar: {mb.reputation} · Günlük: {mb.sentToday}/{mb.limit}</div>
+                              <div className="text-xs text-[#64748B]">İtibar: {Math.min(100, mb.reputation)} · Günlük: {mb.sentToday}/{mb.limit}</div>
                             </div>
                             <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded ${
                               mb.status === 'WARMUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'
@@ -937,11 +937,11 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-sm text-[#94A3B8]">Ağ İtibarı:</span>
-                  <p className={`font-medium ${selectedMailboxDetails.reputation < 90 ? 'text-red-400' : 'text-emerald-400'}`}>{selectedMailboxDetails.reputation}/100</p>
+                  <p className={`font-medium ${Math.min(100, selectedMailboxDetails.reputation) < 90 ? 'text-red-400' : 'text-emerald-400'}`}>{Math.min(100, selectedMailboxDetails.reputation)}/100</p>
                 </div>
                 <div>
                   <span className="text-sm text-[#94A3B8]">Isınma İlerlemesi:</span>
-                  <p className="text-blue-400 font-medium">% {selectedMailboxDetails.warmupProgress}</p>
+                  <p className="text-blue-400 font-medium">% {Math.min(100, selectedMailboxDetails.warmupProgress)}</p>
                 </div>
               </div>
             </div>

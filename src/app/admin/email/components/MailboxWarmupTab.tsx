@@ -168,7 +168,7 @@ export default function MailboxWarmupTab({
                   </div>
                 </div>
               </div>
-              {safeStatus === 'ACTIVE' && box.warmupProgress === 100 && box.reputation > 90 && (
+              {safeStatus === 'ACTIVE' && box.warmupProgress >= 100 && box.reputation >= 90 && (
                 <div className="mt-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-2.5 flex items-start gap-2 shadow-inner">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-emerald-400">Bu e-posta adresi ısınma sürecini tamamladı ve tam kapasite gönderime hazır.</p>
