@@ -10,7 +10,7 @@ import {
   ShieldCheck, FileText
 } from "lucide-react";
 
-import { createEmailCampaign, createEmailMailbox, updateMailboxStatus } from '@/app/actions/email';
+import { createEmailCampaign, createEmailMailbox, updateMailboxStatus, updateMailboxCredentials } from '@/app/actions/email';
 import ABTestingTab from './components/ABTestingTab';
 import CampaignsTab from './components/CampaignsTab';
 import DeliverabilityTab from './components/DeliverabilityTab';
@@ -44,6 +44,12 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [isLanguageDetectionActive, setIsLanguageDetectionActive] = useState(true);
 
   // MAILBOX WIZARD STATES
+  const [isEditMailboxModalOpen, setIsEditMailboxModalOpen] = useState(false);
+  const [selectedMailboxToEdit, setSelectedMailboxToEdit] = useState<any>(null);
+  const [editAppPassword, setEditAppPassword] = useState("");
+  const [editSmtpPort, setEditSmtpPort] = useState(465);
+  const [editImapPort, setEditImapPort] = useState(993);
+  const [editDailyLimit, setEditDailyLimit] = useState(50);
   const [selectedMailboxDetails, setSelectedMailboxDetails] = useState<any>(null);
   const [mailboxStep, setMailboxStep] = useState(1);
   const [mbProvider, setMbProvider] = useState("GOOGLE");
@@ -945,8 +951,103 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end">
+            <div className="p-6 border-t border-white/5 flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  setSelectedMailboxToEdit(selectedMailboxDetails);
+                  setEditAppPassword("");
+                  setEditSmtpPort(selectedMailboxDetails.smtpPort || 465);
+                  setEditImapPort(selectedMailboxDetails.imapPort || 993);
+                  setEditDailyLimit(selectedMailboxDetails.limit || 50);
+                  setSelectedMailboxDetails(null);
+                  setIsEditMailboxModalOpen(true);
+                }} 
+                className="px-5 py-2.5 rounded-xl bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors text-sm font-medium"
+              >
+                Ayarları Düzenle (Karantina Çıkışı)
+              </button>
               <button onClick={() => setSelectedMailboxDetails(null)} className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors text-sm font-medium">Kapat</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Mailbox Modal */}
+      {isEditMailboxModalOpen && selectedMailboxToEdit && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-lg w-full shadow-2xl">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Settings2 className="w-5 h-5 text-orange-400" /> Mail Ayarlarını Düzenle
+              </h3>
+              <button onClick={() => setIsEditMailboxModalOpen(false)} className="text-[#94A3B8] hover:text-white">&times;</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-amber-400 mb-4">
+                Karantinaya (ERROR) düşen veya ayarları değişen hesabınızı buradan güncelleyebilirsiniz. Kaydettiğiniz an ısınma döngüsüne tekrar dahil olur.
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1">Yeni App Password (Uygulama Şifresi)</label>
+                <input 
+                  type="password"
+                  value={editAppPassword}
+                  onChange={e => setEditAppPassword(e.target.value)}
+                  placeholder="Değiştirmek istemiyorsanız boş bırakın"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-[#64748B] focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 outline-none transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#94A3B8] mb-1">SMTP Port</label>
+                  <input 
+                    type="number"
+                    value={editSmtpPort}
+                    onChange={e => setEditSmtpPort(parseInt(e.target.value) || 465)}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500/50 outline-none transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#94A3B8] mb-1">IMAP Port</label>
+                  <input 
+                    type="number"
+                    value={editImapPort}
+                    onChange={e => setEditImapPort(parseInt(e.target.value) || 993)}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500/50 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-1">Günlük Limit</label>
+                <input 
+                  type="number"
+                  value={editDailyLimit}
+                  onChange={e => setEditDailyLimit(parseInt(e.target.value) || 50)}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500/50 outline-none transition-all"
+                />
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/5 flex justify-end gap-3">
+              <button onClick={() => setIsEditMailboxModalOpen(false)} className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors text-sm font-medium">İptal</button>
+              <button 
+                onClick={async () => {
+                  const res = await updateMailboxCredentials({
+                    id: selectedMailboxToEdit.id,
+                    appPassword: editAppPassword || undefined,
+                    smtpPort: editSmtpPort,
+                    imapPort: editImapPort,
+                    dailyLimit: editDailyLimit
+                  });
+                  if(res.success && res.data) {
+                    setDbMailboxes(prev => prev.map(m => m.id === res.data.id ? res.data : m));
+                    setIsEditMailboxModalOpen(false);
+                  } else {
+                    alert("Güncelleme başarısız!");
+                  }
+                }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:opacity-90 transition-opacity text-sm font-medium"
+              >
+                Kaydet ve Aktif Et
+              </button>
             </div>
           </div>
         </div>

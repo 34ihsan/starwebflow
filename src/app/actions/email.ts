@@ -189,13 +189,45 @@ export async function updateMailboxStatus(data: { id: string, status: string }) 
   try {
     const mailbox = await prisma.emailMailbox.update({
       where: { id: data.id },
-      data: { status: data.status }
+      data: { 
+        status: data.status,
+        ...(data.status === 'WARMUP' || data.status === 'ACTIVE' ? { isPaused: false } : {})
+      }
     });
     safeRevalidatePath('/admin/email');
     return { success: true, data: mailbox };
   } catch (error) {
     console.error('updateMailboxStatus error:', error);
     return { success: false, error: 'Failed to update mailbox status' };
+  }
+}
+
+export async function updateMailboxCredentials(data: {
+  id: string;
+  appPassword?: string;
+  smtpPort?: number;
+  imapPort?: number;
+  senderName?: string;
+  dailyLimit?: number;
+}) {
+  try {
+    const mailbox = await prisma.emailMailbox.update({
+      where: { id: data.id },
+      data: {
+        ...(data.appPassword ? { appPassword: data.appPassword } : {}),
+        ...(data.smtpPort ? { smtpPort: data.smtpPort } : {}),
+        ...(data.imapPort ? { imapPort: data.imapPort } : {}),
+        ...(data.senderName ? { senderName: data.senderName } : {}),
+        ...(data.dailyLimit ? { limit: data.dailyLimit } : {}),
+        status: 'WARMUP',
+        isPaused: false
+      }
+    });
+    safeRevalidatePath('/admin/email');
+    return { success: true, data: mailbox };
+  } catch (error) {
+    console.error('updateMailboxCredentials error:', error);
+    return { success: false, error: 'Failed to update credentials' };
   }
 }
 

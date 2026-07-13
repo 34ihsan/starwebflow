@@ -14,6 +14,8 @@ interface MailboxWarmupTabProps {
 export default function MailboxWarmupTab({
   dbMailboxes, setDbMailboxes, setIsAddMailboxModalOpen, setSelectedMailboxDetails
 }: MailboxWarmupTabProps) {
+  const erroredMailboxes = dbMailboxes.filter(m => m.status === 'ERROR');
+
   return (
     <div className="space-y-6 animate-in fade-in">
       {/* Header */}
@@ -39,6 +41,20 @@ export default function MailboxWarmupTab({
           </div>
         </div>
       </div>
+
+      {erroredMailboxes.length > 0 && (
+        <div className="bg-red-500/10 border-l-4 border-red-500 rounded-r-xl p-4 flex items-center justify-between shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-red-400 font-bold">Karantinadaki Mail Kutuları (Hata / Bounce)</h4>
+              <p className="text-sm text-red-400/80 mt-1">
+                {erroredMailboxes.length} adet mail adresi gönderim sorunları (bounce vb.) nedeniyle sistem tarafından otonom olarak durduruldu ve karantinaya alındı. Lütfen detaylarına girerek ayarlarını güncelleyin ve tekrar ısıtmaya alın.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Network Health Map */}
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
