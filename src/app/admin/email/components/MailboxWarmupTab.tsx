@@ -148,18 +148,22 @@ export default function MailboxWarmupTab({
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 mt-4">
+              <div className="grid grid-cols-4 gap-2 mt-4">
                 <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
                   <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Limit</div>
                   <div className="font-mono text-xs font-bold text-white">{box.limit}</div>
                 </div>
                 <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
-                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Gönderilen</div>
+                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Gönd.</div>
                   <div className="font-mono text-xs font-bold text-blue-400">{box.sentToday || 0}</div>
                 </div>
                 <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
+                  <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Gelen</div>
+                  <div className="font-mono text-xs font-bold text-emerald-400">{box.receivedToday || 0}</div>
+                </div>
+                <div className="bg-white/[0.02] p-2 rounded-lg border border-white/[0.02] text-center shadow-inner hover:bg-white/[0.04] transition-colors cursor-default">
                   <div className="text-[9px] text-[#94A3B8] uppercase tracking-wider mb-1">Spam</div>
-                  <div className={`font-mono text-xs font-bold ${box.spammed > 5 ? 'text-red-400' : 'text-emerald-400'}`}>
+                  <div className={`font-mono text-xs font-bold ${box.spammed > 5 ? 'text-red-400' : 'text-orange-400'}`}>
                     {box.spammed || 0}
                   </div>
                 </div>
