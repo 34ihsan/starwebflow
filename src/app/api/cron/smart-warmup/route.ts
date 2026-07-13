@@ -84,6 +84,17 @@ export async function GET(req: Request) {
             receivedToday: { increment: (imapRes.readCount || 0) + (imapRes.rescuedFromSpam || 0) }
           }
         });
+
+        // Hatalı (Bounce'a sebep olan) hedefleri otomatik dondur (Omni-Routing 100% Anti-Bounce)
+        if (imapRes.bouncedRecipients && imapRes.bouncedRecipients.length > 0) {
+          for (const badTarget of imapRes.bouncedRecipients) {
+            await prisma.emailMailbox.updateMany({
+              where: { email: badTarget },
+              data: { isPaused: true, status: 'ERROR', bounceCount: { increment: 5 } } // Anında dondur
+            });
+            console.log(`[OMNI-ROUTING] CATASTROPHIC BOUNCE PREVENTED: Auto-paused target ${badTarget} based on bounce report from ${mailbox.email}`);
+          }
+        }
       }
     }
 

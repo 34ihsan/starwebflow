@@ -37,6 +37,7 @@ export async function processInboundEmails(config: ImapConfig) {
     let rescuedFromSpam = 0;
     let readCount = 0;
     let bounceCount = 0;
+    let bouncedRecipients: string[] = [];
 
     // --- 1. SPAM RESCUE (Move to Inbox) ---
     const boxes = await connection.getBoxes();
@@ -117,6 +118,21 @@ export async function processInboundEmails(config: ImapConfig) {
       const isBounce = from.includes('mailer-daemon') || from.includes('postmaster') || from.includes('bounce');
       if (isBounce) {
         bounceCount++;
+        
+        const bodyContent = bodyText + ' ' + htmlContent;
+        const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
+        const matches = bodyContent.match(emailRegex) || [];
+        
+        const senderLower = config.email.toLowerCase();
+        for (const match of matches) {
+           const emailMatch = match.toLowerCase();
+           if (emailMatch !== senderLower && emailMatch.includes('starwebflow')) {
+              if (!bouncedRecipients.includes(emailMatch)) {
+                 bouncedRecipients.push(emailMatch);
+              }
+           }
+        }
+
         // Optionally mark as read
         await connection.addFlags(uid, 'SEEN');
         continue;
@@ -156,7 +172,7 @@ export async function processInboundEmails(config: ImapConfig) {
     }
 
     connection.end();
-    return { success: true, rescuedFromSpam, readCount, bounceCount };
+    return { success: true, rescuedFromSpam, readCount, bounceCount, bouncedRecipients };
   } catch (error) {
     console.error(`IMAP processing error for ${config.email}:`, error);
     return { success: false, error };
