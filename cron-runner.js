@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3000;
 const BASE_URL = `http://localhost:${PORT}`;
 const CRON_SECRET = process.env.CRON_SECRET || '';
 
