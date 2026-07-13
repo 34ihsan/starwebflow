@@ -127,10 +127,10 @@ export default function MailboxWarmupTab({
               <div>
                 <div className="flex justify-between text-xs text-[#94A3B8] mb-2 font-medium">
                   <span>Ağ İtibarı (Network Rep.)</span>
-                  <span className={box.reputation < 90 ? "text-red-400 font-bold" : "text-[#10B981] font-bold"}>{box.reputation}/100</span>
+                  <span className={Math.min(100, box.reputation) < 90 ? "text-red-400 font-bold" : "text-[#10B981] font-bold"}>{Math.min(100, box.reputation)}/100</span>
                 </div>
                 <div className="w-full bg-[#05050A] rounded-full h-2 border border-white/[0.05] overflow-hidden shadow-inner">
-                  <div className={`h-2 rounded-full relative transition-all duration-1000 ${box.reputation < 90 ? "bg-red-400 shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "bg-gradient-to-r from-emerald-500 to-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.8)]"}`} style={{ width: `${box.reputation}%` }}>
+                  <div className={`h-2 rounded-full relative transition-all duration-1000 ${Math.min(100, box.reputation) < 90 ? "bg-red-400 shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "bg-gradient-to-r from-emerald-500 to-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.8)]"}`} style={{ width: `${Math.min(100, box.reputation)}%` }}>
                      <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-white/20 rounded-full blur-[2px]"></div>
                   </div>
                 </div>
@@ -139,10 +139,10 @@ export default function MailboxWarmupTab({
               <div>
                 <div className="flex justify-between text-xs text-[#94A3B8] mb-2 font-medium">
                   <span>Isıtma İlerlemesi (Algoritmik Ramp-up)</span>
-                  <span className="text-blue-400 font-bold">{box.warmupProgress}%</span>
+                  <span className="text-blue-400 font-bold">{Math.min(100, box.warmupProgress)}%</span>
                 </div>
                 <div className="w-full bg-[#05050A] rounded-full h-2 border border-white/[0.05] overflow-hidden shadow-inner">
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-400 h-2 rounded-full relative shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-1000" style={{ width: `${box.warmupProgress}%` }}>
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-400 h-2 rounded-full relative shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-1000" style={{ width: `${Math.min(100, box.warmupProgress)}%` }}>
                      <div className="absolute inset-0 bg-white/20 blur-[1px]"></div>
                   </div>
                 </div>
