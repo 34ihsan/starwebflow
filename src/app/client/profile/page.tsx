@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getProfile } from '@/app/actions/profile';
 import ProfileDashboardClient from '@/components/profile/ProfileDashboardClient';
 
