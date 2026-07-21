@@ -37,26 +37,26 @@ export const en = {
   },
   services: {
     title: 'What We Do',
-    subtitle: 'Premium B2B Services to Take Your Business Beyond Digital',
+    subtitle: 'Engineering Power + Measurable Business Impact: Hybrid Ecosystems Driving B2B Growth',
     web: {
-      title: 'Web Development',
-      desc: 'Next.js websites featuring sub-second speed targets, modern Outfit typography, and conversion rate optimization.',
+      title: 'Sub-Second Web Ecosystem (Next.js 14)',
+      desc: 'High-speed architecture built with Next.js 14 and Tailwind CSS. Loads in under 0.4 seconds, eliminating bounce rates and tripling your sales conversion rate.',
     },
     saas: {
-      title: 'Web Applications (SaaS)',
-      desc: 'Scalable cloud architectures, administrative dashboards, and customized B2B software solutions.',
+      title: 'Custom SaaS & Cloud Architecture (Cloud-Native)',
+      desc: 'Scalable cloud software powered by PostgreSQL and Docker. Provides a custom client, proposal, and project management dashboard that eliminates Excel chaos and centralizes your operations.',
     },
     agents: {
-      title: 'Yapay Zeka Ajanları (AI Agents)',
-      desc: 'Autonomous digital agents integrated with your CRM and databases, interacting with clients 24/7.',
+      title: 'Autonomous AI Agents (LLM & RAG Powered)',
+      desc: 'Intelligent digital sales representative integrated with GPT-4o & Gemini. Interacts with prospects 24/7, presents quotes, and books qualified appointments directly into your calendar.',
     },
     automation: {
-      title: 'AI Workflow Automation',
-      desc: 'Intelligent automation scenarios powered by n8n, webhooks, and APIs to accelerate workflows 10x.',
+      title: 'Cognitive Workflow Automation (n8n & API)',
+      desc: 'Intelligent data workflows connecting your systems via n8n, Webhooks, and APIs. Eliminates manual tasks like invoicing and lead capture, saving your team 15+ hours per week.',
     },
     marketing: {
-      title: 'Advertising & Social Media',
-      desc: 'AI-assisted creative design templates and ROAS-focused intelligent Meta and Google Ads management.',
+      title: 'Data-Driven Growth (Algorithmic Growth Marketing)',
+      desc: 'Targeted ad management powered by Meta Pixel and Google Ads CAPI. Reaches high-intent buyers without wasted ad spend, drastically lowering acquisition costs.',
     },
   },
   roi: {
