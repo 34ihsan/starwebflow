@@ -408,6 +408,7 @@ function CreativeGenerator() {
         subtitle={dict.generator.modalSubtitle(brand, selectedPlatformLabel || '')}
         source={dict.generator.modalSource}
         value={18000} // Custom estimated value
+        onClose={() => setShowLeadModal(false)}
         onSubmitSuccess={handleLeadSubmit}
       />
       <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3">
