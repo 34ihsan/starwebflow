@@ -16,11 +16,11 @@ export default async function AnalyticsDashboardPage() {
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
 
-  const dbPageViewsCount = await prisma.pageView.count({
+  const dbPageViewsCount = await (prisma as any).pageView.count({
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
 
-  const uniqueVisitorGroups = await prisma.pageView.groupBy({
+  const uniqueVisitorGroups = await (prisma as any).pageView.groupBy({
     by: ['visitorId'],
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
@@ -31,7 +31,7 @@ export default async function AnalyticsDashboardPage() {
   const avgPagesPerSession = totalSessions ? (totalPageViews / totalSessions).toFixed(1) : "0";
 
   // Aggregate top pages from PageView table
-  const dbTopPages = await prisma.pageView.groupBy({
+  const dbTopPages = await (prisma as any).pageView.groupBy({
     by: ['path'],
     _count: { id: true },
     orderBy: { _count: { id: 'desc' } },
@@ -46,12 +46,12 @@ export default async function AnalyticsDashboardPage() {
   });
 
   const trafficSources = linkTrackings.length > 0 
-    ? linkTrackings.map(t => ({ name: t.utmSource || 'direct', value: t._count.clicks }))
+    ? linkTrackings.map((t: any) => ({ name: t.utmSource || 'direct', value: t._count.clicks }))
     : [{ name: 'organik', value: totalSessions }];
 
   const topPagesData = dbTopPages.length > 0
-    ? dbTopPages.map(p => ({ path: p.path, _count: { id: p._count.id } }))
-    : linkTrackings.map(t => ({ path: t.originalUrl, _count: { id: t._count.clicks } }));
+    ? dbTopPages.map((p: any) => ({ path: p.path, _count: { id: p._count.id } }))
+    : linkTrackings.map((t: any) => ({ path: t.originalUrl, _count: { id: t._count.clicks } }));
 
   const recentLeads = await prisma.lead.findMany({
     orderBy: { createdAt: 'desc' },
@@ -65,7 +65,7 @@ export default async function AnalyticsDashboardPage() {
 
       // 1. Check real PageView records
       if (lead.visitorId) {
-        const realViews = await prisma.pageView.findMany({
+        const realViews = await (prisma as any).pageView.findMany({
           where: { visitorId: lead.visitorId },
           orderBy: { createdAt: 'asc' },
           select: {
@@ -77,7 +77,7 @@ export default async function AnalyticsDashboardPage() {
           }
         });
         if (realViews.length > 0) {
-          pageViews = realViews.map(pv => ({
+          pageViews = realViews.map((pv: any) => ({
             id: pv.id,
             path: pv.path,
             createdAt: pv.createdAt.toISOString(),
@@ -313,7 +313,7 @@ export default async function AnalyticsDashboardPage() {
         <div className="p-6 bg-[#0A0A0F] border border-white/[0.05] rounded-2xl">
           <h2 className="text-lg font-semibold text-white mb-4">En Çok Gezilen Sayfalar</h2>
           <div className="space-y-4">
-            {topPagesData.map((page, i) => (
+            {topPagesData.map((page: any, i: number) => (
               <div key={i} className="flex items-center justify-between group">
                 <span className="text-[#94A3B8] text-sm truncate max-w-[250px] group-hover:text-white transition-colors" title={page.path}>{page.path}</span>
                 <span className="text-white font-bold">{page._count.id.toLocaleString()}</span>
@@ -332,7 +332,7 @@ export default async function AnalyticsDashboardPage() {
         <p className="text-sm text-[#94A3B8] mb-8">Müşterilerinizin formu doldurmadan önce sitenizde hangi adımları izlediğini görün.</p>
         
         <div className="space-y-6">
-          {leadsWithSessions.map(lead => (
+          {leadsWithSessions.map((lead: any) => (
             <div key={lead.id} className="border border-white/[0.05] rounded-xl p-6 bg-white/[0.01] hover:bg-white/[0.02] transition-colors">
               <div className="flex justify-between items-start mb-6">
                 <div>
