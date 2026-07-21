@@ -1,10 +1,12 @@
 import Navbar from '@/components/landing/Navbar'
 import HeroSection from '@/components/landing/HeroSection'
 import TrustBar from '@/components/landing/TrustBar'
+import InstantAuditWidget from '@/components/landing/InstantAuditWidget'
 import ServicesSection from '@/components/landing/ServicesSection'
 import ScenarioCards from '@/components/landing/ScenarioCards'
 import InteractiveAIDemo from '@/components/landing/InteractiveAIDemo'
 import ComparisonSection from '@/components/landing/ComparisonSection'
+import BeforeAfterComparison from '@/components/landing/BeforeAfterComparison'
 import DataFlowSection from '@/components/landing/DataFlowSection'
 import WhyUsSection from '@/components/landing/WhyUsSection'
 import PricingSection from '@/components/landing/PricingSection'
@@ -27,10 +29,12 @@ export default function LandingPage() {
       <Navbar />
       <div id="hero"><HeroSection /></div>
       <div id="trust"><TrustBar /></div>
+      <div id="audit"><InstantAuditWidget /></div>
       <div id="services"><ServicesSection /></div>
       <div id="scenarios"><ScenarioCards /></div>
       <div id="demo"><InteractiveAIDemo /></div>
       <div id="comparison"><ComparisonSection /></div>
+      <div id="before-after"><BeforeAfterComparison /></div>
       <div id="flow"><DataFlowSection /></div>
       <div id="why-us"><WhyUsSection /></div>
       <div id="roi"><ROICalculatorSection /></div>
