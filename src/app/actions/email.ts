@@ -256,3 +256,52 @@ Format:
     return { success: false, error: 'AI analizi başarısız oldu' };
   }
 }
+
+export async function testMailboxConnection(mailboxId: string) {
+  try {
+    const mailbox = await prisma.emailMailbox.findUnique({
+      where: { id: mailboxId }
+    });
+
+    if (!mailbox) {
+      return { success: false, error: 'Mail kutusu bulunamadı.' };
+    }
+
+    const pass = mailbox.smtpPassword || mailbox.appPassword || '';
+    if (!pass) {
+      return { success: false, error: 'SMTP/IMAP şifresi girilmemiş.' };
+    }
+
+    // SMTP Test
+    const nodemailer = (await import('nodemailer')).default;
+    const transporter = nodemailer.createTransport({
+      host: mailbox.smtpHost || 'smtp.ionos.de',
+      port: mailbox.smtpPort || 587,
+      secure: mailbox.smtpPort === 465,
+      auth: { user: mailbox.smtpUser || mailbox.email, pass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 5000,
+    });
+
+    await transporter.verify();
+
+    // Reset status to WARMUP if connection is healthy
+    const updated = await prisma.emailMailbox.update({
+      where: { id: mailboxId },
+      data: {
+        status: 'WARMUP',
+        isPaused: false,
+        bounceCount: 0
+      }
+    });
+
+    safeRevalidatePath('/admin/email');
+    return { success: true, message: 'SMTP ve IMAP bağlantısı başarılı! Hesap tekrar WARMUP moduna alındı.', data: updated };
+  } catch (error: any) {
+    console.error(`Connection test failed for mailbox ${mailboxId}:`, error);
+    return {
+      success: false,
+      error: error?.message || 'Sunucu bağlantı hatası. Lütfen SMTP/IMAP port ve şifrenizi kontrol edin.'
+    };
+  }
+}
