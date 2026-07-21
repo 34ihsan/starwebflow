@@ -988,6 +988,22 @@ model LinkClick {
   @@map("link_clicks")
 }
 
+model PageView {
+  id          String   @id @default(uuid())
+  visitorId   String   @map("visitor_id")
+  path        String
+  title       String?
+  referrer    String?  @db.Text
+  userAgent   String?  @db.Text @map("user_agent")
+  duration    Int      @default(0) // seconds spent on page
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([path])
+  @@map("page_views")
+}
+
 model SocialEngagement {
   id              String   @id @default(uuid())
   tenantId        String   @map("tenant_id")

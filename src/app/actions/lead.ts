@@ -135,7 +135,7 @@ export async function createLeadWithProposal(data: {
 export async function createLead(data: any) {
   try {
     const { cookies } = await import('next/headers');
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const visitorId = cookieStore.get('swf_visitor_id')?.value;
 
     const lead = await prisma.lead.create({

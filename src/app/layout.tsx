@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import './globals.css'
 import CookieConsent from '@/components/ui/CookieConsent'
@@ -5,6 +6,7 @@ import SystemHealthWidget from '@/components/ui/SystemHealthWidget'
 import SchemaMarkup from '@/components/ui/SchemaMarkup'
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
 import TrackingScripts from '@/components/marketing/TrackingScripts'
+import AnalyticsTracker from '@/components/analytics/AnalyticsTracker'
 import { prisma } from '@/lib/prisma'
 import { SettingsProvider } from '@/lib/settings/SettingsContext'
 import { RecaptchaProvider } from '@/components/ui/RecaptchaProvider'
@@ -76,6 +78,9 @@ export default async function RootLayout({
         <SettingsProvider initialSettings={dbSettings}>
           <LanguageProvider>
             <RecaptchaProvider>
+              <Suspense fallback={null}>
+                <AnalyticsTracker />
+              </Suspense>
               {children}
               <CookieConsent />
               <SystemHealthWidget />

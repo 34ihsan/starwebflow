@@ -2,10 +2,12 @@ import { format, subDays } from "date-fns";
 import { Filter, ChevronDown, Activity, ArrowRight, Layers, Users, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export default async function AnalyticsDashboardPage() {
   const thirtyDaysAgo = subDays(new Date(), 30);
   
-  // REAL DATA from Prisma
+  // REAL DATA from Prisma PageView & Lead
   const totalLeads = await prisma.lead.count({
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
@@ -14,9 +16,27 @@ export default async function AnalyticsDashboardPage() {
     where: { createdAt: { gte: thirtyDaysAgo } }
   });
 
-  const totalSessions = totalClicks;
-  const totalPageViews = await prisma.linkClick.count();
+  const dbPageViewsCount = await prisma.pageView.count({
+    where: { createdAt: { gte: thirtyDaysAgo } }
+  });
+
+  const uniqueVisitorGroups = await prisma.pageView.groupBy({
+    by: ['visitorId'],
+    where: { createdAt: { gte: thirtyDaysAgo } }
+  });
+
+  const uniqueVisitorsCount = uniqueVisitorGroups.length;
+  const totalSessions = uniqueVisitorsCount > 0 ? uniqueVisitorsCount : (totalClicks || 1);
+  const totalPageViews = dbPageViewsCount > 0 ? dbPageViewsCount : await prisma.linkClick.count();
   const avgPagesPerSession = totalSessions ? (totalPageViews / totalSessions).toFixed(1) : "0";
+
+  // Aggregate top pages from PageView table
+  const dbTopPages = await prisma.pageView.groupBy({
+    by: ['path'],
+    _count: { id: true },
+    orderBy: { _count: { id: 'desc' } },
+    take: 5
+  });
 
   // Aggregate traffic sources from LinkTracking
   const linkTrackings = await prisma.linkTracking.findMany({
@@ -27,30 +47,55 @@ export default async function AnalyticsDashboardPage() {
 
   const trafficSources = linkTrackings.length > 0 
     ? linkTrackings.map(t => ({ name: t.utmSource || 'direct', value: t._count.clicks }))
-    : [];
+    : [{ name: 'organik', value: totalSessions }];
 
-  const topPagesData = linkTrackings.map(t => ({
-    path: t.originalUrl,
-    _count: { id: t._count.clicks }
-  }));
+  const topPagesData = dbTopPages.length > 0
+    ? dbTopPages.map(p => ({ path: p.path, _count: { id: p._count.id } }))
+    : linkTrackings.map(t => ({ path: t.originalUrl, _count: { id: t._count.clicks } }));
 
   const recentLeads = await prisma.lead.findMany({
     orderBy: { createdAt: 'desc' },
     take: 5
   });
 
-  const leadsWithSessions = recentLeads.map((lead: any) => ({
-    id: lead.id,
-    firstName: lead.name?.split(' ')[0] || '',
-    lastName: lead.name?.split(' ').slice(1).join(' ') || '',
-    email: lead.email || '',
-    company: lead.company || '',
-    createdAt: lead.createdAt.toISOString(),
-    trackingSession: {
-      utmSource: lead.source || 'organik',
-      pageViews: []
-    }
-  }));
+  // Fetch real page views for each lead's visitorId
+  const leadsWithSessions = await Promise.all(
+    recentLeads.map(async (lead: any) => {
+      let pageViews: any[] = [];
+      if (lead.visitorId) {
+        pageViews = await prisma.pageView.findMany({
+          where: { visitorId: lead.visitorId },
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            path: true,
+            createdAt: true,
+            duration: true,
+            referrer: true,
+          }
+        });
+      }
+
+      return {
+        id: lead.id,
+        firstName: lead.name?.split(' ')[0] || '',
+        lastName: lead.name?.split(' ').slice(1).join(' ') || '',
+        email: lead.email || '',
+        company: lead.company || '',
+        createdAt: lead.createdAt.toISOString(),
+        trackingSession: {
+          utmSource: lead.source || 'organik',
+          pageViews: pageViews.map(pv => ({
+            id: pv.id,
+            path: pv.path,
+            createdAt: pv.createdAt.toISOString(),
+            duration: pv.duration,
+            referrer: pv.referrer,
+          }))
+        }
+      };
+    })
+  );
 
   const wonLeadsCount = await prisma.lead.count({ where: { status: 'won' } });
 
@@ -248,6 +293,14 @@ export default async function AnalyticsDashboardPage() {
               </div>
 
               <div className="relative pl-6 border-l border-white/[0.1] space-y-5 ml-2">
+                {(lead.trackingSession?.pageViews as any[] || []).length === 0 && (
+                  <div className="relative">
+                    <div className="absolute -left-[29px] top-1.5 w-3 h-3 rounded-full bg-[#0A0A0F] border-2 border-[#64748B]"></div>
+                    <p className="text-sm text-[#94A3B8] italic">
+                      Doğrudan Giriş / Sayfa Gezinme Kaydı Yok
+                    </p>
+                  </div>
+                )}
                 {(lead.trackingSession?.pageViews as any[] || []).map((pv: any) => (
                   <div key={pv.id} className="relative">
                     <div className="absolute -left-[29px] top-1.5 w-3 h-3 rounded-full bg-[#0A0A0F] border-2 border-[#64748B]"></div>
