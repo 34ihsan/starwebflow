@@ -37,26 +37,26 @@ export const de = {
   },
   services: {
     title: 'Was wir tun',
-    subtitle: 'Premium B2B-Services, die Ihr Unternehmen über das Digitale hinausführen',
+    subtitle: 'Ingenieurskunst + Messbarer Geschäftserfolg: Hybrid-Ökosysteme für maximale B2B-Skalierung',
     web: {
-      title: 'Webentwicklung',
-      desc: 'Next.js-Websites mit Ladezeit-Zielen unter einer Sekunde, moderner Outfit-Typografie und Conversion-Rate-Optimierung.',
+      title: 'Sub-Second Web-Ökosystem (Next.js 14)',
+      desc: 'Hochgeschwindigkeitsarchitektur mit Next.js 14 und Tailwind CSS. Lädt in unter 0,4 Sekunden, verhindert Absprünge und verdreifacht Ihre Conversion-Rate.',
     },
     saas: {
-      title: 'Webanwendungen (SaaS)',
-      desc: 'Skalierbare Cloud-Architekturen, administrative Dashboards und maßgeschneiderte B2B-Softwarelösungen.',
+      title: 'Maßgeschneiderte SaaS & Cloud-Architektur',
+      desc: 'Skalierbare Cloud-Software auf PostgreSQL- und Docker-Basis. Bündelt Ihre Kunden-, Angebot- und Projektverwaltung auf einem Dashboard und eliminiert Excel-Chaos.',
     },
     agents: {
-      title: 'KI-Agenten (AI Agents)',
-      desc: 'Autonome digitale Agenten, die nahtlos in Ihre CRMs und Datenbanken integriert sind und rund um die Uhr mit Kunden interagieren.',
+      title: 'Autonome KI-Agenten (LLM & RAG-basiert)',
+      desc: 'Intelligenter digitaler Assistent mit GPT-4o & Gemini. Beantwortet Kundenfragen rund um die Uhr, erstellt Angebote und bucht Termine direkt in Ihren Kalender.',
     },
     automation: {
-      title: 'KI-Prozessautomatisierung',
-      desc: 'Intelligente Automatisierungsszenarien powered by n8n, Webhooks und APIs zur 10-fachen Beschleunigung von Workflows.',
+      title: 'Kognitive Prozessautomatisierung (n8n & API)',
+      desc: 'Intelligente Workflows powered by n8n und APIs. Automatisiert manuelle Aufgaben wie Rechnungserstellung und Lead-Erfassung und spart Ihrem Team 15+ Stunden pro Woche.',
     },
     marketing: {
-      title: 'Werbung & Social Media',
-      desc: 'KI-gestützte Designvorlagen und ROAS-fokussiertes, intelligentes Meta- und Google-Anzeigenmanagement.',
+      title: 'Datengesteuertes Wachstum (Algorithmic Marketing)',
+      desc: 'Zielgerichtetes Anzeigennagement mit Meta Pixel & Google CAPI. Minimiert Streuverluste, senkt Ihre Kundenakquisitionskosten und sichert qualifizierte Leads.',
     },
   },
   roi: {

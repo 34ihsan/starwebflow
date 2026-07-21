@@ -206,12 +206,12 @@ export default function ServicesSection() {
       title: t('services.agents.title'),
       description: t('services.agents.desc'),
       features: language === 'tr'
-        ? ['Empatik Müşteri Deneyimi', 'Kesintisiz CRM Senkronu', 'Otonom Satış Kapatma']
+        ? ['GPT-4o & RAG Mimarisi (7/24 Kesintisiz Destek)', 'Canlı CRM Senkronizasyonu (Sıfır Manuel Veri Kaydı)', 'Otonom Satış & Otomatik Randevu Kaydı']
         : language === 'de'
-        ? ['24/7 Support', 'CRM-Integration', '70% schnellere Antwort']
-        : ['24/7 Active Support', 'CRM Integration', '70% Faster Response'],
+        ? ['GPT-4o & RAG-Architektur (24/7 Support)', 'Echtzeit CRM-Synchronisation', 'Autonome Termin- & Vertriebsbuchung']
+        : ['GPT-4o & RAG Architecture (24/7 Support)', 'Real-time CRM Sync', 'Autonomous Sales & Appointment Booking'],
       className: 'md:col-span-2 md:row-span-2',
-      metric: language === 'tr' ? '10x İnsan Verimliliği' : language === 'de' ? '70% schnellere Antwort' : '70% Faster Response'
+      metric: language === 'tr' ? '10x İnsan Verimliliği (7/24 Aktif)' : language === 'de' ? '70% schnellere Antwort' : '70% Faster Response'
     },
     {
       icon: Cog,
@@ -222,10 +222,10 @@ export default function ServicesSection() {
       title: t('services.automation.title'),
       description: t('services.automation.desc'),
       features: language === 'tr'
-        ? ['Sıfır İnsan Hatası', 'Karmaşık API Entegrasyonları']
+        ? ['n8n & Webhook Entegrasyonu (Angaryaları Sıfırlama)', 'REST API / Veritabanı Senkronizasyonu (Hatasız İşlem)']
         : language === 'de'
-        ? ['Zapier/Make', 'Rechnung & Zahlung']
-        : ['Zapier/Make', 'Invoicing & Payments'],
+        ? ['n8n & Webhook-Integration', 'REST API & Datenbank-Synchronisation']
+        : ['n8n & Webhook Integration', 'REST API & Database Sync'],
       className: 'md:col-span-1',
       metric: language === 'tr' ? '100+ Saat/Ay Tasarruf' : language === 'de' ? '30+ Std. Ersparnis' : '30+ Hours Saved'
     },
@@ -238,10 +238,10 @@ export default function ServicesSection() {
       title: t('services.web.title'),
       description: t('services.web.desc'),
       features: language === 'tr'
-        ? ['Milisaniyelik Yüklenme', 'Hipnotik Arayüzler (UI/UX)']
+        ? ['Next.js 14 & SSR (0.4s Işık Hızında Yüklenme)', 'Conversion UX (Siteden Kaçanları Müşteriye Dönüştürme)']
         : language === 'de'
-        ? ['Next.js', 'Glassmorphismus-UI']
-        : ['Next.js', 'Glassmorphism UI'],
+        ? ['Next.js 14 & SSR (Unter 0,4s Ladezeit)', 'Conversion UX & Absprungschutz']
+        : ['Next.js 14 & SSR (Sub-0.4s Speed)', 'Conversion UX & Bounce Prevention'],
       className: 'md:col-span-1',
       metric: language === 'tr' ? '3x Ziyaretçi Dönüşümü' : language === 'de' ? '3x Conversion-Rate' : '3x Conversion Rate'
     },
@@ -254,12 +254,12 @@ export default function ServicesSection() {
       title: t('services.saas.title'),
       description: t('services.saas.desc'),
       features: language === 'tr'
-        ? ['Sınırsız Ölçeklenebilirlik', 'İzole Veri Güvenliği']
+        ? ['PostgreSQL & Cloud-Native (Sınırsız Ölçeklenme)', 'Özel Yönetim Paneli (Excel Kalabalığına Son)']
         : language === 'de'
-        ? ['Multi-Tenant', 'Echtzeitdaten']
-        : ['Multi-Tenant', 'Real-Time Data'],
+        ? ['PostgreSQL & Cloud-Native (Unbegrenzte Skalierung)', 'Maßgeschneidertes Admin-Dashboard']
+        : ['PostgreSQL & Cloud-Native (Unlimited Scaling)', 'Custom Admin Dashboard'],
       className: 'md:col-span-1',
-      metric: language === 'tr' ? 'Premium Bulut Altyapısı' : '99.9% Uptime'
+      metric: language === 'tr' ? '%99.9 Uptime Garantisi' : '99.9% Uptime'
     },
     {
       icon: Megaphone,
@@ -270,10 +270,10 @@ export default function ServicesSection() {
       title: t('services.marketing.title'),
       description: t('services.marketing.desc'),
       features: language === 'tr'
-        ? ['Nöropazarlama Stratejileri', 'Algoritmik A/B Testleri', 'B2B Lead Jenerasyonu', 'ROI Garantili Ölçekleme']
+        ? ['Meta CAPI & Google Ads Entegrasyonu', 'Algoritmik Reklam Yönetimi (Nokta Atışı Müşteri)']
         : language === 'de'
-        ? ['Meta & Google Ads', 'A/B-Testanalytik', 'Content-Erstellung', 'ROI-Tracking']
-        : ['Meta & Google Ads', 'A/B Testing Analytics', 'Content Creation', 'ROI Tracking'],
+        ? ['Meta CAPI & Google Ads Entegration', 'Algorithmisches Anzeigenmanagement']
+        : ['Meta CAPI & Google Ads Integration', 'Algorithmic Ad Management'],
       className: 'md:col-span-2',
       metric: language === 'tr' ? 'Sektör Lideri ROAS' : '4.8x ROAS'
     },
