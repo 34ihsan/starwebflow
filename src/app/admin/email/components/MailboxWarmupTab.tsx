@@ -241,12 +241,15 @@ export default function MailboxWarmupTab({
               </div>
 
               <div>
-                <div className="flex justify-between text-xs text-[#94A3B8] mb-2 font-medium">
-                  <span>Isıtma İlerlemesi (Algoritmik Ramp-up)</span>
-                  <span className="text-blue-400 font-bold">{Math.min(100, box.warmupProgress || 0)}%</span>
+                <div className="flex justify-between items-end text-xs text-[#94A3B8] mb-1 font-medium">
+                  <div className="flex flex-col">
+                    <span>Isıtma Süreci ({box.warmupDay || 1}. Gün / 30 Gün)</span>
+                    <span className="text-[10px] text-[#64748B] mt-0.5">Toplu mail gönderimi için en az %50 (15. Gün) önerilir.</span>
+                  </div>
+                  <span className="text-blue-400 font-bold text-base">{Math.min(100, Math.floor(((box.warmupDay || 1) / 30) * 100))}%</span>
                 </div>
-                <div className="w-full bg-[#05050A] rounded-full h-2 border border-white/[0.05] overflow-hidden shadow-inner">
-                  <div className="bg-gradient-to-r from-blue-600 to-cyan-400 h-2 rounded-full relative shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-1000" style={{ width: `${Math.min(100, box.warmupProgress || 0)}%` }}>
+                <div className="w-full bg-[#05050A] rounded-full h-2 border border-white/[0.05] overflow-hidden shadow-inner mt-2">
+                  <div className="bg-gradient-to-r from-blue-600 to-cyan-400 h-2 rounded-full relative shadow-[0_0_8px_rgba(59,130,246,0.8)] transition-all duration-1000" style={{ width: `${Math.min(100, Math.floor(((box.warmupDay || 1) / 30) * 100))}%` }}>
                      <div className="absolute inset-0 bg-white/20 blur-[1px]"></div>
                   </div>
                 </div>
