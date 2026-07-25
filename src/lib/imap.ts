@@ -169,6 +169,74 @@ export async function processInboundEmails(config: ImapConfig) {
         await connection.addFlags(uid, 'FLAGGED'); // Star the email (Important)
         readCount++;
       }
+
+      // 2.D: ORGANIC EMAIL CAPTURE (INBOX SYSTEM)
+      if (!isWarmupInteraction && !isConfirmEmail && !isBounce) {
+        // This is a real email from a real person
+        try {
+          // Import dynamic to avoid circular dependencies if any
+          const { prisma } = require('@/lib/prisma');
+          const { notifyAdminForOrganicEmail } = require('@/lib/notifications');
+          
+          const fromName = headerPart?.body?.from?.[0]?.name || '';
+          const fromAddress = headerPart?.body?.from?.[0]?.address || from;
+
+          // Check if we already saved this message (prevent duplicates on next run if not marked as seen/moved)
+          // Actually, we should probably mark it as seen or flag it?
+          // Since it's organic, we don't want to mark it as read so the user can read it in their real inbox too.
+          // But to prevent duplicate parsing every cron tick, we'll check DB by subject + from + date.
+          
+          // Let's find the mailbox to get tenantId
+          const mailbox = await prisma.emailMailbox.findFirst({
+            where: { email: config.email }
+          });
+
+          if (mailbox) {
+            // Very simple duplicate check (bodyText could be long, so we just check recently created)
+            const exists = await prisma.inboxMessage.findFirst({
+              where: {
+                mailboxEmail: config.email,
+                fromEmail: fromAddress,
+                subject: subject
+              },
+              orderBy: { createdAt: 'desc' }
+            });
+
+            const isRecent = exists && (Date.now() - new Date(exists.createdAt).getTime() < 1000 * 60 * 60 * 24); // Within 24h
+
+            if (!isRecent) {
+              await prisma.inboxMessage.create({
+                data: {
+                  tenantId: mailbox.tenantId,
+                  mailboxId: mailbox.id,
+                  mailboxEmail: config.email,
+                  fromEmail: fromAddress,
+                  fromName: fromName,
+                  subject: subject,
+                  bodyText: bodyText,
+                  bodyHtml: htmlContent,
+                  isRead: false
+                }
+              });
+
+              // Send Notification
+              await notifyAdminForOrganicEmail({
+                toMailbox: config.email,
+                fromEmail: fromAddress,
+                subject: subject,
+                bodyPreview: bodyText || htmlContent.replace(/<[^>]+>/g, '') // Strip HTML
+              });
+
+              console.log(`[INBOX] Saved organic email from ${fromAddress} to ${config.email}`);
+              
+              // We could mark it as seen here so we don't process it again next minute
+              await connection.addFlags(uid, 'SEEN');
+            }
+          }
+        } catch (e) {
+          console.error('[INBOX] Error saving organic email', e);
+        }
+      }
     }
 
     connection.end();

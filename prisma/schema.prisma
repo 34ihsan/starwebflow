@@ -1049,3 +1049,24 @@ model EmailWarmupThread {
   @@index([tenantId])
   @@map("email_warmup_threads")
 }
+
+// --- Inbox System (Omnichannel) ---
+model InboxMessage {
+  id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
+  mailboxId       String?  @map("mailbox_id") // Optional in case mailbox is deleted
+  mailboxEmail    String   @map("mailbox_email") // e.g. info@starwebflow.de
+  fromEmail       String   @map("from_email")
+  fromName        String?  @map("from_name")
+  subject         String?
+  bodyText        String?  @db.Text @map("body_text")
+  bodyHtml        String?  @db.Text @map("body_html")
+  isRead          Boolean  @default(false) @map("is_read")
+  isReplied       Boolean  @default(false) @map("is_replied")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([mailboxEmail])
+  @@map("inbox_messages")
+}
