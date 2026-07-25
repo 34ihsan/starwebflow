@@ -8,7 +8,7 @@ import {
   FileText, LayoutDashboard, Settings, Users, ArrowLeft, 
   Activity, FileSpreadsheet, FolderKanban, ReceiptText, 
   Mail, Bot, Rocket, Calendar, MessageSquare, Target, Sparkles,
-  TicketCheck, LogOut, Bell, Globe, User
+  TicketCheck, LogOut, Bell, Globe, User, Inbox
 } from 'lucide-react'
 import { NotificationBell } from '@/components/layout/NotificationBell'
 
@@ -23,6 +23,7 @@ const navItems = [
   { href: '/admin/contracts', label: 'Sözleşmeler', icon: FileText },
   { href: '/admin/tickets', label: 'Destek Talepleri', icon: TicketCheck },
   { href: '/admin/messages', label: 'Mesajlar', icon: MessageSquare },
+  { href: '/admin/inbox', label: 'Gelen Kutusu (Inbox)', icon: Inbox, accent: 'violet' },
   { href: '/admin/email', label: 'E-Posta Motoru', icon: Mail },
   { href: '/admin/automations', label: 'Otomasyonlar', icon: Bot },
   { href: '/admin/ai-studio', label: 'Google AI Stüdyo', icon: Sparkles, accent: 'violet' },
