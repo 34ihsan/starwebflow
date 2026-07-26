@@ -64,6 +64,7 @@ export async function sendMail({
   from,
   replyTo,
   priority,
+  trackingId,
 }: {
   to: string;
   subject: string;
@@ -71,6 +72,7 @@ export async function sendMail({
   from?: string;
   replyTo?: string;
   priority?: 'high' | 'normal' | 'low';
+  trackingId?: string;
 }): Promise<{ success: boolean; data?: any; error?: string; simulated?: boolean }> {
   const smtpPass = process.env.SMTP_PASS;
   // SMTP şifresi yoksa hata fırlat (production fail-fast)
@@ -81,11 +83,24 @@ export async function sendMail({
   }
 
   try {
+    let finalHtml = html;
+    
+    // Inject Tracking Pixel if trackingId is provided
+    if (trackingId) {
+      const trackingPixel = `<img src="${APP_URL}/api/email/track?id=${trackingId}" width="1" height="1" alt="" style="display:none;" />`;
+      // Inject before closing </body> if exists, else append
+      if (finalHtml.includes('</body>')) {
+        finalHtml = finalHtml.replace('</body>', `${trackingPixel}\n</body>`);
+      } else {
+        finalHtml += `\n${trackingPixel}`;
+      }
+    }
+
     const mailOptions: any = {
       from: from || FROM,
       to,
       subject,
-      html,
+      html: finalHtml,
       replyTo: replyTo || ADMIN_EMAIL,
     };
 
@@ -207,12 +222,14 @@ export async function sendOutreachEmail({
   subject,
   html,
   replyTo,
+  trackingId,
 }: {
   from: string;
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
+  trackingId?: string;
 }) {
   return sendMail({
     from: `StarWebflow <${from}>`,
@@ -220,6 +237,7 @@ export async function sendOutreachEmail({
     subject,
     html,
     replyTo: replyTo || from,
+    trackingId,
   });
 }
 

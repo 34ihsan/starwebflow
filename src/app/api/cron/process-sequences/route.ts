@@ -111,6 +111,21 @@ export async function GET(request: Request) {
         continue;
       }
 
+      const { verifyEmailSafely } = await import('@/lib/utils/email-validator');
+      const validation = await verifyEmailSafely(email);
+      if (!validation.isValid) {
+        console.warn(`Email validation failed for ${email}: ${validation.reason}. Marking sequence as COMPLETED and unsubscribing lead.`);
+        await prisma.leadSequence.update({
+          where: { id: sequence.id },
+          data: { status: 'COMPLETED' }
+        });
+        await prisma.lead.update({
+          where: { id: sequence.leadId },
+          data: { unsubscribed: true, notes: validation.reason || 'Geçersiz e-posta.' }
+        });
+        continue;
+      }
+
       try {
         // AI Lead Analysis for personalization context
         const profile = await analyzeLeadProfile(email, name, company);
@@ -165,6 +180,18 @@ export async function GET(request: Request) {
           profile
         );
 
+        // 1. Create Tracking EmailLog
+        const emailLog = await prisma.emailLog.create({
+          data: {
+            tenantId: sequence.tenantId,
+            toEmail: email,
+            subject: subjectText,
+            campaignId: sequence.campaignId,
+            leadId: sequence.leadId,
+            status: 'SENT'
+          }
+        });
+
         // Send Email via Nodemailer + SMTP
         await sendOutreachEmail({
           from: senderEmail,
@@ -172,6 +199,7 @@ export async function GET(request: Request) {
           subject: subjectText,
           html: personalizedHtml,
           replyTo: senderEmail,
+          trackingId: emailLog.id
         });
 
         // Calculate next step

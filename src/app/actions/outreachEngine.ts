@@ -117,6 +117,28 @@ export async function processOutreachBatch(bulkOutreachId: string, tenantId: str
         data: { status: 'SENDING' }
       });
 
+      // 1.5 Verify Email
+      const { verifyEmailSafely } = await import('@/lib/utils/email-validator');
+      const validation = await verifyEmailSafely(item.email);
+      if (!validation.isValid) {
+        console.warn(`Email validation failed for ${item.email}: ${validation.reason}. Marking as FAILED.`);
+        await prisma.outreachItem.update({
+          where: { id: item.id },
+          data: { status: 'FAILED', errorMsg: validation.reason || 'Geçersiz e-posta.' }
+        });
+        await prisma.lead.updateMany({
+           where: { email: item.email },
+           data: { unsubscribed: true, notes: validation.reason || 'Geçersiz e-posta.' }
+        });
+        failedCount++;
+        // Update global progress
+        await prisma.bulkOutreach.update({
+          where: { id: bulkOutreachId },
+          data: { sentCount, failedCount }
+        });
+        continue;
+      }
+
       // 2. AI Lead Analysis
       const profile = await analyzeLeadProfile(item.email, item.name, item.company);
       

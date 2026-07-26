@@ -111,6 +111,28 @@ export async function GET(req: Request) {
             console.log(`[OMNI-ROUTING] Mailbox ${mailbox.email} paused due to excessive bounces.`);
           }
 
+          if (imapRes.bouncedRecipients && imapRes.bouncedRecipients.length > 0) {
+             for (const bouncedEmail of imapRes.bouncedRecipients) {
+                 console.log(`[BOUNCE HANDLING] Marking ${bouncedEmail} as hard bounced and unsubscribed.`);
+                 await prisma.lead.updateMany({
+                    where: { email: bouncedEmail },
+                    data: { unsubscribed: true, notes: 'HARD BOUNCE - DO NOT SEND' }
+                 });
+                 await prisma.outreachItem.updateMany({
+                    where: { email: bouncedEmail },
+                    data: { status: 'FAILED', errorMsg: 'HARD BOUNCE' }
+                 });
+                 // Also stop their sequence if they have an active one
+                 const leads = await prisma.lead.findMany({ where: { email: bouncedEmail } });
+                 for (const l of leads) {
+                    await prisma.leadSequence.updateMany({
+                       where: { leadId: l.id, status: 'ACTIVE' },
+                       data: { status: 'COMPLETED' }
+                    });
+                 }
+             }
+          }
+
           await prisma.emailMailbox.update({
             where: { id: mailbox.id },
             data: {

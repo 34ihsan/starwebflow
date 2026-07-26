@@ -263,7 +263,7 @@ export async function aiCleanDataAction(tenantId: string, payload: any, nodeData
       model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
-        responseSchema: responseSchema,
+        responseSchema: responseSchema as any,
       }
     });
 

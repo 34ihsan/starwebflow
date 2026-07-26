@@ -7,19 +7,29 @@ import {
   Settings, MoreHorizontal, BarChart3, Target, Activity, Zap,
   LayoutTemplate, Type, Image as ImageIcon, Link2, Sparkles, SlidersHorizontal,
   Users, UploadCloud, RefreshCw, FileSpreadsheet, Rocket, Database, Settings2,
-  ShieldCheck, FileText
+  ShieldCheck, FileText, ShieldAlert
 } from "lucide-react";
 
 import { createEmailCampaign, createEmailMailbox, updateMailboxStatus, updateMailboxCredentials } from '@/app/actions/email';
 import ABTestingTab from './components/ABTestingTab';
 import CampaignsTab from './components/CampaignsTab';
 import DeliverabilityTab from './components/DeliverabilityTab';
+import QuarantineTab from './components/QuarantineTab';
 import MailboxWarmupTab from './components/MailboxWarmupTab';
 import OutreachTab from './components/OutreachTab';
 import TemplatesTab from './components/TemplatesTab';
+import { useEmailStore } from '@/store/emailStore';
 
 export default function EmailDashboardClient({ initialData }: { initialData: { campaigns: any[], templates: any[], mailboxes: any[] } }) {
-  const [activeTab, setActiveTab] = useState<"campaigns" | "ab_testing" | "mailboxes" | "templates" | "outreach" | "deliverability">("campaigns");
+  const {
+    activeTab, setActiveTab,
+    isAddCampaignModalOpen, setIsAddCampaignModalOpen,
+    isAddMailboxModalOpen, setIsAddMailboxModalOpen,
+    isAutoResponderModalOpen, setIsAutoResponderModalOpen,
+    isAITemplateModalOpen, setIsAITemplateModalOpen,
+    isEditMailboxModalOpen, setIsEditMailboxModalOpen,
+  } = useEmailStore();
+
   const [wizardMailboxPool, setWizardMailboxPool] = useState<string[]>([]);
   
   // OUTREACH STATE
@@ -27,10 +37,6 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [isSending, setIsSending] = useState(false);
   const [progress, setProgress] = useState({ sent: 0, failed: 0, total: 0 });
   const [bulkOutreachId, setBulkOutreachId] = useState<string | null>(null);
-  const [isAddCampaignModalOpen, setIsAddCampaignModalOpen] = useState(false);
-  const [isAddMailboxModalOpen, setIsAddMailboxModalOpen] = useState(false);
-  const [isAutoResponderModalOpen, setIsAutoResponderModalOpen] = useState(false);
-  const [isAITemplateModalOpen, setIsAITemplateModalOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState("");
   const [newCampaignSubject, setNewCampaignSubject] = useState("");
   const [wizardStep, setWizardStep] = useState(1);
@@ -46,7 +52,6 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [isLanguageDetectionActive, setIsLanguageDetectionActive] = useState(true);
 
   // MAILBOX WIZARD STATES
-  const [isEditMailboxModalOpen, setIsEditMailboxModalOpen] = useState(false);
   const [selectedMailboxToEdit, setSelectedMailboxToEdit] = useState<any>(null);
   const [editAppPassword, setEditAppPassword] = useState("");
   const [editSmtpPort, setEditSmtpPort] = useState(465);
@@ -296,6 +301,7 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
           { id: "ab_testing", label: "A/B Testleri & Isı Haritası", icon: Target },
           { id: "mailboxes", label: "Akıllı IP/Domain Isıtma", icon: Flame },
           { id: "deliverability", label: "Deliverability", icon: ShieldCheck },
+          { id: "quarantine", label: "Karantina Merkezi", icon: ShieldAlert },
           { id: "templates", label: "Şablonlar", icon: FileText }
         ].map((tab) => (
           <button
@@ -359,6 +365,11 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
         {/* DELIVERABILITY */}
         {activeTab === "deliverability" && (
           <DeliverabilityTab dbMailboxes={dbMailboxes} />
+        )}
+
+        {/* QUARANTINE */}
+        {activeTab === "quarantine" && (
+          <QuarantineTab />
         )}
       </div>
       {isAddCampaignModalOpen && (

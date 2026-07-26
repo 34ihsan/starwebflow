@@ -37,6 +37,20 @@ export async function POST(req: Request) {
     for (const lead of leads) {
       if (!lead.email && !lead.linkedinUrl) continue; // Need at least email or linkedin
       
+      let finalStatus = 'new';
+      let notes = lead.notes || null;
+
+      if (lead.email) {
+        const { verifyEmailSafely } = await import('@/lib/utils/email-validator');
+        const validation = await verifyEmailSafely(lead.email);
+        if (!validation.isValid) {
+          // You can skip them entirely or insert them as 'bounced' immediately.
+          // The plan specified to insert them as 'bounced' or skip. Let's insert as 'bounced' so they see it.
+          finalStatus = 'bounced';
+          notes = validation.reason || 'Geçersiz e-posta.';
+        }
+      }
+
       await prisma.lead.create({
         data: {
           tenantId,
@@ -48,7 +62,9 @@ export async function POST(req: Request) {
           country: lead.country || country || null,
           linkedinUrl: lead.linkedinUrl || null,
           source: source || 'CSV_UPLOAD',
-          status: 'new'
+          status: finalStatus,
+          notes: notes,
+          ...(finalStatus === 'bounced' ? { unsubscribed: true } : {})
         }
       });
       insertedCount++;

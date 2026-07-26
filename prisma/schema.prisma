@@ -35,6 +35,7 @@ model Tenant {
   emailMailboxes     EmailMailbox[]
   warmupThreads      EmailWarmupThread[]
   bulkOutreachs      BulkOutreach[]
+  emailLogs          EmailLog[]
   automationFlows    AutomationFlow[]
   webhookEndpoints   WebhookEndpoint[]
   automationLogs     AutomationLog[]
@@ -537,6 +538,9 @@ model OutreachItem {
   status          String   @default("PENDING") // PENDING, SENDING, SENT, FAILED
   errorMsg        String?  @db.Text
   sentAt          DateTime?
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  bouncedAt       DateTime?
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
@@ -1101,4 +1105,51 @@ model InboxMessage {
   @@index([tenantId])
   @@index([mailboxEmail])
   @@map("inbox_messages")
+}
+
+
+// --- Email Tracking (Elite Pro) ---
+model EmailLog {
+  id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  toEmail         String
+  subject         String
+  status          String   @default("SENT") // SENT, DELIVERED, BOUNCED, FAILED
+  
+  // Relations to source (Optional)
+  campaignId      String?  @map("campaign_id")
+  leadId          String?  @map("lead_id")
+  outreachItemId  String?  @map("outreach_item_id")
+  
+  // Tracking
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  bouncedAt       DateTime?
+  
+  trackingLogs    EmailTrackingLog[]
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([toEmail])
+  @@map("email_logs")
+}
+
+model EmailTrackingLog {
+  id          String   @id @default(uuid())
+  emailLogId  String   @map("email_log_id")
+  emailLog    EmailLog @relation(fields: [emailLogId], references: [id], onDelete: Cascade)
+  
+  action      String   // "OPEN", "CLICK"
+  url         String?  // If action is CLICK, which url?
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([emailLogId])
+  @@map("email_tracking_logs")
 }
