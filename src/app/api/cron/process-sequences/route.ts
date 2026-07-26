@@ -148,7 +148,7 @@ export async function GET(request: Request) {
         const htmlBody = await metamorphicRewrite(spunTemplate, { ...profile, name, company });
 
         // Omni-Routing
-        const senderEmail = await omniRouteSelector(email, sequence.tenantId);
+        const senderEmail = await omniRouteSelector(email, sequence.tenantId, sequence.campaignId || undefined);
 
         // Process Unsubscribe Link
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';

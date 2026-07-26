@@ -544,6 +544,9 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                       if (wizardStep === 1 && (!newCampaignName || !newCampaignSubject)) {
                         return alert("Lütfen kampanya adı ve konusunu girin.");
                       }
+                      if (wizardStep === 2 && wizardMailboxPool.length === 0) {
+                        return alert("Lütfen kampanya için en az 1 e-posta hesabı (Mailbox) seçin.");
+                      }
                       if (wizardStep === 3 && !wizardContent) {
                         return alert("Lütfen kampanya içeriğini girin.");
                       }

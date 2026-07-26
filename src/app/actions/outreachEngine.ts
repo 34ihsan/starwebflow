@@ -57,16 +57,25 @@ Lütfen bu taslağı hedef dilde, belirtilen kurallara tam uyarak HTML formatın
 }
 
 // Omni-Routing Logic
-export async function omniRouteSelector(targetEmail: string, tenantId: string) {
+export async function omniRouteSelector(targetEmail: string, tenantId: string, campaignId?: string) {
   // Demo Logic: Check if it's outlook or gmail
   const domain = targetEmail.split('@')[1] || '';
   
+  const whereClause: any = { tenantId, status: { in: ['WARMUP', 'ACTIVE'] } };
+  
+  if (campaignId) {
+    whereClause.campaigns = { some: { id: campaignId } };
+  }
+
   const mailboxes = await prisma.emailMailbox.findMany({
-    where: { tenantId, status: { in: ['WARMUP', 'ACTIVE'] } },
+    where: whereClause,
     orderBy: { reputation: 'desc' }
   });
 
   if (mailboxes.length === 0) {
+    if (campaignId) {
+      throw new Error('Lütfen bu kampanya için en az 1 e-posta hesabı (Mailbox) seçin. Gönderim durduruldu.');
+    }
     throw new Error('No active mailboxes available for this tenant.');
   }
 

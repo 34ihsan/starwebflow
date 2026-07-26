@@ -417,6 +417,7 @@ model EmailMailbox {
 
   // Relations
   warmupThreads     EmailWarmupThread[]
+  campaigns         EmailCampaign[] @relation("CampaignMailboxes")
   
   // DNS Checks
   spfStatus         Boolean  @default(false) @map("spf_status")
@@ -450,6 +451,7 @@ model EmailCampaign {
 
   templates   EmailTemplate[]
   sequences   LeadSequence[]
+  mailboxes   EmailMailbox[] @relation("CampaignMailboxes")
 
   @@index([tenantId])
   @@map("email_campaigns")
