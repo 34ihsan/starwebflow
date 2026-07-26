@@ -60,6 +60,12 @@ export async function replyToMessage(messageId: string, replyBody: string) {
       from: `"${mailbox?.senderName || 'StarWebflow'}" <${mailbox?.email || process.env.SMTP_USER}>`,
       to: message.fromEmail,
       subject: subject,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1 (Highest)',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      },
       html: `
         <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">
           ${replyBody.replace(/\n/g, '<br/>')}

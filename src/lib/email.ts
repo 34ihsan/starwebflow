@@ -85,6 +85,12 @@ export async function sendMail({
       subject,
       html,
       replyTo: replyTo || ADMIN_EMAIL,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1 (Highest)',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      }
     });
     console.log(`[Email] ✅ Gönderildi → ${to} | MessageId: ${info.messageId}`);
     return { success: true, data: { messageId: info.messageId } };

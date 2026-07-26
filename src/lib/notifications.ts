@@ -52,6 +52,12 @@ export async function notifyAdminForOrganicEmail(params: {
       from: `"StarWebflow Inbox" <${process.env.SMTP_USER}>`,
       to: adminEmail,
       subject: `[YENİ MAİL] ${params.toMailbox} adresine mesaj geldi`,
+      priority: 'high',
+      headers: {
+        'X-Priority': '1 (Highest)',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'High'
+      },
       html: `
         <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #2563eb;">Yeni Müşteri Mesajı 🟢</h2>
