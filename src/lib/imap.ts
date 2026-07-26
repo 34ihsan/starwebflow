@@ -24,7 +24,7 @@ function getImapConfig(config: ImapConfig) {
   };
 }
 
-export async function processInboundEmails(config: ImapConfig) {
+export async function processInboundEmails(config: ImapConfig, seedEmails: string[] = []) {
   const imapConnectionConfig = getImapConfig(config);
   if (!imapConnectionConfig.imap.password) {
     console.warn(`No password provided for IMAP mailbox: ${config.email}`);
@@ -68,8 +68,9 @@ export async function processInboundEmails(config: ImapConfig) {
           const headerPart = item.parts.find(part => part.which === 'HEADER');
           const from = headerPart?.body?.from?.[0] || '';
           
-          // Eğer bu bizim ağımızdan veya starwebflow'dan gelen bir mail ise kurtar!
-          if (from.toLowerCase().includes('starwebflow')) {
+          // Eğer bu bizim ağımızdan veya starwebflow'dan veya seed hesaplardan gelen bir mail ise kurtar!
+          const isSeedAccount = seedEmails.some(seed => from.toLowerCase().includes(seed));
+          if (from.toLowerCase().includes('starwebflow') || isSeedAccount) {
             const uid = item.attributes.uid as number;
             // IMAP Move command
             await connection.moveMessage(String(uid), 'INBOX');
@@ -161,10 +162,27 @@ export async function processInboundEmails(config: ImapConfig) {
         }
       }
 
-      // 2.C: STAR & MARK SEEN FOR WARMUP EMAILS
-      const isWarmupInteraction = from.includes('starwebflow') || from.includes('tldr') || from.includes('substack');
+      // 2.C: STAR, CLICK & MARK SEEN FOR WARMUP EMAILS
+      const isSeedAccount = seedEmails.some(seed => from.includes(seed));
+      const isWarmupInteraction = from.includes('starwebflow') || from.includes('tldr') || from.includes('substack') || isSeedAccount;
       
       if (isWarmupInteraction || isConfirmEmail) {
+        // Elite Pro: Link Click Simulation (Tıklama Simülasyonu)
+        if (isWarmupInteraction) {
+          const urlRegex = /https?:\/\/[^\s"'<>]+/g;
+          const matches = (bodyText + ' ' + htmlContent).match(urlRegex) || [];
+          if (matches.length > 0) {
+            const randomLink = matches[Math.floor(Math.random() * matches.length)];
+            try {
+              // Sadece HTTP GET isteği atarak tıklamayı simüle et
+              await fetch(randomLink, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }, signal: AbortSignal.timeout(3000) });
+              console.log(`[Warmup] Simulated click on ${randomLink} for ${config.email}`);
+            } catch (e) {
+              // ignore fetch errors for dummy links
+            }
+          }
+        }
+
         await connection.addFlags(uid, 'SEEN');
         await connection.addFlags(uid, 'FLAGGED'); // Star the email (Important)
         readCount++;

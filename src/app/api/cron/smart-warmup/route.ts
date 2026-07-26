@@ -20,6 +20,14 @@ const WARMUP_TOPICS = [
   "Dijital pazarlama ve sosyal medya stratejileri"
 ];
 
+const WARMUP_PERSONAS = [
+  "Sen bir müşteri hizmetleri yetkilisisin. Samimi, yardımsever ama kısa konuşuyorsun.",
+  "Sen bir proje yöneticisisin. Ciddi, sonuç odaklı ve kurumsal bir dille yazıyorsun.",
+  "Sen bir mühendissin. Analitik düşünüyor, bazen teknik detaylar soruyorsun.",
+  "Sen ofisteki yakın bir iş arkadaşısın. Çok rahat, samimi ve günlük bir dille yazıyorsun.",
+  "Sen bir pazarlama uzmanısın. Vizyoner, enerjik ve yenilikçi bir ton kullanıyorsun."
+];
+
 // Helper function to process array in parallel chunks (batching)
 async function mapConcurrent<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const results: R[] = [];
@@ -61,6 +69,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, message: "Isıtılacak aktif veya WARMUP hesap bulunamadı." });
     }
 
+    const allEmails = mailboxes.map(m => m.email.toLowerCase());
+
     let inboundCount = 0;
     let outboundCount = 0;
     let rescuedCount = 0;
@@ -82,7 +92,7 @@ export async function GET(req: Request) {
             imapUser: mailbox.imapUser || undefined,
             imapPassword: mailbox.imapPassword || undefined,
             appPassword: mailbox.appPassword || undefined
-          }),
+          }, allEmails),
           new Promise<any>(resolve => setTimeout(() => resolve({ success: false, reason: 'Timeout (6s)' }), 6000))
         ]);
 
@@ -120,9 +130,22 @@ export async function GET(req: Request) {
 
     // --- ADIM 2: PARALEL GÖNDERİM TRAFİĞİ (BATCH SIZE: 3) ---
     // Limitine ulaşmamış göndericileri belirle
+    // Limitine ulaşmamış göndericileri belirle
     const activeSenders = mailboxes.filter(m => {
       if (m.isPaused || m.status === 'ERROR') return false;
-      const dynamicLimit = Math.min(m.limit || 50, (m.warmupDay || 1) * 5 + 10);
+      
+      // Elite/Pro Ramping Logic (15-day warmup phase)
+      const daysActive = Math.floor((Date.now() - new Date(m.createdAt || Date.now()).getTime()) / 86400000) || 1;
+      let dynamicLimit = 5;
+      
+      if (daysActive <= 7) {
+        dynamicLimit = Math.min(8, m.limit || 50); // Sandbox phase
+      } else if (daysActive <= 14) {
+        dynamicLimit = Math.min(20, m.limit || 50); // Growth phase
+      } else {
+        dynamicLimit = m.limit || 50; // Elite phase (Full scale)
+      }
+      
       return (m.sentToday || 0) < dynamicLimit;
     });
 
@@ -149,21 +172,23 @@ export async function GET(req: Request) {
         let inReplyTo = undefined;
 
         try {
+          const persona = WARMUP_PERSONAS[Math.floor(Math.random() * WARMUP_PERSONAS.length)];
+          
           if (existingThread) {
             inReplyTo = existingThread.lastMessageId;
             subject = existingThread.subject.startsWith('Re:') ? existingThread.subject : `Re: ${existingThread.subject}`;
             
             const { text: generatedEmail } = await generateText({
               model: getFlashModel(),
-              system: `Sen profesyonel bir meslektaşsın ve meslektaşına kısa, doğal bir cevap yazıyorsun. Konu: "${existingThread.subject}". Sadece 1-2 cümlelik Türkçe cevap ver, HTML tag veya json verme.`,
-              prompt: "Kısa yanıt yaz."
+              system: `${persona} Karşındaki kişi meslektaşın. Konu: "${existingThread.subject}". Sadece 1-3 cümlelik doğal bir Türkçe cevap ver, HTML tag veya json verme.`,
+              prompt: "Doğal bir yanıt yaz."
             });
             body = `<p>${generatedEmail.replace(/```/g, '').trim()}</p>`;
           } else {
             const topic = WARMUP_TOPICS[Math.floor(Math.random() * WARMUP_TOPICS.length)];
             const { text: generatedEmail } = await generateText({
               model: getFlashModel(),
-              system: `Sen bir profesyonelsin. Konu: "${topic}". Pazarlama veya satış yapma. 2 paragraf kısa, samimi bir e-posta metni üret. Çıktı JSON olmalı: {"subject": "Konu", "body": "Html Gövde"}`,
+              system: `${persona} Konu: "${topic}". Pazarlama veya satış yapma. Konuyla alakalı kısa, samimi bir e-posta metni üret. Çıktı JSON olmalı: {"subject": "Konu", "body": "Html Gövde"}`,
               prompt: "E-posta üret."
             });
 
@@ -174,6 +199,20 @@ export async function GET(req: Request) {
             const emailData = JSON.parse(cleanJson);
             subject = emailData.subject || "Günlük Güncelleme";
             body = emailData.body || "<p>Merhaba, iyi çalışmalar dilerim.</p>";
+          }
+          
+          // Link Simulation: %30 ihtimalle dummy güvenli link ekle
+          if (Math.random() > 0.7) {
+            const dummyLinks = [
+              "https://tr.wikipedia.org/wiki/Ana_Sayfa", 
+              "https://news.ycombinator.com/", 
+              "https://github.com",
+              "https://medium.com"
+            ];
+            const link = dummyLinks[Math.floor(Math.random() * dummyLinks.length)];
+            const texts = ["Şu linke bir göz atabilir misin?", "Buradaki detaylar ilgini çekebilir:", "Referans olarak şu adresi bırakıyorum:", "Detaylar burada:"];
+            const text = texts[Math.floor(Math.random() * texts.length)];
+            body += `<p><br>${text} <a href="${link}">${link}</a></p>`;
           }
         } catch (aiErr) {
           // AI zaman aşımına uğrarsa varsayılan şablon kullan (döngüyü kırma!)
