@@ -10,7 +10,7 @@ export default function ProspectingClient() {
   const [sector, setSector] = useState("");
   const [country, setCountry] = useState("");
   const [location, setLocation] = useState("");
-  const [platform, setPlatform] = useState("Google Maps");
+  const [platform, setPlatform] = useState("google_maps");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   
@@ -282,20 +282,20 @@ export default function ProspectingClient() {
               className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all appearance-none shadow-inner"
             >
               {/* Standart B2B & Yerel Kaynaklar */}
-              <option className="bg-[#0A0A0F]">Google Maps (Yerel İşletmeler)</option>
-              <option className="bg-[#0A0A0F]">LinkedIn (Kurumsal B2B)</option>
-              <option className="bg-[#0A0A0F]">Apollo.io (Karar Vericiler)</option>
+              <option value="google_maps" className="bg-[#0A0A0F]">Google Maps (Yerel İşletmeler)</option>
+              <option value="linkedin" className="bg-[#0A0A0F]">LinkedIn (Kurumsal B2B)</option>
+              <option value="apollo" className="bg-[#0A0A0F]">Apollo.io (Karar Vericiler)</option>
               
               {/* Bakir (Untapped) & Niyet Odaklı Kaynaklar */}
-              <option className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 İş İlanları (Indeed, Glassdoor)</option>
-              <option className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Teknoloji Radarı (BuiltWith)</option>
-              <option className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Fuar & Etkinlik Katılımcıları</option>
-              <option className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Düşük Puanlı İşletmeler (Yelp/Maps)</option>
+              <option value="jobs" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 İş İlanları (Indeed, Glassdoor)</option>
+              <option value="tech_radar" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Teknoloji Radarı (BuiltWith)</option>
+              <option value="events" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Fuar & Etkinlik Katılımcıları</option>
+              <option value="low_rating" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Düşük Puanlı İşletmeler (Yelp/Maps)</option>
 
               {/* Diğer Kaynaklar */}
-              <option className="bg-[#0A0A0F]">Instagram (E-ticaret & Influencer)</option>
-              <option className="bg-[#0A0A0F]">Crunchbase (Startuplar)</option>
-              <option className="bg-[#0A0A0F]">Clutch.co (B2B Ajanslar)</option>
+              <option value="instagram" className="bg-[#0A0A0F]">Instagram (E-ticaret & Influencer)</option>
+              <option value="crunchbase" className="bg-[#0A0A0F]">Crunchbase (Startuplar)</option>
+              <option value="clutch" className="bg-[#0A0A0F]">Clutch.co (B2B Ajanslar)</option>
             </select>
           </div>
         </div>

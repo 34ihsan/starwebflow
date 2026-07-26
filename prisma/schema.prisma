@@ -28,6 +28,7 @@ model Tenant {
   users              User[]
   projects           Project[]
   leads              Lead[]
+  leadLists          LeadList[]
   contracts          Contract[]
   emailCampaigns     EmailCampaign[]
   emailTemplates     EmailTemplate[]
@@ -297,6 +298,10 @@ model Lead {
   location    String?
   country     String?
   serviceType String?  @map("service_type")
+  
+  leadListId  String?  @map("lead_list_id")
+  leadList    LeadList? @relation(fields: [leadListId], references: [id], onDelete: SetNull)
+  
   website     String?
   decisionMakerName  String? @map("decision_maker_name")
   decisionMakerTitle String? @map("decision_maker_title")
@@ -328,6 +333,25 @@ model Lead {
   @@index([tenantId])
   @@index([visitorId])
   @@map("leads")
+}
+
+model LeadList {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  source      String   // CSV_UPLOAD, PROSPECTING, CRM
+  sector      String?
+  country     String?
+  
+  leads       Lead[]
+  campaigns   EmailCampaign[]
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@map("lead_lists")
 }
 
 model LeadSequence {
@@ -442,6 +466,12 @@ model EmailCampaign {
   type        String   @default("SEQUENCE") // PRE_DEFINED, CUSTOM_AI, BROADCAST
   status      String   @default("draft") // draft, scheduled, sending, completed
   audience    String?  
+  
+  leadListId       String?  @map("lead_list_id")
+  leadList         LeadList? @relation(fields: [leadListId], references: [id], onDelete: SetNull)
+  routingStrategy  String   @default("ROUND_ROBIN") // SECTOR_MATCH, ROUND_ROBIN, HIGHEST_REP
+  dailyLimit       Int?     @map("daily_limit")
+  
   sentCount   Int      @default(0)
   openCount   Int      @default(0)
   clickCount  Int      @default(0)

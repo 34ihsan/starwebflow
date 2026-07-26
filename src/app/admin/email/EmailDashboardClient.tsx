@@ -35,6 +35,8 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [newCampaignSubject, setNewCampaignSubject] = useState("");
   const [wizardStep, setWizardStep] = useState(1);
   const [wizardAudience, setWizardAudience] = useState("Tüm Liste");
+  const [wizardLeadListId, setWizardLeadListId] = useState("");
+  const [wizardRoutingStrategy, setWizardRoutingStrategy] = useState("ROUND_ROBIN");
   const [wizardContent, setWizardContent] = useState("");
   const [wizardScheduleType, setWizardScheduleType] = useState("now");
   const [wizardScheduledAt, setWizardScheduledAt] = useState("");
@@ -48,6 +50,19 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [selectedMailboxToEdit, setSelectedMailboxToEdit] = useState<any>(null);
   const [editAppPassword, setEditAppPassword] = useState("");
   const [editSmtpPort, setEditSmtpPort] = useState(465);
+
+  const [leadLists, setLeadLists] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch lead lists for audience selection
+    fetch('/api/leads/lists')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setLeadLists(data);
+      })
+      .catch(err => console.error("Error fetching lead lists:", err));
+  }, []);
+
   const [editImapPort, setEditImapPort] = useState(993);
   const [editDailyLimit, setEditDailyLimit] = useState(50);
   const [selectedMailboxDetails, setSelectedMailboxDetails] = useState<any>(null);
@@ -389,50 +404,155 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
 
               {/* STEP 2 */}
               {wizardStep === 2 && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
-                  <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Hedef Kitle Seçimi</label>
-                    <select
-                      value={wizardAudience}
-                      onChange={e => setWizardAudience(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500 transition-colors"
-                    >
-                      <option value="Tüm Liste" className="bg-[#0A0A0F]">Tüm Aboneler ve Müşteriler</option>
-                      <option value="Sıcak Adaylar" className="bg-[#0A0A0F]">Sıcak Adaylar (Skor &gt; 80)</option>
-                      <option value="Yeni Aboneler" className="bg-[#0A0A0F]">Son 30 Günde Eklenenler</option>
-                      <option value="VIP Müşteriler" className="bg-[#0A0A0F]">VIP Müşteriler</option>
-                    </select>
-                    <p className="text-xs text-[#94A3B8] mt-2">Bu kampanya seçtiğiniz hedef kitle segmentine gönderilecektir.</p>
-                  </div>
-                  {/* Mailbox Pool */}
-                  {dbMailboxes.length > 0 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  {/* Hedef Kitle (Audience) */}
+                  <div className="space-y-4 bg-white/[0.02] border border-white/10 rounded-xl p-5">
+                    <h3 className="text-white font-medium flex items-center gap-2">
+                      <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                      Hedef Kitle Seçimi (Lead List)
+                    </h3>
+                    
                     <div>
-                      <label className="block text-sm font-medium text-[#94A3B8] mb-2">Mailbox Havuzu (Inbox Rotation)</label>
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {dbMailboxes.map((mb: any) => (
-                          <label key={mb.id} className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl cursor-pointer hover:bg-white/[0.04] transition-colors">
-                            <input
-                              type="checkbox"
-                              checked={wizardMailboxPool.includes(mb.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) setWizardMailboxPool(prev => [...prev, mb.id]);
-                                else setWizardMailboxPool(prev => prev.filter(id => id !== mb.id));
-                              }}
-                              className="accent-orange-500"
-                            />
-                            <div>
-                              <div className="text-sm text-white">{mb.email}</div>
-                              <div className="text-xs text-[#64748B]">İtibar: {Math.min(100, mb.reputation)} · Günlük: {mb.sentToday}/{mb.limit}</div>
-                            </div>
-                            <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded ${
-                              mb.status === 'WARMUP' ? 'bg-amber-500/10 text-amber-400' : 'bg-emerald-500/10 text-emerald-400'
-                            }`}>{mb.status}</span>
-                          </label>
-                        ))}
+                      <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Veri Kaynağı / Liste</label>
+                      <select
+                        value={wizardLeadListId || wizardAudience}
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val.startsWith("list_")) {
+                            setWizardLeadListId(val.replace("list_", ""));
+                            setWizardAudience("CUSTOM_LIST");
+                          } else {
+                            setWizardLeadListId("");
+                            setWizardAudience(val);
+                          }
+                        }}
+                        className="w-full bg-[#0A0A0F] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors"
+                      >
+                        <optgroup label="Sistem Segmentleri">
+                          <option value="Tüm Liste">Tüm Aboneler ve Müşteriler</option>
+                          <option value="Sıcak Adaylar">Sıcak Adaylar (Skor &gt; 80)</option>
+                          <option value="Yeni Aboneler">Son 30 Günde Eklenenler</option>
+                          <option value="VIP Müşteriler">VIP Müşteriler</option>
+                        </optgroup>
+                        
+                        {leadLists && leadLists.length > 0 && (
+                          <optgroup label="Yüklenen / Prospecting Listeleri">
+                            {leadLists.map(list => (
+                              <option key={list.id} value={`list_${list.id}`}>
+                                📋 {list.name} ({list._count?.leads || 0} Kişi) {list.sector ? `- ${list.sector}` : ''}
+                              </option>
+                            ))}
+                          </optgroup>
+                        )}
+                      </select>
+                      <p className="text-xs text-[#94A3B8] mt-2">Bu kampanya seçtiğiniz hedef kitle listesine gönderilecektir. Yeni liste yüklemek için Prospecting veya Lead Upload sekmesini kullanabilirsiniz.</p>
+                    </div>
+                  </div>
+
+                  {/* Mailbox Yönlendirme Stratejisi (Smart Routing) */}
+                  {dbMailboxes.length > 0 && (
+                    <div className="space-y-4 bg-white/[0.02] border border-white/10 rounded-xl p-5">
+                      <h3 className="text-white font-medium flex items-center gap-2">
+                        <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        Mailbox Yönlendirme Stratejisi (Routing Strategy)
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setWizardRoutingStrategy("ROUND_ROBIN")}
+                          className={`p-4 rounded-xl border text-left transition-all ${wizardRoutingStrategy === 'ROUND_ROBIN' ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-[#94A3B8] hover:border-white/20'}`}
+                        >
+                          <div className="font-semibold mb-1 text-sm">🔄 Round Robin</div>
+                          <div className="text-xs opacity-70">Seçilen hesaplar arasında yükü eşit dağıtır. Standart yöntem.</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWizardRoutingStrategy("SECTOR_MATCH")}
+                          className={`p-4 rounded-xl border text-left transition-all ${wizardRoutingStrategy === 'SECTOR_MATCH' ? 'bg-emerald-500/10 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-[#94A3B8] hover:border-white/20'}`}
+                        >
+                          <div className="font-semibold mb-1 text-sm">🎯 Smart Match</div>
+                          <div className="text-xs opacity-70">Sektör ve ülkeye göre en uygun alan adını otomatik seçer (Örn: .de -> Almanya).</div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWizardRoutingStrategy("HIGHEST_REP")}
+                          className={`p-4 rounded-xl border text-left transition-all ${wizardRoutingStrategy === 'HIGHEST_REP' ? 'bg-orange-500/10 border-orange-500 text-white' : 'bg-white/5 border-white/10 text-[#94A3B8] hover:border-white/20'}`}
+                        >
+                          <div className="font-semibold mb-1 text-sm">🔥 Elite / Warm</div>
+                          <div className="text-xs opacity-70">Sadece itibar puanı en yüksek (&gt;%150) VIP hesapları kullanır.</div>
+                        </button>
                       </div>
-                      <p className="text-xs text-[#64748B] mt-2">
-                        {wizardMailboxPool.length === 0 ? 'Seçim yapılmadı — varsayılan gönderici kullanılacak' : `${wizardMailboxPool.length} mailbox seçildi`}
-                      </p>
+
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-sm font-medium text-[#94A3B8]">Kullanılacak Mailbox Havuzu</label>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              if (wizardMailboxPool.length === dbMailboxes.length) {
+                                setWizardMailboxPool([]);
+                              } else {
+                                setWizardMailboxPool(dbMailboxes.map((m:any) => m.id));
+                              }
+                            }}
+                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                          >
+                            Tümünü {wizardMailboxPool.length === dbMailboxes.length ? 'Bırak' : 'Seç'}
+                          </button>
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                          {dbMailboxes.map((mb: any) => (
+                            <label key={mb.id} className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/[0.05] rounded-xl cursor-pointer hover:bg-white/[0.04] transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={wizardMailboxPool.includes(mb.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) setWizardMailboxPool(prev => [...prev, mb.id]);
+                                  else setWizardMailboxPool(prev => prev.filter(id => id !== mb.id));
+                                }}
+                                className="accent-indigo-500 w-4 h-4 rounded border-gray-600 bg-gray-700"
+                              />
+                              <div className="flex-1">
+                                <div className="text-sm text-white font-medium">{mb.email}</div>
+                                <div className="text-xs text-[#64748B] flex gap-3 mt-1">
+                                  <span>İtibar: {mb.reputation || 100}</span>
+                                  <span>Limit: {mb.sentToday || 0}/{mb.limit || mb.maxDailyLimit || 50}</span>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${
+                                mb.status === 'WARMUP' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
+                                mb.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                              }`}>{mb.status}</span>
+                            </label>
+                          ))}
+                        </div>
+                        
+                        {/* Load Balancing / Forecast */}
+                        {wizardMailboxPool.length > 0 && (
+                          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-indigo-500/10 to-emerald-500/5 border border-indigo-500/20">
+                            <div className="flex items-start gap-3">
+                              <div className="text-2xl">📊</div>
+                              <div>
+                                <h4 className="text-sm font-semibold text-white mb-1">Kampanya Projeksiyonu (Load Balancing)</h4>
+                                <p className="text-xs text-indigo-200">
+                                  Seçilen havuz ({wizardMailboxPool.length} gönderici) ile günlük ortalama 
+                                  <strong> {wizardMailboxPool.reduce((acc, id) => {
+                                    const mb = dbMailboxes.find((m:any) => m.id === id);
+                                    return acc + (mb?.limit || mb?.maxDailyLimit || 50);
+                                  }, 0)} </strong>
+                                  e-posta gönderim kapasitesine ulaşıldı. 
+                                  {wizardRoutingStrategy === 'SECTOR_MATCH' && " (Smart Match devrede: İlgili ülkeye uygun gönderici önceliklendirilecek)"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        <p className="text-xs text-[#64748B] mt-3">
+                          {wizardMailboxPool.length === 0 ? '⚠️ Lütfen gönderim yapılacak en az bir mailbox seçin.' : `${wizardMailboxPool.length} adet gönderici aktif.`}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
