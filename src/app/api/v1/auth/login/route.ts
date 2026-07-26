@@ -4,6 +4,7 @@ import { AuthService } from '../../../../../modules/auth/auth.service';
 import { signJWT } from '../../../../../modules/auth/auth.jwt';
 import { getJwtSecret } from '../../../../../lib/config';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { logActivity } from '@/app/actions/activity';
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +58,19 @@ export async function POST(req: Request) {
         role: user.role
       }
     }, { status: 200 });
+
+    // Log the activity
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'Unknown IP';
+    const userAgent = req.headers.get('user-agent') || 'Unknown Device';
+    
+    await logActivity({
+      tenantId: user.tenantId,
+      userId: user.id,
+      action: 'LOGIN',
+      entityType: 'USER',
+      entityId: user.id,
+      details: JSON.stringify({ ip, device: userAgent })
+    });
 
     // Set Session Token httpOnly Cookie
     response.cookies.set('next-auth.session-token', token, {

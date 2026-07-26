@@ -12,6 +12,7 @@ import {
 
 import { updateTenantSettings } from "@/app/actions/settings";
 import { getRetentionStats, runRetentionCleanup } from "@/app/actions/retention";
+import { getLoginActivities } from "@/app/actions/activity";
 
 export default function SettingsDashboardClient({ initialData, tenantId = 'default-tenant' }: { initialData: any, tenantId?: string }) {
   const [activeTab, setActiveTab] = useState<"general" | "invoice" | "branding" | "marketing" | "api" | "retention" | "notifications" | "integrations" | "security" | "database">("general");
@@ -31,6 +32,10 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
   // Integrations state
   const [activeIntegrationModal, setActiveIntegrationModal] = useState<any | null>(null);
   const [integrationFormData, setIntegrationFormData] = useState<string>("");
+
+  // Security logs
+  const [loginLogs, setLoginLogs] = useState<any[]>([]);
+  const [isLoadingLogs, setIsLoadingLogs] = useState(false);
 
   const preferences = settings?.preferences || {};
   const apiKeys = settings?.apiKeys || {};
@@ -177,6 +182,20 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
   useEffect(() => {
     if (activeTab === "retention") {
       fetchRetentionStats();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "security") {
+      const fetchLogs = async () => {
+        setIsLoadingLogs(true);
+        const res = await getLoginActivities(tenantId);
+        if (res.success && res.data) {
+          setLoginLogs(res.data);
+        }
+        setIsLoadingLogs(false);
+      };
+      fetchLogs();
     }
   }, [activeTab]);
 
@@ -1875,26 +1894,31 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                     </h3>
                     
                     <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
-                      {[
-                        { date: "Bugün 10:45", ip: "85.101.23.45", location: "Istanbul, TR", status: "success", device: "Chrome / Windows" },
-                        { date: "Bugün 09:12", ip: "85.101.23.45", location: "Istanbul, TR", status: "success", device: "Chrome / Windows" },
-                        { date: "Dün 14:20", ip: "193.14.88.11", location: "Ankara, TR", status: "success", device: "Safari / macOS" },
-                        { date: "Dün 09:15", ip: "45.155.12.9", location: "Unknown", status: "failed", device: "Unknown Device" },
-                        { date: "18 Haz 11:30", ip: "85.101.23.45", location: "Istanbul, TR", status: "success", device: "Chrome / Windows" },
-                        { date: "17 Haz 16:45", ip: "185.22.11.9", location: "Izmir, TR", status: "success", device: "Edge / Windows" },
-                        { date: "16 Haz 02:10", ip: "103.45.11.2", location: "Moscow, RU", status: "failed", device: "Unknown Device" }
-                      ].map((log, i) => (
+                      {isLoadingLogs ? (
+                        <div className="flex justify-center p-4">
+                          <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
+                        </div>
+                      ) : loginLogs.length === 0 ? (
+                        <div className="text-center text-[#94A3B8] text-sm p-4">Henüz giriş kaydı bulunmamaktadır.</div>
+                      ) : loginLogs.map((log, i) => {
+                        let details: any = {};
+                        try {
+                          details = log.details ? JSON.parse(log.details) : {};
+                        } catch(e) {}
+                        return (
                         <div key={i} className="flex items-center justify-between p-3 bg-[#0A0A0F] border border-white/[0.05] rounded-xl hover:border-white/[0.1] transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className={`w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'}`}></div>
+                            <div className={`w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.5)]`}></div>
                             <div>
-                              <p className="text-xs font-bold text-white">{log.device}</p>
-                              <p className="text-[10px] text-[#64748B] mt-0.5">{log.ip} &bull; {log.location}</p>
+                              <p className="text-xs font-bold text-white">{details.device || 'Unknown Device'}</p>
+                              <p className="text-[10px] text-[#64748B] mt-0.5">{details.ip || 'Unknown IP'} &bull; {log.user?.name || 'Bilinmeyen Kullanıcı'}</p>
                             </div>
                           </div>
-                          <span className="text-[10px] font-mono text-[#94A3B8]">{log.date}</span>
+                          <span className="text-[10px] font-mono text-[#94A3B8]">
+                            {new Date(log.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
-                      ))}
+                      )})}
                     </div>
                     
                     <button className="w-full mt-4 py-2.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] rounded-lg text-xs font-bold text-white transition-colors flex items-center justify-center gap-2">

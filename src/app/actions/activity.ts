@@ -53,3 +53,23 @@ export async function getActivities(tenantId: string, limit = 10, userId?: strin
     return { success: false, error: 'Failed to fetch activities' };
   }
 }
+
+export async function getLoginActivities(tenantId: string, limit = 10) {
+  try {
+    const activities = await prisma.activityLog.findMany({
+      where: { 
+        tenantId,
+        action: 'LOGIN'
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      include: {
+        user: true,
+      }
+    });
+    return { success: true, data: activities };
+  } catch (error) {
+    console.error('getLoginActivities error:', error);
+    return { success: false, error: 'Failed to fetch login activities' };
+  }
+}
