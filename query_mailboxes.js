@@ -1,13 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
-async function main() {
-  const mailboxes = await prisma.emailMailbox.findMany();
-  console.log(mailboxes);
-}
-
-main()
-  .catch(e => console.error(e))
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const { PrismaClient } = require('@prisma/client'); 
+const prisma = new PrismaClient(); 
+async function main() { 
+  const m = await prisma.emailMailbox.findMany(); 
+  console.log(JSON.stringify(m, null, 2)); 
+} 
+main().catch(console.error).finally(() => prisma.$disconnect());

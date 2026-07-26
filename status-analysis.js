@@ -21,27 +21,27 @@ async function main() {
     const now = new Date();
     const daysActive = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
     
-    let currentLimit = box.dailyLimit;
+    let currentLimit = box.limit || box.maxDailyLimit || 50;
     let phase = "Bilinmiyor";
 
-    // 15 günlük Ramping mantığı (route.ts'deki gibi)
+    // 15 günlük Ramping mantığı
     if (daysActive < 7) {
       phase = "Aşama 1 (Isınma Başlangıcı)";
-      currentLimit = Math.min(box.dailyLimit, 8);
+      currentLimit = Math.min(currentLimit, 8);
     } else if (daysActive < 15) {
       phase = "Aşama 2 (Güven İnşası)";
-      currentLimit = Math.min(box.dailyLimit, 20);
+      currentLimit = Math.min(currentLimit, 20);
     } else {
       phase = "Aşama 3 (Elite Pro - %100 Kapasite)";
     }
 
     console.log(`\n📧 Hesap: ${box.email}`);
-    console.log(`   Durum: ${box.isActive ? '✅ Aktif' : '❌ Pasif'}`);
-    console.log(`   Isınma Modu (Warmup): ${box.isWarmupActive ? '🔥 Aktif' : '⏸️ Duraklatıldı'}`);
+    console.log(`   Durum: ${box.status === 'ACTIVE' ? '✅ Aktif' : box.status === 'WARMUP' ? '🔥 Warmup' : '❌ Pasif'}`);
+    console.log(`   Duraklatıldı Mı?: ${box.isPaused ? 'Evet ⏸️' : 'Hayır ▶️'}`);
     console.log(`   Sisteme Eklenme: ${daysActive} gün önce`);
     console.log(`   Isınma Aşaması: ${phase}`);
-    console.log(`   Bugün Gönderilen: ${box.sentToday} / ${currentLimit} (Max Limit: ${box.dailyLimit})`);
-    console.log(`   Genel Isınma Puanı: %${box.warmupProgress}`);
+    console.log(`   Bugün Gönderilen: ${box.sentToday || 0} / ${currentLimit} (Kayıtlı Limit: ${box.limit || box.maxDailyLimit})`);
+    console.log(`   Genel Isınma Puanı (Reputation): %${box.reputation || 100} / İlerleme: %${box.warmupProgress || 0}`);
   }
 
   console.log("\n==========================================");
