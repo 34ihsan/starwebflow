@@ -16,6 +16,7 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
   const scheduledPosts = initialData.posts.filter((p: any) => p.status === 'SCHEDULED' || p.status === 'scheduled' || p.status === 'IDEA');
   const publishedPosts = initialData.posts.filter((p: any) => p.status === 'PUBLISHED' || p.status === 'published' || p.status === 'active');
   const ads = initialData.ads || [];
+  const analytics = initialData.analytics || {};
 
   const tabs = [
     { id: "pending", label: "AI Postları", icon: Sparkles, color: "text-indigo-400" },
@@ -45,12 +46,12 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
           <div className="flex gap-4">
             <div className="flex flex-col items-end">
               <span className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Aylık Etkileşim</span>
-              <span className="text-2xl font-black text-white">{(initialData.analytics?.clicks || 12450).toLocaleString()} <span className="text-sm text-emerald-500">↑%12</span></span>
+              <span className="text-2xl font-black text-white">{(analytics.engagements || 0).toLocaleString()} <span className="text-sm text-emerald-500"></span></span>
             </div>
             <div className="w-px bg-neutral-800 hidden md:block"></div>
             <div className="flex flex-col items-end">
-              <span className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Otopilot ROAS</span>
-              <span className="text-2xl font-black text-white">4.2x <span className="text-sm text-emerald-500">Optimum</span></span>
+              <span className="text-xs text-neutral-500 uppercase tracking-widest font-bold">Ortalama ROAS</span>
+              <span className="text-2xl font-black text-white">{analytics.avgRoas || '0.0'}x <span className="text-sm text-emerald-500"></span></span>
             </div>
           </div>
         </div>
@@ -89,7 +90,7 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
           {activeTab === "scheduled" && <CalendarTab scheduledPosts={scheduledPosts} />}
           {activeTab === "published" && <PublishedTab publishedPosts={publishedPosts} />}
           {activeTab === "ads" && <AdsOptimizerTab ads={ads} />}
-          {activeTab === "audience" && <AudienceTab />}
+          {activeTab === "audience" && <AudienceTab analytics={analytics} />}
         </div>
 
       </div>

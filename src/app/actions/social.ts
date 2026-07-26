@@ -51,12 +51,53 @@ export async function getSocialData(tenantIdParam?: string) {
     const posts = await prisma.socialPost.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
+      include: {
+        socialEngagements: true
+      }
     });
 
     const ads = await prisma.adCampaign.findMany({
       where: { tenantId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' }, // asc for chart ordering
     });
+
+    // KPI Calculations
+    let totalSpend = 0;
+    let totalRoas = 0;
+    let totalReach = 0;
+    
+    // Performance & Platform Chart data
+    const performanceData: any[] = [];
+    const platformDataMap: Record<string, number> = {};
+
+    ads.forEach(ad => {
+      const spend = Number(ad.spend || 0);
+      const roas = Number(ad.roas || 0);
+      
+      totalSpend += spend;
+      totalRoas += roas;
+      totalReach += ad.reach || 0;
+
+      // Group by date for chart (simplified to month-day)
+      const dateStr = ad.createdAt.toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' });
+      const existingPoint = performanceData.find(p => p.name === dateStr);
+      if (existingPoint) {
+        existingPoint.Harcama += spend;
+        existingPoint.ROAS = Math.max(existingPoint.ROAS, roas); // average or max? Let's keep max for simplicity or running avg.
+      } else {
+        performanceData.push({ name: dateStr, Harcama: spend, ROAS: roas });
+      }
+
+      // Group by platform
+      platformDataMap[ad.platform] = (platformDataMap[ad.platform] || 0) + spend;
+    });
+
+    const avgRoas = ads.length > 0 ? (totalRoas / ads.length).toFixed(1) : "0.0";
+    
+    const platformData = Object.entries(platformDataMap).map(([name, Harcama]) => ({
+      name,
+      Harcama
+    }));
 
     const totalClicks = await prisma.linkClick.count({
       where: { link: { tenantId } }
@@ -75,16 +116,28 @@ export async function getSocialData(tenantIdParam?: string) {
       where: { tenantId, source: 'social' }
     });
 
+    // We can also calculate total engagements
+    let totalEngagements = 0;
+    posts.forEach(post => {
+      totalEngagements += post.socialEngagements?.length || 0;
+    });
+
     const analytics = {
       clicks: totalClicks,
       visitors: uniqueVisitors,
       leads: socialLeads,
+      engagements: totalEngagements,
+      avgRoas,
+      totalSpend,
+      totalReach,
+      performanceData,
+      platformData
     };
 
     return { success: true, data: { posts, ads, analytics } };
   } catch (error) {
     console.error('getSocialData error:', error);
-    return { success: false, error: 'Failed to fetch social data', data: { posts: [], ads: [], analytics: { clicks: 0, visitors: 0, leads: 0 } } };
+    return { success: false, error: 'Failed to fetch social data', data: { posts: [], ads: [], analytics: { clicks: 0, visitors: 0, leads: 0, engagements: 0, avgRoas: "0", totalSpend: 0, totalReach: 0, performanceData: [], platformData: [] } } };
   }
 }
 

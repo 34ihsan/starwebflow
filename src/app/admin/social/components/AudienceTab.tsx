@@ -6,9 +6,7 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Eye, MousePointerClick, DollarSign, Activity } from 'lucide-react';
 
-const mockPerformanceData: any[] = [];
-const mockPlatformData: any[] = [];
-const mockTopPosts: any[] = [];
+
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -31,7 +29,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function AudienceTab() {
+export function AudienceTab({ analytics = {} }: { analytics?: any }) {
+  const performanceData = analytics.performanceData || [];
+  const platformData = analytics.platformData || [];
+  const topPosts = analytics.topPosts || [];
+  
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       
@@ -52,10 +54,10 @@ export function AudienceTab() {
       {/* Kpi Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Toplam Erişim", value: "0", change: "0%", icon: Eye, color: "from-blue-500 to-cyan-400" },
+          { title: "Toplam Erişim", value: (analytics.totalReach || 0).toLocaleString(), change: "0%", icon: Eye, color: "from-blue-500 to-cyan-400" },
           { title: "Etkileşim Oranı", value: "0%", change: "0%", icon: Activity, color: "from-indigo-500 to-purple-400" },
-          { title: "Ortalama ROAS", value: "0x", change: "0", icon: TrendingUp, color: "from-emerald-400 to-teal-400" },
-          { title: "Reklam Harcaması", value: "$0", change: "0%", icon: DollarSign, color: "from-rose-400 to-pink-500" }
+          { title: "Ortalama ROAS", value: `${analytics.avgRoas || '0.0'}x`, change: "0", icon: TrendingUp, color: "from-emerald-400 to-teal-400" },
+          { title: "Reklam Harcaması", value: `$${(analytics.totalSpend || 0).toLocaleString()}`, change: "0%", icon: DollarSign, color: "from-rose-400 to-pink-500" }
         ].map((kpi, idx) => (
           <div key={idx} className="bg-[#0A0A0F] border border-white/[0.05] p-5 rounded-2xl relative overflow-hidden group hover:border-white/[0.1] transition-colors">
             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${kpi.color} opacity-5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:opacity-10 transition-opacity`}></div>
@@ -94,7 +96,7 @@ export function AudienceTab() {
           </div>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={mockPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
@@ -111,8 +113,8 @@ export function AudienceTab() {
                 <YAxis yAxisId="right" orientation="right" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `${val}x`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                <Area yAxisId="left" type="monotone" dataKey="spend" name="Harcama" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorSpend)" />
-                <Area yAxisId="right" type="monotone" dataKey="roas" name="ROAS" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorRoas)" />
+                <Area yAxisId="left" type="monotone" dataKey="Harcama" name="Harcama" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorSpend)" />
+                <Area yAxisId="right" type="monotone" dataKey="ROAS" name="ROAS" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorRoas)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -126,13 +128,12 @@ export function AudienceTab() {
           </div>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockPlatformData} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
+              <BarChart data={platformData} layout="vertical" margin={{ top: 0, right: 0, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={true} vertical={false} />
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} width={80} />
                 <Tooltip content={<CustomTooltip />} cursor={{fill: '#ffffff02'}} />
-                <Bar dataKey="reach" name="Erişim" fill="#6366F1" radius={[0, 4, 4, 0]} barSize={12} />
-                <Bar dataKey="interactions" name="Etkileşim" fill="#A855F7" radius={[0, 4, 4, 0]} barSize={12} />
+                <Bar dataKey="Harcama" name="Harcama" fill="#6366F1" radius={[0, 4, 4, 0]} barSize={12} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -153,7 +154,7 @@ export function AudienceTab() {
               </tr>
             </thead>
             <tbody>
-              {mockTopPosts.map((post) => (
+              {topPosts.length > 0 ? topPosts.map((post: any) => (
                 <tr key={post.id} className="border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors group">
                   <td className="py-4 text-sm text-white font-medium group-hover:text-blue-400 transition-colors">
                     {post.content}
@@ -165,13 +166,19 @@ export function AudienceTab() {
                   </td>
                   <td className="py-4 text-sm text-white font-bold text-right flex items-center justify-end gap-1.5">
                     <MousePointerClick className="w-3.5 h-3.5 text-[#64748B]" />
-                    {post.clicks.toLocaleString()}
+                    {post.clicks?.toLocaleString() || 0}
                   </td>
                   <td className="py-4 text-sm text-emerald-400 font-bold text-right">
-                    {post.roas}
+                    {post.roas || '0.0x'}
                   </td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-sm text-neutral-500">
+                    Henüz performans verisi bulunamadı.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
