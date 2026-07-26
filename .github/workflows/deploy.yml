@@ -1,0 +1,24 @@
+name: Deploy to Hostinger VPS (Safe)
+
+on:
+  push:
+    branches:
+      - main # main branch'e kod gönderildiğinde çalışır
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: SSH ile VPS'e bağlan ve Deploy scriptini çalıştır
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          # Aşağıdaki komut sunucunuzdaki deploy.sh dosyasını çalıştırır
+          script: |
+            chmod +x /var/www/starwebflow/scripts/deploy.sh
+            bash /var/www/starwebflow/scripts/deploy.sh
