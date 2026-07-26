@@ -201,6 +201,14 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
   const [dbMailboxes, setDbMailboxes] = useState<any[]>(initialData.mailboxes || []);
   const [dbTemplates, setDbTemplates] = useState<any[]>(initialData.templates || []);
 
+  useEffect(() => {
+    if (initialData) {
+      setDbCampaigns(initialData.campaigns || []);
+      setDbMailboxes(initialData.mailboxes || []);
+      setDbTemplates(initialData.templates || []);
+    }
+  }, [initialData]);
+
   return (
     <div className="space-y-8 p-8 animate-in fade-in duration-500 min-h-screen pb-20">
       {/* Header */}
