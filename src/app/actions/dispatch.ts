@@ -130,6 +130,7 @@ export async function sendInvoiceToClient(invoiceId: string, tenantId: string) {
       to: clientEmail,
       subject: portalUser ? `Yeni Fatura Bildirimi - ${invoice.invoiceNo}` : `Fatura Detayı - ${invoice.invoiceNo}`,
       html: emailHtml,
+      priority: 'high'
     });
 
     await logActivity({
@@ -231,6 +232,7 @@ export async function sendContractToClient(contractId: string, tenantId: string)
       to: clientEmail,
       subject: portalUser ? `Yeni Sözleşme Onay Bildirimi - ${contract.title}` : `Sözleşme Detayı - ${contract.title}`,
       html: emailHtml,
+      priority: 'high'
     });
 
     await logActivity({

@@ -63,12 +63,14 @@ export async function sendMail({
   html,
   from,
   replyTo,
+  priority,
 }: {
   to: string;
   subject: string;
   html: string;
   from?: string;
   replyTo?: string;
+  priority?: 'high' | 'normal' | 'low';
 }): Promise<{ success: boolean; data?: any; error?: string; simulated?: boolean }> {
   const smtpPass = process.env.SMTP_PASS;
   // SMTP şifresi yoksa hata fırlat (production fail-fast)
@@ -79,19 +81,26 @@ export async function sendMail({
   }
 
   try {
-    const info = await transporter.sendMail({
+    const mailOptions: any = {
       from: from || FROM,
       to,
       subject,
       html,
       replyTo: replyTo || ADMIN_EMAIL,
-      priority: 'high',
-      headers: {
+    };
+
+    if (priority === 'high') {
+      mailOptions.priority = 'high';
+      mailOptions.headers = {
         'X-Priority': '1 (Highest)',
         'X-MSMail-Priority': 'High',
         'Importance': 'High'
-      }
-    });
+      };
+    } else if (priority) {
+      mailOptions.priority = priority;
+    }
+
+    const info = await transporter.sendMail(mailOptions);
     console.log(`[Email] ✅ Gönderildi → ${to} | MessageId: ${info.messageId}`);
     return { success: true, data: { messageId: info.messageId } };
   } catch (error: any) {

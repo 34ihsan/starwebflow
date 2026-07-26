@@ -238,12 +238,6 @@ export async function GET(req: Request) {
               to: recipient.email,
               subject,
               html: body,
-              priority: 'high',
-              headers: {
-                'X-Priority': '1 (Highest)',
-                'X-MSMail-Priority': 'High',
-                'Importance': 'High'
-              }
             };
 
             if (inReplyTo) {
