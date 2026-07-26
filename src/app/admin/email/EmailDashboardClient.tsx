@@ -480,7 +480,7 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
                           className={`p-4 rounded-xl border text-left transition-all ${wizardRoutingStrategy === 'SECTOR_MATCH' ? 'bg-emerald-500/10 border-emerald-500 text-white' : 'bg-white/5 border-white/10 text-[#94A3B8] hover:border-white/20'}`}
                         >
                           <div className="font-semibold mb-1 text-sm">🎯 Smart Match</div>
-                          <div className="text-xs opacity-70">Sektör ve ülkeye göre en uygun alan adını otomatik seçer (Örn: .de -> Almanya).</div>
+                          <div className="text-xs opacity-70">Sektör ve ülkeye göre en uygun alan adını otomatik seçer (Örn: .de -&gt; Almanya).</div>
                         </button>
                         <button
                           type="button"
