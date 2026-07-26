@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         industry: sector,
         location: location,
         country: country,
-        source: "Apify Scraper"
+        source: platform
       },
       take: 20
     });
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     // Eğer senkron çalıştıysa (Localhost veya küçük veri) hemen AI ve CRM işlemlerini yap
-    const cleanerResult = await aiCleanDataAction('default-tenant', { rawScrapedData: scraperResult.rawScrapedData }, {});
+    const cleanerResult = await aiCleanDataAction('default-tenant', { rawScrapedData: scraperResult.rawScrapedData, platform: platform }, {});
     
     const leadsWithScores = cleanerResult.cleanedData.map((lead: any) => ({
       ...lead,
