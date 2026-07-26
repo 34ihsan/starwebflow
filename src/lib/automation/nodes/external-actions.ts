@@ -9,7 +9,7 @@ import { fetchWebsiteTech } from "../utils/technographics";
  * Connects to Apify using APIFY_API_TOKEN to fetch real data
  */
 export async function runApifyScraperAction(tenantId: string, payload: any, nodeData: any) {
-  const { sector = "Dentist", location = "Berlin", country = "Germany", platform = "google_maps" } = nodeData;
+  const { sector = "Dentist", location = "Berlin", country = "Germany", platform = "google_maps", targetRoles = [] } = nodeData;
   console.log(`[Apify Node] Starting scraping for ${sector} in ${location}, ${country} via ${platform}...`);
   
   const token = process.env.APIFY_API_TOKEN;
@@ -24,26 +24,48 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
   let actorId = "apify/google-maps-scraper";
   let input: any = {};
 
+  // Hedef roller için sorgu eklemesi
+  let roleQuery = "";
+  if (Array.isArray(targetRoles) && targetRoles.length > 0) {
+    const roleMap: Record<string, string> = {
+      founder: '"Founder" OR "Kurucu"',
+      owner: '"Owner" OR "Sahip"',
+      ceo: '"CEO" OR "Chief Executive"',
+      coo: '"COO" OR "Chief Operating"',
+      cto: '"CTO" OR "Chief Technology"',
+      cmo: '"CMO" OR "Chief Marketing"',
+      managing_partner: '"Managing Partner" OR "Yönetici Ortak"',
+      managing_director: '"Managing Director" OR "Genel Müdür"',
+      sales_director: '"Sales Director" OR "Satış Direktörü"',
+      marketing_director: '"Marketing Director" OR "Pazarlama Direktörü"',
+      hr_director: '"HR Director" OR "İnsan Kaynakları"'
+    };
+    const mappedRoles = targetRoles.map(r => roleMap[r] || `"${r}"`).join(" OR ");
+    if (mappedRoles) {
+      roleQuery = ` (${mappedRoles})`;
+    }
+  }
+
   // Dinamik Platform Seçimi (Pro/Elite Seviye)
   switch (platform) {
     case "linkedin":
       actorId = "apify/google-search-scraper"; 
       input = { 
-        queries: [`site:linkedin.com/in/ "${sector}" "${location}" "${country}" ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
+        queries: [`site:linkedin.com/in/ "${sector}" "${location}" "${country}"${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
         maxPagesPerQuery: 2 
       };
       break;
     case "apollo":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:apollo.io/company "${sector}" "${location}"`], 
+        queries: [`site:apollo.io/company "${sector}" "${location}"${roleQuery}`], 
         maxPagesPerQuery: 2 
       };
       break;
     case "instagram":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:instagram.com "${sector}" "${location}" "${country}" ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
+        queries: [`site:instagram.com "${sector}" "${location}" "${country}"${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
         maxPagesPerQuery: 2 
       };
       break;
@@ -54,7 +76,7 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
     case "crunchbase":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:crunchbase.com/organization "${sector}" "${location}"`], 
+        queries: [`site:crunchbase.com/organization "${sector}" "${location}"${roleQuery}`], 
         maxPagesPerQuery: 2 
       };
       break;
@@ -62,7 +84,7 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
       // Gelecekte eklenecek özel scraper'lar için hazır altyapı
       console.log(`[Apify Node] Platform ${platform} is in development. Falling back to generic web search.`);
       actorId = "apify/google-search-scraper";
-      input = { queries: [`${sector} ${location} ${country}`], maxPagesPerQuery: 2 };
+      input = { queries: [`${sector} ${location} ${country}${roleQuery}`], maxPagesPerQuery: 2 };
       break;
     case "google_maps":
     default:

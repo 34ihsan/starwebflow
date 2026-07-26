@@ -3,8 +3,22 @@
 import React, { useState } from "react";
 import { 
   Radar, MapPin, Globe2, Briefcase, Database, 
-  Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle
+  Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle, Target, ChevronDown, Check
 } from "lucide-react";
+
+const TARGET_ROLES = [
+  { id: "founder", label: "Kurucu (Founder)" },
+  { id: "owner", label: "Sahip (Owner)" },
+  { id: "ceo", label: "CEO" },
+  { id: "coo", label: "COO" },
+  { id: "cto", label: "CTO" },
+  { id: "cmo", label: "CMO" },
+  { id: "managing_partner", label: "Yönetici Ortak" },
+  { id: "managing_director", label: "Genel Müdür" },
+  { id: "sales_director", label: "Satış Direktörü" },
+  { id: "marketing_director", label: "Pazarlama Direktörü" },
+  { id: "hr_director", label: "İnsan Kaynakları (HR)" }
+];
 
 export default function ProspectingClient() {
   const [sector, setSector] = useState("");
@@ -23,6 +37,16 @@ export default function ProspectingClient() {
   
   // Apify tetikleme state
   const [isApifyTriggering, setIsApifyTriggering] = useState(false);
+  
+  // Hedef Roller state
+  const [selectedTargetRoles, setSelectedTargetRoles] = useState<string[]>([]);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+
+  const toggleTargetRole = (roleId: string) => {
+    setSelectedTargetRoles(prev => 
+      prev.includes(roleId) ? prev.filter(id => id !== roleId) : [...prev, roleId]
+    );
+  };
 
   const handleAnalyze = async (lead: any) => {
     setAnalyzingId(lead.id);
@@ -70,7 +94,7 @@ export default function ProspectingClient() {
       const response = await fetch('/api/prospecting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sector, country, location, platform })
+        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles })
       });
       
       const data = await response.json();
@@ -99,7 +123,8 @@ export default function ProspectingClient() {
         body: JSON.stringify({ 
           keyword: sector,
           location: `${location || ''} ${country}`.trim(),
-          platform: platform
+          platform: platform,
+          targetRoles: selectedTargetRoles
         })
       });
       
@@ -208,7 +233,7 @@ export default function ProspectingClient() {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-[#8B5CF6]/10 to-[#4F8EF7]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse"></div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 relative z-10">
           <div>
             <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Globe2 className="w-4 h-4" /> Hangi Ülke?</label>
             <div className="relative">
@@ -243,6 +268,53 @@ export default function ProspectingClient() {
                 placeholder="Örn: Diş Kliniği, Ajans"
                 className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
               />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Target className="w-4 h-4" /> Hedef Rol (Opsiyonel)</label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
+                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-left text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner flex items-center justify-between"
+              >
+                <span className="truncate text-sm text-[#94A3B8]">
+                  {selectedTargetRoles.length === 0 
+                    ? "Tüm Roller" 
+                    : selectedTargetRoles.length === 1 
+                      ? TARGET_ROLES.find(r => r.id === selectedTargetRoles[0])?.label 
+                      : `${selectedTargetRoles.length} rol seçildi`}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-[#94A3B8] transition-transform ${isRoleDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              
+              {isRoleDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsRoleDropdownOpen(false)}
+                  ></div>
+                  <div className="absolute top-full left-0 mt-2 w-full bg-[#1E293B] border border-white/10 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto p-2">
+                    <div className="space-y-1">
+                      {TARGET_ROLES.map(role => {
+                        const isSelected = selectedTargetRoles.includes(role.id);
+                        return (
+                          <div 
+                            key={role.id} 
+                            onClick={() => toggleTargetRole(role.id)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+                          >
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#8B5CF6] border-[#8B5CF6]' : 'border-white/20'}`}>
+                              {isSelected && <Check className="w-3 h-3 text-white" />}
+                            </div>
+                            <span className="text-sm text-white">{role.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div>
