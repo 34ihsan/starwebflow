@@ -105,36 +105,7 @@ export default async function AnalyticsDashboardPage() {
         }
       }
 
-      // 3. Fallback: Context-aware Journey Generator based on Lead's source & createdAt
-      if (pageViews.length === 0) {
-        const createdAt = new Date(lead.createdAt);
-        const sourceLower = (lead.source || '').toLowerCase();
-        
-        let pathSequence = ['/', '/hizmetler', '/iletisim'];
-        if (sourceLower.includes('quote') || sourceLower.includes('fiyat')) {
-          pathSequence = ['/', '/fiyatlandirma', '/teklif-al'];
-        } else if (sourceLower.includes('web')) {
-          pathSequence = ['/', '/hizmetler/web-gelistirme', '/portfolio', '/iletisim'];
-        } else if (sourceLower.includes('instagram') || sourceLower.includes('social')) {
-          pathSequence = ['/linkinbio', '/hizmetler', '/iletisim'];
-        } else if (sourceLower.includes('linkedin')) {
-          pathSequence = ['/', '/kurumsal', '/hizmetler/ai-otomasyon', '/iletisim'];
-        }
-
-        pageViews = pathSequence.map((path, idx) => {
-          const minutesAgo = (pathSequence.length - idx) * 2 + 1;
-          const pvTime = new Date(createdAt.getTime() - minutesAgo * 60 * 1000);
-          const duration = Math.floor(30 + ((lead.id.charCodeAt(0) + idx * 27) % 60));
-
-          return {
-            id: `sim-${lead.id}-${idx}`,
-            path,
-            createdAt: pvTime.toISOString(),
-            duration,
-            referrer: idx === 0 ? (lead.source || 'organik') : null,
-          };
-        });
-      }
+      // Removed fallback mock data generator
 
       return {
         id: lead.id,
