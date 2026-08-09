@@ -544,6 +544,18 @@ export async function simulateIncomingDmTrigger(params: {
     safeRevalidatePath('/admin/social');
     safeRevalidatePath('/admin/leads');
 
+    return {
+      success: true,
+      leadId: lead.id,
+      dmSent: true,
+      message: `${params.userHandle} kullanıcısına otomatik DM gönderildi ve CRM'e Lead olarak kaydedildi!`
+    };
+  } catch (error: any) {
+    console.error('simulateIncomingDmTrigger error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // ─── GOD-MODE 1: Voice Agent (AI Sesli Arama) Otomasyonu ─────────────────────
 
 export async function triggerVoiceCallAutomation(params: {
