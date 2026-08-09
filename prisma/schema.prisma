@@ -59,6 +59,11 @@ model Tenant {
   notifications      Notification[]
   subscription       TenantSubscription?
   usage              TenantUsage?
+  referralLinks      ReferralLink[]
+  attributionEvents  AttributionEvent[]
+  leadScoreLogs      LeadScoreLog[]
+  croExperiments     CROExperiment[]
+  growthKPIs         GrowthKPI[]
 
   @@index([slug])
   @@map("tenants")
@@ -1210,4 +1215,135 @@ model IpUsageTracker {
   updatedAt            DateTime  @updatedAt @map("updated_at")
 
   @@map("ip_usage_trackers")
+}
+
+// ═══════════════════════════════════════════════════════
+// APEX GROWTH ENGINE — New Additive Models
+// ═══════════════════════════════════════════════════════
+
+model ReferralLink {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  code        String   @unique
+  referrerEmail String? @map("referrer_email")
+  referrerName  String? @map("referrer_name")
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  rewardGiven Boolean  @default(false) @map("reward_given")
+  rewardType  String?  @map("reward_type") // discount, credit, commission
+  rewardValue Decimal? @db.Decimal(10,2) @map("reward_value")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  events      AttributionEvent[]
+
+  @@index([tenantId])
+  @@index([code])
+  @@map("referral_links")
+}
+
+model AttributionEvent {
+  id            String   @id @default(uuid())
+  tenantId      String   @map("tenant_id")
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessionId     String?  @map("session_id")
+  visitorId     String?  @map("visitor_id")
+  channel       String   // organic, paid_meta, paid_google, email, referral, direct, linkedin
+  source        String?  // utm_source
+  medium        String?  // utm_medium
+  campaign      String?  // utm_campaign
+  content       String?  // utm_content
+  term          String?  // utm_term
+  landingPage   String?  @map("landing_page")
+  eventType     String   @map("event_type") // pageview, form_submit, demo_request, purchase
+  converted     Boolean  @default(false)
+  conversionValue Decimal? @db.Decimal(10,2) @map("conversion_value")
+  referralLinkId String?  @map("referral_link_id")
+  referralLink   ReferralLink? @relation(fields: [referralLinkId], references: [id])
+  metadata      Json?
+  occurredAt    DateTime @default(now()) @map("occurred_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([channel])
+  @@index([visitorId])
+  @@index([occurredAt])
+  @@map("attribution_events")
+}
+
+model LeadScoreLog {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leadId      String?  @map("lead_id")
+  email       String?
+  score       Int      @default(0)
+  tier        String   @default("cold") // cold, warm, hot, vip
+  signals     Json?    // breakdown of scoring signals
+  aiInsight   String?  @db.Text @map("ai_insight")
+  actionTaken String?  @map("action_taken") // email_sequence, sales_alert, retarget
+  scoredAt    DateTime @default(now()) @map("scored_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([leadId])
+  @@index([score])
+  @@map("lead_score_logs")
+}
+
+model CROExperiment {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name         String
+  page         String   // which page/component is being tested
+  hypothesis   String   @db.Text
+  variantA     Json     @map("variant_a") // control
+  variantB     Json     @map("variant_b") // challenger
+  status       String   @default("draft") // draft, running, paused, concluded
+  winnerId     String?  @map("winner_id") // 'a' or 'b'
+  visitsA      Int      @default(0) @map("visits_a")
+  visitsB      Int      @default(0) @map("visits_b")
+  conversionsA Int      @default(0) @map("conversions_a")
+  conversionsB Int      @default(0) @map("conversions_b")
+  confidence   Float?   // statistical confidence 0-100
+  aiRecommendation String? @db.Text @map("ai_recommendation")
+  startedAt    DateTime? @map("started_at")
+  concludedAt  DateTime? @map("concluded_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([status])
+  @@map("cro_experiments")
+}
+
+model GrowthKPI {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  date        DateTime @db.Date
+  channel     String   // all, organic, paid, referral, email, etc.
+  visitors    Int      @default(0)
+  leads       Int      @default(0)
+  conversions Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(12,2)
+  cac         Decimal? @db.Decimal(10,2) // cost per acquisition
+  ltv         Decimal? @db.Decimal(10,2) // lifetime value
+  adSpend     Decimal  @default(0) @db.Decimal(10,2) @map("ad_spend")
+  roas        Float?
+  ctr         Float?
+  hookRate    Float?   @map("hook_rate")
+  nps         Float?
+  churnRate   Float?   @map("churn_rate")
+  referrals   Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, date, channel])
+  @@index([tenantId])
+  @@index([date])
+  @@map("growth_kpis")
 }

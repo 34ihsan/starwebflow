@@ -8,12 +8,13 @@ import {
   FileText, LayoutDashboard, Settings, Users, ArrowLeft, 
   Activity, FileSpreadsheet, FolderKanban, ReceiptText, 
   Mail, Bot, Rocket, Calendar, MessageSquare, Target, Sparkles,
-  TicketCheck, LogOut, Bell, Globe, User, Inbox
+  TicketCheck, LogOut, Bell, Globe, User, Inbox, TrendingUp
 } from 'lucide-react'
 import { NotificationBell } from '@/components/layout/NotificationBell'
 
 const navItems = [
   { href: '/admin', label: 'Komuta Merkezi', icon: LayoutDashboard, exact: true },
+  { href: '/admin/growth', label: 'Büyüme Radarı (Apex)', icon: TrendingUp, accent: 'purple' },
   { href: '/admin/analytics', label: 'Analitik & Trafik', icon: Activity },
   { href: '/admin/crm', label: 'CRM ve Leadler', icon: Users },
   { href: '/admin/prospecting', label: 'Müşteri Avcısı', icon: Target, accent: 'purple' },
