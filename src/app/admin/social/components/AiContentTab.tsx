@@ -672,21 +672,26 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                     </div>
                   </div>
 
-                  {/* LIVE SIMULATION BOX */}
-                  <div className="bg-gradient-to-r from-neutral-900 via-purple-950/20 to-neutral-900 border border-purple-500/30 p-5 rounded-2xl space-y-4">
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Bot className="w-4 h-4 text-purple-400" />
-                      Canlı DM Otomasyon Testi & Simülasyonu
-                    </h4>
-                    <p className="text-xs text-neutral-400">Yorum atan bir profili simüle edin, otomatik DM gönderimini ve CRM'e kaydını test edin.</p>
+                  {/* LIVE SIMULATION & GOD-MODE ACTIONS BOX */}
+                  <div className="bg-gradient-to-r from-neutral-900 via-purple-950/30 to-neutral-900 border border-purple-500/40 p-5 rounded-2xl space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Bot className="w-5 h-5 text-purple-400" />
+                        GOD-MODE: Canlı DM & AI Sesli Arama (Voice Agent) Simülatörü
+                      </h4>
+                      <span className="px-2.5 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] font-extrabold uppercase tracking-wider rounded-full border border-purple-500/30">
+                        God-Mode Aktif
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400">Yorum yapan profili simüle edin, otomatik DM atılmasını, CRM kaydını ve 30. saniyede AI Sesli Arama (Voice Agent) çağrısını tetikleyin.</p>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <input 
                         type="text" 
                         value={testUserHandle}
                         onChange={(e) => setTestUserHandle(e.target.value)}
                         placeholder="@kullanici_adi"
-                        className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-48"
+                        className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-40"
                       />
                       <button 
                         onClick={handleTestDmTrigger}
@@ -694,7 +699,19 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                         className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(147,51,234,0.4)] disabled:opacity-50"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        {isTestingDm ? 'Gönderiliyor...' : 'Yorum Simülasyonu Çalıştır'}
+                        {isTestingDm ? 'Gönderiliyor...' : 'Yorum & DM Simülasyonu'}
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          const { triggerVoiceCallAutomation } = await import('@/app/actions/social');
+                          const res = await triggerVoiceCallAutomation({ userName: testUserHandle.replace('@', '') });
+                          if (res.success) {
+                            alert(`📞 GOD-MODE VOICE AGENT ÇAĞRISI BAŞARILI!\n\n${res.message}\n\nKonuşma Metni: "${res.script}"`);
+                          }
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                      >
+                        ⚡ 30sn AI Sesli Arama Başlat
                       </button>
                     </div>
                   </div>

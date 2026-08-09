@@ -227,6 +227,20 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
     }
   };
 
+  const handleSelfHealing = async (adId: string) => {
+    try {
+      const { selfHealingCreativeReplacement } = await import('@/app/actions/social');
+      const res = await selfHealingCreativeReplacement(adId);
+      if (res.success) {
+        alert(`⚡ GOD-MODE SELF-HEALING BAŞARILI!\n\n${res.message}\n\nYeni AI Reklam Metni: "${res.newCopy}"\nYeni ROAS Oranı: %${res.updatedRoas}`);
+      } else {
+        alert("Self-healing hatası: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleGenerateBudgetPlan = async () => {
     setIsGeneratingBudget(true);
     try {
@@ -497,6 +511,18 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
 
                       {/* Actions */}
                       <div style={{ display: "flex", gap: "6px" }}>
+                        <button
+                          onClick={() => handleSelfHealing(ad.id)}
+                          title="⚡ God-Mode: Yorulan Reklamı AI Studio ile Otomatik Yenile"
+                          style={{
+                            padding: "7px 10px", borderRadius: "8px", fontSize: "11px", fontWeight: 700,
+                            background: "linear-gradient(135deg, #7c3aed33, #ec489933)",
+                            color: "#f472b6", border: "1px solid #ec489955", cursor: "pointer",
+                            display: "flex", alignItems: "center", gap: "4px"
+                          }}
+                        >
+                          <Zap size={12} /> AI İyileştir
+                        </button>
                         <button
                           onClick={() => handleRunAudit(ad.id)}
                           disabled={auditingId === ad.id}
