@@ -110,8 +110,8 @@ export async function generateAIBlog(topic: string, keywords: string, includePAA
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
-    const model = getFlashModel();
+    const { getProModel } = await import('@/lib/ai/gemini-client');
+    const model = getProModel();
 
     let paaQuestions = '';
     if (includePAA) {
