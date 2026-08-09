@@ -83,9 +83,15 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
         { topic: "Starwebflow ile 7 günde sıfırdan dijital dönüşüm vaka analizi", platforms: ["linkedin", "instagram", "twitter"] },
       ];
 
-      await bulkGenerateSocialContent(sampleTopics);
-      alert("🚀 30 Günlük Sosyal Medya Otopilot Serisi başarıyla oluşturuldu ve Onay Kuyruğuna eklendi!");
-      window.location.reload();
+      const res = await bulkGenerateSocialContent(sampleTopics);
+      if (res.success) {
+        if (res.createdPosts && res.createdPosts.length > 0) {
+          setPendingQueue(prev => [...res.createdPosts, ...prev]);
+        }
+        alert(`🚀 30 Günlük Sosyal Medya Otopilot Serisi (${res.createdCount} gönderi) başarıyla oluşturuldu ve Onay Kuyruğuna eklendi!`);
+      } else {
+        alert("Otopilot üretimi başarısız: " + res.error);
+      }
     } catch (e) {
       console.error(e);
       alert("Otopilot başlatılırken hata oluştu.");

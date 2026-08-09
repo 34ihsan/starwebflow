@@ -12,7 +12,9 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
   const [activeTab, setActiveTab] = useState<"pending" | "scheduled" | "published" | "ads" | "audience">("pending");
 
   // State initialization matching the original component structure
-  const pendingPosts = initialData.posts.filter((p: any) => p.status === 'PENDING' || p.status === 'pending');
+  const pendingPosts = initialData.posts.filter((p: any) => 
+    p.status === 'PENDING' || p.status === 'pending' || p.status === 'PENDING_APPROVAL' || p.status === 'pending_approval'
+  );
   const scheduledPosts = initialData.posts.filter((p: any) => p.status === 'SCHEDULED' || p.status === 'scheduled' || p.status === 'IDEA');
   const publishedPosts = initialData.posts.filter((p: any) => p.status === 'PUBLISHED' || p.status === 'published' || p.status === 'active');
   const ads = initialData.ads || [];

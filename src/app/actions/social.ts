@@ -456,6 +456,8 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platforms
     const tenantId = await getActiveTenantId();
     let createdCount = 0;
 
+    const createdPosts: any[] = [];
+
     for (const row of rows) {
       if (!row.topic || !row.platforms || row.platforms.length === 0) continue;
 
@@ -500,13 +502,13 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platforms
                               platform.toLowerCase().includes('twitter') ? 'Twitter' : 
                               platform.toLowerCase().includes('tiktok') ? 'TikTok' : 'Instagram';
 
-        await prisma.socialPost.create({
+        const newPost = await prisma.socialPost.create({
           data: {
             tenant: { connect: { id: tenantId } },
             platform: platformLabel,
             platforms: row.platforms,
             content: platformContent,
-            status: 'PENDING_APPROVAL',
+            status: 'PENDING',
             scheduledFor: scheduledFor,
             aiGenerationStyle: 'gemini-bulk',
             mediaPrompt: finalImagePrompt || row.imagePrompt,
@@ -515,12 +517,13 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platforms
             hashtags: platformHashtags
           },
         });
+        createdPosts.push(newPost);
         createdCount++;
       }
     }
 
     safeRevalidatePath('/admin/social');
-    return { success: true, createdCount };
+    return { success: true, createdCount, createdPosts };
   } catch (error: any) {
     console.error('bulkGenerateSocialContent error:', error);
     return { success: false, error: error.message };
