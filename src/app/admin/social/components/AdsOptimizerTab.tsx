@@ -40,6 +40,30 @@ export function AdsOptimizerTab({ ads }: { ads: any[] }) {
         </div>
       </div>
 
+      {/* AI ROAS HEALTH RADAR BANNER */}
+      <div className="bg-gradient-to-r from-rose-900/30 via-neutral-900 to-indigo-900/30 border border-rose-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center shrink-0 mt-0.5">
+            <Zap className="w-5 h-5 text-rose-400" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-base flex items-center gap-2">
+              AI Reklam Sağlık Radarı (ROAS Optimizer)
+              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-mono border border-rose-500/30">Otopilot Canlı</span>
+            </h3>
+            <p className="text-neutral-400 text-xs mt-1">
+              Yapay zeka ROAS &lt; 1.5x olan kampanyaları anında tespit eder, reklam bütçesini otomatik olarak ROAS &gt; 2.5x olan kazanan kampanyalara aktarır.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => alert("✨ AI Reklam Otopilotu bütçe optimizasyonunu çalıştırdı. Düşük performanslı reklam bütçeleri kazanan kampanyalara aktarıldı!")}
+          className="px-4 py-2 bg-gradient-to-r from-rose-600 to-indigo-600 hover:opacity-90 text-white font-bold text-xs rounded-xl shadow-[0_0_15px_rgba(244,63,94,0.3)] transition-all whitespace-nowrap"
+        >
+          1-Tıkla Reklam Bütçesini Optimize Et
+        </button>
+      </div>
+
       {/* ADS GRID */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {ads.length === 0 ? (

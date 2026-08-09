@@ -1,16 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Image as ImageIcon, CheckCircle, RefreshCcw, ArrowRight, Zap, Target } from "lucide-react";
-import { generateAIContent } from "@/app/actions/social";
+import { Sparkles, Image as ImageIcon, CheckCircle, RefreshCcw, ArrowRight, Zap, Target, Layers, Share2, Flame, Copy, Check, X } from "lucide-react";
+import { generateAIContent, bulkGenerateSocialContent } from "@/app/actions/social";
 import { NativePreview } from "./NativePreview";
 import { BrandProfileModal } from "./BrandProfileModal";
 
 export function AiContentTab({ initialPending }: { initialPending: any[] }) {
   const [isAiStudioOpen, setIsAiStudioOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isAutopilotRunning, setIsAutopilotRunning] = useState(false);
+  const [isFormatAdapterOpen, setIsFormatAdapterOpen] = useState(false);
+  const [formatSourceText, setFormatSourceText] = useState('');
+  const [formattedOutputs, setFormattedOutputs] = useState<any>(null);
   const [isBrandModalOpen, setIsBrandModalOpen] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
   const [aiStudioParams, setAiStudioParams] = useState({
     topic: '',
     framework: 'AIDA',
@@ -53,13 +59,59 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
 
       if (res.success) {
         let omnichannel = res.omnichannel || {};
-        // Otopilot algoritma hackleri simülasyonu
         if (aiStudioParams.useAlgorithmHacks) {
            if (omnichannel['linkedin']) omnichannel['linkedin'].content += "\n\n👇 İlk yorumda sürpriz var.";
         }
         setPreviewData({ omnichannel, image: res.mediaUrl, model: res.model });
       } else {
         alert("Üretim hatası: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handle30DayAutopilot = async () => {
+    setIsAutopilotRunning(true);
+    try {
+      const sampleTopics = [
+        { topic: "Yapay zeka otomasyonları ile haftada 15 saat tasarruf etmenin 5 yolu", platforms: ["linkedin", "twitter"] },
+        { topic: "2026 E-ticaret dönüşüm oranlarını artırma rehberi", platforms: ["linkedin", "instagram"] },
+        { topic: "Müşteri adaylarını WhatsApp'tan anında arama ve dönüşüm oranları", platforms: ["linkedin", "twitter"] },
+        { topic: "Starwebflow ile 7 günde sıfırdan dijital dönüşüm vaka analizi", platforms: ["linkedin", "instagram", "twitter"] },
+      ];
+
+      await bulkGenerateSocialContent(sampleTopics);
+      alert("🚀 30 Günlük Sosyal Medya Otopilot Serisi başarıyla oluşturuldu ve Onay Kuyruğuna eklendi!");
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      alert("Otopilot başlatılırken hata oluştu.");
+    } finally {
+      setIsAutopilotRunning(false);
+    }
+  };
+
+  const handleConvertFormats = async () => {
+    if (!formatSourceText.trim()) return;
+    setIsGenerating(true);
+    try {
+      const res = await generateAIContent({
+        framework: 'PAS (Problem-Agitate-Solve)',
+        platforms: ['linkedin', 'twitter', 'instagram', 'tiktok'],
+        topic: `Şu ham metni veya blog yazısını 4 farklı platform formatına çevir:\n\n"${formatSourceText}"`,
+        humanizerScore: 95
+      });
+
+      if (res.success && res.omnichannel) {
+        setFormattedOutputs({
+          twitterThread: `🧵 [TWEET DİZİSİ]\n1/ ${res.omnichannel.twitter?.content || formatSourceText}\n\n2/ Yapay zeka ile otomatik süreç dönüşümü sağlayın.`,
+          linkedin: res.omnichannel.linkedin?.content || formatSourceText,
+          carouselPrompts: `📸 INSTAGRAM CAROUSEL SLAYTLARI:\nSlayt 1: ${formatSourceText.substring(0, 50)}...\nSlayt 2: Problemin Kökeni\nSlayt 3: Starwebflow Çözümü`,
+          shortsScript: `🎥 TIKTOK/REELS VİDEO SENARYOSU:\n[0-3sn Hook]: Biliyor muydunuz?\n[3-15sn Gelişme]: ${formatSourceText.substring(0, 80)}...\n[15-30sn CTA]: Detaylar bio'daki linkte!`
+        });
       }
     } catch (e) {
       console.error(e);
@@ -79,19 +131,34 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
           </h2>
           <p className="text-neutral-400 mt-1">Gelişmiş Yapay Zeka modelleri ile çoklu varyant ve hook testleri üretin.</p>
         </div>
-        <div className="mt-4 md:mt-0 flex space-x-3">
+        <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
           <button 
             onClick={() => setIsBrandModalOpen(true)}
             className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg text-sm font-medium transition-colors text-white"
           >
-            Marka Belleği (Tone)
+            Marka Belleği
+          </button>
+          <button 
+            onClick={() => setIsFormatAdapterOpen(true)}
+            className="px-4 py-2 bg-purple-900/40 hover:bg-purple-900/60 border border-purple-500/30 text-purple-300 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5"
+          >
+            <Layers className="w-4 h-4 text-purple-400" />
+            Format Adaptörü
+          </button>
+          <button 
+            onClick={handle30DayAutopilot}
+            disabled={isAutopilotRunning}
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4" />
+            {isAutopilotRunning ? "Otopilot Çalışıyor..." : "30 Günlük Otopilot Başlat"}
           </button>
           <button 
             onClick={() => setIsAiStudioOpen(!isAiStudioOpen)}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
           >
             <Zap className="w-4 h-4" />
-            Yeni Otopilot Serisi Başlat
+            Yeni Akış Başlat
           </button>
         </div>
       </div>
@@ -349,6 +416,75 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                 <CheckCircle className="w-5 h-5" />
                 Değişiklikleri Kaydet ve Onayla
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* FORMAT ADAPTER MODAL */}
+      {isFormatAdapterOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950/50">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-purple-400" />
+                  Smart Format Adaptörü (Omnichannel Transformer)
+                </h3>
+                <p className="text-xs text-neutral-400 mt-1">Tek bir metni/blogu 4 farklı platform formatına (X Thread, LinkedIn, Instagram Carousel, TikTok Script) dönüştürün.</p>
+              </div>
+              <button onClick={() => setIsFormatAdapterOpen(false)} className="text-neutral-500 hover:text-white transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6">
+              <div>
+                <label className="block text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Kaynak Metin veya Blog İçeriği</label>
+                <textarea
+                  value={formatSourceText}
+                  onChange={e => setFormatSourceText(e.target.value)}
+                  placeholder="Dönüştürmek istediğiniz ham metni, makaleyi veya blog yazısını buraya yapıştırın..."
+                  rows={4}
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-4 text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-purple-500/50 resize-none font-sans"
+                />
+              </div>
+
+              <button
+                onClick={handleConvertFormats}
+                disabled={isGenerating || !formatSourceText.trim()}
+                className="w-full py-3 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-bold rounded-xl transition shadow-[0_0_20px_rgba(147,51,234,0.3)] flex items-center justify-center gap-2 text-sm"
+              >
+                <Sparkles className="w-4 h-4" />
+                {isGenerating ? 'Formatlara Dönüştürülüyor...' : '4 Farklı Formata Dönüştür (Omnichannel)'}
+              </button>
+
+              {formattedOutputs && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-neutral-800">
+                  {Object.entries(formattedOutputs).map(([key, val]) => (
+                    <div key={key} className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">{key}</span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(String(val));
+                              setCopiedKey(key);
+                              setTimeout(() => setCopiedKey(null), 2000);
+                            }}
+                            className="text-xs text-neutral-400 hover:text-white flex items-center gap-1"
+                          >
+                            {copiedKey === key ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                            {copiedKey === key ? 'Kopyalandı' : 'Kopyala'}
+                          </button>
+                        </div>
+                        <pre className="whitespace-pre-wrap text-xs text-neutral-300 font-sans leading-relaxed max-h-48 overflow-y-auto">
+                          {String(val)}
+                        </pre>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
