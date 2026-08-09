@@ -18,12 +18,12 @@ export function getGoogleProvider() {
   return createGoogleGenerativeAI({ apiKey: getGoogleApiKey() });
 }
 
-// Hızlı işlemler için: Chat botu, scoring, warmup
+// Hızlı işlemler için: Chat botu, scoring, DM Funnel, AIDA (En Bütçe Dostu)
 export function getFlashModel() {
   return getGoogleProvider()('gemini-2.5-flash');
 }
 
-// Karmaşık görevler için: Şirket araştırması, uzun içerik üretimi
+// Karmaşık görevler için: Derin SEO Blog, Şirket Araştırması, Titan Mode Reklam Aklı
 export function getProModel() {
   return getGoogleProvider()('gemini-2.5-flash');
 }
@@ -33,7 +33,7 @@ export function getGoogleGenAIClient(): GoogleGenerativeAI {
   return new GoogleGenerativeAI(getGoogleApiKey());
 }
 
-// ─── Model Sabitleri ─────────────────────────────────────────────────────────
+// ─── Model Sabitleri (Bütçe Dostu Hibrit Mimari) ──────────────────────────────
 export const GEMINI_MODELS = {
   FLASH: 'gemini-2.5-flash',
   PRO: 'gemini-2.5-pro',
