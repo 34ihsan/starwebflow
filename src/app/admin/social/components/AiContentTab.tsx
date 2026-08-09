@@ -237,7 +237,6 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                 Titan Reklam Disiplinli Organik Önizleme
               </h3>
             </div>
-            </div>
             <div className="p-5 flex-1 overflow-y-auto bg-neutral-950/30">
               {!previewData ? (
                 <div className="h-full flex flex-col items-center justify-center text-neutral-500 min-h-[300px]">
