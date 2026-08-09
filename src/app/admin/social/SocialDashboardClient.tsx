@@ -40,9 +40,12 @@ export default function SocialDashboardClient({ initialData }: { initialData: { 
           <div>
             <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-rose-400 flex items-center gap-3">
               <Rocket className="w-8 h-8 text-indigo-400" />
-              Social & Ads (Elite Pro)
+              ⚡ PRO TITAN MODE — AI Reklam & Büyüme Yönetim Merkezi
             </h1>
-            <p className="text-neutral-400 mt-2 text-lg">Yapay zeka otopilotunda yeni nesil içerik ve reklam yönetimi.</p>
+            <p className="text-neutral-400 mt-2 text-base flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Meta • Google • TikTok • LinkedIn — Derin AI Analiz + DM Funnel & Voice Agent Aktif
+            </p>
           </div>
           
           <div className="flex gap-4">
