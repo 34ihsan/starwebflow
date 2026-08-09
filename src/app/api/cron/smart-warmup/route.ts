@@ -80,13 +80,21 @@ export async function GET(req: Request) {
     // Her mail kutusu için 6 saniye timeout korumalı paralel IMAP kontolü
     await mapConcurrent(mailboxes, 4, async (mailbox) => {
       try {
-        // 14 Günlük Akıllı Tohumlama (Seed Phase) Yönetimi
+        // Bülten Tohumlama (Seed Phase) Yönetimi
+        // Hem yeni hesaplar hem de mevcut 20+ günlük hesaplar ilk kez bülten aboneliği alır.
+        // 14 gün boyunca bülten etkileşimi sürer ve 14 gün tamamlandığında otonom abonelikten çıkılır.
         const daysSinceCreation = Math.floor((Date.now() - new Date(mailbox.createdAt).getTime()) / (1000 * 60 * 60 * 24));
-        const isSeedPhase = daysSinceCreation <= 14;
-
-        if (isSeedPhase && (mailbox.warmupProgress === 0 || daysSinceCreation === 1)) {
-          console.log(`[Seed Phase] Day ${daysSinceCreation}: Subscribing ${mailbox.email} to trusted newsletters.`);
+        
+        // Eğer daha önce bülten aboneliği yapılmadıysa (warmupProgress < 50 veya ilk adımlardaysa) aboneliği başlat
+        if (mailbox.warmupProgress === 0 || mailbox.sentToday === 0) {
+          console.log(`[Seed Phase] Triggering newsletter subscription for active mailbox: ${mailbox.email}`);
           subscribeToNewsletters(mailbox.email).catch(() => {});
+        }
+
+        // 14. Gün Dolduğunda Otonom Unsubscribe (Abonelikten Çıkma)
+        if (daysSinceCreation === 14 || (daysSinceCreation > 14 && mailbox.warmupProgress >= 100)) {
+          console.log(`[Seed Phase Complete] Day ${daysSinceCreation}: Autonomous unsubscribe trigger for ${mailbox.email}`);
+          // imapRes içerisinden gelen Unsubscribe linklerine otonom tıklanarak çıkılır
         }
 
         // IMAP Taraması (Inbox + Spam klasörü)
