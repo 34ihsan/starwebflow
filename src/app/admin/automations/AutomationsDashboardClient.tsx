@@ -9,7 +9,7 @@ import {
   Activity, ArrowDownRight, ArrowUpRight, Copy, Terminal, Eye, Pencil, Trash2, Info, Sparkles
 } from "lucide-react";
 
-import { createAutomationFlow, updateAutomationFlow, deleteAutomationFlow, generateFlowFromPrompt } from "@/app/actions/automation";
+import { createAutomationFlow, updateAutomationFlow, deleteAutomationFlow, generateFlowFromPrompt, triggerAutomationFlow, toggleAutomationStatus, seedTitanTemplates } from "@/app/actions/automation";
 import ReactFlowBuilder from "./ReactFlowBuilder";
 
 const appConfigs: Record<string, { label: string, color: string, bg: string, icon: any, defaultLabel: string }> = {
@@ -22,6 +22,9 @@ const appConfigs: Record<string, { label: string, color: string, bg: string, ico
   "Cron": { label: "Zamanlanmış Günlük", color: "text-amber-400", bg: "bg-amber-400/10", icon: Zap, defaultLabel: "Zamanlayıcı Tetikleyici" },
   "Typeform": { label: "Yeni Form Yanıtı", color: "text-white", bg: "bg-black", icon: FileText, defaultLabel: "Form Yanıtı Tetikleyici" },
   "Delay": { label: "Bekleme Süresi (Delay)", color: "text-amber-400", bg: "bg-amber-400/10", icon: Zap, defaultLabel: "Bekleme Süresi (24 Saat)" },
+  "Intent Spy": { label: "Müşteri Alım & İlan Sinyali", color: "text-emerald-400", bg: "bg-emerald-400/10", icon: Sparkles, defaultLabel: "Hedef Kitle Sinyal Taraması" },
+  "Landing Gen": { label: "AI Mikro Landing Page", color: "text-purple-400", bg: "bg-purple-400/10", icon: Globe, defaultLabel: "Müşteriye Özel Site Üret" },
+  "Voice AI": { label: "WhatsApp Sesli Not", color: "text-cyan-400", bg: "bg-cyan-400/10", icon: MessageSquare, defaultLabel: "AI Sesli Not Hazırla" },
   "Custom": { label: "Özel Aksiyon", color: "text-slate-400", bg: "bg-slate-400/10", icon: Zap, defaultLabel: "Özel İşlem Düğümü" }
 };
 
@@ -145,131 +148,225 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
   const [testLogs, setTestLogs] = useState<string[]>([]);
   const [isTestingRunning, setIsTestingRunning] = useState(false);
 
-  // DEFAULT TEMPLATES
+  // TITAN MODE 18 ENTERPRISE TEMPLATES
   const defaultTemplates = [
     {
-      id: "template-welcome-series",
-      name: "Hoşgeldiniz (Welcome) Serisi",
-      description: "Yeni bir form dolduğunda müşteriye otomatik marka tanıtımı yapar, değer katan 3 adımlı sıcak karşılama akışını başlatır.",
-      trigger: "form.submitted",
-      category: "Pazarlama",
-      nodes: [
-        { id: "1", type: "trigger", app: "Typeform", label: "Yeni Yanıt", icon: "FileText", color: "text-white", bg: "bg-black", config: { description: "Potansiyel Müşteri İletişim Formu Doldurulduğunda tetiklenir." } },
-        { 
-          id: "2", 
-          type: "action", 
-          app: "Email", 
-          label: "Mail 1 (Marka Tanıtımı)", 
-          icon: "Mail", 
-          color: "text-[#10B981]", 
-          bg: "bg-[#10B981]/10",
-          config: {
-            subject: "StarWebflow Ajansı'na Hoş Geldiniz! 🚀",
-            description: "Ajansımızın vizyonunu, referanslarını ve çalışma metodolojisini anlatan ilk marka tanıtım e-postasıdır.",
-            email_body: "Merhaba {{clientName}},\n\nStarWebflow ekibine gösterdiğiniz ilgi için teşekkür ederiz! Biz, markaların dijital dönüşüm süreçlerini A-Z'ye tasarlayan ve yöneten yeni nesil bir dijital ajansız.\n\nNeler Yapıyoruz?\n- Modern & Dönüşüm Odaklı Web Tasarım\n- Yapay Zeka Tabanlı İş Akışı Otomasyonları\n- Kurumsal Kimlik & Marka Stratejisi\n\nEkibimiz talebinizi incelemeye başladı. Çok yakında sizinle iletişime geçeceğiz.\n\nSevgiler,\nStarWebflow Ekibi\nwww.starwebflow.com"
-          }
-        },
-        { id: "3", type: "action", app: "Delay", label: "3 Gün Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10", config: { hours: 72, description: "İlk tanıtım mailinin ardından 3 gün (72 saat) bekleme uygulanır." } },
-        { 
-          id: "4", 
-          type: "action", 
-          app: "Email", 
-          label: "Mail 2 (Değer Önerisi)", 
-          icon: "Mail", 
-          color: "text-[#10B981]", 
-          bg: "bg-[#10B981]/10",
-          config: {
-            subject: "İşletmenizi Otomasyonlarla Nasıl Büyütebiliriz?",
-            description: "Müşteriye yapay zeka entegrasyonlarının sağlayacağı somut değerleri ve verimlilik artışını gösteren e-postadır.",
-            email_body: "Merhaba Yaratıcı Girişimci,\n\nDaha önce web tasarımı ve otomasyon hizmetlerimizden bahsetmiştik. Peki, günde 3 saatlik iş yükünü otonom hale getirmek işletmenize ne kazandırır?\n\n- %80 Daha Hızlı Yanıt Süresi (AI Chatbots)\n- Sıfır Hata Payı ile Fatura & CRM Senkronizasyonu\n- Reklam bütçelerinde optimizasyon\n\nSize özel hazırladığımız başarı hikayelerini (Case Studies) incelemek için web sitemizi ziyaret edebilirsiniz.\n\nSaygılarımızla,\nStarWebflow"
-          }
-        },
-      ]
-    },
-    {
-      id: "template-retargeting-series",
-      name: "Yeniden Hedefleme (Retargeting) Serisi",
-      description: "Maili açıp yanıt vermeyen müşterilere özel indirim ve fırsat hatırlatan dinamik akış.",
-      trigger: "email.opened",
-      category: "Satış",
-      nodes: [
-        { id: "1", type: "trigger", app: "Webhook", label: "Email Açıldı (Webhook)", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
-        { id: "2", type: "condition", app: "If/Else", label: "Yanıt Geldi mi?", icon: "GitBranch", color: "text-amber-400", bg: "bg-amber-400/10", branches: [{ path: "Hayır" }] },
-        { id: "3", type: "action", app: "Delay", label: "24 Saat Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
-        { id: "4", type: "action", app: "Email", label: "Özel Fırsat Hatırlatması", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
-      ]
-    },
-    {
-      id: "template-ai-auto-responder",
-      name: "Yapay Zeka Otonom Yanıtlayıcı",
-      description: "Gelen mailleri analiz edip teknik destek, fiyat veya satış olmak üzere farklı tonda anında yanıt verir.",
-      trigger: "email.received",
-      category: "Müşteri Hizmetleri",
-      nodes: [
-        { id: "1", type: "trigger", app: "Email", label: "Yeni Gelen E-Posta", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
-        { id: "2", type: "action", app: "Star AI", label: "Mail İçeriğini Analiz Et", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
-        { id: "3", type: "condition", app: "If/Else", label: "Destek mi Satış mı?", icon: "GitBranch", color: "text-amber-400", bg: "bg-amber-400/10", branches: [
-          { path: "Teknik Destek", nodes: [{ id: "3a", type: "action", app: "Email", label: "Otomatik Destek Yanıtı", icon: "Mail" }] },
-          { path: "Satış/Fiyat", nodes: [{ id: "3b", type: "action", app: "Email", label: "Fiyat Teklifi ve Toplantı Linki", icon: "Mail" }] }
-        ]}
-      ]
-    },
-    {
-      id: "template-sales-closing",
-      name: "Satış Kapanış Zinciri",
-      description: "Teklif onaylandığında otomatik sözleşme ve proje oluşturur, müşteriyi CRM'de günceller.",
-      trigger: "proposal.accepted",
-      category: "Satış",
-      nodes: [
-        { id: "1", type: "Create Contract", config: { contractTitle: "Otomatik Hizmet Sözleşmesi" } },
-        { id: "2", type: "Create Project", config: { projectName: "Yeni Müşteri Projesi" } },
-        { id: "3", type: "Create Task", config: { title: "Onboarding Toplantısı Ayarla" } },
-        { id: "4", type: "Convert to Client", config: {} }
-      ]
-    },
-    {
-      id: "template-billing-guard",
-      name: "Tahsilat Gardiyanı",
-      description: "Vadesi geçen faturalar için uyarı gönderir, ödenmezse projeyi durdurur.",
+      id: "template-intent-miner",
+      name: "🕵️ Intent Signal Miner & Tech Stack Scraper",
+      description: "Şirket alımları, yeni iş ilanları ('React/Next.js aranıyor') ve teknoloji değişikliklerini tarayıp kişiselleştirilmiş müşteri listesi üretir.",
       trigger: "cron.daily",
-      category: "Finans",
+      category: "Büyüme & Lead Gen",
       nodes: [
-        { id: "1", type: "Admin Approval", config: { title: "Fatura Hatırlatması Onayı" } },
-        { id: "2", type: "Send Reminder", config: { severity: "Yüksek" } },
-        { id: "3", type: "Suspend Project", config: {} }
+        { id: "1", type: "trigger", app: "Intent Spy", label: "Hedef Kitle Sinyal Taraması", icon: "Sparkles", color: "text-emerald-400", bg: "bg-emerald-400/10", config: { description: "Crunchbase, LinkedIn & GitHub Job API'lerini günlük tarar." } },
+        { id: "2", type: "action", app: "Star AI", label: "Şirket & Teknoloji Analizi", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10", config: { description: "Mevcut web sitesindeki eksikleri ve fırsatları belirler." } },
+        { id: "3", type: "action", app: "Landing Gen", label: "Kişiselleştirilmiş Mikro Site Üret", icon: "Globe", color: "text-purple-400", bg: "bg-purple-400/10", config: { description: "/p/musteri-adi adresinde özel teklif sayfası oluşturur." } },
+        { id: "4", type: "action", app: "Email", label: "Özel İkna Maili İlet", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10", config: { description: "Mikro site linki içeren soğuk ikna e-postası gönderir." } }
       ]
     },
     {
-      id: "template-meeting-assistant",
-      name: "Toplantı Asistanı",
-      description: "Randevu alındığında, şirketi AI ile araştırıp CRM'e özet not düşer.",
-      trigger: "appointment.booked",
-      category: "Satış",
+      id: "template-micro-landing",
+      name: "🌐 AI Micro-Landing Page & Personal Invite Generator",
+      description: "Her hedef müşteri adayı için otonom olarak kişiselleştirilmiş mikro web sitesi (/p/musteri-adi) üretir ve özel davet linki gönderir.",
+      trigger: "webhook.prospect",
+      category: "Büyüme & Lead Gen",
       nodes: [
-        { id: "1", type: "AI Company Research", config: {} },
-        { id: "2", type: "Create Task", config: { title: "Toplantı Hazırlık Notunu Oku" } }
+        { id: "1", type: "trigger", app: "Webhook", label: "Yeni Prospect Webhook", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Logo & Slogan Taraması", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Landing Gen", label: "Mikro Sayfa Yayınla", icon: "Globe", color: "text-purple-400", bg: "bg-purple-400/10" },
+        { id: "4", type: "action", app: "WhatsApp", label: "VIP Davet Mesajı Gönder", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" }
       ]
     },
     {
-      id: "template-client-retention",
-      name: "Müşteri Tutundurma",
-      description: "Projedeki bir kilometre taşı bittiğinde müşteriye otomatik bilgi mesajı atar.",
-      trigger: "task.completed",
-      category: "İletişim",
+      id: "template-speed-lead",
+      name: "⚡ Speed-to-Lead Instant Callback (<60 Seconds)",
+      description: "Form dolduran müşteriye 30 saniye içinde WhatsApp ve SMS ile anında ulaşarak dönüşüm oranını %395 artırır.",
+      trigger: "form.submitted",
+      category: "Büyüme & Lead Gen",
       nodes: [
-        { id: "1", type: "Admin Approval", config: { title: "Mesaj Gönderim Onayı" } },
-        { id: "2", type: "Send Client Update", config: {} }
+        { id: "1", type: "trigger", app: "Typeform", label: "Yeni İletişim Formu", icon: "FileText", color: "text-white", bg: "bg-black" },
+        { id: "2", type: "action", app: "WhatsApp", label: "30 Saniyede Anında WhatsApp Yanıtı", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" },
+        { id: "3", type: "action", app: "Slack", label: "Ekibe Canlı Lead Alarmi", icon: "MessageCircle", color: "text-[#E01E5A]", bg: "bg-[#E01E5A]/10" }
       ]
     },
     {
-      id: "template-social-monster",
-      name: "Sosyal Medya Canavarı",
-      description: "Reklam formlarından (Facebook vs.) gelen kişileri anında CRM'e alır ve Hoşgeldin serisini başlatır.",
-      trigger: "webhook.social_lead",
-      category: "Pazarlama",
+      id: "template-social-sniffer",
+      name: "👂 Social Listening & Community Sniffer (Reddit, X, HN)",
+      description: "Reddit, X, HackerNews ve ProductHunt'ta 'Ajans arıyorum', 'Web yazılım tavsiyesi' gibi kelimeleri dinler, AI ile yanıt taslağı hazırlar.",
+      trigger: "cron.hourly",
+      category: "Büyüme & Lead Gen",
       nodes: [
-        { id: "1", type: "Add Social Lead", config: {} },
-        { id: "2", type: "Start Campaign", config: { campaignName: "Hoşgeldin & Case Study" } }
+        { id: "1", type: "trigger", app: "Cron", label: "Sosyal Medya Dinleyici", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Görüşme Niyeti Analizi", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Slack", label: "1-Tık Yanıt Taslağı Oluştur", icon: "MessageCircle", color: "text-[#E01E5A]", bg: "bg-[#E01E5A]/10" }
+      ]
+    },
+    {
+      id: "template-viral-referral",
+      name: "🔁 Viral Partner & Referral Growth Engine",
+      description: "Mevcut müşterilere özel referans bağlantısı tanımlar, her gelen yeni müşteride komisyon (%15) hesaplar ve otomatik ödeme alarmı verir.",
+      trigger: "client.created",
+      category: "Büyüme & Lead Gen",
+      nodes: [
+        { id: "1", type: "trigger", app: "CRM", label: "Yeni Müşteri Kaydı", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Email", label: "Ortaklık & Referans Linki At", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "3", type: "action", app: "CRM", label: "Komisyon Cüzdanı Tanımla", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" }
+      ]
+    },
+    {
+      id: "template-pseo-matrix",
+      name: "🚀 Programmatic SEO & Niche Industry Matrix",
+      description: "Nitelikli sektörler için otomatik pSEO iniş sayfaları üretip arama motorlarında otonom görünürlük sağlar.",
+      trigger: "cron.weekly",
+      category: "Büyüme & Lead Gen",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Haftalık SEO Tarayıcısı", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Sektörel İçerik & Schema Üret", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Webhook", label: "Google Indexing API Bildir", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" }
+      ]
+    },
+    {
+      id: "template-warmup-sentinel",
+      name: "🛡️ Cold Outreach Warmup Sentinel & Clean Inbox Engine",
+      description: "48 saatlik e-posta temizleyici, yanıt simülatörü ve spama düşmeyi engelleyici tohum mesaj servisi.",
+      trigger: "cron.hourly",
+      category: "Soğuk Outreach",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Inbox Temizlik Zamanlayıcısı", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Email", label: "Warmup Maillerini Oto-Arşivle", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "3", type: "action", app: "Star AI", label: "Spam Skorunu & İtibarı Kontrol Et", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" }
+      ]
+    },
+    {
+      id: "template-deal-negotiator",
+      name: "🧠 AI Self-Healing Outbound & Deal Negotiator",
+      description: "'Fiyat yüksek', 'Şimdi düşünmüyoruz' itirazlarını analiz edip ROI hesabı ve özel vaka analiziyle otonom yanıtlar.",
+      trigger: "email.received",
+      category: "Satış & Kapanış",
+      nodes: [
+        { id: "1", type: "trigger", app: "Email", label: "Müşteri İtiraz E-Postası", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "2", type: "action", app: "Star AI", label: "İtiraz Nedenini Analiz Et", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Email", label: "Özel ROI & Case Study İle Yanıtla", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
+      ]
+    },
+    {
+      id: "template-intent-radar",
+      name: "🔮 Predictive Lead Intent Radar ('🔥 ŞU AN ARA')",
+      description: "Teklifi 3+ kez açan veya fiyat sayfasında vakit geçiren müşteriler için satış temsilcisine canlı uyarısı geçer.",
+      trigger: "webhook.proposal_viewed",
+      category: "Satış & Kapanış",
+      nodes: [
+        { id: "1", type: "trigger", app: "Webhook", label: "Teklif 3+ Kez Açıldı", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "WhatsApp", label: "Satış Temsilcisine Anında Sesli/Yazılı Uyarı", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" },
+        { id: "3", type: "action", app: "CRM", label: "Lead Sıcaklık Puanını +100 Yap", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" }
+      ]
+    },
+    {
+      id: "template-site-audit",
+      name: "🤖 Otonom Site Analizi & 5 Sayfalık PDF Teklif Motoru",
+      description: "Müşterinin sitesini tarar, 5 sayfalık PDF teknik analiz ve fiyat teklifini saniyeler içinde mail atar.",
+      trigger: "form.submitted",
+      category: "Teklif & Analiz",
+      nodes: [
+        { id: "1", type: "trigger", app: "Typeform", label: "Ücretsiz Audit Formu", icon: "FileText", color: "text-white", bg: "bg-black" },
+        { id: "2", type: "action", app: "Star AI", label: "Site Hızı & SEO Taraması Yap", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Email", label: "PDF Analiz Raporunu İlet", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
+      ]
+    },
+    {
+      id: "template-voice-pitch",
+      name: "🎙️ WhatsApp Voice & Audio Pitch Synthesizer (AI Sesli Not)",
+      description: "Kişiselleştirilmiş 30 saniyelik yapay zeka sesli notu oluşturup WhatsApp'tan müşteriye sunum yapar.",
+      trigger: "proposal.accepted",
+      category: "Satış & Kapanış",
+      nodes: [
+        { id: "1", type: "trigger", app: "CRM", label: "Yüksek Değerli Prospect", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Voice AI", label: "AI Kurucu Ses Notu Üret", icon: "MessageSquare", color: "text-cyan-400", bg: "bg-cyan-400/10" },
+        { id: "3", type: "action", app: "WhatsApp", label: "WhatsApp Sesli Not Olarak Gönder", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" }
+      ]
+    },
+    {
+      id: "template-smart-recovery",
+      name: "💳 Akıllı Tahsilat & Abonelik Kurtarma (Stripe Retry)",
+      description: "Ödeme başarısız olduğunda 3 kademeli kurtarma zinciri çalıştırır (Özel Stripe ödeme linki ile E-Posta, SMS, WhatsApp).",
+      trigger: "webhook.payment_failed",
+      category: "Finans & Tahsilat",
+      nodes: [
+        { id: "1", type: "trigger", app: "Webhook", label: "Stripe Ödeme Başarısız Webhook", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Email", label: "Özel Kurtarma Linki Maili", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "3", type: "action", app: "Delay", label: "48 Saat Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "4", type: "action", app: "WhatsApp", label: "WhatsApp Acil Ödeme Bildirimi", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" }
+      ]
+    },
+    {
+      id: "template-vip-offboarding",
+      name: "🤝 Post-Project VIP Müşteri Bağlama & Referans Motoru",
+      description: "Tamamlanan projelerden 7 gün sonra NPS anketi atar, 9+ puan verenlere Google Yorum isteği ve %15 indirim kodu verir.",
+      trigger: "project.completed",
+      category: "Müşteri Sadakati",
+      nodes: [
+        { id: "1", type: "trigger", app: "CRM", label: "Proje Status = Tamamlandı", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Delay", label: "7 Gün Bekle", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "3", type: "action", app: "Email", label: "NPS Anketi & Referans İndirim Kodu", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" }
+      ]
+    },
+    {
+      id: "template-churn-guard",
+      name: "🔄 Müşteri Kaybı Önleme (Churn Guard & At-Risk Alert)",
+      description: "14 gündür pasif olan müşterileri tespit edip müşteri temsilcisine alarm verir.",
+      trigger: "cron.weekly",
+      category: "Müşteri Sadakati",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Müşteri Aktivite Taraması", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "CRM", label: "Etiket: Risk Altında (At-Risk)", icon: "Database", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "3", type: "action", app: "Slack", label: "Hesap Yöneticisine Acil Bildirim", icon: "MessageCircle", color: "text-[#E01E5A]", bg: "bg-[#E01E5A]/10" }
+      ]
+    },
+    {
+      id: "template-competitor-spy",
+      name: "🕵️‍♂️ Autonomous Competitor & Market Spy (Battlecard)",
+      description: "Rakip ajansların fiyat ve hizmet değişikliklerini tarayıp satış ekibi için otomatik Battlecard üretir.",
+      trigger: "cron.weekly",
+      category: "Sistem & Strateji",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Rakip Site Taraması", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Fiyat & Özellik Karşılaştırma", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Slack", label: "Satış Battlecard Notu İlet", icon: "MessageCircle", color: "text-[#E01E5A]", bg: "bg-[#E01E5A]/10" }
+      ]
+    },
+    {
+      id: "template-infra-self-healing",
+      name: "🛡️ Autonomous Infrastructure Self-Healing",
+      description: "Sayfa hızı düştüğünde CDN önbelleğini ve DB havuzunu otonom resetler.",
+      trigger: "webhook.health_check",
+      category: "Sistem & Strateji",
+      nodes: [
+        { id: "1", type: "trigger", app: "Webhook", label: "Yavaş Yanıt Süresi Sinyali (>2.5s)", icon: "Globe", color: "text-[#4F8EF7]", bg: "bg-[#4F8EF7]/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Önbellek & DB Havuz Temizliği", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "Slack", label: "Sistem Otomatik İyileştirildi Raporu", icon: "MessageCircle", color: "text-[#E01E5A]", bg: "bg-[#E01E5A]/10" }
+      ]
+    },
+    {
+      id: "template-exec-digest",
+      name: "📊 Executive AI Daily Audio & Digest Briefing",
+      description: "Her sabah 08:00'de dünkü satışları, sıcak müşterileri ve günün 3 kritik odağını kurucunun WhatsApp'ına sesli/yazılı sabah brifingi olarak atar.",
+      trigger: "cron.daily",
+      category: "Sistem & Strateji",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Sabah 08:00 Zamanlayıcısı", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Star AI", label: "Günlük Finans & Operasyon Analizi", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" },
+        { id: "3", type: "action", app: "WhatsApp", label: "WhatsApp Kurucu Sesli Brifingi", icon: "MessageSquare", color: "text-[#25D366]", bg: "bg-[#25D366]/10" }
+      ]
+    },
+    {
+      id: "template-newsletter-seed",
+      name: "📩 14-Day Newsletter Seed & Domain Reputation Guardian",
+      description: "E-posta alan adı itibar skorunu yüksek tutmak için otonom bülten döngüsü çalıştırır.",
+      trigger: "cron.daily",
+      category: "Soğuk Outreach",
+      nodes: [
+        { id: "1", type: "trigger", app: "Cron", label: "Günlük Tohum Gönderici", icon: "Zap", color: "text-amber-400", bg: "bg-amber-400/10" },
+        { id: "2", type: "action", app: "Email", label: "Bülten Tohum Maili Gönder", icon: "Mail", color: "text-[#10B981]", bg: "bg-[#10B981]/10" },
+        { id: "3", type: "action", app: "Star AI", label: "Spam Skorunu Güncelle", icon: "Activity", color: "text-[#8B5CF6]", bg: "bg-[#8B5CF6]/10" }
       ]
     }
   ];
@@ -277,6 +374,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
   const [flows, setFlows] = useState<any[]>(initialData.flows || []);
   const [webhooks, setWebhooks] = useState<any[]>(initialData.webhooks || []);
   const [logs, setLogs] = useState<any[]>(initialData.logs || []);
+  const [isDeployingTitan, setIsDeployingTitan] = useState(false);
   
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
 
@@ -305,15 +403,69 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
     }
   };
 
-  const handleToggleFlowStatus = (id: string) => {
+  const handleToggleFlowStatus = async (id: string) => {
+    const target = flows.find(f => f.id === id);
+    if (!target) return;
+    const currentStatus = target.status || 'active';
     setFlows(prev => prev.map(f => {
       if (f.id === id) {
-        const newStatus = (f.status?.toUpperCase() || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+        const newStatus = (f.status?.toLowerCase() === 'active' || f.status?.toUpperCase() === 'ACTIVE') ? 'paused' : 'ACTIVE';
         return { ...f, status: newStatus };
       }
       return f;
     }));
+
+    try {
+      await toggleAutomationStatus(id, currentStatus);
+    } catch (e) {
+      console.error("Toggle error:", e);
+    }
   };
+
+  const handleTriggerLiveFlow = async (flow: any) => {
+    try {
+      const res = await triggerAutomationFlow(flow.id, {
+        triggeredAt: new Date().toISOString(),
+        triggerType: 'MANUAL_TITAN_TEST',
+        summary: `Titan Mode ${flow.name} akışı canlı simüle edildi.`
+      });
+
+      if (res.success) {
+        setLogs(prev => [res.log, ...prev]);
+        setFlows(prev => prev.map(f => f.id === flow.id ? { ...f, runsCount: (f.runsCount || 0) + 1, lastRunAt: new Date().toISOString() } : f));
+        alert(`🚀 ${flow.name} canlı otomasyonu başarıyla tetiklendi ve log kaydı oluşturuldu!`);
+      } else {
+        alert("Otomasyon tetiklenirken hata oluştu.");
+      }
+    } catch (e) {
+      console.error("Trigger error:", e);
+      alert("Tetikleme başarısız.");
+    }
+  };
+
+  const handleDeployTitanTemplatesAll = async () => {
+    setIsDeployingTitan(true);
+    try {
+      const templatesToDeploy = defaultTemplates.map(t => ({
+        name: t.name,
+        nodes: t.nodes
+      }));
+
+      const res = await seedTitanTemplates('default-tenant', templatesToDeploy);
+      if (res.success && res.data) {
+        setFlows(prev => [...res.data, ...prev]);
+        alert(`✨ ${res.data.length} adet Titan Mode Otomasyonu canlı veritabanına başarıyla kuruldu!`);
+      } else {
+        alert("Titan şablonları yüklenirken bir sorun oluştu.");
+      }
+    } catch (e) {
+      console.error("Titan seed error:", e);
+      alert("Şablon yükleme hatası.");
+    } finally {
+      setIsDeployingTitan(false);
+    }
+  };
+
 
   const handleAppChange = (index: number, appName: string) => {
     if (!editingFlow) return;
@@ -568,7 +720,15 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
           </h1>
           <p className="text-[#94A3B8] mt-2">Karar ağaçları (If/Else), Webhook uç noktaları ve asenkron veri akışları.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button 
+            onClick={handleDeployTitanTemplatesAll}
+            disabled={isDeployingTitan}
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-600 hover:opacity-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-[0_0_25px_rgba(139,92,246,0.3)] disabled:opacity-50"
+          >
+            <Sparkles className="w-4 h-4" />
+            {isDeployingTitan ? "Titan Şablonları Kuruluyor..." : "1-Tıkla 18 Titan Otomasyonu Kur"}
+          </button>
           <button 
             onClick={() => setIsAddModalOpen(true)}
             className="flex items-center gap-2 bg-gradient-to-r from-[#10B981] to-[#4F8EF7] hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
@@ -669,6 +829,13 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       title="Akış Çıktılarını Simüle Et & Önizle"
                     >
                       <Eye className="w-3.5 h-3.5" /> Simüle Et
+                    </button>
+                    <button 
+                      onClick={() => handleTriggerLiveFlow(flow)}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition-colors border border-emerald-500/20 flex items-center gap-1.5"
+                      title="Akışı Canlı Çalıştır & Log Üret"
+                    >
+                      <Play className="w-3.5 h-3.5" /> Canlı Tetikle
                     </button>
                     <button 
                       onClick={() => handleToggleFlowStatus(flow.id)}

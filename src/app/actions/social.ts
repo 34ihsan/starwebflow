@@ -641,10 +641,8 @@ export async function syncSocialLeads() {
     // In a real app, this would hit Meta/LinkedIn APIs to fetch comments on recent posts.
     // Here, we simulate finding 2 new people who commented.
 
-    const simulatedEngagements = [
-      { platform: 'instagram', username: 'johndoe_ig', comment: 'Harika bir hizmet, fiyat alabilir miyim?' },
-      { platform: 'linkedin', username: 'janedoe_li', comment: 'Bunu bizim projeye de entegre edebilir miyiz? İletişime geçelim.' }
-    ];
+    // Simulated engagements empty by default (ready for real API integration)
+    const simulatedEngagements: Array<{ platform: string; username: string; comment: string }> = [];
 
     const newLeads = [];
 
