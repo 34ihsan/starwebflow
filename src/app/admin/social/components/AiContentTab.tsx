@@ -581,14 +581,15 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
             <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-neutral-950/30">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Lead Magnet Konusu & Kapsamı</label>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Lead Magnet Konusu / Serbest İstek VEYA Blog Eşle</label>
                   <input 
                     type="text" 
                     value={dmFunnelTopic} 
                     onChange={(e) => setDmFunnelTopic(e.target.value)}
-                    placeholder="Örn: 2026 E-Ticaret Reklam Kanca Paketi"
+                    placeholder="İstediğiniz konuyu yazın VEYA bir makale adı girin..."
                     className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
                   />
+                  <p className="text-[11px] text-neutral-500 mt-1">İster serbest bir konu yazın, ister veritabanınızdaki bir blog makalesini başlığıyla eşleştirin.</p>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-300 mb-1">Magnet Türü</label>
@@ -600,6 +601,7 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                     <option value="prompt_pack">📦 Prompt & Şablon Paketi</option>
                     <option value="cheat_sheet">📋 Kontrol Listesi (Cheat Sheet)</option>
                     <option value="script">🎥 Satış & Reklam Senaryoları</option>
+                    <option value="resource_guide">📚 Blog Özet Kılavuzu & Kaynak</option>
                   </select>
                 </div>
               </div>

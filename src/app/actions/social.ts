@@ -460,20 +460,30 @@ JSON Formatı şu şekilde OLMALIDIR:
 export async function generateLeadMagnetAndFunnel(params: {
   topic: string;
   targetNiche?: string;
-  leadType?: 'prompt_pack' | 'cheat_sheet' | 'script';
+  leadType?: 'prompt_pack' | 'cheat_sheet' | 'script' | 'resource_guide';
+  blogId?: string;
 }) {
-  const { topic, targetNiche = 'B2B SaaS / Dijital Ajans', leadType = 'prompt_pack' } = params;
+  const { topic, targetNiche = 'B2B SaaS / Dijital Ajans', leadType = 'prompt_pack', blogId } = params;
 
   try {
     const { generateText } = await import('ai');
     const { getFlashModel } = await import('@/lib/ai/gemini-client');
 
+    let blogContext = '';
+    if (blogId) {
+      const blog = await prisma.blogPost.findUnique({ where: { id: blogId } });
+      if (blog) {
+        blogContext = `\nVeritabanı Blog Makale Bilgileri:\nBaşlık: ${blog.title}\nÖzet: ${blog.excerpt}\nMakale İçeriği: ${blog.content.substring(0, 2000)}`;
+      }
+    }
+
     const systemPrompt = `Rol: StarWebFlow PRO TITAN Mode Dijital Büyüme ve DM Funnel Mimarı.
-Görev: Verilen konu için $0 bütçe ile sosyal medyada viral yorum toplayacak ve DM üzerinden yüksek dönüşüm (Lead) alacak bir "Lead Magnet & DM Funnel Paketi" oluştur.
+Görev: Kullanıcının girdiği SERBEST KONU veya BLOG MAKALESİ temelinde $0 bütçe ile sosyal medyada viral yorum toplayacak ve DM üzerinden yüksek dönüşüm (Lead) alacak bir "Lead Magnet & DM Funnel Paketi" oluştur.
 
 Çıktıyı SADECE geçerli bir JSON string olarak ver (Markdown bloğu kullanma).`;
 
-    const userPrompt = `Konu: ${topic}
+    const userPrompt = `Konu / İstek: ${topic}
+${blogContext}
 Niş Sektör: ${targetNiche}
 Magnet Türü: ${leadType}
 
@@ -481,7 +491,7 @@ Magnet Türü: ${leadType}
 {
   "triggerKeyword": "Örn: REHBER, TITAN, PROMPT",
   "magnetTitle": "İlgi Çekici Lead Magnet Başlığı (Örn: 2026 E-Ticaret Reklam Kanca Paketi)",
-  "magnetContent": "DM ile gönderilecek Notion/Google Docs tarzı hazır rehber, prompt paketi veya şablon içeriği.",
+  "magnetContent": "DM ile gönderilecek Notion/Google Docs tarzı hazır rehber, prompt paketi, şablon veya özet kılavuz içeriği.",
   "socialPostHook": "Sosyal medya gönderisi için ilk 3 saniye kancası (Hook)",
   "socialPostContent": "PAS/AIDA formatında yazılmış tam post metni. Gönderi sonunda 'Yorumlara [TRIGGER_KEYWORD] yazın, anında DM atalım' çağrısı olmalıdır.",
   "autoDmResponse": "Kullanıcı yorum yaptığında DM kutusuna düşecek kişiselleştirilmiş sıcak satış mesajı (Link dahil)."
