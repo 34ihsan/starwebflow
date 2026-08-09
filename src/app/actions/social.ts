@@ -1009,11 +1009,8 @@ export async function getAudienceAnalytics() {
 // PRO TITAN MODE — AI AD MANAGEMENT ENGINE (Elite Level)
 // ═══════════════════════════════════════════════════════════════════════════
 
-function getAIModel() {
-  const googleKey = process.env.GOOGLE_AI_API_KEY;
-  if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') return null;
-  return googleKey;
-}
+
+
 
 async function callGemini(prompt: string, systemPrompt: string): Promise<string> {
   const { generateText } = await import('ai');
