@@ -455,6 +455,97 @@ JSON Formatı şu şekilde OLMALIDIR:
   }
 }
 
+// ─── PRO TITAN: Lead Magnet & DM Funnel Generator ────────────────────────────
+
+export async function generateLeadMagnetAndFunnel(params: {
+  topic: string;
+  targetNiche?: string;
+  leadType?: 'prompt_pack' | 'cheat_sheet' | 'script';
+}) {
+  const { topic, targetNiche = 'B2B SaaS / Dijital Ajans', leadType = 'prompt_pack' } = params;
+
+  try {
+    const { generateText } = await import('ai');
+    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+
+    const systemPrompt = `Rol: StarWebFlow PRO TITAN Mode Dijital Büyüme ve DM Funnel Mimarı.
+Görev: Verilen konu için $0 bütçe ile sosyal medyada viral yorum toplayacak ve DM üzerinden yüksek dönüşüm (Lead) alacak bir "Lead Magnet & DM Funnel Paketi" oluştur.
+
+Çıktıyı SADECE geçerli bir JSON string olarak ver (Markdown bloğu kullanma).`;
+
+    const userPrompt = `Konu: ${topic}
+Niş Sektör: ${targetNiche}
+Magnet Türü: ${leadType}
+
+İstenen JSON Yapısı:
+{
+  "triggerKeyword": "Örn: REHBER, TITAN, PROMPT",
+  "magnetTitle": "İlgi Çekici Lead Magnet Başlığı (Örn: 2026 E-Ticaret Reklam Kanca Paketi)",
+  "magnetContent": "DM ile gönderilecek Notion/Google Docs tarzı hazır rehber, prompt paketi veya şablon içeriği.",
+  "socialPostHook": "Sosyal medya gönderisi için ilk 3 saniye kancası (Hook)",
+  "socialPostContent": "PAS/AIDA formatında yazılmış tam post metni. Gönderi sonunda 'Yorumlara [TRIGGER_KEYWORD] yazın, anında DM atalım' çağrısı olmalıdır.",
+  "autoDmResponse": "Kullanıcı yorum yaptığında DM kutusuna düşecek kişiselleştirilmiş sıcak satış mesajı (Link dahil)."
+}`;
+
+    const { text } = await generateText({
+      model: getFlashModel(),
+      system: systemPrompt,
+      prompt: userPrompt,
+    });
+
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+    else if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/```/g, '').trim();
+
+    const funnelData = JSON.parse(jsonStr);
+
+    return {
+      success: true,
+      data: funnelData
+    };
+  } catch (error: any) {
+    console.error('generateLeadMagnetAndFunnel error:', error);
+    return { success: false, error: error.message || 'Lead magnet oluşturulamadı' };
+  }
+}
+
+export async function simulateIncomingDmTrigger(params: {
+  keyword: string;
+  userHandle: string;
+  postContent?: string;
+  autoDmResponse?: string;
+}) {
+  try {
+    const tenantId = await getActiveTenantId();
+
+    const lead = await prisma.lead.create({
+      data: {
+        tenantId,
+        name: params.userHandle.replace('@', ''),
+        email: `${params.userHandle.replace('@', '').toLowerCase()}@social.instagram`,
+        phone: null,
+        company: 'Social Media Organic Lead',
+        source: 'social',
+        status: 'NEW',
+        notes: `DM Funnel Yorum Algılandı! Kullanıcı: ${params.userHandle}, Tetikleyen Kelime: ${params.keyword}`,
+      }
+    });
+
+    safeRevalidatePath('/admin/social');
+    safeRevalidatePath('/admin/leads');
+
+    return {
+      success: true,
+      leadId: lead.id,
+      dmSent: true,
+      message: `${params.userHandle} kullanıcısına otomatik DM gönderildi ve CRM'e Lead olarak kaydedildi!`
+    };
+  } catch (error: any) {
+    console.error('simulateIncomingDmTrigger error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function bulkGenerateSocialContent(rows: { topic: string; platforms: string[]; date?: string; framework?: string; format?: string; imagePrompt?: string }[]) {
   try {
     const tenantId = await getActiveTenantId();

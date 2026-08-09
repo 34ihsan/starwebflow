@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Image as ImageIcon, CheckCircle, RefreshCcw, ArrowRight, Zap, Target, Layers, Share2, Flame, Copy, Check, X } from "lucide-react";
-import { generateAIContent, bulkGenerateSocialContent } from "@/app/actions/social";
+import { Sparkles, Image as ImageIcon, CheckCircle, RefreshCcw, ArrowRight, Zap, Target, Layers, Share2, Flame, Copy, Check, X, MessageSquare, Bot, FileText, Send } from "lucide-react";
+import { generateAIContent, bulkGenerateSocialContent, generateLeadMagnetAndFunnel, simulateIncomingDmTrigger } from "@/app/actions/social";
 import { NativePreview } from "./NativePreview";
 import { BrandProfileModal } from "./BrandProfileModal";
 
@@ -17,6 +17,15 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
   const [previewData, setPreviewData] = useState<any>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
+  // DM Funnel State
+  const [isDmFunnelModalOpen, setIsDmFunnelModalOpen] = useState(false);
+  const [dmFunnelTopic, setDmFunnelTopic] = useState('2026 E-Ticaret Reklam Kancası ve Prompt Paketi');
+  const [dmFunnelLeadType, setDmFunnelLeadType] = useState<'prompt_pack' | 'cheat_sheet' | 'script'>('prompt_pack');
+  const [dmFunnelResult, setDmFunnelResult] = useState<any>(null);
+  const [isGeneratingFunnel, setIsGeneratingFunnel] = useState(false);
+  const [testUserHandle, setTestUserHandle] = useState('@ahmet_demir');
+  const [isTestingDm, setIsTestingDm] = useState(false);
+
   const [aiStudioParams, setAiStudioParams] = useState({
     topic: '',
     framework: 'AIDA',
@@ -24,6 +33,46 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
     visualEngine: 'dalle3',
     useAlgorithmHacks: false
   });
+
+  const handleGenerateLeadMagnet = async () => {
+    setIsGeneratingFunnel(true);
+    try {
+      const res = await generateLeadMagnetAndFunnel({
+        topic: dmFunnelTopic,
+        leadType: dmFunnelLeadType
+      });
+      if (res.success) {
+        setDmFunnelResult(res.data);
+      } else {
+        alert("Funnel üretilemedi: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGeneratingFunnel(false);
+    }
+  };
+
+  const handleTestDmTrigger = async () => {
+    if (!dmFunnelResult) return;
+    setIsTestingDm(true);
+    try {
+      const res = await simulateIncomingDmTrigger({
+        keyword: dmFunnelResult.triggerKeyword,
+        userHandle: testUserHandle,
+        autoDmResponse: dmFunnelResult.autoDmResponse
+      });
+      if (res.success) {
+        alert(`✅ OTOMATİK DM BAŞARILI!\n\n${res.message}\n\nGönderilen DM: "${dmFunnelResult.autoDmResponse}"`);
+      } else {
+        alert("DM testi başarısız: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsTestingDm(false);
+    }
+  };
 
   const [pendingQueue, setPendingQueue] = useState<any[]>(initialPending);
   const [editingPost, setEditingPost] = useState<any | null>(null);
@@ -138,6 +187,13 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
           <p className="text-neutral-400 mt-1">Gelişmiş Yapay Zeka modelleri ile çoklu varyant ve hook testleri üretin.</p>
         </div>
         <div className="mt-4 md:mt-0 flex flex-wrap gap-3">
+          <button 
+            onClick={() => setIsDmFunnelModalOpen(true)}
+            className="px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:opacity-95 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(236,72,153,0.4)]"
+          >
+            <MessageSquare className="w-4 h-4" />
+            DM Funnel Stüdyosu
+          </button>
           <button 
             onClick={() => setIsBrandModalOpen(true)}
             className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg text-sm font-medium transition-colors text-white"
@@ -500,6 +556,151 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* DM FUNNEL & LEAD MAGNET STUDIO MODAL */}
+      {isDmFunnelModalOpen && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[0_0_50px_rgba(236,72,153,0.3)]">
+            
+            <div className="p-6 border-b border-neutral-800 flex justify-between items-center bg-neutral-950/60">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-pink-400" />
+                  PRO TITAN: Lead Magnet & DM Funnel Stüdyosu
+                </h3>
+                <p className="text-xs text-neutral-400 mt-1">Organik yorum patlaması yaratın ve yorum atan profilleri anında CRM Lead'ine dönüştürün.</p>
+              </div>
+              <button onClick={() => setIsDmFunnelModalOpen(false)} className="text-neutral-500 hover:text-white transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 bg-neutral-950/30">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Lead Magnet Konusu & Kapsamı</label>
+                  <input 
+                    type="text" 
+                    value={dmFunnelTopic} 
+                    onChange={(e) => setDmFunnelTopic(e.target.value)}
+                    placeholder="Örn: 2026 E-Ticaret Reklam Kanca Paketi"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-neutral-300 mb-1">Magnet Türü</label>
+                  <select 
+                    value={dmFunnelLeadType}
+                    onChange={(e: any) => setDmFunnelLeadType(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                  >
+                    <option value="prompt_pack">📦 Prompt & Şablon Paketi</option>
+                    <option value="cheat_sheet">📋 Kontrol Listesi (Cheat Sheet)</option>
+                    <option value="script">🎥 Satış & Reklam Senaryoları</option>
+                  </select>
+                </div>
+              </div>
+
+              <button 
+                onClick={handleGenerateLeadMagnet}
+                disabled={isGeneratingFunnel || !dmFunnelTopic.trim()}
+                className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 disabled:opacity-50 text-white font-bold rounded-xl transition shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center justify-center gap-2 text-sm"
+              >
+                {isGeneratingFunnel ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                {isGeneratingFunnel ? 'Titan Funnel Hazırlanıyor...' : 'Lead Magnet & Auto-DM Akışını Üret'}
+              </button>
+
+              {dmFunnelResult && (
+                <div className="space-y-6 pt-4 border-t border-neutral-800 animate-in fade-in duration-500">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-pink-950/30 border border-pink-500/30 p-4 rounded-xl">
+                      <div className="text-xs text-pink-400 font-bold uppercase mb-1">Tetikleyici Kelime (Keyword)</div>
+                      <div className="text-2xl font-black text-white flex items-center gap-2">
+                        <span>"{dmFunnelResult.triggerKeyword}"</span>
+                      </div>
+                      <p className="text-[11px] text-neutral-400 mt-2">Kullanıcılar gönderiye bu kelimeyi yazdığı anda DM otomasyonu tetiklenir.</p>
+                    </div>
+                    <div className="md:col-span-2 bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
+                      <div className="text-xs text-neutral-400 font-bold uppercase mb-1">Üretilen Lead Magnet Bağlığı</div>
+                      <div className="text-base font-bold text-white mb-2">{dmFunnelResult.magnetTitle}</div>
+                      <div className="text-xs text-neutral-300 max-h-24 overflow-y-auto bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 whitespace-pre-wrap">
+                        {dmFunnelResult.magnetContent}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">1. Sosyal Medya Gönderi Metni</span>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(dmFunnelResult.socialPostContent);
+                            alert("Gönderi metni kopyalandı!");
+                          }}
+                          className="text-xs text-neutral-400 hover:text-white flex items-center gap-1"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Kopyala
+                        </button>
+                      </div>
+                      <pre className="whitespace-pre-wrap text-xs text-neutral-300 font-sans leading-relaxed max-h-48 overflow-y-auto bg-neutral-950 p-3 rounded-lg border border-neutral-800">
+                        {dmFunnelResult.socialPostContent}
+                      </pre>
+                    </div>
+
+                    <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">2. Otomatik Gönderilecek DM Yanıtı</span>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(dmFunnelResult.autoDmResponse);
+                            alert("DM yanıtı kopyalandı!");
+                          }}
+                          className="text-xs text-neutral-400 hover:text-white flex items-center gap-1"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Kopyala
+                        </button>
+                      </div>
+                      <pre className="whitespace-pre-wrap text-xs text-neutral-300 font-sans leading-relaxed max-h-48 overflow-y-auto bg-neutral-950 p-3 rounded-lg border border-neutral-800">
+                        {dmFunnelResult.autoDmResponse}
+                      </pre>
+                    </div>
+                  </div>
+
+                  {/* LIVE SIMULATION BOX */}
+                  <div className="bg-gradient-to-r from-neutral-900 via-purple-950/20 to-neutral-900 border border-purple-500/30 p-5 rounded-2xl space-y-4">
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Bot className="w-4 h-4 text-purple-400" />
+                      Canlı DM Otomasyon Testi & Simülasyonu
+                    </h4>
+                    <p className="text-xs text-neutral-400">Yorum atan bir profili simüle edin, otomatik DM gönderimini ve CRM'e kaydını test edin.</p>
+                    
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="text" 
+                        value={testUserHandle}
+                        onChange={(e) => setTestUserHandle(e.target.value)}
+                        placeholder="@kullanici_adi"
+                        className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-48"
+                      />
+                      <button 
+                        onClick={handleTestDmTrigger}
+                        disabled={isTestingDm}
+                        className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(147,51,234,0.4)] disabled:opacity-50"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        {isTestingDm ? 'Gönderiliyor...' : 'Yorum Simülasyonu Çalıştır'}
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       )}
