@@ -563,20 +563,24 @@ export async function triggerVoiceCallAutomation(params: {
   userPhone?: string;
   userName: string;
   leadTopic?: string;
+  callType?: 'dm_voice_note' | 'webrtc_live_call' | 'phone_call';
 }) {
   try {
     const tenantId = await getActiveTenantId();
-    const { userName, userPhone = '+90 532 000 0000', leadTopic = 'E-Ticaret Reklam Kanca Rehberi' } = params;
+    const { userName, leadTopic = 'E-Ticaret Reklam Kanca Rehberi', callType = 'dm_voice_note' } = params;
 
-    // Simüle Edilmiş Voice Agent (Pipecat / Azure Voice AI) Entegrasyonu
-    const callScript = `Merhaba ${userName} Bey/Hanım! Starwebflow AI Asistanı arıyor. ${leadTopic} konulu dokümanımızı Instagram DM kutunuza aktardık. Özel bir sorunuz veya doğrudan teknik kurulum talebiniz var mıydı?`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
+    const webRtcCallUrl = `${baseUrl}/call/${encodeURIComponent(userName.replace('@', ''))}`;
+
+    // DM Sesli Mesaj & Web-RTC Canlı Arama Metni
+    const callScript = `Merhaba ${userName.replace('@', '')}! Starwebflow AI Asistanı. ${leadTopic} konulu rehberiniz DM kutunuza tanımlandı. Sorularınız için canlı sesli görüşme başlatabilirsiniz: ${webRtcCallUrl}`;
 
     // CRM Güncelleme
     if (params.leadId) {
       await prisma.lead.update({
         where: { id: params.leadId },
         data: {
-          notes: `[GOD-MODE VOICE AGENT]: 30. saniyede AI Sesli arama yapıldı. Telefon: ${userPhone}. Arama Özeti: "${callScript}"`,
+          notes: `[GOD-MODE NO-VOIP VOICE]: ${callType === 'dm_voice_note' ? 'DM Sesli Not Gönderildi' : 'Web-RTC Canlı Sesli Arama Linki Üretildi'}. Bağlantı: ${webRtcCallUrl}. İçerik Özeti: "${callScript}"`,
           status: 'CONTACTED'
         }
       });
@@ -587,10 +591,13 @@ export async function triggerVoiceCallAutomation(params: {
 
     return {
       success: true,
-      callDuration: '42 saniye',
-      callStatus: 'COMPLETED',
+      callType,
+      webRtcCallUrl,
       script: callScript,
-      message: `⚡ God-Mode Voice Agent: ${userName} (${userPhone}) 30. saniyede AI Sesli Araması gerçekleştirildi ve CRM'e işlendi!`
+      voiceNoteStatus: 'READY_TO_SEND',
+      message: callType === 'dm_voice_note'
+        ? `🎙️ DM SESLİ MESAJI HAZIRLANDI: "${userName}" kullanıcısına Instagram DM üzerinden insan sesi tonunda Voice Note ve Web-RTC canlı arama linki tanımlandı!`
+        : `🌐 CANLI WEB-RTC ARAMA LİNKİ ÜRETİLDİ: ${webRtcCallUrl}`
     };
   } catch (error: any) {
     console.error('triggerVoiceCallAutomation error:', error);

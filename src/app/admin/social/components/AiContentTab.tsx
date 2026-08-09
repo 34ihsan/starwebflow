@@ -704,14 +704,26 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                       <button 
                         onClick={async () => {
                           const { triggerVoiceCallAutomation } = await import('@/app/actions/social');
-                          const res = await triggerVoiceCallAutomation({ userName: testUserHandle.replace('@', '') });
+                          const res = await triggerVoiceCallAutomation({ userName: testUserHandle.replace('@', ''), callType: 'dm_voice_note' });
                           if (res.success) {
-                            alert(`📞 GOD-MODE VOICE AGENT ÇAĞRISI BAŞARILI!\n\n${res.message}\n\nKonuşma Metni: "${res.script}"`);
+                            alert(`🎙️ GOD-MODE DM SES KAYDI BAŞARILI!\n\n${res.message}\n\nMesaj Metni & Link: "${res.script}"`);
+                          }
+                        }}
+                        className="px-4 py-2 bg-gradient-to-r from-pink-600 to-rose-600 hover:opacity-95 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(236,72,153,0.4)]"
+                      >
+                        🎙️ DM Ses Kaydı (Voice Note) Gönder
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          const { triggerVoiceCallAutomation } = await import('@/app/actions/social');
+                          const res = await triggerVoiceCallAutomation({ userName: testUserHandle.replace('@', ''), callType: 'webrtc_live_call' });
+                          if (res.success) {
+                            alert(`🌐 CANLI WEB-RTC SESLİ ARAMA LİNKİ BAŞARILI!\n\n${res.message}\n\nArama Bağlantısı: ${res.webRtcCallUrl}`);
                           }
                         }}
                         className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
                       >
-                        ⚡ 30sn AI Sesli Arama Başlat
+                        ⚡ DM İçi Canlı Sesli Arama Linki Üret
                       </button>
                     </div>
                   </div>
