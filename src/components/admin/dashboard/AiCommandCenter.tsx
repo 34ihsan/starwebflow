@@ -13,13 +13,15 @@ interface AiCommandCenterProps {
 
 export const AiCommandCenter = ({ activeMailboxes, totalMailboxes, dnsStatus, pendingSocialPosts }: AiCommandCenterProps) => {
   return (
-    <div className="rounded-2xl border border-white/5 bg-[#0B0F19]/60 p-6 backdrop-blur-md h-full flex flex-col relative overflow-hidden">
+    <div className="rounded-3xl glass p-6 card-hover h-full flex flex-col relative overflow-hidden">
       {/* Glow Effect */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none mix-blend-screen" />
 
-      <div className="flex items-center gap-2 mb-6 relative z-10">
-        <Sparkles className="h-5 w-5 text-indigo-400" />
-        <h3 className="text-lg font-bold text-white">Yapay Zeka & Sistem</h3>
+      <div className="flex items-center gap-2 mb-8 relative z-10">
+        <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+          <Sparkles className="h-5 w-5 text-indigo-400" />
+        </div>
+        <h3 className="text-lg font-bold text-white tracking-wide">Yapay Zeka & Sistem</h3>
       </div>
 
       <div className="space-y-4 flex-1 relative z-10">

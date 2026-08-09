@@ -96,6 +96,25 @@ export async function GET(request: Request) {
       take: 50 // process in batches
     });
 
+    // 3. CIRCUIT BREAKER KONTROLÜ (%2.0 Hard Bounce Koruması)
+    const recentLogs = await prisma.emailLog.findMany({
+      take: 100,
+      orderBy: { createdAt: 'desc' },
+      select: { status: true }
+    });
+    if (recentLogs.length >= 20) {
+      const failedCount = recentLogs.filter(l => l.status === 'BOUNCED' || l.status === 'FAILED').length;
+      const bounceRate = (failedCount / recentLogs.length) * 100;
+      if (bounceRate >= 2.0) {
+        console.warn(`[CIRCUIT BREAKER] Circuit breaker locked! Hard bounce rate is ${bounceRate.toFixed(1)}% (Threshold: 2.0%). Outreach paused for domain protection.`);
+        return NextResponse.json({
+          message: `Circuit Breaker Locked: Bounce rate (${bounceRate.toFixed(1)}%) exceeded safe 2.0% threshold. Operations paused.`,
+          success: false,
+          circuitBreakerTriggered: true
+        });
+      }
+    }
+
     let sentCount = 0;
 
     for (const sequence of sequences) {

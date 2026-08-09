@@ -52,13 +52,13 @@ const StatCard = ({ title, value, isCurrency, growth, subtitle, icon, delay }: S
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      className="group relative overflow-hidden rounded-2xl border border-white/5 bg-[#0B0F19]/60 p-6 backdrop-blur-md transition-all hover:border-white/10 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+      className="group relative overflow-hidden rounded-3xl glass card-hover p-6"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
       
       <div className="relative flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-400">{title}</p>
-        <div className="rounded-lg bg-[#131B2A] border border-white/5 p-2 text-slate-300 shadow-inner group-hover:scale-110 transition-transform duration-300">
+        <p className="text-sm font-bold text-slate-400 tracking-wide">{title}</p>
+        <div className="rounded-xl bg-white/[0.03] border border-white/10 p-2.5 text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)] group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(79,142,247,0.3)] transition-all duration-500">
           {icon}
         </div>
       </div>

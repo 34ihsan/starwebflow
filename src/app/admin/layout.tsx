@@ -74,23 +74,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#05050A] text-white flex font-sans">
+    <div className="min-h-screen bg-[#05050A] text-white flex font-sans selection:bg-blue-500/30">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#0A0A0F] border-r border-white/[0.05] flex flex-col h-screen sticky top-0">
-        <div className="p-6 border-b border-white/[0.05]">
+      <aside className="w-64 bg-[#0A0A0F]/80 backdrop-blur-2xl border-r border-white/[0.05] flex flex-col h-screen sticky top-0 shadow-[4px_0_24px_rgba(0,0,0,0.5)] z-40">
+        <div className="p-6 border-b border-white/[0.05] bg-gradient-to-b from-white/[0.02] to-transparent">
           <Link href="/" className="flex items-center gap-2 group">
               {settings?.logoUrl ? (
                 <img 
                   src={settings.logoUrl.startsWith('http') || settings.logoUrl.startsWith('/') ? settings.logoUrl : `/${settings.logoUrl}`} 
                   alt="Logo" 
-                  className="w-8 h-8 rounded-lg object-contain bg-white" 
+                  className="w-8 h-8 rounded-lg object-contain bg-white shadow-lg group-hover:scale-105 transition-transform" 
                 />
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center shadow-lg group-hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all">
                   <span className="text-white font-black text-sm">A</span>
                 </div>
               )}
-              <span className="font-black text-lg tracking-tight font-['Outfit']">
+              <span className="font-black text-lg tracking-tight font-['Outfit'] transition-all group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#4F8EF7] group-hover:to-[#8B5CF6]">
                 {settings?.companyName ? (
                   <>Admin <span className="text-[#8B5CF6] text-sm ml-1 truncate">{settings.companyName}</span></>
                 ) : (
@@ -100,22 +100,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </Link>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-none py-2">
           <nav className="p-4 space-y-1">
             {navItems.map(({ href, label, icon: Icon, accent, exact }) => (
-              <Link key={href} href={href} className={getLinkClasses(href, accent, exact)}>
-                <Icon className="w-4 h-4 flex-shrink-0" />
+              <Link key={href} href={href} className={getLinkClasses(href, accent, exact) + " group hover:translate-x-1 transition-transform"}>
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive(href, exact) ? 'opacity-100' : 'opacity-70 group-hover:opacity-100 transition-opacity'}`} />
                 {label}
                 {isActive(href, exact) && (
-                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-current opacity-70 animate-pulse" />
                 )}
               </Link>
             ))}
           </nav>
         </div>
 
-        <div className="p-4 border-t border-white/[0.05] space-y-1">
-          <Link href="/" className="flex items-center gap-2 px-3 py-2 text-xs text-[#64748B] hover:text-white hover:bg-white/[0.02] rounded-lg transition-colors">
+        <div className="p-4 border-t border-white/[0.05] space-y-1 bg-gradient-to-t from-[#0A0A0F] to-transparent">
+          <Link href="/" className="flex items-center gap-2 px-3 py-2 text-xs text-[#64748B] hover:text-white hover:bg-white/[0.05] rounded-lg transition-all hover:translate-x-1">
             <ArrowLeft className="w-3 h-3" />
             Siteye Dön
           </Link>
@@ -123,21 +123,35 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="h-16 border-b border-white/[0.05] bg-[#0A0A0F]/80 backdrop-blur-md flex items-center px-8 shrink-0 justify-between">
-          <h1 className="font-semibold font-['Outfit'] text-lg text-[#E2E8F0]">
-            {settings?.companyName ? `${settings.companyName} Paneli` : 'StarWebFlow Admin'}
-          </h1>
+      <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <div className="absolute inset-0 mesh-bg opacity-40 pointer-events-none mix-blend-screen" />
+        
+        <header className="h-16 border-b border-white/[0.05] bg-[#0A0A0F]/60 backdrop-blur-xl flex items-center px-8 shrink-0 justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
+            <h1 className="font-semibold font-['Outfit'] text-lg text-[#E2E8F0] tracking-tight">
+              {settings?.companyName ? `${settings.companyName} Paneli` : 'StarWebFlow Admin'}
+            </h1>
+            <div className="h-4 w-px bg-white/10 mx-2" />
+            <span className="text-xs font-medium px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Sistem Aktif
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4">
             <NotificationBell />
             
             <div className="relative group">
-              <button className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center font-bold text-xs text-white">
+              <button className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#8B5CF6] to-[#4F8EF7] flex items-center justify-center font-bold text-sm text-white shadow-lg hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all hover:scale-105 border border-white/10">
                 A
               </button>
               
-              <div className="absolute right-0 mt-2 w-48 bg-[#131B2A] border border-white/[0.05] rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 py-2">
-                <Link href="/admin/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-[#94A3B8] hover:text-white hover:bg-white/[0.02] transition-colors">
+              <div className="absolute right-0 mt-3 w-56 glass border border-white/[0.08] rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.4)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2 translate-y-2 group-hover:translate-y-0">
+                <div className="px-4 py-2 border-b border-white/5 mb-1">
+                  <p className="text-sm font-medium text-white">Yönetici Hesabı</p>
+                  <p className="text-xs text-slate-400">admin@starwebflow.com</p>
+                </div>
+                <Link href="/admin/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/[0.04] transition-colors">
                   <User className="w-4 h-4" />
                   Profilim
                 </Link>
@@ -153,7 +167,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto bg-[#05050A]">
+        <div className="flex-1 overflow-auto bg-transparent relative z-10 scrollbar-none">
           {children}
         </div>
       </main>

@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sparkles, Image, Video, FileText, Loader2, Download, Copy, Check, ChevronDown } from 'lucide-react';
 
 type ContentType = 'blog' | 'email' | 'proposal' | 'social';
 type Tab = 'image' | 'video' | 'content';
 
 export default function AIStudioPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('image');
 
   // ─── Görsel Durumu ───────────────────────────────────────────────────────
@@ -49,7 +51,14 @@ export default function AIStudioPage() {
         body: JSON.stringify({ prompt: imagePrompt, aspectRatio: imageAspect, numberOfImages: 2 }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        if (res.status === 402) {
+          alert('Usage limit reached or upgrade required. Redirecting to billing...');
+          router.push('/admin/settings?tab=subscription');
+          return;
+        }
+        throw new Error(data.error);
+      }
       setGeneratedImages(data.images || []);
     } catch (e: any) {
       setImageError(e.message);
@@ -73,7 +82,14 @@ export default function AIStudioPage() {
         body: JSON.stringify({ prompt: videoPrompt, aspectRatio: videoAspect, fast: videoFast }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        if (res.status === 402) {
+          alert('Usage limit reached or upgrade required. Redirecting to billing...');
+          router.push('/admin/settings?tab=subscription');
+          return;
+        }
+        throw new Error(data.error);
+      }
       setVideoOperation(data.operationId);
       setVideoStatus('Video işleniyor... (~2-3 dakika sürebilir)');
       pollVideoStatus(data.operationId);
@@ -124,7 +140,14 @@ export default function AIStudioPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) {
+        if (res.status === 402) {
+          alert('Usage limit reached or upgrade required. Redirecting to billing...');
+          router.push('/admin/settings?tab=subscription');
+          return;
+        }
+        throw new Error(data.error);
+      }
       setGeneratedContent(data.content);
     } catch (e: any) {
       setContentError(e.message);

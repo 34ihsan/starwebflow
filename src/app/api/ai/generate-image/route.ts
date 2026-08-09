@@ -1,14 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getGoogleApiKey, GEMINI_MODELS } from '@/lib/ai/gemini-client';
+import { checkAndIncrementUsage, handleUsageError } from '@/lib/subscription/usage';
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const { prompt, aspectRatio = '1:1', numberOfImages = 1 } = await req.json();
+    let { prompt, aspectRatio = '1:1', numberOfImages = 1, tenantId } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt gerekli' }, { status: 400 });
+    }
+
+    if (!tenantId) {
+      tenantId = 'default-tenant'; // Placeholder for simulated Stripe flow
+    }
+
+    const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+
+    try {
+      await checkAndIncrementUsage(tenantId, 'image', ipAddress);
+    } catch (usageError: any) {
+      return handleUsageError(usageError);
     }
 
     const apiKey = getGoogleApiKey();

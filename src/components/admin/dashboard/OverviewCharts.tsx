@@ -20,7 +20,7 @@ interface OverviewChartsProps {
 export function OverviewCharts({ revenueData, leadsData }: OverviewChartsProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <div className="h-[350px] w-full rounded-2xl border border-white/5 bg-[#0B0F19]/60 p-6 backdrop-blur-md relative overflow-hidden">
+      <div className="h-[350px] w-full rounded-3xl glass p-6 card-hover relative overflow-hidden">
         {/* Glow effect */}
         <div className="absolute -top-32 -left-32 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none" />
         
@@ -66,7 +66,7 @@ export function OverviewCharts({ revenueData, leadsData }: OverviewChartsProps) 
         </div>
       </div>
 
-      <div className="h-[350px] w-full rounded-2xl border border-white/5 bg-[#0B0F19]/60 p-6 backdrop-blur-md relative overflow-hidden">
+      <div className="h-[350px] w-full rounded-3xl glass p-6 card-hover relative overflow-hidden">
         {/* Glow effect */}
         <div className="absolute -top-32 -right-32 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none" />
         

@@ -57,6 +57,8 @@ model Tenant {
   linkTrackings      LinkTracking[]
   socialEngagements  SocialEngagement[]
   notifications      Notification[]
+  subscription       TenantSubscription?
+  usage              TenantUsage?
 
   @@index([slug])
   @@map("tenants")
@@ -1152,4 +1154,60 @@ model EmailTrackingLog {
 
   @@index([emailLogId])
   @@map("email_tracking_logs")
+}
+
+// --- Subscriptions & AI Usage Tracking ---
+
+model TenantSubscription {
+  id                   String    @id @default(uuid())
+  tenantId             String    @unique @map("tenant_id")
+  tenant               Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  stripeCustomerId     String?   @map("stripe_customer_id")
+  stripeSubscriptionId String?   @unique @map("stripe_subscription_id")
+  
+  planId               String    @default("FREE") // FREE, PRO, AGENCY
+  status               String    @default("TRIALING") // TRIALING, ACTIVE, CANCELED, PAST_DUE, UNPAID
+  
+  trialStartsAt        DateTime  @default(now()) @map("trial_starts_at")
+  trialEndsAt          DateTime? @map("trial_ends_at")
+  
+  currentPeriodStart   DateTime  @default(now()) @map("current_period_start")
+  currentPeriodEnd     DateTime? @map("current_period_end")
+  cancelAtPeriodEnd    Boolean   @default(false) @map("cancel_at_period_end")
+
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@map("tenant_subscriptions")
+}
+
+model TenantUsage {
+  id                   String    @id @default(uuid())
+  tenantId             String    @unique @map("tenant_id")
+  tenant               Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  imageGenerations     Int       @default(0) @map("image_generations")
+  videoGenerations     Int       @default(0) @map("video_generations")
+  textGenerations      Int       @default(0) @map("text_generations")
+  
+  lastResetAt          DateTime  @default(now()) @map("last_reset_at")
+
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@map("tenant_usages")
+}
+
+model IpUsageTracker {
+  id                   String    @id @default(uuid())
+  ipAddress            String    @unique @map("ip_address")
+  
+  imageGenerations     Int       @default(0) @map("image_generations")
+  lastResetAt          DateTime  @default(now()) @map("last_reset_at")
+
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@map("ip_usage_trackers")
 }

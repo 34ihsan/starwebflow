@@ -4,6 +4,7 @@ import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { processInboundEmails } from '@/lib/imap';
 import { subscribeToNewsletters } from '@/lib/newsletter';
+import { checkSPF, checkDKIM, checkDMARC } from '@/lib/utils/dns-check';
 import nodemailer from 'nodemailer';
 
 export const dynamic = 'force-dynamic';
@@ -79,7 +80,12 @@ export async function GET(req: Request) {
     // Her mail kutusu için 6 saniye timeout korumalı paralel IMAP kontolü
     await mapConcurrent(mailboxes, 4, async (mailbox) => {
       try {
-        if (mailbox.warmupProgress === 0) {
+        // 14 Günlük Akıllı Tohumlama (Seed Phase) Yönetimi
+        const daysSinceCreation = Math.floor((Date.now() - new Date(mailbox.createdAt).getTime()) / (1000 * 60 * 60 * 24));
+        const isSeedPhase = daysSinceCreation <= 14;
+
+        if (isSeedPhase && (mailbox.warmupProgress === 0 || daysSinceCreation === 1)) {
+          console.log(`[Seed Phase] Day ${daysSinceCreation}: Subscribing ${mailbox.email} to trusted newsletters.`);
           subscribeToNewsletters(mailbox.email).catch(() => {});
         }
 
@@ -133,6 +139,33 @@ export async function GET(req: Request) {
              }
           }
 
+          // 4.3 Otonom DNS Doğrulama & Self-Healing (Periyodik Kontrol)
+          // 24 saatte bir veya rastgele döngülerde DNS (SPF/DKIM/DMARC) durumunu doğrula
+          const domain = mailbox.email.split('@')[1];
+          if (domain && Math.random() < 0.2) { // %20 şansla arka planda DNS doğrula
+            try {
+              const [spf, dkim, dmarc] = await Promise.all([
+                checkSPF(domain),
+                checkDKIM(domain),
+                checkDMARC(domain)
+              ]);
+
+              // Eğer SPF veya DKIM tamamen bozulmuşsa hesabı güvenli moda al
+              if (!spf && !dkim) {
+                newStatus = 'ERROR';
+                isPaused = true;
+                console.log(`[DNS SELF-HEALING] Mailbox ${mailbox.email} paused due to missing SPF/DKIM DNS records.`);
+              }
+
+              await prisma.emailMailbox.update({
+                where: { id: mailbox.id },
+                data: { spfStatus: spf, dkimStatus: dkim, dmarcStatus: dmarc }
+              });
+            } catch (dnsErr) {
+              // ignore dns check failure
+            }
+          }
+
           await prisma.emailMailbox.update({
             where: { id: mailbox.id },
             data: {
@@ -151,9 +184,17 @@ export async function GET(req: Request) {
     });
 
     // --- ADIM 2: PARALEL GÖNDERİM TRAFİĞİ (BATCH SIZE: 3) ---
+    // Gerçek insan mesai saatleri ve hafta sonu simülasyonu
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentDay = now.getDay(); // 0: Pazar, 6: Cumartesi
+    const isWeekend = currentDay === 0 || currentDay === 6;
+
+    // Hafta sonları %70 oranında gönderim yapmama simülasyonu (İnsan ritmi)
+    const skipForWeekend = isWeekend && Math.random() > 0.3;
+
     // Limitine ulaşmamış göndericileri belirle
-    // Limitine ulaşmamış göndericileri belirle
-    const activeSenders = mailboxes.filter(m => {
+    const activeSenders = skipForWeekend ? [] : mailboxes.filter(m => {
       if (m.isPaused || m.status === 'ERROR') return false;
       
       // Elite/Pro Ramping Logic (15-day warmup phase)
@@ -175,10 +216,26 @@ export async function GET(req: Request) {
       const shuffledSenders = [...activeSenders].sort(() => 0.5 - Math.random());
 
       await mapConcurrent(shuffledSenders, 3, async (sender) => {
-        // Alıcı seç (kendisi hariç başka bir mailbox)
-        const possibleTargets = mailboxes.filter(m => m.id !== sender.id);
+        // ESP-Matching (Sağlayıcıya Özel Akıllı Yönlendirme)
+        // Aynı provider (Gmail -> Gmail, Outlook -> Outlook) olan hedeflere %70 öncelik ver
+        const senderDomain = sender.email.split('@')[1]?.toLowerCase() || '';
+        const isSenderGoogle = senderDomain.includes('gmail') || (sender.smtpHost || '').includes('google');
+        const isSenderOutlook = senderDomain.includes('outlook') || senderDomain.includes('hotmail') || (sender.smtpHost || '').includes('office365');
+
+        let possibleTargets = mailboxes.filter(m => m.id !== sender.id);
         if (possibleTargets.length === 0) return;
-        const recipient = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+
+        const sameProviderTargets = possibleTargets.filter(m => {
+          const targetDomain = m.email.split('@')[1]?.toLowerCase() || '';
+          if (isSenderGoogle) return targetDomain.includes('gmail') || (m.smtpHost || '').includes('google');
+          if (isSenderOutlook) return targetDomain.includes('outlook') || targetDomain.includes('hotmail') || (m.smtpHost || '').includes('office365');
+          return targetDomain === senderDomain;
+        });
+
+        // %70 ihtimalle aynı provider seç, yoksa genel havuzdan seç
+        const useSameProvider = sameProviderTargets.length > 0 && Math.random() < 0.7;
+        const targetPool = useSameProvider ? sameProviderTargets : possibleTargets;
+        const recipient = targetPool[Math.floor(Math.random() * targetPool.length)];
 
         // Kendi aralarında açık bir Thread var mı?
         const existingThread = await prisma.emailWarmupThread.findFirst({

@@ -27,25 +27,30 @@ export default function AdminDashboardClient({ initialData, initialActivities }:
   }));
 
   return (
-    <div className="space-y-8 pb-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="relative space-y-8 p-8 animate-in fade-in duration-700">
+      
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+
+      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <span className="bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-black tracking-tight flex items-center gap-3 font-['Outfit']">
+            <span className="gradient-text">
               Komuta Merkezi
             </span>
           </h1>
-          <p className="text-slate-400 mt-2">
+          <p className="text-slate-400 mt-2 font-medium">
             Ajansınızın genel durumunu, finansal akışını ve performansını anlık izleyin.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsEditMode(!isEditMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
               isEditMode 
-                ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]" 
-                : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
+                ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] scale-105" 
+                : "glass hover:bg-white/10 text-white hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)]"
             }`}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -54,7 +59,7 @@ export default function AdminDashboardClient({ initialData, initialActivities }:
         </div>
       </div>
 
-      <div className={`transition-all duration-300 ${isEditMode ? 'p-4 border-2 border-dashed border-blue-500/50 rounded-2xl bg-blue-500/5' : ''}`}>
+      <div className={`relative z-10 transition-all duration-500 ${isEditMode ? 'p-6 border-2 border-dashed border-blue-500/50 rounded-3xl bg-blue-500/5' : ''}`}>
         <StatCards stats={initialData.stats} />
       </div>
 

@@ -136,6 +136,39 @@ export default function MailboxWarmupTab({
         </div>
       )}
 
+      {/* 14-Day Seed Phase & Auto-Clean Visualizer Badge */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-[#0A0A0F] border border-blue-500/20 rounded-2xl p-5 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+            <span className="text-xl">🌱</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-white">14 Günlük Akıllı Bülten Tohumlama (Seed Phase)</h4>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">Aktif</span>
+            </div>
+            <p className="text-xs text-[#94A3B8] mt-1 leading-relaxed">
+              Yeni eklenen e-posta adresleri ilk 14 gün Substack/Medium bültenlerine otonom olarak kaydedilir. Gönderim/alınım dengelenir ve 14. günde otonom olarak abonelikten çıkılır.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-[#0A0A0F] border border-cyan-500/20 rounded-2xl p-5 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
+            <span className="text-xl">🧹</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-white">48 Saatlik Otonom Mail Temizliği (Auto-Trash)</h4>
+              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-semibold">Aktif</span>
+            </div>
+            <p className="text-xs text-[#94A3B8] mt-1 leading-relaxed">
+              Warmup havuzundan ve bültenlerden gelen mailler okunup yıldızlandıktan 24-48 saat sonra gelen kutunuzun dolmaması için otomatik olarak Çöp Kutusu'na taşınır. Müşteri maillerine dokunulmaz.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Network Health Map */}
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>

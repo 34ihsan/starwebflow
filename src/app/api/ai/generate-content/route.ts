@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { getFlashModel, getProModel } from '@/lib/ai/gemini-client';
+import { checkAndIncrementUsage, handleUsageError } from '@/lib/subscription/usage';
 
 export const maxDuration = 60;
 
@@ -40,16 +41,29 @@ Türkçe yaz.`,
 
 export async function POST(req: Request) {
   try {
-    const {
+    let {
       type,         // "blog" | "email" | "proposal" | "social"
       topic,        // Ana konu veya bağlam
       platform,     // Social için: "linkedin" | "instagram" | "twitter"
       lang = 'tr',  // Dil: "tr" | "de" | "en"
       usePro = false, // Gemini Pro kullan (daha uzun içerikler için)
+      tenantId
     } = await req.json();
 
     if (!type || !topic) {
       return NextResponse.json({ error: 'type ve topic zorunludur' }, { status: 400 });
+    }
+
+    if (!tenantId) {
+      tenantId = 'default-tenant'; // Placeholder for simulated Stripe flow
+    }
+
+    const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+
+    try {
+      await checkAndIncrementUsage(tenantId, 'text', ipAddress);
+    } catch (usageError: any) {
+      return handleUsageError(usageError);
     }
 
     let systemPrompt = '';

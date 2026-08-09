@@ -37,11 +37,11 @@ export const ActivityStream = ({ activities }: { activities: ActivityItem[] }) =
   };
 
   return (
-    <div className="rounded-2xl border border-white/5 bg-[#0B0F19]/60 p-6 backdrop-blur-md">
-      <div className="flex items-center justify-between mb-6">
+    <div className="rounded-3xl glass p-6 card-hover">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h3 className="text-lg font-bold text-white">Canlı Aktivite Akışı</h3>
-          <p className="text-xs text-slate-400">Tüm modüllerden gelen son hareketler</p>
+          <h3 className="text-lg font-bold text-white tracking-wide">Canlı Aktivite Akışı</h3>
+          <p className="text-xs text-slate-400 mt-1">Tüm modüllerden gelen son hareketler</p>
         </div>
       </div>
 

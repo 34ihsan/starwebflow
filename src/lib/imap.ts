@@ -186,6 +186,28 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
         await connection.addFlags(uid, 'SEEN');
         await connection.addFlags(uid, 'FLAGGED'); // Star the email (Important)
         readCount++;
+
+        // 2.C.1: AUTO-TRASH / ARCHIVE ENGINE (24-48 Saat Sonra Otomatik Temizleme)
+        // E-postanın dahili tarihi (internalDate veya header date) 24 saatten eski ise Trash'e taşı veya Sil
+        const emailDateStr = headerPart?.body?.date?.[0] || msg?.internalDate;
+        if (emailDateStr) {
+          const emailDate = new Date(emailDateStr);
+          const ageHours = (Date.now() - emailDate.getTime()) / (1000 * 60 * 60);
+          if (ageHours >= 24) {
+            try {
+              // 24 saat geçmiş warmup/bülten mailini çöp kutusuna taşı
+              await connection.move(uid, 'Trash');
+              console.log(`[Warmup Auto-Clean] Moved 24h+ warmup email to Trash for ${config.email}`);
+            } catch (moveErr) {
+              // Trash klasörü olmama ihtimaline karşı silme bayrağı koy
+              try {
+                await connection.addFlags(uid, '\\Deleted');
+              } catch (delErr) {
+                // ignore delete flag error
+              }
+            }
+          }
+        }
       }
 
       // 2.D: ORGANIC EMAIL CAPTURE (INBOX SYSTEM)
@@ -236,6 +258,34 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
                   isRead: false
                 }
               });
+
+              // AI Sentiment Analysis (Otomatik Durdurma & Unsubscribe Koruması)
+              const lowerText = (subject + ' ' + bodyText).toLowerCase();
+              const isUnsubscribeRequest = 
+                lowerText.includes('unsubscribe') || 
+                lowerText.includes('çıkar') || 
+                lowerText.includes('mail atmayın') || 
+                lowerText.includes('remove me') ||
+                lowerText.includes('stop sending') ||
+                lowerText.includes('listenizden çıkarın');
+
+              if (isUnsubscribeRequest) {
+                // Adayı otomatik unsubscribed işaretle ve sekansı durdur
+                const targetLead = await prisma.lead.findFirst({
+                  where: { email: fromAddress }
+                });
+                if (targetLead) {
+                  await prisma.lead.update({
+                    where: { id: targetLead.id },
+                    data: { unsubscribed: true }
+                  });
+                  await prisma.leadSequence.updateMany({
+                    where: { leadId: targetLead.id },
+                    data: { status: 'PAUSED' }
+                  });
+                  console.log(`[AI Sentiment Protection] Auto-unsubscribed lead ${fromAddress} and paused active sequences.`);
+                }
+              }
 
               // Send Notification
               await notifyAdminForOrganicEmail({
