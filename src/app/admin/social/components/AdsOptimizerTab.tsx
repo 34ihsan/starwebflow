@@ -60,6 +60,7 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
   const [optimizingId, setOptimizingId] = useState<string | null>(null);
   const [isSeeding, setIsSeeding] = useState(false);
   const [isNewAdModalOpen, setIsNewAdModalOpen] = useState(false);
+  const [isCreatingAd, setIsCreatingAd] = useState(false);
   const [expandedAdId, setExpandedAdId] = useState<string | null>(null);
 
   // AI Koç state
@@ -118,6 +119,7 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
     name: "",
     platform: "Meta (Instagram/FB)",
     objective: "Lead Generation",
+    status: "ACTIVE",
     spend: 10000,
     roas: 3.2,
     hookRate: 35,
@@ -170,13 +172,25 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
   };
 
   const handleCreateAd = async () => {
+    if (!newAd.name.trim()) {
+      alert('Lütfen kampanya adı girin.');
+      return;
+    }
+    setIsCreatingAd(true);
     try {
-      const res = await createAdCampaign(newAd);
-      if (res.success && res.campaign) {
-        setAds((prev) => [res.campaign as Ad, ...prev]);
+      const res = await createAdCampaign({ ...newAd, status: 'ACTIVE' });
+      if (res.success && res.data) {
+        setAds((prev) => [res.data as Ad, ...prev]);
         setIsNewAdModalOpen(false);
+        setNewAd({ name: '', platform: 'Meta (Instagram/FB)', objective: 'Lead Generation', status: 'ACTIVE', spend: 10000, roas: 3.2, hookRate: 35, ctr: 3.5 });
+      } else {
+        alert(res.error || 'Kampanya oluşturulamadı.');
       }
-    } catch {}
+    } catch (e: any) {
+      alert('Hata: ' + e.message);
+    } finally {
+      setIsCreatingAd(false);
+    }
   };
 
   const handleRunAudit = async (adId: string) => {
@@ -1283,8 +1297,10 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
               </div>
             </div>
             <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-              <button onClick={() => setIsNewAdModalOpen(false)} style={{ flex: 1, padding: "12px", borderRadius: "8px", background: "#1e293b", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: 600 }}>İptal</button>
-              <button onClick={handleCreateAd} style={{ flex: 1, padding: "12px", borderRadius: "8px", background: "linear-gradient(135deg, #7c3aed, #4f46e5)", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700 }}>Kampanya Oluştur</button>
+              <button onClick={() => setIsNewAdModalOpen(false)} disabled={isCreatingAd} style={{ flex: 1, padding: "12px", borderRadius: "8px", background: "#1e293b", color: "#94a3b8", border: "none", cursor: "pointer", fontWeight: 600 }}>İptal</button>
+              <button onClick={handleCreateAd} disabled={isCreatingAd} style={{ flex: 1, padding: "12px", borderRadius: "8px", background: isCreatingAd ? "#3730a3" : "linear-gradient(135deg, #7c3aed, #4f46e5)", color: "#fff", border: "none", cursor: isCreatingAd ? "not-allowed" : "pointer", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                {isCreatingAd ? <><RefreshCw size={14} style={{ animation: "spin 1s linear infinite" }} /> Oluşturuluyor...</> : "Kampanya Oluştur"}
+              </button>
             </div>
           </div>
         </div>
