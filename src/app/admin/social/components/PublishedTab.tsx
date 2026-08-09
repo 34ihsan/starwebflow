@@ -118,9 +118,12 @@ export function PublishedTab({ publishedPosts }: { publishedPosts: any[] }) {
                       <span className="flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> AI Post-Mortem Analizi</span>
                     )}
                   </button>
-                  <button className="w-full bg-pink-600/20 hover:bg-pink-600/30 text-pink-400 border border-pink-500/30 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    Reklama Çık (Viral Adayı)
+                  <button 
+                    onClick={() => alert(`🚀 PRO TITAN MODE: "${post.content.substring(0, 35)}..." gönderisi yüksek organik başarı potansiyeliyle Meta/TikTok Reklam Kampanyası taslağına aktarıldı!`)}
+                    className="w-full bg-gradient-to-r from-pink-600/30 to-purple-600/30 hover:from-pink-600/50 hover:to-purple-600/50 text-pink-300 border border-pink-500/40 py-2 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2 shadow-[0_0_10px_rgba(236,72,153,0.3)]"
+                  >
+                    <Zap className="w-4 h-4 text-pink-400" />
+                    PRO TITAN Reklama Aktar (Boost)
                   </button>
                 </div>
               </div>

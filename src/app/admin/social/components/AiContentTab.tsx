@@ -185,49 +185,58 @@ export function AiContentTab({ initialPending }: { initialPending: any[] }) {
                 <textarea 
                   value={aiStudioParams.topic}
                   onChange={(e) => setAiStudioParams({...aiStudioParams, topic: e.target.value})}
+                  placeholder="Örn: E-ticaret dönüşüm oranlarını artırmanın 3 otomasyon sırrı..."
                   className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 min-h-[80px]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-1">Framework</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-1">Reklam Psikolojisi Framework</label>
                 <select 
                   value={aiStudioParams.framework}
                   onChange={(e) => setAiStudioParams({...aiStudioParams, framework: e.target.value})}
                   className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 >
-                  <option value="AIDA">AIDA (Dikkat, İlgi, Arzu, Eylem)</option>
-                  <option value="PAS">PAS (Problem, Agitate, Çözüm)</option>
-                  <option value="BAB">BAB (Before, After, Bridge)</option>
+                  <option value="AIDA">⚡ AIDA (Dikkat, İlgi, Arzu, Eylem)</option>
+                  <option value="PAS">🔥 PAS (Problem, Agitate, Çözüm)</option>
+                  <option value="BAB">🚀 BAB (Before, After, Bridge)</option>
+                  <option value="VIRAL_AD_HOOK">⚡ PRO TITAN: Viral Reklam Kanca Motoru</option>
+                  <option value="DM_FUNNEL">💬 DM Otomasyonu (Yorumda Kod İstetme)</option>
                 </select>
               </div>
 
-              <div className="flex items-center gap-3 mt-2">
-                <input 
-                  type="checkbox" 
-                  id="hacks"
-                  checked={aiStudioParams.useAlgorithmHacks}
-                  onChange={(e) => setAiStudioParams({...aiStudioParams, useAlgorithmHacks: e.target.checked})}
-                  className="rounded border-neutral-700 bg-neutral-900 text-indigo-600 focus:ring-indigo-500/50"
-                />
-                <label htmlFor="hacks" className="text-sm text-neutral-300">Algoritma Hacklerini Uygula (İlk Yorum vb.)</label>
+              <div className="space-y-2 mt-3 pt-3 border-t border-neutral-800">
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="hacks"
+                    checked={aiStudioParams.useAlgorithmHacks}
+                    onChange={(e) => setAiStudioParams({...aiStudioParams, useAlgorithmHacks: e.target.checked})}
+                    className="rounded border-neutral-700 bg-neutral-900 text-indigo-600 focus:ring-indigo-500/50"
+                  />
+                  <label htmlFor="hacks" className="text-xs text-neutral-300 font-medium">Algoritma Hackleri (İlk Yorumda Link vb.)</label>
+                </div>
               </div>
 
               <button 
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="w-full mt-4 bg-indigo-500 hover:bg-indigo-400 text-white py-2.5 rounded-lg font-medium transition-all shadow-[0_0_10px_rgba(99,102,241,0.4)] flex justify-center items-center gap-2 disabled:opacity-50"
+                className="w-full mt-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-2.5 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(99,102,241,0.4)] flex justify-center items-center gap-2 disabled:opacity-50"
               >
-                {isGenerating ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                {isGenerating ? 'Yapay Zeka Üretiyor...' : 'Varyantları Oluştur'}
+                {isGenerating ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                {isGenerating ? 'AI Titan Motoru Çalışıyor...' : 'PRO TITAN Varyantları Üret'}
               </button>
             </div>
           </div>
 
           {/* Preview Area */}
           <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 rounded-xl p-0 overflow-hidden shadow-lg flex flex-col">
-            <div className="border-b border-neutral-800 p-4 bg-neutral-950/50">
-              <h3 className="text-lg font-semibold text-white">Canlı Native Önizleme (A/B Test)</h3>
+            <div className="border-b border-neutral-800 p-4 bg-neutral-950/50 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-indigo-400" />
+                Titan Reklam Disiplinli Organik Önizleme
+              </h3>
+            </div>
             </div>
             <div className="p-5 flex-1 overflow-y-auto bg-neutral-950/30">
               {!previewData ? (

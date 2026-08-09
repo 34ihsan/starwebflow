@@ -348,9 +348,13 @@ ${brandTone}
 GÖREVİN: Belirtilen konu için İSTENEN TÜM PLATFORMLAR (Omnichannel) için ayrı ayrı post metni ve hashtagler üretmek. Ayrıca yapay zekanın tespit ettiği 1 niş sektör adını döndür.
 Çıktıyı SADECE geçerli bir JSON formatında döndür. Asla markdown json bloğu kullanma, direkt JSON string olarak ver.`;
 
-    const userPrompt = `Framework: ${framework}
+    const userPrompt = `Framework / Reklam Stratejisi: ${framework}
 Konu/Hook: ${topic}
 Platformlar: ${platforms.join(', ')}
+
+ÖNEMLİ STRATEJİ TALİMATLARI:
+${framework === 'VIRAL_AD_HOOK' ? '- Gönderinin İLK CÜMLESİ kesinlikle dikkat patlaması yaratan bir reklamsal kanca (Viral Hook) olmalıdır. Ardından acı nokta vurgulanmalı ve çözüm sunulmalıdır.' : ''}
+${framework === 'DM_FUNNEL' ? '- Gönderi sonunda kullanıcıları yorumlara özel bir KELİME yazmaya davet et ("Yorumlara STATS yazın, kılavuzu anında DM ile gönderelim"). Dark Social ve DM dönüşüm mantığını uygula.' : ''}
 
 Format Şartları:
 - LinkedIn: Güçlü hook cümlesi, kısa paragraflar, soru ile bitir. Maks 1300 karakter.
