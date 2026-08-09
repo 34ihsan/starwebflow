@@ -188,23 +188,18 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
         readCount++;
 
         // 2.C.1: AUTO-TRASH / ARCHIVE ENGINE (24-48 Saat Sonra Otomatik Temizleme)
-        // E-postanın dahili tarihi (internalDate veya header date) 24 saatten eski ise Trash'e taşı veya Sil
-        const emailDateStr = headerPart?.body?.date?.[0] || msg?.internalDate;
+        // E-postanın dahili tarihi 24 saatten eski ise Deleted bayrağı koy
+        const emailDateStr = headerPart?.body?.date?.[0] || item.attributes?.date;
         if (emailDateStr) {
           const emailDate = new Date(emailDateStr);
           const ageHours = (Date.now() - emailDate.getTime()) / (1000 * 60 * 60);
           if (ageHours >= 24) {
             try {
-              // 24 saat geçmiş warmup/bülten mailini çöp kutusuna taşı
-              await connection.move(uid, 'Trash');
-              console.log(`[Warmup Auto-Clean] Moved 24h+ warmup email to Trash for ${config.email}`);
-            } catch (moveErr) {
-              // Trash klasörü olmama ihtimaline karşı silme bayrağı koy
-              try {
-                await connection.addFlags(uid, '\\Deleted');
-              } catch (delErr) {
-                // ignore delete flag error
-              }
+              // 24 saat geçmiş warmup/bülten mailine silme bayrağı ekle
+              await connection.addFlags(uid, '\\Deleted');
+              console.log(`[Warmup Auto-Clean] Marked 24h+ warmup email as Deleted for ${config.email}`);
+            } catch (delErr) {
+              // ignore delete flag error
             }
           }
         }

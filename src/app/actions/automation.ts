@@ -183,7 +183,7 @@ export async function seedTitanTemplates(tenantId: string, templates: { name: st
         targetTenantId = firstTenant.id;
       } else {
         const createdTenant = await prisma.tenant.create({
-          data: { id: tenantId, name: 'Starwebflow Default Tenant' }
+          data: { id: tenantId, name: 'Starwebflow Default Tenant', slug: 'default-tenant' }
         });
         targetTenantId = createdTenant.id;
       }

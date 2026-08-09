@@ -726,6 +726,7 @@ export async function optimizeAdCampaign(adId: string, action: 'scale' | 'pause'
     safeRevalidatePath('/admin/social');
     return {
       success: true,
+      newSpend,
       message: action === 'scale' 
         ? `Otopilot: ${ad.name} bütçesi ₺${newSpend.toLocaleString()}'e yükseltildi (Ölçeklendirildi).` 
         : `Otopilot: ${ad.name} kampanyası duraklatıldı (Zarar önlendi).`
@@ -741,7 +742,7 @@ export async function seedTitanAdCampaigns() {
 
     const existing = await prisma.adCampaign.findMany({ where: { tenantId } });
     if (existing.length > 0) {
-      return { success: true, count: existing.length, message: "Kampanyalar zaten mevcut." };
+      return { success: true, count: existing.length, campaigns: existing, message: "Kampanyalar zaten mevcut." };
     }
 
     const titanAds = [
@@ -792,8 +793,9 @@ export async function seedTitanAdCampaigns() {
       });
     }
 
+    const allCampaigns = await prisma.adCampaign.findMany({ where: { tenantId } });
     safeRevalidatePath('/admin/social');
-    return { success: true, count: titanAds.length, message: "4 adet Titan Reklam Kampanyası kuruldu." };
+    return { success: true, count: allCampaigns.length, campaigns: allCampaigns, message: "4 adet Titan Reklam Kampanyası kuruldu." };
   } catch (error: any) {
     console.error("seedTitanAdCampaigns error:", error);
     return { success: false, error: error.message };
