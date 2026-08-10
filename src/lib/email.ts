@@ -87,7 +87,20 @@ export async function sendMail({
     
     // Inject Tracking Pixel if trackingId is provided
     if (trackingId) {
-      const trackingPixel = `<img src="${APP_URL}/api/email/track?id=${trackingId}" width="1" height="1" alt="" style="display:none;" />`;
+      // Custom Tracking Domain (CTD) Desteği: Gönderen email domainine göre alt domain (örn: tr.starwebflow.com) veya varsayılan APP_URL kullan
+      let trackingBaseUrl = APP_URL;
+      if (from) {
+        const domainMatch = from.match(/@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+        if (domainMatch && domainMatch[1]) {
+          const senderDomain = domainMatch[1].toLowerCase();
+          // Eğer senderDomain kendi ana veya bağlı domaininizse alt domain oluşturulabilir
+          if (!senderDomain.includes('localhost')) {
+            trackingBaseUrl = `https://tr.${senderDomain}`;
+          }
+        }
+      }
+      
+      const trackingPixel = `<img src="${trackingBaseUrl}/api/email/track?id=${trackingId}" width="1" height="1" alt="" style="display:none;" />`;
       // Inject before closing </body> if exists, else append
       if (finalHtml.includes('</body>')) {
         finalHtml = finalHtml.replace('</body>', `${trackingPixel}\n</body>`);
