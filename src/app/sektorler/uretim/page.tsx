@@ -1,17 +1,53 @@
 import React from 'react';
+import { Metadata } from 'next';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
 import CTABanner from '@/components/landing/CTABanner';
 import { Factory, Bot, Layers, ShieldCheck } from 'lucide-react';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'B2B Üretim & Sanayi İçin AI Dijital Kataloğu & Talep Otomasyonu — StarWebFlow',
-  description: 'İmalatçı ve sanayiciler için uluslararası B2B ürün kataloğu, özel RFQ (Teklif İste) otomasyonu ve küresel müşteri kazanım sistemi.',
+  description: 'İmalatcı ve sanayiciler için uluslararası B2B ürün kataloğu, özel RFQ (Teklif İste) otomasyonu ve küresel müşteri kazanm sistemi. Almanya, Avusturya ve İsviçre pazarlarına açılın.',
+  keywords: 'üretim b2b yazılım, sanayi dijitalleşme, rfq teklif otomasyonu, üretici web sitesi, ihracatçı dijital pazarlama, erp entegrasyonu',
+  alternates: { canonical: 'https://starwebflow.com/sektorler/uretim' },
+};
+
+const sectorSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': 'https://starwebflow.com/sektorler/uretim',
+  'name': 'B2B Üretim & Sanayi Sektörü AI & Otomasyon Çözümleri',
+  'isPartOf': { '@id': 'https://starwebflow.com/#website' },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': [
+    {
+      '@type': 'Question',
+      'name': 'Bir üretim firması için dijital B2B kataloğu nasıl kurulur?',
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': 'StarWebFlow B2B dijital katalog sistemi; ürünleri kategori/teknik özellik bazlı filtreli gösterir, fiyat teklifini (RFQ) otomatik toplar ve satış ekibine émail/CRM bildirimi gönderir. Almanca ve İngilizce dil desteği ile DACH pazarına erişimi kolaylaştırır.'
+      }
+    },
+    {
+      '@type': 'Question',
+      'name': 'Almanya ve Avrupa B2B pazarına web sitesi ile nasıl açılırım?',
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': 'DACH (Almanya, Avusturya, İsviçre) pazarı için; Almanca SEO optimize web sitesi, DSGVO uyumlu form sistemi, Google Ads Almanya kampanyası ve B2B lead nurturing otomasyonu kurulması gerekir. StarWebFlow tüm bu öğeleri tek pakette sunmaktadır.'
+      }
+    }
+  ]
 };
 
 export default function UretimSektorPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sectorSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Navbar />
       <main className="pt-28 pb-16">
         <section className="py-16 px-4 max-w-7xl mx-auto text-center">

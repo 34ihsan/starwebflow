@@ -3,11 +3,16 @@
 import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { cookies } from 'next/headers';
+import { MetaAdapter } from '@/lib/integrations/ads/MetaAdapter';
+import { GoogleAdsAdapter } from '@/lib/integrations/ads/GoogleAdsAdapter';
+import { TikTokAdsAdapter } from '@/lib/integrations/ads/TikTokAdsAdapter';
+import { LinkedInAdsAdapter } from '@/lib/integrations/ads/LinkedInAdsAdapter';
+import { decrypt } from '@/lib/utils/encryption';
 
 // ─── Tenant Resolver ────────────────────────────────────────────────────────
 // Cookie tabanlı basit tenant çözümleme. Auth entegrasyonu yapıldığında
 // burayı JWT decode / session lookup ile değiştirebilirsiniz.
-async function getActiveTenantId(): Promise<string> {
+export async function getActiveTenantId(): Promise<string> {
   try {
     const cookieStore = cookies();
     const tenantSlug = cookieStore.get('tenant_slug')?.value ?? 'starwebflow';
@@ -938,16 +943,69 @@ export async function analyzePostPerformance(postId: string) {
 // ─── Reklam Bütçe Otopilotu (Auto-Scale) ───────────────────────────────────
 export async function optimizeAdCampaign(adId: string, action: 'scale' | 'pause') {
   try {
+    const tenantId = await getActiveTenantId();
     const ad = await prisma.adCampaign.findUnique({ where: { id: adId } });
     if (!ad) throw new Error("Kampanya bulunamadı.");
 
     let newStatus = ad.status;
     let newSpend = Number(ad.spend || 0);
 
+    let externalSuccess = true;
+
     if (action === 'scale') {
       newSpend = Math.round(newSpend * 1.25);
+      newStatus = 'ACTIVE';
+      // In future: Add adapter.updateBudget for external scaling
     } else if (action === 'pause') {
       newStatus = 'PAUSED';
+      
+      // Pause external campaign if connected
+      if (ad.externalId) {
+        if (ad.platform === 'Meta (Instagram/FB)') {
+          const connection = await prisma.platformConnection.findUnique({
+            where: { tenantId_platform: { tenantId, platform: 'META' } }
+          });
+          if (connection && connection.status === 'ACTIVE') {
+            const adapter = new MetaAdapter();
+            const token = decrypt(connection.accessToken);
+            externalSuccess = await adapter.pauseCampaign(token, ad.externalId);
+          }
+        } else if (ad.platform === 'Google Ads') {
+          const connection = await prisma.platformConnection.findUnique({
+            where: { tenantId_platform: { tenantId, platform: 'GOOGLE' } }
+          });
+          if (connection && connection.status === 'ACTIVE') {
+            const adapter = new GoogleAdsAdapter();
+            const token = decrypt(connection.accessToken);
+            // customerId would ideally be stored in connection.metadata
+            const customerId = "1234567890"; // Using dummy for MVP
+            externalSuccess = await adapter.pauseCampaign(token, ad.externalId);
+          }
+        } else if (ad.platform === 'TikTok Ads') {
+          const connection = await prisma.platformConnection.findUnique({
+            where: { tenantId_platform: { tenantId, platform: 'TIKTOK' } }
+          });
+          if (connection && connection.status === 'ACTIVE') {
+            const adapter = new TikTokAdsAdapter();
+            const token = decrypt(connection.accessToken);
+            const advertiserId = "1234567890"; // Using dummy for MVP
+            externalSuccess = await adapter.pauseCampaign(token, ad.externalId);
+          }
+        } else if (ad.platform === 'LinkedIn Ads') {
+          const connection = await prisma.platformConnection.findUnique({
+            where: { tenantId_platform: { tenantId, platform: 'LINKEDIN' } }
+          });
+          if (connection && connection.status === 'ACTIVE') {
+            const adapter = new LinkedInAdsAdapter();
+            const token = decrypt(connection.accessToken);
+            externalSuccess = await adapter.pauseCampaign(token, ad.externalId);
+          }
+        }
+        
+        if (!externalSuccess) {
+           console.warn(`Could not pause external campaign for platform ${ad.platform}`);
+        }
+      }
     }
 
     await prisma.adCampaign.update({
@@ -961,7 +1019,7 @@ export async function optimizeAdCampaign(adId: string, action: 'scale' | 'pause'
       newSpend,
       message: action === 'scale' 
         ? `Otopilot: ${ad.name} bütçesi ₺${newSpend.toLocaleString()}'e yükseltildi (Ölçeklendirildi).` 
-        : `Otopilot: ${ad.name} kampanyası duraklatıldı (Zarar önlendi).`
+        : `Otopilot: ${ad.name} kampanyası duraklatıldı (Zarar önlendi).` + (!externalSuccess ? " (API hatası, panelden kontrol edin)" : "")
     };
   } catch (e: any) {
     return { success: false, error: e.message };

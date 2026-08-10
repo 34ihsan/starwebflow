@@ -1,39 +1,58 @@
 import { MetadataRoute } from 'next';
+import { prisma } from '@/lib/prisma';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://starwebflow.com';
 
-  const staticPages = [
-    '',
-    '/hizmetler/web-gelistirme',
-    '/hizmetler/web-uygulamasi',
-    '/hizmetler/ai-agents',
-    '/hizmetler/ai-otomasyon',
-    '/hizmetler/reklam-sosyal-medya',
-    '/datenschutz',
-    '/nutzungsbedingungen',
-    '/kvkk',
-    '/cookie-richtlinie',
-    '/impressum',
+  // ── 1. Static Pages ──────────────────────────────────────────────────
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}`, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
+
+    // Hizmetler
+    { url: `${baseUrl}/hizmetler/web-gelistirme`,    lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/hizmetler/web-uygulamasi`,    lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/hizmetler/ai-agents`,         lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/hizmetler/ai-otomasyon`,      lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/hizmetler/reklam-sosyal-medya`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+
+    // Sektörler — GEO için kritik "long-tail" sayfaları
+    { url: `${baseUrl}/sektorler/saglik`,   lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/sektorler/hukuk`,    lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/sektorler/lojistik`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/sektorler/uretim`,   lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/sektorler/e-ticaret`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
+
+    // Blog listesi
+    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
+
+    // Legal
+    { url: `${baseUrl}/datenschutz`,         lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/nutzungsbedingungen`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/kvkk`,                lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/cookie-richtlinie`,   lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/impressum`,           lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/iptal-iade`,          lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/revizyon-politikasi`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  return staticPages.map((route) => {
-    let priority = 0.5;
-    let changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' = 'monthly';
+  // ── 2. Dynamic Blog Pages ─────────────────────────────────────────────
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const publishedPosts = await prisma.blogPost.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true, updatedAt: true },
+      orderBy: { publishedAt: 'desc' },
+    });
 
-    if (route === '') {
-      priority = 1.0;
-      changeFrequency = 'daily';
-    } else if (route.startsWith('/hizmetler')) {
-      priority = 0.8;
-      changeFrequency = 'weekly';
-    }
+    blogPages = publishedPosts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.updatedAt,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }));
+  } catch {
+    // DB unavailable during static build — silently skip
+  }
 
-    return {
-      url: `${baseUrl}${route}`,
-      lastModified: new Date().toISOString(),
-      changeFrequency,
-      priority,
-    };
-  });
+  return [...staticPages, ...blogPages];
 }

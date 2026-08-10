@@ -3,15 +3,51 @@ import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
 import CTABanner from '@/components/landing/CTABanner';
 import { Truck, Bot, Calculator, ShieldCheck } from 'lucide-react';
+import { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Lojistik & Taşımacılık İçin Otomatik Navlun & Teklif Otomasyonu — StarWebFlow',
-  description: 'Lojistik ve navlun şirketleri için anlık navlun hesaplama, otomatik PDF teklif gönderme ve WhatsApp takip botu.',
+  description: 'Lojistik ve navlun şirketleri için anlık navlun hesaplama, otomatik PDF teklif gönderme ve WhatsApp takip botu. API entegrasyonu ile gümrük ve kargo entegrasyonu.',
+  keywords: 'lojistik yazılımı, navlun hesaplama, kargo takip sistemi, lojistik ai otomasyon, rfq otomasyon, tedarik zinciri dijitalleşme',
+  alternates: { canonical: 'https://starwebflow.com/sektorler/lojistik' },
+};
+
+const sectorSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': 'https://starwebflow.com/sektorler/lojistik',
+  'name': 'Lojistik & Taşımacılık Sektörü AI & Otomasyon Çözümleri',
+  'isPartOf': { '@id': 'https://starwebflow.com/#website' },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  'mainEntity': [
+    {
+      '@type': 'Question',
+      'name': 'Lojistik şirketi için AI navlun hesaplama sistemi nasıl kurulur?',
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': 'StarWebFlow, mevcut TMS (Taşıma Yönetim Sistemi) veya API’ya bağlanarak anlık navlun hesaplama ve otomatik PDF teklif üretimi sunar. Müşteri teklif taleplerini (RFQ) AI ile ön işleyip insan müdahalesini minimuma indirir.'
+      }
+    },
+    {
+      '@type': 'Question',
+      'name': 'Lojistik sektörü için hangi dijital çözümler sunuyorsunuz?',
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': 'Anlık navlun ve kota hesaplama, otomatik PDF teklif gönderme, WhatsApp kargo takip botu, uluslararası müşteri için çok dilli web portal, API entegrasyonu (gümrük, haritalama, kargo takip) ve B2B lead capture sistemi sunuyoruz.'
+      }
+    }
+  ]
 };
 
 export default function LojistikSektorPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sectorSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Navbar />
       <main className="pt-28 pb-16">
         <section className="py-16 px-4 max-w-7xl mx-auto text-center">

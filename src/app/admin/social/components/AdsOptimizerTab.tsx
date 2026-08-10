@@ -1288,6 +1288,110 @@ export function AdsOptimizerTab({ ads: initialAds }: { ads: Ad[] }) {
       )}
 
       {/* ═══════════════════════════════════════════════════════════
+          TAB: PLATFORM BAĞLANTILARI
+      ══════════════════════════════════════════════════════════════ */}
+      {activeTab === "connections" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ background: "#0f172a", borderRadius: "14px", padding: "24px", border: "1px solid #1e293b" }}>
+            <h3 style={{ color: "#e2e8f0", fontSize: "18px", fontWeight: 700, margin: "0 0 8px 0" }}>Reklam Platformu Entegrasyonları</h3>
+            <p style={{ color: "#94a3b8", fontSize: "13px", margin: "0 0 24px 0" }}>
+              Ad hesaplarınızı bağlayarak kampanyalarınızı doğrudan buradan yönetin ve gerçek zamanlı verileri çekin.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              {/* Meta Connection */}
+              <div style={{ 
+                display: "flex", alignItems: "center", justifyContent: "space-between", 
+                padding: "16px", background: "#1e293b", borderRadius: "12px", border: "1px solid #334155" 
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ fontSize: "24px" }}>📘</div>
+                  <div>
+                    <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "15px" }}>Meta (Facebook & Instagram)</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>Durum: <span style={{ color: "#f59e0b" }}>Bağlı Değil</span></div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/api/auth/platform/meta'} 
+                  style={{ 
+                    padding: "8px 16px", borderRadius: "8px", background: "#1877F2", color: "#fff", 
+                    fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" 
+                  }}>
+                  Bağla
+                </button>
+              </div>
+
+              {/* Google Connection */}
+              <div style={{ 
+                display: "flex", alignItems: "center", justifyContent: "space-between", 
+                padding: "16px", background: "#1e293b", borderRadius: "12px", border: "1px solid #334155" 
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ fontSize: "24px" }}>🔍</div>
+                  <div>
+                    <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "15px" }}>Google Ads</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>Durum: <span style={{ color: "#f59e0b" }}>Bağlı Değil</span></div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/api/auth/platform/google'} 
+                  style={{ 
+                    padding: "8px 16px", borderRadius: "8px", background: "#34A853", color: "#fff", 
+                    fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" 
+                  }}>
+                  Bağla
+                </button>
+              </div>
+
+              {/* TikTok Connection */}
+              <div style={{ 
+                display: "flex", alignItems: "center", justifyContent: "space-between", 
+                padding: "16px", background: "#1e293b", borderRadius: "12px", border: "1px solid #334155" 
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ fontSize: "24px" }}>🎵</div>
+                  <div>
+                    <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "15px" }}>TikTok Ads</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>Durum: <span style={{ color: "#f59e0b" }}>Bağlı Değil</span></div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/api/auth/platform/tiktok'} 
+                  style={{ 
+                    padding: "8px 16px", borderRadius: "8px", background: "#000000", color: "#fff", 
+                    fontWeight: 600, fontSize: "13px", border: "1px solid #334155", cursor: "pointer" 
+                  }}>
+                  Bağla
+                </button>
+              </div>
+
+              {/* LinkedIn Connection */}
+              <div style={{ 
+                display: "flex", alignItems: "center", justifyContent: "space-between", 
+                padding: "16px", background: "#1e293b", borderRadius: "12px", border: "1px solid #334155" 
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ fontSize: "24px" }}>💼</div>
+                  <div>
+                    <div style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "15px" }}>LinkedIn Ads</div>
+                    <div style={{ color: "#64748b", fontSize: "12px", marginTop: "2px" }}>Durum: <span style={{ color: "#f59e0b" }}>Bağlı Değil</span></div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => window.location.href = '/api/auth/platform/linkedin'} 
+                  style={{ 
+                    padding: "8px 16px", borderRadius: "8px", background: "#0077b5", color: "#fff", 
+                    fontWeight: 600, fontSize: "13px", border: "none", cursor: "pointer" 
+                  }}>
+                  Bağla
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════
           MODAL: Yeni Kampanya
       ══════════════════════════════════════════════════════════════ */}
       {isNewAdModalOpen && (

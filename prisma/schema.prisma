@@ -64,6 +64,7 @@ model Tenant {
   leadScoreLogs      LeadScoreLog[]
   croExperiments     CROExperiment[]
   growthKPIs         GrowthKPI[]
+  platformConnections PlatformConnection[]
 
   @@index([slug])
   @@map("tenants")
@@ -667,11 +668,32 @@ model AdCampaign {
   hookRate    Float?   @map("hook_rate") // Gizli metrik
   ctr         Float?   
   isAiManaged Boolean  @default(true) @map("is_ai_managed")
+  externalId  String?  @map("external_id")
+  platformAccountId String? @map("platform_account_id")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@index([tenantId])
   @@map("ad_campaigns")
+}
+
+model PlatformConnection {
+  id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  platform        String   // META, GOOGLE, TIKTOK, LINKEDIN
+  accountId       String?  @map("account_id") // ID of the ad account on the platform
+  accountName     String?  @map("account_name")
+  accessToken     String   @db.Text @map("access_token") // Encrypted
+  refreshToken    String?  @db.Text @map("refresh_token") // Encrypted
+  expiresAt       DateTime? @map("expires_at")
+  status          String   @default("ACTIVE") // ACTIVE, EXPIRED, ERROR
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, platform])
+  @@index([tenantId])
+  @@map("platform_connections")
 }
 
 // --- Blog ---
