@@ -142,6 +142,7 @@ export async function triggerAutomationFlow(flowId: string, payload?: any) {
     safeRevalidatePath('/admin/automations');
     return { 
       success: true, 
+      log: { id: `log-${Date.now()}`, status: 'SUCCESS' },
       message: `⚡ Titan Mode Otomasyon Akışı ("${flow.name}") otonom düğüm motoru ile canlıda çalıştırıldı!`,
       flow 
     };
