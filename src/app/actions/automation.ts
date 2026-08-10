@@ -126,30 +126,25 @@ export async function triggerAutomationFlow(flowId: string, payload?: any) {
       return { success: false, error: 'Flow not found' };
     }
 
-    const log = await prisma.automationLog.create({
-      data: {
-        tenantId: flow.tenantId,
-        flowId: flow.id,
-        status: 'SUCCESS',
-        payload: payload || {
-          triggeredAt: new Date().toISOString(),
-          triggerType: 'MANUAL_TEST_RUN',
-          summary: `Titan Mode ${flow.name} akışı canlı olarak çalıştırıldı.`
-        }
-      }
-    });
+    // Dynamic import to avoid circular dependency
+    const { executeFlow } = await import('@/lib/automation/engine');
+    
+    // Execute flow in real-time
+    const initialPayload = payload || {
+      triggeredAt: new Date().toISOString(),
+      triggerType: 'MANUAL_TEST_RUN',
+      summary: `Titan Mode ${flow.name} akışı otonom düğüm yürütücü ile canlı çalıştırıldı.`
+    };
 
-    const updatedFlow = await prisma.automationFlow.update({
-      where: { id: flowId },
-      data: {
-        runsCount: { increment: 1 },
-        lastRunAt: new Date(),
-        successRate: 100.0,
-      }
-    });
+    // Execute nodes asynchronously
+    executeFlow(flow, initialPayload).catch(e => console.error('[AutomationAction] Flow execution error:', e));
 
     safeRevalidatePath('/admin/automations');
-    return { success: true, log, flow: updatedFlow };
+    return { 
+      success: true, 
+      message: `⚡ Titan Mode Otomasyon Akışı ("${flow.name}") otonom düğüm motoru ile canlıda çalıştırıldı!`,
+      flow 
+    };
   } catch (error) {
     console.error('triggerAutomationFlow error:', error);
     return { success: false, error: 'Failed to trigger automation flow' };

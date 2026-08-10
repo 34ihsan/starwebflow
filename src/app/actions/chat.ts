@@ -92,10 +92,29 @@ export async function sendChatMessage(data: {
       data: { updatedAt: new Date() }
     });
 
+    // AI Intent Detection & Auto Voice Funnel Trigger
+    let aiResponse = null;
+    const isHighIntent = /fiyat|ücret|teklif|randevu|arama|telefon|bilgi almak|kurulum|satın al/i.test(data.content);
+    
+    if (isHighIntent) {
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
+      const voiceCallUrl = `${baseUrl}/call/guest-lead`;
+      
+      // Auto AI reply suggesting voice call or instant connection
+      aiResponse = await prisma.chatMessage.create({
+        data: {
+          threadId: data.threadId,
+          senderId: data.senderId, // System bot response
+          content: `🤖 [STAR AI OTOPİLOT]: İlginiz için teşekkürler! Projenizle ilgili detayları sıcağı sıcağına değerlendirmek ve 30 saniye içinde AI Sesli Asistanımızla görüşmek için tıklayın: ${voiceCallUrl}`,
+          attachments: { type: 'VOICE_CALL_PITCH', url: voiceCallUrl }
+        }
+      });
+    }
+
     safeRevalidatePath('/admin/messages');
     safeRevalidatePath('/client/messages');
     
-    return { success: true, data: message };
+    return { success: true, data: message, aiResponse };
   } catch (error) {
     console.error('Failed to send chat message:', error);
     return { success: false, error: 'Mesaj gönderilemedi' };
