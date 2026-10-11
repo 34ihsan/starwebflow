@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [hpCheck, setHpCheck] = useState('')
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +32,7 @@ export default function RegisterPage() {
       const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, recaptchaToken }),
+        body: JSON.stringify({ name, email, password, recaptchaToken, hp_check: hpCheck }),
       });
       
       const result = await response.json();
@@ -120,6 +121,20 @@ export default function RegisterPage() {
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-5">
+                  {/* Honeypot field for bot protection */}
+                  <div style={{ display: 'none', position: 'absolute', left: '-9999px' }} aria-hidden="true">
+                    <label htmlFor="hp_check">Leave empty</label>
+                    <input
+                      id="hp_check"
+                      type="text"
+                      name="hp_check"
+                      value={hpCheck}
+                      onChange={(e) => setHpCheck(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Ad Soyad</label>
                     <div className="relative">

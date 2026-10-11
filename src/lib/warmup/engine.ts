@@ -277,6 +277,24 @@ const FALLBACK_CONVERSATIONS = [
   }
 ];
 
+const FALLBACK_CLOSURES = [
+  '<p>Geri bildirimlerin için çok teşekkürler, notları aldım. Yarınki durum toplantısında kalan detayları üzerinden geçeriz.</p><p>İyi çalışmalar dilerim.</p>',
+  '<p>Detaylı açıklaman için teşekkür ederim, süreç gayet netleşti. Herhangi bir gelişme olursa tekrar haberleşiriz.</p><p>Kolay gelsin.</p>',
+  '<p>Tamamdır, aksiyon maddelerini ekibe ilettim. İlgili güncellemeleri tamamlayıp tarafınıza bilgi vereceğim.</p><p>Görüşmek üzere.</p>',
+  '<p>Bilgiler için teşekkürler, revizyonu bu doğrultuda tamamlıyorum. Emeğinize sağlık.</p><p>Selamlar,</p>',
+  '<p>Harika bir planlama oldu. Bu haftaki teslimatları takvime uygun şekilde tamamlayabileceğiz. Başarılar dilerim.</p>',
+  '<p>Açıklamalar için sağ olun, konuyla ilgili tüm sorular yanıtlanmış oldu. Yeni sprintte görüşmek dileğiyle.</p><p>İyi günler.</p>',
+  '<p>Mutabakat sağlandı, ilgili departmanla süreci başlattım. Destekleriniz için teşekkür ederim.</p><p>Saygılarımla,</p>',
+  '<p>Notları sisteme işledim. Şimdilik başka bir aksiyona gerek kalmadı, elinize sağlık.</p><p>İyi haftalar dilerim.</p>'
+];
+
+const FALLBACK_REPLIES = [
+  '<p>Bilgilendirme için teşekkürler. Notları inceledim, belirtilen yaklaşım projenin genel akışına oldukça uygun görünüyor.</p><p>İyi çalışmalar.</p>',
+  '<p>Paylaştığınız detayları aldım. Yarın öğleden sonraki toplantıda maddelerin üzerinden geçip nihai kararı verebiliriz.</p><p>Kolay gelsin.</p>',
+  '<p>Geri bildiriminiz için teşekkürler. Bahsettiğiniz hususları dikkate alarak güncel versiyonu hazırlıyorum.</p><p>Selamlar,</p>',
+  '<p>Konu gayet net, zaman planına sadık kalarak ilerlememiz en doğrusu olacaktır. Emeğinize sağlık.</p><p>İyi günler.</p>'
+];
+
 export interface WarmupContentResult {
   subject: string;
   body: string;
@@ -301,19 +319,13 @@ export async function generateWarmupContent(params: {
 }): Promise<WarmupContentResult> {
   const { sender, recipient, existingThread } = params;
 
-  // 1. Thread Mantığı: Eğer 4 veya daha fazla mesaj olmuşsa bu thread'i sonlandır
-  if (existingThread && existingThread.messageCount >= 4) {
-    return {
-      subject: existingThread.subject,
-      body: '<p>Harika, teşekkürler! Konuyu bu şekilde netleştirmiş olduk. Görüşmek üzere.</p>',
-      inReplyTo: existingThread.lastMessageId,
-      shouldReply: true,
-      isCompletedThread: true
-    };
-  }
+  // 1. Thread Mantığı: Doğal insan davranışı için 3 ile 5 mesaj arasında değişken sonlanma
+  const threadMaxMessages = 3 + (existingThread ? (existingThread.subject.length % 3) : 1);
+  const isClosingTurn = existingThread ? existingThread.messageCount >= threadMaxMessages : false;
 
   // 2. Yanıt Oranı: Eğer thread varsa her seferinde değil, %45 ihtimalle cevap verilir (İnsan ritmi)
-  if (existingThread) {
+  // Ancak kapanış turu ise veya tek sayılı tur ise devam eder
+  if (existingThread && !isClosingTurn) {
     const shouldReplyRoll = Math.random() < 0.45;
     if (!shouldReplyRoll) {
       // Bu sefer yanıt verme, sadece okunacak
@@ -330,11 +342,42 @@ export async function generateWarmupContent(params: {
 
   try {
     if (existingThread) {
-      // Devam eden konuşmaya doğal yanıt üret
       const cleanSubject = existingThread.subject.startsWith('Re:')
         ? existingThread.subject
         : `Re: ${existingThread.subject}`;
 
+      if (isClosingTurn) {
+        // AI İle Bağlamsal Doğal Kapanış Üret (Statik robotik cümleler tamamen kaldırıldı!)
+        const { text: generatedClosing } = await generateText({
+          model: getFlashModel(),
+          system: `${persona}
+GÖREV: Karşındaki meslektaşınla "${existingThread.subject}" konusunu görüşüyordunuz ve konu netleşti. 
+Konuşmayı profesyonelce, yapıcı ve samimi bir dille sonlandıran 1-2 cümlelik çok doğal bir Türkçe veda/kapanış yanıtı yaz.
+KURALLAR:
+- ASLA kalıp veya robotik bir dil kullanma (örn: 'Harika teşekkürler konuyu netleştirdik' gibi kalıplar KULLANMA).
+- Gerçek bir iş insanı gibi: Notları aldığını, süreci başlattığını veya haftalık toplantıda görüşmeyi dileyen özgün bir cümle kur.
+- ŞU KELİMELERİ ASLA KULLANMA: ${SPAM_KEYWORDS.slice(0, 15).join(', ')}.
+- Markdown veya JSON verme. Sadece sade metin ver.
+- İmza olarak "${senderSignatureName}" adını veya profesyonel bir kapanış kullan.`,
+          prompt: 'Doğal, kurumsal ve kısa bir kapanış yaz.'
+        });
+
+        let cleanBody = generatedClosing.replace(/```/g, '').trim();
+        const spamCheck = analyzeSpamWords(cleanBody);
+        if (spamCheck.found.length > 0) {
+          cleanBody = FALLBACK_CLOSURES[Math.floor(Math.random() * FALLBACK_CLOSURES.length)];
+        }
+
+        return {
+          subject: cleanSubject,
+          body: cleanBody.startsWith('<p>') ? cleanBody : `<p>${cleanBody.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`,
+          inReplyTo: existingThread.lastMessageId,
+          shouldReply: true,
+          isCompletedThread: true
+        };
+      }
+
+      // Devam eden konuşmaya doğal B2B ara yanıt üret
       const { text: generatedEmail } = await generateText({
         model: getFlashModel(),
         system: `${persona}
@@ -352,13 +395,13 @@ KURALLAR:
       // Spam denetimi
       const spamCheck = analyzeSpamWords(cleanBody);
       if (spamCheck.found.length > 0) {
-        console.warn(`[WARMUP AI] Spam kelime tespit edildi, temizleniyor:`, spamCheck.found);
-        cleanBody = 'Bilgilendirme için teşekkürler, notları aldım ve süreci buna göre takip ediyorum. İyi çalışmalar.';
+        console.warn(`[WARMUP AI] Spam kelime tespit edildi, zengin yedek seçiliyor:`, spamCheck.found);
+        cleanBody = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
       }
 
       return {
         subject: cleanSubject,
-        body: `<p>${cleanBody.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`,
+        body: cleanBody.startsWith('<p>') ? cleanBody : `<p>${cleanBody.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`,
         inReplyTo: existingThread.lastMessageId,
         shouldReply: true
       };
@@ -418,11 +461,28 @@ KURALLAR:
     }
   } catch (err: any) {
     console.warn(`[WARMUP AI FALLBACK] AI üretimi sırasında hata oluştu, zengin yedek kullanılıyor:`, err?.message);
+    if (existingThread) {
+      const cleanSubject = existingThread.subject.startsWith('Re:')
+        ? existingThread.subject
+        : `Re: ${existingThread.subject}`;
+
+      const fallbackBody = isClosingTurn
+        ? FALLBACK_CLOSURES[Math.floor(Math.random() * FALLBACK_CLOSURES.length)]
+        : FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
+
+      return {
+        subject: cleanSubject,
+        body: fallbackBody,
+        inReplyTo: existingThread.lastMessageId,
+        shouldReply: true,
+        isCompletedThread: isClosingTurn
+      };
+    }
+
     const fb = FALLBACK_CONVERSATIONS[Math.floor(Math.random() * FALLBACK_CONVERSATIONS.length)];
     return {
-      subject: existingThread ? `Re: ${existingThread.subject}` : fb.subject,
+      subject: fb.subject,
       body: fb.body,
-      inReplyTo: existingThread?.lastMessageId,
       shouldReply: true
     };
   }

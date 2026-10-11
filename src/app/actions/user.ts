@@ -5,6 +5,7 @@ import { safeRevalidatePath } from '@/lib/utils/cache';
 import { scrypt, randomBytes } from 'crypto';
 import { promisify } from 'util';
 import { logActivity } from './activity';
+import { verifyEmailSafely, verifyNameSafely } from '@/lib/utils/email-validator';
 
 const scryptAsync = promisify(scrypt);
 
@@ -40,8 +41,20 @@ export async function createUser(data: {
 }) {
   try {
     const cleanEmail = (data.email || '').trim().toLowerCase();
+    const cleanName = (data.name || '').trim();
+
     if (!cleanEmail) {
       return { success: false, error: 'E-posta adresi zorunludur.' };
+    }
+
+    const nameCheck = verifyNameSafely(cleanName);
+    if (!nameCheck.isValid) {
+      return { success: false, error: nameCheck.reason };
+    }
+
+    const emailCheck = await verifyEmailSafely(cleanEmail);
+    if (!emailCheck.isValid) {
+      return { success: false, error: emailCheck.reason };
     }
 
     let passwordHash: string;
@@ -115,10 +128,18 @@ export async function deleteUser(userId: string, tenantId?: string) {
       return { success: false, error: 'Kullanıcı bulunamadı.' };
     }
 
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: { deletedAt: new Date() }
-    });
+    // Try hard delete first if user has no dependencies; fallback to soft-delete
+    let user;
+    try {
+      user = await prisma.user.delete({
+        where: { id: userId }
+      });
+    } catch {
+      user = await prisma.user.update({
+        where: { id: userId },
+        data: { deletedAt: new Date() }
+      });
+    }
 
     await logActivity({
       tenantId: existing.tenantId,

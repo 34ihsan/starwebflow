@@ -3,6 +3,7 @@ import { registerTenantSchema } from '../../../../../modules/auth/auth.schema';
 import { AuthService } from '../../../../../modules/auth/auth.service';
 import { signJWT } from '../../../../../modules/auth/auth.jwt';
 import { getJwtSecret } from '../../../../../lib/config';
+import { verifyEmailSafely, verifyNameSafely } from '@/lib/utils/email-validator';
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +21,23 @@ export async function POST(req: Request) {
             issue: err.message
           }))
         }
+      }, { status: 400 });
+    }
+
+    // Name & Email validation
+    const nameCheck = verifyNameSafely(result.data.name);
+    if (!nameCheck.isValid) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'INVALID_NAME', message: nameCheck.reason }
+      }, { status: 400 });
+    }
+
+    const emailCheck = await verifyEmailSafely(result.data.email);
+    if (!emailCheck.isValid) {
+      return NextResponse.json({
+        success: false,
+        error: { code: 'INVALID_EMAIL', message: emailCheck.reason }
       }, { status: 400 });
     }
 

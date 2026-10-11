@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendContactFormNotification } from '@/lib/email';
-import { verifyEmailSafely } from '@/lib/utils/email-validator';
+import { verifyEmailSafely, verifyNameSafely } from '@/lib/utils/email-validator';
 
 /**
  * POST /api/email/contact
@@ -29,7 +29,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Canlı MX Sunucu ve Sahte Mail (Disposable/Syntax) Doğrulaması
+    // 2. İsim Doğrulaması
+    const nameValidation = verifyNameSafely(name);
+    if (!nameValidation.isValid) {
+      return NextResponse.json(
+        { success: false, error: nameValidation.reason },
+        { status: 400 }
+      );
+    }
+
+    // 3. Canlı MX Sunucu ve Sahte Mail (Disposable/Syntax) Doğrulaması
     const emailValidation = await verifyEmailSafely(email);
     if (!emailValidation.isValid) {
       console.warn(`[INVALID EMAIL BLOCKED] ${email}: ${emailValidation.reason}`);
