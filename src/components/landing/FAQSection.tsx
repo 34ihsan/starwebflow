@@ -317,7 +317,7 @@ export default function FAQSection() {
             </div>
             <div className="flex items-center gap-1.5 bg-[#0F0F1A] border border-white/[0.08] rounded-xl p-1 w-full sm:w-auto justify-center">
               {[
-                { id: 'all', label: language === 'tr' ? 'Tümü' : 'All' },
+                { id: 'all', label: language === 'tr' ? 'Tümü' : language === 'de' ? 'Alle' : 'All' },
                 { id: 'ai',  label: 'AI & Bot' },
                 { id: 'web', label: 'Web' }
               ].map((cat) => (
@@ -337,7 +337,11 @@ export default function FAQSection() {
         <div className="space-y-3">
           {filteredItems.length === 0 ? (
             <div className="text-center py-8 text-[#64748B] text-sm">
-              {language === 'tr' ? 'Aramanızla eşleşen soru bulunamadı.' : 'No matching questions found.'}
+              {language === 'tr'
+                ? 'Aramanızla eşleşen soru bulunamadı.'
+                : language === 'de'
+                ? 'Keine passenden Fragen gefunden.'
+                : 'No matching questions found.'}
             </div>
           ) : (
             filteredItems.map((item, i) => (

@@ -23,45 +23,45 @@ export default function Navbar() {
   const services = [
     {
       icon: Globe,
-      label: 'Sub-Second Web Ekosistemi',
-      subLabel: 'Next.js 14 & Ultra Hız',
-      desc: '0.4s açılış süresi ile ziyaretçi kaybını önler, satış dönüşümünü 3x artırır.',
+      label: language === 'de' ? 'Sub-Second Web-Ökosystem' : language === 'en' ? 'Sub-Second Web Ecosystem' : 'Sub-Second Web Ekosistemi',
+      subLabel: 'Next.js 14 & Ultra Speed',
+      desc: language === 'de' ? 'Lädt in unter 0,4s, verhindert Absprünge und verdreifacht die Conversion-Rate.' : language === 'en' ? '0.4s load time prevents visitor drop-off and triples sales conversion.' : '0.4s açılış süresi ile ziyaretçi kaybını önler, satış dönüşümünü 3x artırır.',
       href: '/hizmetler/web-gelistirme',
       color: '#4F8EF7',
       badge: 'SSR / Ultra Hız',
     },
     {
       icon: Monitor,
-      label: 'Özel SaaS & Bulut Mimari',
-      subLabel: 'Cloud-Native & Paneller',
-      desc: 'Excel karmaşasına son veren, şirketinize özel bulut yönetim altyapıları.',
+      label: language === 'de' ? 'Maßgeschneiderte SaaS & Cloud' : language === 'en' ? 'Custom SaaS & Cloud Architecture' : 'Özel SaaS & Bulut Mimari',
+      subLabel: 'Cloud-Native & Dashboards',
+      desc: language === 'de' ? 'Schluss mit Excel-Chaos: Maßgeschneiderte Cloud-Verwaltung für Ihr Unternehmen.' : language === 'en' ? 'Eliminate spreadsheet chaos with custom cloud management built for your firm.' : 'Excel karmaşasına son veren, şirketinize özel bulut yönetim altyapıları.',
       href: '/hizmetler/web-uygulamasi',
       color: '#06B6D4',
       badge: 'Cloud-Native',
     },
     {
       icon: Bot,
-      label: 'Otonom AI Ajanları',
+      label: language === 'de' ? 'Autonome KI-Agenten' : language === 'en' ? 'Autonomous AI Agents' : 'Otonom AI Ajanları',
       subLabel: 'LLM & RAG Mimarisi',
-      desc: '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
+      desc: language === 'de' ? 'Rund-um-die-Uhr Kundenbetreuung, automatische Angebotserstellung und Terminbuchung.' : language === 'en' ? '24/7 client inquiries, automated proposals, and direct calendar appointments.' : '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
       href: '/hizmetler/ai-agents',
       color: '#8B5CF6',
       badge: 'GPT-4o / RAG',
     },
     {
       icon: Cog,
-      label: 'Kognitif İş Akışı Otomasyonu',
+      label: language === 'de' ? 'Kognitive Workflow-Automatisierung' : language === 'en' ? 'Cognitive Workflow Automation' : 'Kognitif İş Akışı Otomasyonu',
       subLabel: 'n8n & API Entegrasyonu',
-      desc: 'Süreçleri otomatikleştirerek ekibinize haftalık 15+ saat kazandırır.',
+      desc: language === 'de' ? 'Spart Ihrem Team durch intelligente Automatisierungen wöchentlich 15+ Stunden.' : language === 'en' ? 'Saves your team 15+ hours weekly by automating operational processes.' : 'Süreçleri otomatikleştirerek ekibinize haftalık 15+ saat kazandırır.',
       href: '/hizmetler/ai-otomasyon',
       color: '#10B981',
       badge: 'n8n & Webhooks',
     },
     {
       icon: Megaphone,
-      label: 'Veri Odaklı Algoritmik Büyüme',
+      label: language === 'de' ? 'Datengesteuertes Wachstum' : language === 'en' ? 'Data-Driven Algorithmic Growth' : 'Veri Odaklı Algoritmik Büyüme',
       subLabel: 'Growth & Performance Ads',
-      desc: 'Meta CAPI & Google Ads ile hedef kitleye nokta atışı müşteri akışı.',
+      desc: language === 'de' ? 'Meta CAPI & Google Ads für punktgenaue Kundenakquise mit maximalem ROAS.' : language === 'en' ? 'Targeted client acquisition funnel with Meta CAPI & Google Ads.' : 'Meta CAPI & Google Ads ile hedef kitleye nokta atışı müşteri akışı.',
       href: '/hizmetler/reklam-sosyal-medya',
       color: '#F59E0B',
       badge: 'High ROAS',
@@ -168,14 +168,14 @@ export default function Navbar() {
                     <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.01]">
                       <div>
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4F8EF7] block mb-0.5">
-                          HİZMET PORTFÖYÜMÜZ
+                          {t('navbar.portfolioTitle')}
                         </span>
                         <h4 className="text-sm font-bold text-white leading-none">
-                          Mühendislik Gücü + Somut İşletme Kazancı
+                          {language === 'de' ? 'Ingenieurskunst + Messbarer Geschäftserfolg' : language === 'en' ? 'Engineering Power + Concrete Business ROI' : 'Mühendislik Gücü + Somut İşletme Kazancı'}
                         </h4>
                       </div>
                       <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                        ● Sistemler Aktif
+                        ● {language === 'de' ? 'Systeme aktiv' : language === 'en' ? 'Systems Active' : 'Sistemler Aktif'}
                       </span>
                     </div>
 
@@ -223,14 +223,14 @@ export default function Navbar() {
                     <div className="px-6 py-3.5 border-t border-white/[0.06] bg-[#07070F] flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs text-slate-400">
                         <Zap className="w-3.5 h-3.5 text-[#F59E0B]" />
-                        <span>Hangi çözüme ihtiyacınız olduğundan emin değil misiniz?</span>
+                        <span>{language === 'de' ? 'Nicht sicher, welche Lösung Sie brauchen?' : language === 'en' ? 'Not sure which solution fits your needs?' : 'Hangi çözüme ihtiyacınız olduğundan emin değil misiniz?'}</span>
                       </div>
                       <Link
                         href="/#services"
                         onClick={() => setServicesOpen(false)}
                         className="text-xs font-bold text-[#4F8EF7] hover:text-white transition-colors flex items-center gap-1"
                       >
-                        Tüm Mimarileri İncele →
+                        {t('navbar.allServices')}
                       </Link>
                     </div>
                   </div>

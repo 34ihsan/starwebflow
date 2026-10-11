@@ -2,12 +2,36 @@
 
 import { useState } from 'react';
 import { useRegion, REGION_CONFIGS, RegionMode } from '@/lib/i18n/RegionContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { Globe, Shield, Sparkles, ChevronDown, Check, X } from 'lucide-react';
 
 export default function RegionBanner() {
   const { region, setRegion, config } = useRegion();
+  const { language } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+
+  const t = {
+    de: {
+      switcherLabel: 'Region und Sprache ändern',
+      dropdownHeader: 'Region & Zielgruppe',
+      close: 'Schließen',
+    },
+    en: {
+      switcherLabel: 'Change Region & Language',
+      dropdownHeader: 'Region & Audience',
+      close: 'Close banner',
+    },
+    tr: {
+      switcherLabel: 'Bölge ve Dil Değiştir',
+      dropdownHeader: 'Bölge & Hedef Kitle',
+      close: 'Kapat',
+    },
+  }[language] || {
+    switcherLabel: 'Bölge ve Dil Değiştir',
+    dropdownHeader: 'Bölge & Hedef Kitle',
+    close: 'Kapat',
+  };
 
   if (dismissed) return null;
 
@@ -39,7 +63,7 @@ export default function RegionBanner() {
             <button
               onClick={() => setDropdownOpen((v) => !v)}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.1] transition-all duration-200"
-              aria-label="Bölge ve Dil Değiştir"
+              aria-label={t.switcherLabel}
             >
               <span className="text-sm">{config.flag}</span>
               <span className="font-bold text-[11px] tracking-wide">{config.shortLabel}</span>
@@ -53,7 +77,7 @@ export default function RegionBanner() {
               >
                 <div className="px-3 py-1.5 border-b border-white/[0.06] mb-1">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                    <Globe className="w-3 h-3 text-[#4F8EF7]" /> Bölge & Hedef Kitle
+                    <Globe className="w-3 h-3 text-[#4F8EF7]" /> {t.dropdownHeader}
                   </p>
                 </div>
                 {(Object.keys(REGION_CONFIGS) as RegionMode[]).map((key) => {
@@ -87,8 +111,8 @@ export default function RegionBanner() {
           <button
             onClick={() => setDismissed(true)}
             className="text-slate-500 hover:text-white transition-colors p-1"
-            title="Kapat"
-            aria-label="Banner'ı kapat"
+            title={t.close}
+            aria-label={t.close}
           >
             <X className="w-3.5 h-3.5" />
           </button>

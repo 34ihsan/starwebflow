@@ -36,7 +36,7 @@ export default function InstantAuditWidget() {
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain: domainInput }),
+        body: JSON.stringify({ domain: domainInput, language }),
       });
 
       const data = await res.json();
@@ -106,7 +106,7 @@ export default function InstantAuditWidget() {
               {loading ? (
                 <>
                   <RefreshCw className="w-5 h-5 animate-spin" />
-                  <span>{isTr ? 'Taranıyor...' : 'Scanning...'}</span>
+                  <span>{isTr ? 'Taranıyor...' : isDe ? 'Wird analysiert...' : 'Scanning...'}</span>
                 </>
               ) : (
                 <>
@@ -133,17 +133,21 @@ export default function InstantAuditWidget() {
               <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 p-6 rounded-xl bg-cyan-950/20 border border-cyan-500/20">
                 <div>
                   <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">
-                    {isTr ? 'Analiz Edilen Domain' : 'Analyzed Domain'}
+                    {isTr ? 'Analiz Edilen Domain' : isDe ? 'Analysierte Domain' : 'Analyzed Domain'}
                   </span>
                   <h3 className="text-2xl font-bold text-white mt-1">{result.domain}</h3>
                   <p className="text-xs text-[#94A3B8] mt-1">
-                    Tahmini Yüklenme Süresi: <span className="text-rose-400 font-bold">{result.lcpTime}</span> • Potansiyel Ciro Artışı:{' '}
+                    {isTr ? 'Tahmini Yüklenme Süresi: ' : isDe ? 'Geschätzte Ladezeit: ' : 'Estimated Load Time: '}
+                    <span className="text-rose-400 font-bold">{result.lcpTime}</span> •{' '}
+                    {isTr ? 'Potansiyel Ciro Artışı: ' : isDe ? 'Potenzielle Umsatzsteigerung: ' : 'Potential Revenue Boost: '}
                     <span className="text-emerald-400 font-bold">{result.potentialRevenueBoost}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-3 bg-[#0A0A0F] px-6 py-4 rounded-xl border border-white/10">
                   <div className="text-center">
-                    <span className="block text-xs text-[#94A3B8]">Genel Sağlık Skoru</span>
+                    <span className="block text-xs text-[#94A3B8]">
+                      {isTr ? 'Genel Sağlık Skoru' : isDe ? 'Gesundheitsscore' : 'Overall Health Score'}
+                    </span>
                     <span className="text-3xl font-extrabold text-amber-400">{result.overallScore} / 100</span>
                   </div>
                 </div>
@@ -152,22 +156,28 @@ export default function InstantAuditWidget() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                   <Gauge className="w-6 h-6 text-rose-400 mx-auto mb-2" />
-                  <span className="block text-xs text-[#94A3B8]">Sayfa Hızı</span>
+                  <span className="block text-xs text-[#94A3B8]">
+                    {isTr ? 'Sayfa Hızı' : isDe ? 'Ladezeit' : 'Page Speed'}
+                  </span>
                   <span className="text-xl font-bold text-rose-400">{result.speedScore} / 100</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                   <Smartphone className="w-6 h-6 text-amber-400 mx-auto mb-2" />
-                  <span className="block text-xs text-[#94A3B8]">Mobil UX</span>
+                  <span className="block text-xs text-[#94A3B8]">Mobile UX</span>
                   <span className="text-xl font-bold text-amber-400">{result.mobileScore} / 100</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                   <ShieldCheck className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-                  <span className="block text-xs text-[#94A3B8]">Güvenlik & SEO</span>
+                  <span className="block text-xs text-[#94A3B8]">
+                    {isTr ? 'Güvenlik & SEO' : isDe ? 'Sicherheit & SEO' : 'Security & SEO'}
+                  </span>
                   <span className="text-xl font-bold text-cyan-400">{result.securityScore} / 100</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-center">
                   <Bot className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                  <span className="block text-xs text-[#94A3B8]">AI & Otomasyon</span>
+                  <span className="block text-xs text-[#94A3B8]">
+                    {isTr ? 'AI & Otomasyon' : isDe ? 'KI & Automation' : 'AI & Automation'}
+                  </span>
                   <span className="text-xl font-bold text-purple-400">{result.aiScore} / 100</span>
                 </div>
               </div>
@@ -175,7 +185,7 @@ export default function InstantAuditWidget() {
               {/* Identified Issues */}
               <div className="space-y-3 mb-8">
                 <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-                  {isTr ? 'Tespit Edilen Dönüşüm Kaçakları' : 'Identified Conversion Leaks'}
+                  {isTr ? 'Tespit Edilen Dönüşüm Kaçakları' : isDe ? 'Erkannte Konversionsverluste' : 'Identified Conversion Leaks'}
                 </h4>
                 {result.recommendations.map((rec: any, i: number) => (
                   <div key={i} className="p-4 rounded-xl bg-rose-500/5 border border-rose-500/10 flex items-start gap-3">
@@ -193,7 +203,13 @@ export default function InstantAuditWidget() {
                   href="#cta"
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-base transition-all duration-300 shadow-xl shadow-emerald-500/20"
                 >
-                  <span>{isTr ? 'Bu Skorları 99/100\'e Çıkaralım (Ücretsiz Rapor Alın)' : 'Upgrade Your Scores to 99/100'}</span>
+                  <span>
+                    {isTr
+                      ? "Bu Skorları 99/100'e Çıkaralım (Ücretsiz Rapor Alın)"
+                      : isDe
+                      ? 'Optimieren Sie Ihre Werte auf 99/100 (Kostenloser Report)'
+                      : 'Upgrade Your Scores to 99/100 (Free Report)'}
+                  </span>
                   <ArrowRight className="w-5 h-5" />
                 </a>
               </div>
