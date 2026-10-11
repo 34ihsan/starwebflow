@@ -102,7 +102,9 @@ export async function verifyEmailSafely(email: string): Promise<{ isValid: boole
   }
 
   // Check wildcard/subdomain temp mail patterns (e.g., *.mail.tm, *.uberip.com)
-  for (const blocked of DISPOSABLE_DOMAINS) {
+  const disposableList = Array.from(DISPOSABLE_DOMAINS);
+  for (let i = 0; i < disposableList.length; i++) {
+    const blocked = disposableList[i];
     if (domain.endsWith(`.${blocked}`)) {
       return { isValid: false, reason: 'Geçici ve sahte e-posta servislerine izin verilmez.' };
     }

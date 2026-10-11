@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     // Name & Email validation
-    const nameCheck = verifyNameSafely(result.data.name);
+    const nameCheck = verifyNameSafely(result.data.fullName);
     if (!nameCheck.isValid) {
       return NextResponse.json({
         success: false,
