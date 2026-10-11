@@ -24,8 +24,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'E-posta adresi zorunludur.' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email }
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: normalizedEmail,
+          mode: 'insensitive',
+        },
+      },
     });
 
     // To prevent user enumeration attacks, return a success message even if email is not found
@@ -54,8 +61,8 @@ export async function POST(req: Request) {
 
     // Mail gönder (Nodemailer + Hostinger SMTP)
     await sendPasswordResetEmail({
-      to: email,
-      name: user.name || email,
+      to: user.email,
+      name: user.name || user.email,
       resetLink,
     }).catch((err) => console.error('Password reset email failed:', err));
 
