@@ -26,6 +26,25 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
     setTimeout(() => setToast(null), 3000);
   };
 
+  const [editingRoleUser, setEditingRoleUser] = useState<any | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>('SUPER_ADMIN');
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+
+  const handleUpdateRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRoleUser) return;
+    setIsUpdatingRole(true);
+    const res = await updateUserRole(editingRoleUser.id, editingRoleUser.tenantId, selectedRole);
+    if (res.success) {
+      setUsers(prev => prev.map(u => u.id === editingRoleUser.id ? { ...u, role: selectedRole } : u));
+      showToast(`Rol başarıyla "${selectedRole}" olarak güncellendi`, "success");
+      setEditingRoleUser(null);
+    } else {
+      showToast(res.error || "Rol güncellenemedi", "error");
+    }
+    setIsUpdatingRole(false);
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
@@ -218,25 +237,43 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          {user.role === 'SUPERADMIN' || user.role === 'ADMIN' ? (
+                        <div 
+                          onClick={() => {
+                            setEditingRoleUser(user);
+                            setSelectedRole(user.role);
+                          }}
+                          className="flex items-center gap-2 cursor-pointer group/role p-1 -m-1 rounded-lg hover:bg-white/[0.04] transition-colors w-fit"
+                          title="Rolü değiştirmek için tıklayın"
+                        >
+                          {user.role === 'SUPER_ADMIN' || user.role === 'SUPERADMIN' || user.role === 'ADMIN' ? (
                             <ShieldCheck className="w-4 h-4 text-fuchsia-400" />
-                          ) : user.role === 'DEVELOPER' ? (
+                          ) : user.role === 'AGENCY_OWNER' ? (
+                            <Shield className="w-4 h-4 text-blue-400" />
+                          ) : user.role === 'AGENCY_MEMBER' || user.role === 'DEVELOPER' ? (
                             <Code className="w-4 h-4 text-purple-400" />
                           ) : (
                             <User className="w-4 h-4 text-[#94A3B8]" />
                           )}
                           <span className={`text-xs font-bold ${
-                            user.role === 'SUPERADMIN' || user.role === 'ADMIN' ? 'text-fuchsia-400' :
-                            user.role === 'DEVELOPER' ? 'text-purple-400' :
+                            user.role === 'SUPER_ADMIN' || user.role === 'SUPERADMIN' || user.role === 'ADMIN' ? 'text-fuchsia-400' :
+                            user.role === 'AGENCY_OWNER' ? 'text-blue-400' :
+                            user.role === 'AGENCY_MEMBER' || user.role === 'DEVELOPER' ? 'text-purple-400' :
                             'text-[#94A3B8]'
                           }`}>
                             {user.role}
                           </span>
+                          <Edit3 className="w-3 h-3 text-[#64748B] opacity-0 group-hover/role:opacity-100 transition-opacity" />
                         </div>
-                        <div className="text-[10px] text-[#64748B] flex items-center gap-1 mt-1 cursor-pointer hover:text-white transition-colors">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setEditingRoleUser(user);
+                            setSelectedRole(user.role);
+                          }}
+                          className="text-[10px] text-[#64748B] flex items-center gap-1 mt-1 cursor-pointer hover:text-white transition-colors text-left"
+                        >
                           <Settings className="w-3 h-3" /> Özel Yetkileri Yönet
-                        </div>
+                        </button>
                       </div>
                     </td>
                     <td className="py-4 px-6">
@@ -253,6 +290,16 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        <button 
+                          onClick={() => {
+                            setEditingRoleUser(user);
+                            setSelectedRole(user.role);
+                          }}
+                          className="p-2 bg-white/[0.03] hover:bg-fuchsia-500/15 rounded-lg text-[#94A3B8] hover:text-fuchsia-400 transition-colors border border-white/[0.05]" 
+                          title="Rol & Yetkiyi Değiştir"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                        </button>
                         <button 
                           onClick={() => handleResetPassword(user.id)} 
                           className="p-2 bg-white/[0.03] hover:bg-amber-500/15 rounded-lg text-[#94A3B8] hover:text-amber-400 transition-colors border border-white/[0.05]" 
@@ -383,6 +430,67 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
                   className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:opacity-90 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-50"
                 >
                   {isCreating ? "Ekleniyor..." : "Kullanıcıyı Kaydet"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Role Modal */}
+      {editingRoleUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#0A0A0F] border border-white/[0.08] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/[0.05]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-400">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white">Rol & Yetki Düzenle</h3>
+                  <p className="text-xs text-[#64748B]">{editingRoleUser.name} ({editingRoleUser.email})</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEditingRoleUser(null)}
+                className="text-[#64748B] hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateRole} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#94A3B8] mb-2">Yetki Rolü Seçin</label>
+                <select 
+                  value={selectedRole}
+                  onChange={e => setSelectedRole(e.target.value)}
+                  className="w-full bg-[#12121A] border border-white/[0.1] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-fuchsia-500/50 transition-colors"
+                >
+                  <option value="SUPER_ADMIN">👑 Super Admin (Tam Yetkili)</option>
+                  <option value="AGENCY_OWNER">🏢 Agency Owner (Ajans Yöneticisi)</option>
+                  <option value="AGENCY_MEMBER">💻 Agency Member (Ekip / Geliştirici)</option>
+                  <option value="CLIENT_OWNER">👔 Client Owner (Müşteri Yöneticisi)</option>
+                  <option value="CLIENT_MEMBER">👤 Client Member (Müşteri Üyesi)</option>
+                </select>
+                <p className="text-xs text-[#64748B] mt-2 leading-relaxed">
+                  Super Admin ve Agency rolleri tüm yönetim paneline, müşteri rolleri ise yalnızca kendi müşteri portalına erişebilir.
+                </p>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3">
+                <button 
+                  type="button"
+                  onClick={() => setEditingRoleUser(null)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-white transition-colors"
+                >
+                  İptal
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isUpdatingRole}
+                  className="flex items-center gap-2 bg-gradient-to-r from-fuchsia-600 to-rose-600 hover:opacity-90 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all disabled:opacity-50"
+                >
+                  {isUpdatingRole ? "Kaydediliyor..." : "Rolü Güncelle"}
                 </button>
               </div>
             </form>
