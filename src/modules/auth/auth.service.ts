@@ -84,8 +84,14 @@ export class AuthService {
    * Authenticates a user with email and password.
    */
   static async login(input: LoginInput): Promise<Prisma.UserGetPayload<{}>> {
-    const user = await prisma.user.findUnique({
-      where: { email: input.email },
+    const cleanEmail = (input.email || '').trim();
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: cleanEmail,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!user || !user.passwordHash || user.deletedAt) {
