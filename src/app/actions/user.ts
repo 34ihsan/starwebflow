@@ -108,15 +108,20 @@ export async function createUser(data: {
   }
 }
 
-export async function deleteUser(userId: string, tenantId: string) {
+export async function deleteUser(userId: string, tenantId?: string) {
   try {
+    const existing = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existing) {
+      return { success: false, error: 'Kullanıcı bulunamadı.' };
+    }
+
     const user = await prisma.user.update({
-      where: { id: userId, tenantId },
+      where: { id: userId },
       data: { deletedAt: new Date() }
     });
 
     await logActivity({
-      tenantId,
+      tenantId: existing.tenantId,
       action: 'USER_DELETED',
       entityType: 'User',
       entityId: user.id,
@@ -125,21 +130,26 @@ export async function deleteUser(userId: string, tenantId: string) {
 
     safeRevalidatePath('/admin/users');
     return { success: true, data: user };
-  } catch (error) {
+  } catch (error: any) {
     console.error('deleteUser error:', error);
-    return { success: false, error: 'Failed to delete user' };
+    return { success: false, error: error?.message || 'Failed to delete user' };
   }
 }
 
-export async function updateUserRole(userId: string, tenantId: string, role: any) {
+export async function updateUserRole(userId: string, tenantId?: string, role?: any) {
   try {
+    const existing = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existing) {
+      return { success: false, error: 'Kullanıcı bulunamadı.' };
+    }
+
     const user = await prisma.user.update({
-      where: { id: userId, tenantId },
+      where: { id: userId },
       data: { role }
     });
 
     await logActivity({
-      tenantId,
+      tenantId: existing.tenantId,
       action: 'RBAC_UPDATE',
       entityType: 'User',
       entityId: user.id,
@@ -148,37 +158,39 @@ export async function updateUserRole(userId: string, tenantId: string, role: any
 
     safeRevalidatePath('/admin/users');
     return { success: true, data: user };
-  } catch (error) {
+  } catch (error: any) {
     console.error('updateUserRole error:', error);
-    return { success: false, error: 'Failed to update user role' };
+    return { success: false, error: error?.message || 'Failed to update user role' };
   }
 }
 
-export async function resetUserPassword(userId: string, tenantId: string) {
+export async function resetUserPassword(userId: string, tenantId?: string) {
   try {
+    const existing = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existing) {
+      return { success: false, error: 'Kullanıcı bulunamadı.' };
+    }
+
     const newPassword = randomBytes(8).toString('hex');
     const passwordHash = await hashPassword(newPassword);
 
     const user = await prisma.user.update({
-      where: { id: userId, tenantId },
+      where: { id: userId },
       data: { passwordHash }
     });
 
     await logActivity({
-      tenantId,
+      tenantId: existing.tenantId,
       action: 'SECURITY',
       entityType: 'User',
       entityId: user.id,
       details: `${user.name} için şifre sıfırlama talebi oluşturuldu.`
     });
 
-    // In a real scenario, this is where we'd trigger an email.
-    // For now, we'll return the new password to show in the UI for convenience.
-
     safeRevalidatePath('/admin/users');
     return { success: true, newPassword };
-  } catch (error) {
+  } catch (error: any) {
     console.error('resetUserPassword error:', error);
-    return { success: false, error: 'Failed to reset user password' };
+    return { success: false, error: error?.message || 'Failed to reset user password' };
   }
 }

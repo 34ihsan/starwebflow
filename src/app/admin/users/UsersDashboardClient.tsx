@@ -49,25 +49,26 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) return;
-    const tenantId = users.length > 0 ? users[0].tenantId : 'default-tenant';
-    const res = await deleteUser(userId, tenantId);
+    const targetUser = users.find(u => u.id === userId);
+    if (!window.confirm(`"${targetUser?.name || 'Bu kullanıcı'}" adlı kullanıcıyı sistemden silmek istediğinize emin misiniz?`)) return;
+    const res = await deleteUser(userId, targetUser?.tenantId);
     if (res.success) {
       setUsers(users.filter(u => u.id !== userId));
       showToast("Kullanıcı başarıyla silindi", "success");
     } else {
-      showToast("Kullanıcı silinemedi", "error");
+      showToast(res.error || "Kullanıcı silinemedi", "error");
     }
   };
 
   const handleResetPassword = async (userId: string) => {
-    if (!window.confirm("Bu kullanıcının şifresini sıfırlamak istiyor musunuz?")) return;
-    const tenantId = users.length > 0 ? users[0].tenantId : 'default-tenant';
-    const res = await resetUserPassword(userId, tenantId);
-    if (res.success) {
-      showToast(`Şifre sıfırlandı. Yeni şifre: ${res.newPassword}`, "success");
+    const targetUser = users.find(u => u.id === userId);
+    if (!window.confirm(`"${targetUser?.name || 'Bu kullanıcı'}" için yeni bir şifre üretilsin mi?`)) return;
+    const res = await resetUserPassword(userId, targetUser?.tenantId);
+    if (res.success && res.newPassword) {
+      alert(`🔐 ŞİFRE BAŞARIYLA SIFIRLANDI!\n\nKullanıcı: ${targetUser?.email}\nYeni Geçici Şifre: ${res.newPassword}\n\nLütfen bu yeni şifreyi kopyalayıp saklayın.`);
+      showToast(`Yeni şifre: ${res.newPassword}`, "success");
     } else {
-      showToast("Şifre sıfırlanamadı", "error");
+      showToast(res.error || "Şifre sıfırlanamadı", "error");
     }
   };
 
@@ -251,11 +252,19 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
                       </span>
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleResetPassword(user.id)} className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" title="Şifre Sıfırla">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button 
+                          onClick={() => handleResetPassword(user.id)} 
+                          className="p-2 bg-white/[0.03] hover:bg-amber-500/15 rounded-lg text-[#94A3B8] hover:text-amber-400 transition-colors border border-white/[0.05]" 
+                          title="Şifreyi Sıfırla"
+                        >
                           <Lock className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDeleteUser(user.id)} className="p-2 hover:bg-rose-500/10 rounded-lg text-rose-500 hover:text-rose-400 transition-colors" title="Kullanıcıyı Sil">
+                        <button 
+                          onClick={() => handleDeleteUser(user.id)} 
+                          className="p-2 bg-white/[0.03] hover:bg-rose-500/15 rounded-lg text-[#94A3B8] hover:text-rose-400 transition-colors border border-white/[0.05]" 
+                          title="Kullanıcıyı Sil"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
