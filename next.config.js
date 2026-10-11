@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'generativelanguage.googleapis.com' },
