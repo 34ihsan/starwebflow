@@ -77,36 +77,75 @@ interface RegionContextProps {
 
 const RegionContext = createContext<RegionContextProps | undefined>(undefined);
 
-export function RegionProvider({ children }: { children: React.ReactNode }) {
-  const { setLanguage } = useLanguage();
-  const [region, setRegionState] = useState<RegionMode>('DE_TR');
+export function RegionProvider({ 
+  children,
+  initialRegion = 'DE_DE'
+}: { 
+  children: React.ReactNode;
+  initialRegion?: RegionMode;
+}) {
+  const { language, setLanguage } = useLanguage();
+  const [region, setRegionState] = useState<RegionMode>(initialRegion);
 
+  // Initial load
   useEffect(() => {
-    const saved = localStorage.getItem('starwebflow-region') as RegionMode;
-    if (saved && REGION_CONFIGS[saved]) {
-      setRegionState(saved);
-      setLanguage(REGION_CONFIGS[saved].lang);
-    } else {
-      // Auto detect DACH / TR / Global
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      const userLang = navigator.language.toLowerCase();
+    const savedLang = localStorage.getItem('starwebflow-lang');
+    const savedRegion = localStorage.getItem('starwebflow-region') as RegionMode;
 
-      if (userLang.includes('tr') && (tz.includes('Europe/Berlin') || tz.includes('Europe/Vienna') || tz.includes('Europe/Zurich') || userLang.includes('de'))) {
-        // Turkish user in DACH area
+    if (savedLang && (savedLang === 'de' || savedLang === 'en' || savedLang === 'tr')) {
+      if (savedLang === 'de') {
+        setRegionState('DE_DE');
+      } else if (savedLang === 'en') {
+        setRegionState('EU_EN');
+      } else {
+        setRegionState(savedRegion === 'TR' ? 'TR' : 'DE_TR');
+      }
+      return;
+    }
+
+    if (savedRegion && REGION_CONFIGS[savedRegion]) {
+      setRegionState(savedRegion);
+      setLanguage(REGION_CONFIGS[savedRegion].lang);
+      return;
+    }
+
+    // Auto detect DACH / TR / Global
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const userLang = navigator.language.toLowerCase();
+
+    if (userLang.includes('de') || tz.includes('Europe/Berlin') || tz.includes('Europe/Vienna') || tz.includes('Europe/Zurich')) {
+      if (userLang.includes('tr')) {
         setRegionState('DE_TR');
         setLanguage('tr');
-      } else if (userLang.includes('de') || tz.includes('Europe/Berlin') || tz.includes('Europe/Vienna')) {
+      } else {
         setRegionState('DE_DE');
         setLanguage('de');
-      } else if (userLang.includes('tr') || tz.includes('Istanbul')) {
-        setRegionState('TR');
-        setLanguage('tr');
-      } else {
-        setRegionState('EU_EN');
-        setLanguage('en');
       }
+    } else if (userLang.includes('tr') || tz.includes('Istanbul')) {
+      setRegionState('TR');
+      setLanguage('tr');
+    } else {
+      setRegionState('EU_EN');
+      setLanguage('en');
     }
   }, []);
+
+  // Sync region whenever language changes
+  useEffect(() => {
+    if (language === 'de' && region !== 'DE_DE') {
+      setRegionState('DE_DE');
+      localStorage.setItem('starwebflow-region', 'DE_DE');
+      document.cookie = `starwebflow-region=DE_DE; path=/; max-age=31536000; SameSite=Lax`;
+    } else if (language === 'en' && region !== 'EU_EN') {
+      setRegionState('EU_EN');
+      localStorage.setItem('starwebflow-region', 'EU_EN');
+      document.cookie = `starwebflow-region=EU_EN; path=/; max-age=31536000; SameSite=Lax`;
+    } else if (language === 'tr' && region !== 'DE_TR' && region !== 'TR') {
+      setRegionState('DE_TR');
+      localStorage.setItem('starwebflow-region', 'DE_TR');
+      document.cookie = `starwebflow-region=DE_TR; path=/; max-age=31536000; SameSite=Lax`;
+    }
+  }, [language]);
 
   const setRegion = (mode: RegionMode) => {
     setRegionState(mode);

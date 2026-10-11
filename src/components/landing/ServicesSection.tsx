@@ -65,14 +65,14 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
 
         {/* --- ANIMATED VISUAL SPACE --- */}
         <div className="flex-grow flex items-center justify-center relative">
-          {service.badge === 'AI Agents' && (
+          {service.id === 'agents' && (
             <div className="relative w-full h-full min-h-[140px] flex items-center justify-center my-4">
               <div className="absolute inset-0 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/15 transition-all duration-700" />
               {/* Node flow visualization */}
               <div className="relative flex items-center gap-2">
                 {/* Input node */}
                 <div className="flex flex-col gap-1.5">
-                  {['CRM', 'E-posta', 'Chat'].map((label, i) => (
+                  {['CRM', service.langLabels.email, 'Chat'].map((label: string, i: number) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <div
                         className="px-2 py-0.5 rounded text-[9px] font-bold text-purple-300 border border-purple-500/20"
@@ -94,7 +94,7 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
                 </div>
                 {/* Output node */}
                 <div className="flex flex-col gap-1.5">
-                  {['Lead', 'Randevu', 'Rapor'].map((label, i) => (
+                  {['Lead', service.langLabels.meeting, service.langLabels.report].map((label: string, i: number) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <div className="w-4 h-px bg-gradient-to-r from-purple-500/10 to-purple-500/40" />
                       <div
@@ -112,7 +112,7 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
             </div>
           )}
 
-          {service.badge === 'AI Otomasyon' && (
+          {service.id === 'automation' && (
             <div className="relative w-full h-full min-h-[80px] flex items-center justify-center gap-4 my-4 opacity-60 group-hover:opacity-100 transition-opacity duration-500">
               <Cog className="w-10 h-10 text-emerald-500/50 animate-[spin_4s_linear_infinite]" />
               <div className="flex-grow max-w-[80px] h-0.5 bg-emerald-500/20 relative overflow-hidden rounded-full">
@@ -123,7 +123,7 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
             </div>
           )}
 
-          {service.badge === 'Web Sitesi' && (
+          {service.id === 'web' && (
             <div className="relative w-full h-full min-h-[80px] flex items-center justify-center my-4 gap-4">
               {/* Browser mockup */}
               <div className="w-28 h-20 rounded-lg border border-blue-500/20 bg-blue-500/5 overflow-hidden group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.3)] transition-all duration-500 flex-shrink-0">
@@ -157,7 +157,7 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
             </div>
           )}
 
-          {service.badge === 'Web Uygulama' && (
+          {service.id === 'saas' && (
             <div className="relative w-full h-full min-h-[80px] flex items-end justify-center gap-1.5 my-4 pb-2">
               {[40, 70, 50, 90, 60].map((h, i) => (
                 <div 
@@ -177,7 +177,7 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
             </div>
           )}
 
-          {service.badge === 'Reklam & Sosyal' && (
+          {service.id === 'marketing' && (
             <div className="relative w-full h-full min-h-[120px] flex items-center justify-center my-4">
               <div className="absolute inset-0 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-700" />
               <svg className="w-full max-w-[180px] h-20 overflow-visible" viewBox="0 0 100 50">
@@ -245,12 +245,20 @@ export default function ServicesSection() {
     return () => observer.disconnect()
   }, [])
 
+  const langLabels = {
+    email: language === 'de' ? 'E-Mail' : language === 'en' ? 'Email' : 'E-posta',
+    meeting: language === 'de' ? 'Termin' : language === 'en' ? 'Meeting' : 'Randevu',
+    report: language === 'de' ? 'Bericht' : language === 'en' ? 'Report' : 'Rapor',
+  }
+
   const services = [
     {
+      id: 'agents',
       icon: Bot,
       color: '#8B5CF6',
       glowColor: 'purple' as const,
       badge: 'AI Agents',
+      langLabels,
       href: '/hizmetler/ai-agents',
       title: t('services.agents.title'),
       description: t('services.agents.desc'),
@@ -263,10 +271,12 @@ export default function ServicesSection() {
       metric: language === 'tr' ? '10x İnsan Verimliliği (7/24 Aktif)' : language === 'de' ? '70% schnellere Antwort' : '70% Faster Response'
     },
     {
+      id: 'automation',
       icon: Cog,
       color: '#10B981',
       glowColor: 'emerald' as const,
-      badge: 'AI Otomasyon',
+      badge: language === 'de' ? 'KI-Automation' : language === 'en' ? 'AI Automation' : 'AI Otomasyon',
+      langLabels,
       href: '/hizmetler/ai-otomasyon',
       title: t('services.automation.title'),
       description: t('services.automation.desc'),
@@ -279,10 +289,12 @@ export default function ServicesSection() {
       metric: language === 'tr' ? '100+ Saat/Ay Tasarruf' : language === 'de' ? '30+ Std. Ersparnis' : '30+ Hours Saved'
     },
     {
+      id: 'web',
       icon: Globe,
       color: '#4F8EF7',
       glowColor: 'blue' as const,
-      badge: 'Web Sitesi',
+      badge: language === 'de' ? 'Website' : language === 'en' ? 'Website' : 'Web Sitesi',
+      langLabels,
       href: '/hizmetler/web-gelistirme',
       title: t('services.web.title'),
       description: t('services.web.desc'),
@@ -295,10 +307,12 @@ export default function ServicesSection() {
       metric: language === 'tr' ? '3x Ziyaretçi Dönüşümü' : language === 'de' ? '3x Conversion-Rate' : '3x Conversion Rate'
     },
     {
+      id: 'saas',
       icon: Monitor,
       color: '#06B6D4',
       glowColor: 'cyan' as const,
-      badge: 'Web Uygulama',
+      badge: language === 'de' ? 'Web-App & SaaS' : language === 'en' ? 'Web App & SaaS' : 'Web Uygulama',
+      langLabels,
       href: '/hizmetler/web-uygulamasi',
       title: t('services.saas.title'),
       description: t('services.saas.desc'),
@@ -311,10 +325,12 @@ export default function ServicesSection() {
       metric: language === 'tr' ? '%99.9 Uptime Garantisi' : '99.9% Uptime'
     },
     {
+      id: 'marketing',
       icon: Megaphone,
       color: '#F59E0B',
       glowColor: 'amber' as const,
-      badge: 'Reklam & Sosyal',
+      badge: language === 'de' ? 'Werbung & Social' : language === 'en' ? 'Ads & Social' : 'Reklam & Sosyal',
+      langLabels,
       href: '/hizmetler/reklam-sosyal-medya',
       title: t('services.marketing.title'),
       description: t('services.marketing.desc'),
@@ -332,7 +348,7 @@ export default function ServicesSection() {
     <section
       id="services"
       className="section relative overflow-hidden"
-      aria-label="StarWebFlow Hizmetler: AI Agents, Web Sitesi, Otomasyon, SaaS, Dijital Pazarlama"
+      aria-label={language === 'de' ? 'StarWebFlow Dienstleistungen' : language === 'en' ? 'StarWebFlow Services' : 'StarWebFlow Hizmetler'}
     >
       <div className="absolute inset-0 mesh-bg pointer-events-none" />
 

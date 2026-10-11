@@ -28,7 +28,7 @@ export default function Navbar() {
       desc: language === 'de' ? 'Lädt in unter 0,4s, verhindert Absprünge und verdreifacht die Conversion-Rate.' : language === 'en' ? '0.4s load time prevents visitor drop-off and triples sales conversion.' : '0.4s açılış süresi ile ziyaretçi kaybını önler, satış dönüşümünü 3x artırır.',
       href: '/hizmetler/web-gelistirme',
       color: '#4F8EF7',
-      badge: 'SSR / Ultra Hız',
+      badge: language === 'de' ? 'SSR / Ultra-Speed' : language === 'en' ? 'SSR / Ultra Speed' : 'SSR / Ultra Hız',
     },
     {
       icon: Monitor,
@@ -42,7 +42,7 @@ export default function Navbar() {
     {
       icon: Bot,
       label: language === 'de' ? 'Autonome KI-Agenten' : language === 'en' ? 'Autonomous AI Agents' : 'Otonom AI Ajanları',
-      subLabel: 'LLM & RAG Mimarisi',
+      subLabel: language === 'de' ? 'LLM & RAG-Architektur' : language === 'en' ? 'LLM & RAG Architecture' : 'LLM & RAG Mimarisi',
       desc: language === 'de' ? 'Rund-um-die-Uhr Kundenbetreuung, automatische Angebotserstellung und Terminbuchung.' : language === 'en' ? '24/7 client inquiries, automated proposals, and direct calendar appointments.' : '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
       href: '/hizmetler/ai-agents',
       color: '#8B5CF6',
@@ -51,7 +51,7 @@ export default function Navbar() {
     {
       icon: Cog,
       label: language === 'de' ? 'Kognitive Workflow-Automatisierung' : language === 'en' ? 'Cognitive Workflow Automation' : 'Kognitif İş Akışı Otomasyonu',
-      subLabel: 'n8n & API Entegrasyonu',
+      subLabel: language === 'de' ? 'n8n & API-Integration' : language === 'en' ? 'n8n & API Integration' : 'n8n & API Entegrasyonu',
       desc: language === 'de' ? 'Spart Ihrem Team durch intelligente Automatisierungen wöchentlich 15+ Stunden.' : language === 'en' ? 'Saves your team 15+ hours weekly by automating operational processes.' : 'Süreçleri otomatikleştirerek ekibinize haftalık 15+ saat kazandırır.',
       href: '/hizmetler/ai-otomasyon',
       color: '#10B981',

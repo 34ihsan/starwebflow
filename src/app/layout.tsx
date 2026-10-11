@@ -1,11 +1,13 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import './globals.css'
 import CookieConsent from '@/components/ui/CookieConsent'
 import SystemHealthWidget from '@/components/ui/SystemHealthWidget'
 import SchemaMarkup from '@/components/ui/SchemaMarkup'
 import { LanguageProvider } from '@/lib/i18n/LanguageContext'
-import { RegionProvider } from '@/lib/i18n/RegionContext'
+import { RegionProvider, RegionMode } from '@/lib/i18n/RegionContext'
+import { LanguageType } from '@/lib/i18n/dictionaries'
 import TrackingScripts from '@/components/marketing/TrackingScripts'
 import AnalyticsTracker from '@/components/analytics/AnalyticsTracker'
 import { prisma } from '@/lib/prisma'
@@ -91,8 +93,18 @@ export default async function RootLayout({
   } catch (error) {
     console.error("Failed to load settings:", error);
   }
+
+  const cookieStore = cookies();
+  const rawLang = cookieStore.get('starwebflow-lang')?.value;
+  const initialLanguage: LanguageType = (rawLang === 'de' || rawLang === 'en' || rawLang === 'tr') ? rawLang : 'de';
+
+  const rawRegion = cookieStore.get('starwebflow-region')?.value as RegionMode | undefined;
+  const initialRegion: RegionMode = (rawRegion && ['DE_TR', 'DE_DE', 'TR', 'EU_EN'].includes(rawRegion))
+    ? rawRegion
+    : (initialLanguage === 'de' ? 'DE_DE' : initialLanguage === 'en' ? 'EU_EN' : 'DE_TR');
+
   return (
-    <html lang="tr" className="dark" suppressHydrationWarning>
+    <html lang={initialLanguage} className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -113,8 +125,8 @@ export default async function RootLayout({
       </head>
       <body className="bg-[#0A0A0F] text-white antialiased overflow-x-hidden" suppressHydrationWarning>
         <SettingsProvider initialSettings={dbSettings}>
-          <LanguageProvider>
-            <RegionProvider>
+          <LanguageProvider initialLanguage={initialLanguage}>
+            <RegionProvider initialRegion={initialRegion}>
               <RecaptchaProvider>
                 <Suspense fallback={null}>
                   <AnalyticsTracker />

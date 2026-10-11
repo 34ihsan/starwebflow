@@ -11,19 +11,27 @@ interface LanguageContextProps {
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<LanguageType>('tr');
+export function LanguageProvider({ 
+  children,
+  initialLanguage = 'de'
+}: { 
+  children: React.ReactNode;
+  initialLanguage?: LanguageType;
+}) {
+  const [language, setLanguageState] = useState<LanguageType>(initialLanguage);
 
   // Sayfa yüklendiğinde dil tercihini yerel depodan veya tarayıcıdan oku
   useEffect(() => {
     const savedLang = localStorage.getItem('starwebflow-lang') as LanguageType;
     if (savedLang && (savedLang === 'tr' || savedLang === 'en' || savedLang === 'de')) {
       setLanguageState(savedLang);
+      document.documentElement.lang = savedLang;
     } else {
       // Tarayıcı dilini algıla
       const browserLang = navigator.language.substring(0, 2).toLowerCase();
       if (browserLang === 'en' || browserLang === 'de' || browserLang === 'tr') {
         setLanguageState(browserLang as LanguageType);
+        document.documentElement.lang = browserLang;
       }
     }
   }, []);
@@ -31,6 +39,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLanguage = (lang: LanguageType) => {
     setLanguageState(lang);
     localStorage.setItem('starwebflow-lang', lang);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
     
     // CookieConsent veya tarayıcı ayarları için çerezi güncelle
     document.cookie = `starwebflow-lang=${lang}; path=/; max-age=31536000; SameSite=Lax`;

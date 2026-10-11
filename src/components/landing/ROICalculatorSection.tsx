@@ -25,6 +25,19 @@ export default function ROICalculatorSection() {
   const aiSavings = monthlyCost * 0.8 // %80 savings
 
   useEffect(() => {
+    if (language === 'de') {
+      setCurrencyCode('EUR')
+      setHourlyRate(50)
+    } else if (language === 'en') {
+      setCurrencyCode('USD')
+      setHourlyRate(45)
+    } else {
+      setCurrencyCode('TRY')
+      setHourlyRate(300)
+    }
+  }, [language])
+
+  useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const observer = new IntersectionObserver(

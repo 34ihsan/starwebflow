@@ -131,7 +131,11 @@ export default function CaseStudiesSection() {
       description: t('caseStudies.items.c7.description'),
       metric: { value: t('caseStudies.items.c7.m1Val'), label: t('caseStudies.items.c7.m1Label') },
       metric2: { value: t('caseStudies.items.c7.m2Val'), label: t('caseStudies.items.c7.m2Label') },
-      tags: ['Emlak AI', 'Lead Gen', 'WhatsApp Sunum'],
+      tags: language === 'tr'
+        ? ['Emlak AI', 'Lead Gen', 'WhatsApp Sunum']
+        : language === 'de'
+        ? ['Immobilien-KI', 'Lead-Gen', 'WhatsApp-Präsentation']
+        : ['Real Estate AI', 'Lead Gen', 'WhatsApp Pitch'],
       icon2: Users,
     },
     {
@@ -145,7 +149,11 @@ export default function CaseStudiesSection() {
       description: t('caseStudies.items.c8.description'),
       metric: { value: t('caseStudies.items.c8.m1Val'), label: t('caseStudies.items.c8.m1Label') },
       metric2: { value: t('caseStudies.items.c8.m2Val'), label: t('caseStudies.items.c8.m2Label') },
-      tags: ['Sağlık Turizmi AI', 'Çoklu Dil', 'CRM Sync'],
+      tags: language === 'tr'
+        ? ['Sağlık Turizmi AI', 'Çoklu Dil', 'CRM Sync']
+        : language === 'de'
+        ? ['Medizintourismus-KI', 'Mehrsprachig', 'CRM-Sync']
+        : ['Medical Tourism AI', 'Multilingual', 'CRM Sync'],
       icon2: Clock,
     },
   ]

@@ -224,6 +224,16 @@ export default function CTABanner() {
   const { getToken } = useRecaptcha()
 
   useEffect(() => {
+    if (language === 'de') {
+      setCurrencyCode('EUR')
+    } else if (language === 'en') {
+      setCurrencyCode('USD')
+    } else {
+      setCurrencyCode('TRY')
+    }
+  }, [language])
+
+  useEffect(() => {
     const el = sectionRef.current
     if (!el) return
     const observer = new IntersectionObserver(

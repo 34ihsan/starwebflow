@@ -4,14 +4,32 @@ import { useRef, useEffect, useState } from 'react'
 import { ShieldCheck, Lock, Server, Eye, FileKey, Fingerprint, Globe, Clock } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
-const certifications = [
-  { label: 'KVKK', desc: 'Türkiye' },
-  { label: 'GDPR', desc: 'Avrupa Birliği' },
-  { label: 'SSL/TLS', desc: 'Bank-Grade' },
-  { label: 'NDA', desc: 'Gizlilik Anlaşması' },
-  { label: '99.9%', desc: 'Uptime SLA' },
-  { label: 'ISO 27001', desc: 'Altyapı' },
-]
+const certificationsByLang = {
+  de: [
+    { label: 'DSGVO', desc: 'EU-Datenschutz' },
+    { label: 'GDPR / AVV', desc: 'Rechtssicherheit' },
+    { label: 'SSL/TLS', desc: 'Bank-Grade' },
+    { label: 'NDA', desc: 'Geheimhaltung' },
+    { label: '99.9%', desc: 'Uptime SLA' },
+    { label: 'ISO 27001', desc: 'Infrastruktur' },
+  ],
+  en: [
+    { label: 'GDPR', desc: 'European Union' },
+    { label: 'DPA / AVV', desc: 'Compliance' },
+    { label: 'SSL/TLS', desc: 'Bank-Grade' },
+    { label: 'NDA', desc: 'Non-Disclosure' },
+    { label: '99.9%', desc: 'Uptime SLA' },
+    { label: 'ISO 27001', desc: 'Infrastructure' },
+  ],
+  tr: [
+    { label: 'KVKK', desc: 'Türkiye' },
+    { label: 'GDPR', desc: 'Avrupa Birliği' },
+    { label: 'SSL/TLS', desc: 'Bank-Grade' },
+    { label: 'NDA', desc: 'Gizlilik Anlaşması' },
+    { label: '99.9%', desc: 'Uptime SLA' },
+    { label: 'ISO 27001', desc: 'Altyapı' },
+  ],
+}
 
 const features = {
   tr: [
@@ -51,6 +69,7 @@ export default function SecuritySection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
+  const certifications = certificationsByLang[language] || certificationsByLang.tr
   const items = features[language] || features.tr
   const titles = {
     tr: { badge: 'Güvenlik & Uyumluluk', h2: 'Bank-Grade', h2g: ' Güvenlik Altyapısı', sub: 'Verileriniz, müşteri bilgileriniz ve iş akışlarınız en yüksek güvenlik standartlarıyla korunur. Güvenliği size bırakın.' },
