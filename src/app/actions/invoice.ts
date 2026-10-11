@@ -28,6 +28,7 @@ export async function createInvoice(data: {
   tenantId: string;
   projectId?: string;
   clientCompanyId?: string;
+  invoiceNo?: string;
   netAmount: number;
   taxRate: number;
   taxAmount: number;
@@ -47,43 +48,55 @@ export async function createInvoice(data: {
   }>;
 }) {
   try {
-    const year = (data.invoiceDate ? new Date(data.invoiceDate) : new Date()).getFullYear();
-    const prefix = `RE-${year}-`;
-    
-    const latestInvoice = await prisma.invoice.findFirst({
-      where: {
-        tenantId: data.tenantId,
-        invoiceNo: { startsWith: prefix }
-      },
-      orderBy: { invoiceNo: 'desc' }
-    });
+    let finalInvoiceNo = data.invoiceNo?.trim();
 
-    let nextNumber = 1;
-    if (latestInvoice && latestInvoice.invoiceNo) {
-      const parts = latestInvoice.invoiceNo.split('-');
-      if (parts.length === 3) {
-        const lastNum = parseInt(parts[2], 10);
-        if (!isNaN(lastNum)) nextNumber = lastNum + 1;
-      }
-    }
-    let newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
-    
-    let isUnique = false;
-    while (!isUnique) {
+    if (finalInvoiceNo) {
       const existing = await prisma.invoice.findUnique({
-        where: { invoiceNo: newInvoiceNo }
+        where: { invoiceNo: finalInvoiceNo }
       });
       if (existing) {
-        nextNumber++;
-        newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
-      } else {
-        isUnique = true;
+        return { success: false, error: `"${finalInvoiceNo}" numaralı fatura zaten mevcut. Lütfen farklı bir numara girin.` };
       }
+    } else {
+      const year = (data.invoiceDate ? new Date(data.invoiceDate) : new Date()).getFullYear();
+      const prefix = `RE-${year}-`;
+      
+      const latestInvoice = await prisma.invoice.findFirst({
+        where: {
+          tenantId: data.tenantId,
+          invoiceNo: { startsWith: prefix }
+        },
+        orderBy: { invoiceNo: 'desc' }
+      });
+
+      let nextNumber = 1;
+      if (latestInvoice && latestInvoice.invoiceNo) {
+        const parts = latestInvoice.invoiceNo.split('-');
+        if (parts.length === 3) {
+          const lastNum = parseInt(parts[2], 10);
+          if (!isNaN(lastNum)) nextNumber = lastNum + 1;
+        }
+      }
+      let newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+      
+      let isUnique = false;
+      while (!isUnique) {
+        const existing = await prisma.invoice.findUnique({
+          where: { invoiceNo: newInvoiceNo }
+        });
+        if (existing) {
+          nextNumber++;
+          newInvoiceNo = `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+        } else {
+          isUnique = true;
+        }
+      }
+      finalInvoiceNo = newInvoiceNo;
     }
 
     const invoice = await prisma.invoice.create({
       data: {
-        invoiceNo: newInvoiceNo,
+        invoiceNo: finalInvoiceNo,
         tenantId: data.tenantId,
         projectId: data.projectId,
         clientCompanyId: data.clientCompanyId,
@@ -160,6 +173,16 @@ export async function deleteInvoice(id: string, tenantId: string) {
 
 export async function updateInvoice(id: string, tenantId: string, data: any) {
   try {
+    if (data.invoiceNo && typeof data.invoiceNo === 'string' && data.invoiceNo.trim()) {
+      const cleanInvoiceNo = data.invoiceNo.trim();
+      const existing = await prisma.invoice.findUnique({
+        where: { invoiceNo: cleanInvoiceNo }
+      });
+      if (existing && existing.id !== id) {
+        return { success: false, error: `"${cleanInvoiceNo}" numaralı fatura zaten mevcut. Lütfen farklı bir numara girin.` };
+      }
+    }
+
     // Delete existing items
     await prisma.invoiceItem.deleteMany({
       where: { invoiceId: id }
@@ -169,6 +192,7 @@ export async function updateInvoice(id: string, tenantId: string, data: any) {
     const invoice = await prisma.invoice.update({
       where: { id, tenantId },
       data: {
+        ...(data.invoiceNo && data.invoiceNo.trim() ? { invoiceNo: data.invoiceNo.trim() } : {}),
         projectId: data.projectId,
         clientCompanyId: data.clientCompanyId,
         netAmount: data.netAmount,

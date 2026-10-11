@@ -56,6 +56,26 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(79, 142, 247, 0.4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
 
+/* ─── Text Selection (Text Seçimi) ─── */
+::selection {
+  background-color: #4F8EF7;
+  color: #000000 !important;
+}
+::-moz-selection {
+  background-color: #4F8EF7;
+  color: #000000 !important;
+}
+input::selection, textarea::selection {
+  background-color: #4F8EF7;
+  color: #000000 !important;
+}
+
+/* ─── Native Select Options (Açılır Seçim Menüleri) ─── */
+select option, select optgroup {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}
+
 /* ─── Keyframe Animations ─── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(40px); }

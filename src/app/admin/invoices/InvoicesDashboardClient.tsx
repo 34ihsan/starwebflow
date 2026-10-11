@@ -881,6 +881,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [savingClient, setSavingClient] = useState(false);
 
   const [invoiceData, setInvoiceData] = useState({
+    invoiceNo: "",
     projectId: "",
     clientCompanyId: "",
     currency: "EUR",
@@ -997,6 +998,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
 
       const payload = {
         tenantId: tenantId,
+        invoiceNo: invoiceData.invoiceNo?.trim() || undefined,
         projectId: invoiceData.projectId || undefined,
         clientCompanyId: finalClientId,
         netAmount,
@@ -1055,7 +1057,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         vatId: selectedClient.vatId
       },
       invoice: {
-        invoiceNo: "TASLAK-001",
+        invoiceNo: invoiceData.invoiceNo?.trim() || "TASLAK-001",
         invoiceDate: new Date(invoiceData.invoiceDate),
         deliveryDate: new Date(invoiceData.deliveryDate),
         deliveryEndDate: invoiceData.deliveryEndDate ? new Date(invoiceData.deliveryEndDate) : undefined,
@@ -1268,6 +1270,17 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               <Send className="w-4 h-4" /> {sending ? 'İletiliyor...' : 'Müşteriye İlet'}
             </button>
             <button 
+              onClick={() => {
+                const inv = viewInvoice;
+                setViewInvoice(null);
+                handleEditInvoice(inv);
+              }}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm transition-colors flex items-center gap-2 font-medium"
+              title="Faturayı Düzenle"
+            >
+              <Edit3 className="w-4 h-4" /> Düzenle
+            </button>
+            <button 
               onClick={() => setViewInvoice(null)}
               className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm transition-colors"
             >
@@ -1280,19 +1293,55 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     );
   };
 
+  const handleOpenNewInvoice = () => {
+    setEditInvoiceId(null);
+    setIsCreatingNewClient(false);
+
+    // Auto-calculate next invoice number
+    const year = new Date().getFullYear();
+    const prefix = `RE-${year}-`;
+    let maxNum = 0;
+    invoices.forEach(i => {
+      if (i.invoiceNo && i.invoiceNo.startsWith(prefix)) {
+        const parts = i.invoiceNo.split('-');
+        if (parts.length === 3) {
+          const num = parseInt(parts[2], 10);
+          if (!isNaN(num) && num > maxNum) maxNum = num;
+        }
+      }
+    });
+    const defaultInvoiceNo = `${prefix}${(maxNum + 1).toString().padStart(4, '0')}`;
+
+    setInvoiceData({
+      invoiceNo: defaultInvoiceNo,
+      projectId: "",
+      clientCompanyId: "",
+      currency: "EUR",
+      taxRate: 19,
+      invoiceDate: new Date().toISOString().split('T')[0],
+      deliveryDate: new Date().toISOString().split('T')[0],
+      deliveryEndDate: "",
+      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      notes: "",
+      items: [{ description: "", quantity: 1, unitPrice: 0 }]
+    });
+    setIsAddInvoiceModalOpen(true);
+  };
+
   const handleEditInvoice = (invoice: any) => {
     setEditInvoiceId(invoice.id);
     setInvoiceData({
+      invoiceNo: invoice.invoiceNo || "",
       projectId: invoice.projectId || "",
       clientCompanyId: invoice.clientCompanyId || "",
       currency: invoice.currency || "EUR",
-      taxRate: invoice.taxRate || 19,
-      invoiceDate: new Date(invoice.invoiceDate).toISOString().split('T')[0],
-      deliveryDate: new Date(invoice.deliveryDate).toISOString().split('T')[0],
+      taxRate: invoice.taxRate !== undefined && invoice.taxRate !== null ? Number(invoice.taxRate) : 19,
+      invoiceDate: invoice.invoiceDate ? new Date(invoice.invoiceDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      deliveryDate: invoice.deliveryDate ? new Date(invoice.deliveryDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       deliveryEndDate: invoice.deliveryEndDate ? new Date(invoice.deliveryEndDate).toISOString().split('T')[0] : "",
-      dueDate: new Date(invoice.dueDate).toISOString().split('T')[0],
+      dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       notes: invoice.notes || "",
-      items: invoice.items.length > 0 ? invoice.items.map((item: any) => ({
+      items: invoice.items && invoice.items.length > 0 ? invoice.items.map((item: any) => ({
         description: item.description,
         quantity: Number(item.quantity),
         unitPrice: Number(item.unitPrice)
@@ -1327,7 +1376,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                   className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
                 />
               </div>
-              <button onClick={() => setIsAddInvoiceModalOpen(true)}
+              <button onClick={handleOpenNewInvoice}
                 className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]">
                 <Plus className="w-4 h-4" /> Yeni Fatura Kes
               </button>
@@ -1750,7 +1799,9 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 py-10 overflow-y-auto">
           <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-4xl w-full shadow-2xl my-auto flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0A0A0F] z-10">
-              <h3 className="text-xl font-bold text-white">Yeni Fatura Kes (Finanzamt Uyumlu)</h3>
+              <h3 className="text-xl font-bold text-white">
+                {editInvoiceId ? `Faturayı Düzenle (${invoiceData.invoiceNo || ''})` : 'Yeni Fatura Kes (Finanzamt Uyumlu)'}
+              </h3>
               <button onClick={() => setIsAddInvoiceModalOpen(false)} className="text-[#64748B] hover:text-white">✕</button>
             </div>
             
@@ -1776,18 +1827,18 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                       value={invoiceData.clientCompanyId}
                       onChange={e => setInvoiceData({...invoiceData, clientCompanyId: e.target.value})}
                     >
-                      <option value="">-- Müşteri Seçin --</option>
+                      <option value="" className="text-black bg-white">-- Müşteri Seçin --</option>
                       {companies.length > 0 && (
-                        <optgroup label="📋 Kayıtlı Müşteriler">
+                        <optgroup label="📋 Kayıtlı Müşteriler" className="text-black bg-white">
                           {companies.map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                            <option key={c.id} value={c.id} className="text-black bg-white">{c.name}</option>
                           ))}
                         </optgroup>
                       )}
                       {crmLeadsNotInCompanies.length > 0 && (
-                        <optgroup label="🔗 CRM Leadleri (Aktarılmamış)">
+                        <optgroup label="🔗 CRM Leadleri (Aktarılmamış)" className="text-black bg-white">
                           {crmLeadsNotInCompanies.map((lead: any) => (
-                            <option key={`crm-${lead.id}`} value={`crm-${lead.id}`}>
+                            <option key={`crm-${lead.id}`} value={`crm-${lead.id}`} className="text-black bg-white">
                               {lead.companyName || lead.name} (CRM)
                             </option>
                           ))}
@@ -1817,9 +1868,9 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                       value={invoiceData.projectId}
                       onChange={e => setInvoiceData({...invoiceData, projectId: e.target.value})}
                     >
-                      <option value="">-- Proje Seçin --</option>
+                      <option value="" className="text-black bg-white">-- Proje Seçin --</option>
                       {projects.map(p => (
-                        <option key={p.id} value={p.id}>{p.title}</option>
+                        <option key={p.id} value={p.id} className="text-black bg-white">{p.title}</option>
                       ))}
                     </select>
                   </div>
@@ -1829,6 +1880,16 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                 <div className="space-y-4">
                   <h4 className="font-semibold text-white border-b border-white/10 pb-2">Fatura Ayarları</h4>
                   <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <label className="block text-xs text-[#94A3B8] mb-1">Fatura Numarası (Rechnungsnr.)</label>
+                      <input 
+                        type="text" 
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2 font-mono text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                        placeholder="Örn: RE-2026-0001" 
+                        value={invoiceData.invoiceNo} 
+                        onChange={e => setInvoiceData({...invoiceData, invoiceNo: e.target.value})}
+                      />
+                    </div>
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">Fatura Tarihi (Rechnungsdatum)</label>
                       <input type="date" className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.invoiceDate} onChange={e => setInvoiceData({...invoiceData, invoiceDate: e.target.value})}/>
@@ -1848,15 +1909,15 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">Para Birimi</label>
                       <select className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.currency} onChange={e => setInvoiceData({...invoiceData, currency: e.target.value})}>
-                        {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                        {CURRENCIES.map(c => <option key={c.code} value={c.code} className="text-black bg-white">{c.code}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="block text-xs text-[#94A3B8] mb-1">KDV (MwSt) %</label>
                       <select className="w-full bg-white/5 border border-white/10 text-white rounded-lg px-3 py-2" value={invoiceData.taxRate} onChange={e => setInvoiceData({...invoiceData, taxRate: Number(e.target.value)})}>
-                        <option value={19}>19%</option>
-                        <option value={7}>7%</option>
-                        <option value={0}>0% (Reverse Charge)</option>
+                        <option value={19} className="text-black bg-white">19%</option>
+                        <option value={7} className="text-black bg-white">7%</option>
+                        <option value={0} className="text-black bg-white">0% (Reverse Charge)</option>
                       </select>
                     </div>
                   </div>
@@ -1933,7 +1994,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               <div className="flex gap-3">
                 <button onClick={() => setIsAddInvoiceModalOpen(false)} className="px-5 py-2.5 rounded-xl text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">İptal</button>
                 <button onClick={handleSaveInvoice} disabled={loading} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6] text-white hover:opacity-90 transition-opacity text-sm font-medium disabled:opacity-50">
-                  {loading ? 'Oluşturuluyor...' : 'Faturayı Oluştur'}
+                  {loading ? 'Kaydediliyor...' : (editInvoiceId ? 'Faturayı Güncelle' : 'Faturayı Oluştur')}
                 </button>
               </div>
             </div>
