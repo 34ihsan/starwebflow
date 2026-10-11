@@ -9,7 +9,8 @@ cd "$(dirname "$0")/.." || exit
 
 # Pull latest changes
 echo "Pulling from git..."
-git pull origin main || { echo "Git pull failed"; exit 1; }
+git fetch origin main
+git reset --hard origin/main
 
 # Install dependencies
 echo "Installing dependencies..."
