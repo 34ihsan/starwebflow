@@ -103,12 +103,15 @@ export async function createEmailMailbox(data: {
       ]);
     }
 
+    // Google & Yahoo 2024 DNS Kuralı: SPF veya DKIM eksikse WARNING ile başlat
+    const initialStatus = (!spfStatus && !dkimStatus) ? 'WARNING' : 'WARMUP';
+
     const mailbox = await prisma.emailMailbox.create({
       data: {
         tenant: { connect: { id: data.tenantId } },
         email: data.email,
-        status: 'WARMUP',
-        reputation: 100,
+        status: initialStatus,
+        reputation: initialStatus === 'WARNING' ? 70 : 100,
         limit: data.dailyLimit || 50,
         provider: data.provider,
         smtpHost: data.smtpHost,
@@ -127,7 +130,13 @@ export async function createEmailMailbox(data: {
       }
     });
     safeRevalidatePath('/admin/email');
-    return { success: true, data: mailbox };
+    return { 
+      success: true, 
+      data: mailbox,
+      dnsWarning: (!spfStatus || !dkimStatus || !dmarcStatus) 
+        ? 'DNS kayıtlarınız (SPF/DKIM/DMARC) henüz tam doğrulanmadı. Gelen kutusuna düşme oranını korumak için lütfen DNS kayıtlarınızı ekleyin.' 
+        : null 
+    };
   } catch (error) {
     console.error('createEmailMailbox error:', error);
     return { success: false, error: 'Failed to create mailbox' };
@@ -154,18 +163,34 @@ export async function verifyMailboxDns(mailboxId: string) {
       checkDKIM(domain),
       checkDMARC(domain)
     ]);
+
+    // DNS kayıtları düzelmişse ve durum WARNING ise otonom olarak WARMUP moduna al
+    let newStatus = mailbox.status;
+    let newReputation = mailbox.reputation;
+    if (spfStatus && (dkimStatus || dmarcStatus) && mailbox.status === 'WARNING') {
+      newStatus = 'WARMUP';
+      newReputation = Math.max(90, mailbox.reputation + 15);
+    }
     
     const updatedMailbox = await prisma.emailMailbox.update({
       where: { id: mailboxId },
       data: {
         spfStatus,
         dkimStatus,
-        dmarcStatus
+        dmarcStatus,
+        status: newStatus,
+        reputation: newReputation
       }
     });
     
     safeRevalidatePath('/admin/email');
-    return { success: true, data: updatedMailbox };
+    return { 
+      success: true, 
+      data: updatedMailbox,
+      message: spfStatus && dkimStatus && dmarcStatus
+        ? 'Mükemmel! Tüm DNS (SPF, DKIM, DMARC) kayıtları başarıyla doğrulandı.'
+        : 'Bazı DNS kayıtları eksik. Lütfen paneldeki DNS yönergelerini kontrol edin.'
+    };
   } catch (error) {
     console.error('verifyMailboxDns error:', error);
     return { success: false, error: 'Failed to verify DNS records' };

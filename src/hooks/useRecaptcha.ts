@@ -8,7 +8,8 @@ import { useCallback } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 export function useRecaptcha() {
-  const { executeRecaptcha } = useGoogleReCaptcha();
+  const recaptchaContext = useGoogleReCaptcha();
+  const executeRecaptcha = recaptchaContext?.executeRecaptcha;
 
   /**
    * @param action - Form adı (örn: 'login', 'register', 'lead_form')

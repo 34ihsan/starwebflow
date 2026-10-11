@@ -22,6 +22,9 @@ import LeadCaptureModal from '@/components/marketing/LeadCaptureModal'
 import QuickQuoteForm from '@/components/marketing/QuickQuoteForm'
 import FAQSection from '@/components/landing/FAQSection'
 import TestimonialsSection from '@/components/landing/TestimonialsSection'
+import GEOContent from '@/components/ui/GEOContent'
+
+import EuropeTurksTrustSection from '@/components/landing/EuropeTurksTrustSection'
 
 export default function LandingPage() {
   return (
@@ -37,6 +40,7 @@ export default function LandingPage() {
       <div id="before-after"><BeforeAfterComparison /></div>
       <div id="flow"><DataFlowSection /></div>
       <div id="why-us"><WhyUsSection /></div>
+      <div id="europe-turks"><EuropeTurksTrustSection /></div>
       <div id="roi"><ROICalculatorSection /></div>
       <div id="pricing"><PricingSection /></div>
       <div id="case-studies"><CaseStudiesSection /></div>
@@ -55,6 +59,8 @@ export default function LandingPage() {
       <Footer />
       <ChatWidget />
       <LeadCaptureModal />
+      {/* GEO — AI Citation Content (invisible to users, readable by AI crawlers) */}
+      <GEOContent />
     </main>
   )
 }

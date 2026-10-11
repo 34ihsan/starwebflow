@@ -2,7 +2,7 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 
-const PROJECT_DIR = 'c:\\Users\\sinan\\Desktop\\projeler\\starwebflow';
+const PROJECT_DIR = process.env.PROJECT_DIR || __dirname;
 process.chdir(PROJECT_DIR);
 
 const dev = false;

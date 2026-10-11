@@ -82,18 +82,18 @@ export default function BeforeAfterComparison() {
             <div className="grid grid-cols-3 gap-3 mt-8 max-w-md">
               <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10 text-center">
                 <Gauge className="w-5 h-5 text-rose-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">Hız Skoru</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'Hız Skoru' : isDe ? 'Geschwindigkeit' : 'Speed Score'}</span>
                 <span className="text-lg font-bold text-rose-400">34 / 100</span>
               </div>
               <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10 text-center">
                 <Zap className="w-5 h-5 text-rose-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">LCP Süresi</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'LCP Süresi' : isDe ? 'LCP-Zeit' : 'LCP Time'}</span>
                 <span className="text-lg font-bold text-rose-400">4.2s</span>
               </div>
               <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/10 text-center">
                 <TrendingUp className="w-5 h-5 text-rose-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">Dönüşüm</span>
-                <span className="text-lg font-bold text-rose-400">%1.2</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'Dönüşüm' : isDe ? 'Conversion' : 'Conversion'}</span>
+                <span className="text-lg font-bold text-rose-400">1.2%</span>
               </div>
             </div>
           </div>
@@ -134,18 +134,18 @@ export default function BeforeAfterComparison() {
             <div className="grid grid-cols-3 gap-3 mt-8 max-w-md ml-auto">
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                 <Gauge className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">Hız Skoru</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'Hız Skoru' : isDe ? 'Geschwindigkeit' : 'Speed Score'}</span>
                 <span className="text-lg font-bold text-emerald-400">99 / 100</span>
               </div>
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                 <Zap className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">LCP Süresi</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'LCP Süresi' : isDe ? 'LCP-Zeit' : 'LCP Time'}</span>
                 <span className="text-lg font-bold text-emerald-400">0.38s</span>
               </div>
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                 <TrendingUp className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
-                <span className="block text-xs text-[#94A3B8]">Dönüşüm</span>
-                <span className="text-lg font-bold text-emerald-400">%4.8</span>
+                <span className="block text-xs text-[#94A3B8]">{isTr ? 'Dönüşüm' : isDe ? 'Conversion' : 'Conversion'}</span>
+                <span className="text-lg font-bold text-emerald-400">4.8%</span>
               </div>
             </div>
           </div>

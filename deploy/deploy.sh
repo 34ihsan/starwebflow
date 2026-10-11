@@ -15,8 +15,9 @@ git pull origin main || { echo "Git pull failed"; exit 1; }
 echo "Installing dependencies..."
 npm install || npm ci --legacy-peer-deps
 
-# Generate Prisma Client & Push DB
-echo "Updating Database..."
+# Generate Prisma Client & Safe DB Schema Sync
+# WARNING: NEVER USE --accept-data-loss OR prisma migrate reset ON PRODUCTION!
+echo "Updating Database Safely..."
 npx prisma generate
 npx prisma db push
 
@@ -39,9 +40,9 @@ else
   exit 1
 fi
 
-# Reload PM2 cleanly with zero-downtime
-echo "Reloading PM2..."
-pm2 reload starwebflow || pm2 start npm --name "starwebflow" -- start
+# Reload PM2 cleanly with zero-downtime (Web & Cron)
+echo "Reloading PM2 applications (StarWebFlow & Cron)..."
+pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
 
 # Save PM2 state
 pm2 save

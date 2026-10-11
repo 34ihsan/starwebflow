@@ -1,6 +1,7 @@
 'use client'
 
-import { Zap, AtSign, Link2, Code2, Mail, Phone, MapPin } from 'lucide-react'
+import Link from 'next/link'
+import { Zap, AtSign, Link2, Code2, Mail, Phone, MapPin, Shield } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
 
@@ -16,21 +17,29 @@ const socials = [
 ]
 
 export default function Footer() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { settings } = useSettings()
 
   const links = {
     services: [
-      { label: t('footer.links.web'), href: '#services' },
-      { label: t('footer.links.automation'), href: '#services' },
-      { label: t('footer.links.agents'), href: '#services' },
-      { label: t('footer.links.marketing'), href: '#services' },
+      { label: t('footer.links.web'), href: '/hizmetler/web-gelistirme' },
+      { label: t('footer.links.automation'), href: '/hizmetler/ai-otomasyon' },
+      { label: t('footer.links.agents'), href: '/hizmetler/ai-agents' },
+      { label: t('footer.links.marketing'), href: '/hizmetler/reklam-sosyal-medya' },
+      { label: language === 'tr' ? 'SaaS Geliştirme' : language === 'de' ? 'SaaS-Entwicklung' : 'SaaS Development', href: '/hizmetler/web-uygulamasi' },
     ],
     company: [
-      { label: t('footer.links.about'), href: '#why-us' },
-      { label: t('footer.links.process'), href: '#process' },
-      { label: t('footer.links.cases'), href: '#cases' },
-      { label: t('footer.links.pricing'), href: '#pricing' },
+      { label: t('footer.links.about'), href: '/#why-us' },
+      { label: t('footer.links.process'), href: '/#process' },
+      { label: t('footer.links.cases'), href: '/#cases' },
+      { label: t('footer.links.pricing'), href: '/#pricing' },
+      { label: language === 'tr' ? 'Blog' : 'Blog', href: '/blog' },
+    ],
+    sectors: [
+      { label: language === 'tr' ? 'Sağlık & Klinik' : language === 'de' ? 'Gesundheit' : 'Healthcare', href: '/sektorler/saglik' },
+      { label: language === 'tr' ? 'Hukuk & Avukat' : language === 'de' ? 'Rechtsanwalt' : 'Legal', href: '/sektorler/hukuk' },
+      { label: language === 'tr' ? 'E-Ticaret' : language === 'de' ? 'E-Commerce' : 'E-Commerce', href: '/sektorler/e-ticaret' },
+      { label: language === 'tr' ? 'Lojistik' : language === 'de' ? 'Logistik' : 'Logistics', href: '/sektorler/lojistik' },
     ],
     legal: [
       { label: t('footer.links.privacy'), href: '/datenschutz' },
@@ -54,7 +63,7 @@ export default function Footer() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer */}
-        <div className="py-16 grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="py-16 grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand column */}
           <div className="col-span-2">
             <a
@@ -108,12 +117,12 @@ export default function Footer() {
             <ul className="space-y-3">
               {links.services.map((link) => (
                 <li key={link.label}>
-                  <button
-                    onClick={() => handleNavClick(link.href)}
+                  <Link
+                    href={link.href}
                     className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -124,12 +133,31 @@ export default function Footer() {
             <ul className="space-y-3">
               {links.company.map((link) => (
                 <li key={link.label}>
-                  <button
-                    onClick={() => handleNavClick(link.href)}
+                  <Link
+                    href={link.href}
                     className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
                   >
                     {link.label}
-                  </button>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Sectors column — GEO & internal linking */}
+          <div>
+            <h4 className="text-sm font-semibold text-white mb-4">
+              {language === 'tr' ? 'Sektörler' : language === 'de' ? 'Branchen' : 'Industries'}
+            </h4>
+            <ul className="space-y-3">
+              {links.sectors.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -157,9 +185,20 @@ export default function Footer() {
           <p className="text-xs text-[#475569]">
             © {new Date().getFullYear()} StarWebFlow. {t('footer.rights')}
           </p>
-          <div className="flex items-center gap-2 text-xs text-[#475569]">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-            {t('footer.status')}
+          <div className="flex items-center gap-4">
+            {/* AI Accessible badge */}
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+              style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)' }}
+              title="This page is optimized for AI search engines (ChatGPT, Claude, Gemini, Perplexity)"
+            >
+              <Shield className="w-3 h-3 text-[#4F8EF7]" aria-hidden="true" />
+              <span className="text-[9px] font-bold text-[#4F8EF7] tracking-widest uppercase">AI-Accessible</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[#475569]">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+              {t('footer.status')}
+            </div>
           </div>
         </div>
       </div>

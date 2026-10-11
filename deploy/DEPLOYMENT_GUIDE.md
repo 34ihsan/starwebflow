@@ -54,12 +54,18 @@ Bu kılavuz, uygulamanızı Hostinger VPS'inize Cloudflare, PM2 ve Nginx kullana
    ```bash
    cd /var/www/starwebflow
    ```
-2. Bağımlılıkları kurun ve projeyi derleyin:
+2. Bağımlılıkları kurun, veritabanını güvenle senkronize edin ve projeyi derleyin:
    ```bash
    npm ci
    npx prisma generate
+   npx prisma db push
    npm run build
    ```
+   > ⚠️ **KRİTİK VERİTABANI GÜVENLİK KURALI:**
+   > - Canlı ortamda **ASLA** `npx prisma db push --accept-data-loss` çalıştırmayın.
+   > - Canlı ortamda **ASLA** `npx prisma migrate reset` veya `npx prisma migrate dev` çalıştırmayın.
+   > - `npx prisma db push` veri kaybı uyarısı verirse işlemi derhal **İPTAL EDİN (ABORT)**.
+
 3. Uygulamayı PM2 kullanarak başlatın (bu işlem `ecosystem.config.js` dosyasını kullanır):
    ```bash
    pm2 start ecosystem.config.js

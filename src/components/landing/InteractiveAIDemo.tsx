@@ -3,34 +3,80 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Sparkles, Bot, User, CheckCircle2 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 const demoChats = {
-  ecommerce: [
-    { role: 'user', text: 'Sepette ürün bırakan müşterilere ne yapabiliriz?' },
-    { role: 'ai', text: 'Terk edilen sepetleri tarıyorum... 14 potansiyel müşteri bulundu. Hepsine isimleriyle hitap eden ve %10 kişiye özel indirim sunan WhatsApp mesajlarını hazırladım. Gönderilsin mi?' },
-    { role: 'user', text: 'Evet, hemen gönder.' },
-    { role: 'ai', text: 'Mesajlar saniyeler içinde iletildi. 3 müşteri siparişi tamamladı. Kazanılan ekstra ciro: 12.450 TL. (Harcanan zaman: 0 saniye)' }
-  ],
-  b2b: [
-    { role: 'user', text: 'Web sitesinden gelen yeni kurumsal talep var mı?' },
-    { role: 'ai', text: 'Evet, TechCorp firmasından yeni bir lead geldi. 100k+ bütçeli bir yazılım projesi. Talebini okudum, özetledim ve HubSpot CRM\'e kaydettim.' },
-    { role: 'user', text: 'Harika, ona bir toplantı bağlantısı yollar mısın?' },
-    { role: 'ai', text: 'Toplantı daveti gönderildi ve takviminize işlendi. Ayrıca rakip analizi dosyasını satış ekibinizin Slack kanalına ilettim.' }
-  ],
-  clinic: [
-    { role: 'user', text: 'Gece randevu talebi gelmiş mi?' },
-    { role: 'ai', text: 'Gece 02:15\'te bir hasta İmplant tedavisi için WhatsApp\'tan ulaştı. Klasik sorularını yanıtladım ve Perşembe 14:00 için randevusunu oluşturup sisteme girdim.' },
-    { role: 'user', text: 'Süper. Hastaya hatırlatma gidecek mi?' },
-    { role: 'ai', text: 'Randevudan 24 saat önce otomatik onay WhatsApp mesajı planlandı. Asistanınızın yapması gereken hiçbir şey kalmadı.' }
-  ]
+  tr: {
+    ecommerce: [
+      { role: 'user', text: 'Sepette ürün bırakan müşterilere ne yapabiliriz?' },
+      { role: 'ai', text: 'Terk edilen sepetleri tarıyorum... 14 potansiyel müşteri bulundu. Hepsine isimleriyle hitap eden ve %10 kişiye özel indirim sunan WhatsApp mesajlarını hazırladım. Gönderilsin mi?' },
+      { role: 'user', text: 'Evet, hemen gönder.' },
+      { role: 'ai', text: 'Mesajlar saniyeler içinde iletildi. 3 müşteri siparişi tamamladı. Kazanılan ekstra ciro: 12.450 € / TL. (Harcanan zaman: 0 saniye)' }
+    ],
+    b2b: [
+      { role: 'user', text: 'Web sitesinden gelen yeni kurumsal talep var mı?' },
+      { role: 'ai', text: 'Evet, TechCorp firmasından yeni bir lead geldi. 100k+ bütçeli bir yazılım projesi. Talebini okudum, özetledim ve HubSpot CRM\'e kaydettim.' },
+      { role: 'user', text: 'Harika, ona bir toplantı bağlantısı yollar mısın?' },
+      { role: 'ai', text: 'Toplantı daveti gönderildi ve takviminize işlendi. Ayrıca rakip analizi dosyasını satış ekibinizin Slack kanalına ilettim.' }
+    ],
+    clinic: [
+      { role: 'user', text: 'Gece randevu talebi gelmiş mi?' },
+      { role: 'ai', text: 'Gece 02:15\'te bir hasta İmplant tedavisi için WhatsApp\'tan ulaştı. Klasik sorularını yanıtladım ve Perşembe 14:00 için randevusunu oluşturup sisteme girdim.' },
+      { role: 'user', text: 'Süper. Hastaya hatırlatma gidecek mi?' },
+      { role: 'ai', text: 'Randevudan 24 saat önce otomatik onay WhatsApp mesajı planlandı. Asistanınızın yapması gereken hiçbir şey kalmadı.' }
+    ]
+  },
+  de: {
+    ecommerce: [
+      { role: 'user', text: 'Was können wir für Kunden tun, die Produkte im Warenkorb lassen?' },
+      { role: 'ai', text: 'Scanne verlassene Warenkörbe... 14 potenzielle Kunden gefunden. WhatsApp-Nachrichten mit persönlicher Anrede und 10% Rabatt vorbereitet. Senden?' },
+      { role: 'user', text: 'Ja, sofort senden.' },
+      { role: 'ai', text: 'Nachrichten in Sekunden zugestellt. 3 Kunden haben die Bestellung abgeschlossen. Generierter Mehrumsatz: 2.450 €. (Zeitaufwand: 0 Sekunden)' }
+    ],
+    b2b: [
+      { role: 'user', text: 'Gibt es neue B2B-Anfragen von der Website?' },
+      { role: 'ai', text: 'Ja, neue Lead von TechCorp. Softwareprojekt mit 100k+ Budget. Anfrage gelesen, zusammengefasst und im HubSpot CRM gespeichert.' },
+      { role: 'user', text: 'Großartig, kannst du einen Meeting-Link senden?' },
+      { role: 'ai', text: 'Meeting-Einladung gesendet und im Kalender eingetragen. Wettbewerbsanalyse an den Slack-Kanal des Vertriebsteams weitergeleitet.' }
+    ],
+    clinic: [
+      { role: 'user', text: 'Gab es heute Nacht Terminfragen?' },
+      { role: 'ai', text: 'Um 02:15 Uhr hat ein Patient bezüglich einer Implantatbehandlung via WhatsApp angefragt. Fragen beantwortet und Termin für Donnerstag 14:00 Uhr gebucht.' },
+      { role: 'user', text: 'Super. Erhält der Patient eine Erinnerung?' },
+      { role: 'ai', text: 'Automatische Bestätigungsnachricht 24 Stunden vor dem Termin ist geplant. Ihr Assistent muss nichts weiter tun.' }
+    ]
+  },
+  en: {
+    ecommerce: [
+      { role: 'user', text: 'What can we do for customers who leave items in their cart?' },
+      { role: 'ai', text: 'Scanning abandoned carts... 14 potential customers found. Prepared personalized WhatsApp messages offering a 10% discount. Send now?' },
+      { role: 'user', text: 'Yes, send immediately.' },
+      { role: 'ai', text: 'Messages delivered in seconds. 3 customers completed their order. Extra revenue generated: €2,450. (Time spent: 0 seconds)' }
+    ],
+    b2b: [
+      { role: 'user', text: 'Are there any new B2B inquiries from the website?' },
+      { role: 'ai', text: 'Yes, a new lead from TechCorp. A software project with a €100k+ budget. Read the request, summarized it, and saved to HubSpot CRM.' },
+      { role: 'user', text: 'Great, can you send them a meeting link?' },
+      { role: 'ai', text: 'Meeting invitation sent and scheduled in your calendar. Competitor analysis document forwarded to the sales team Slack channel.' }
+    ],
+    clinic: [
+      { role: 'user', text: 'Were there any appointment requests overnight?' },
+      { role: 'ai', text: 'At 2:15 AM a patient reached out via WhatsApp regarding implant treatment. Answered their questions and booked a slot for Thursday at 2 PM.' },
+      { role: 'user', text: 'Awesome. Will the patient get a reminder?' },
+      { role: 'ai', text: 'Automated WhatsApp confirmation scheduled 24 hours prior to the appointment. Zero manual work left for your team.' }
+    ]
+  }
 }
 
 export default function InteractiveAIDemo() {
+  const { language } = useLanguage()
   const [activeSector, setActiveSector] = useState<'ecommerce' | 'b2b' | 'clinic'>('ecommerce')
   const [messages, setMessages] = useState<{role: string, text: string}[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [step, setStep] = useState(0)
   const chatRef = useRef<HTMLDivElement>(null)
+
+  const activeLangChats = demoChats[language] || demoChats.tr
 
   useEffect(() => {
     setMessages([])
@@ -39,18 +85,17 @@ export default function InteractiveAIDemo() {
     
     const timer = setTimeout(() => {
       setIsTyping(false)
-      setMessages([demoChats[activeSector][0]])
+      setMessages([activeLangChats[activeSector][0]])
       setStep(1)
     }, 800)
 
     return () => clearTimeout(timer)
-  }, [activeSector])
+  }, [activeSector, language])
 
   useEffect(() => {
-    if (step > 0 && step < demoChats[activeSector].length) {
+    if (step > 0 && step < activeLangChats[activeSector].length) {
       setIsTyping(true)
-      const currentMsg = demoChats[activeSector][step]
-      // AI messages take a bit longer to simulate thinking
+      const currentMsg = activeLangChats[activeSector][step]
       const delay = currentMsg.role === 'ai' ? 1800 : 1200
       
       const timer = setTimeout(() => {
@@ -61,7 +106,7 @@ export default function InteractiveAIDemo() {
 
       return () => clearTimeout(timer)
     }
-  }, [step, activeSector])
+  }, [step, activeSector, language])
 
   useEffect(() => {
     if (chatRef.current) {
@@ -82,16 +127,24 @@ export default function InteractiveAIDemo() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-[#10B981]/30 mb-6 text-[#10B981]"
           >
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Anlatmıyoruz, Gösteriyoruz</span>
+            <span className="text-sm font-medium">
+              {language === 'tr' ? 'Anlatmıyoruz, Gösteriyoruz' : language === 'de' ? 'Wir zeigen es Ihnen live' : 'Show, Don\'t Tell'}
+            </span>
           </motion.div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white font-['Outfit']"
           >
-            Bir Yapay Zeka Ajanı <br/>Nasıl Çalışır?
+            {language === 'tr' ? (
+              <>Bir Yapay Zeka Ajanı <br/><span className="gradient-text">Nasıl Çalışır?</span></>
+            ) : language === 'de' ? (
+              <>Wie funktioniert ein <br/><span className="gradient-text">KI-Agent?</span></>
+            ) : (
+              <>How Does an <br/><span className="gradient-text">AI Agent Work?</span></>
+            )}
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -100,36 +153,42 @@ export default function InteractiveAIDemo() {
             transition={{ delay: 0.2 }}
             className="text-lg text-gray-400"
           >
-            Sektörünüzü seçin ve sistemimizin operasyonel yükünüzü saniyeler içinde nasıl devraldığını canlı izleyin.
+            {language === 'tr' 
+              ? 'Sektörünüzü seçin ve sistemimizin operasyonel yükünüzü saniyeler içinde nasıl devraldığını canlı izleyin.' 
+              : language === 'de' 
+              ? 'Wählen Sie Ihre Branche und beobachten Sie live, wie unser System Ihre operative Last übernimmt.' 
+              : 'Select your industry and watch live how our system takes over your operational burden.'}
           </motion.p>
         </div>
 
         <div className="max-w-4xl mx-auto bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row h-[750px] sm:h-[650px] md:h-[550px]">
-          {/* Sidebar */}
-          <div className="md:w-1/3 bg-black/40 border-b md:border-b-0 md:border-r border-white/5 p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 shrink-0 z-10">
-            <h3 className="text-white font-semibold mb-1 sm:mb-2">Sektör Seçin</h3>
+          {/* Sidebar Tabs */}
+          <div className="w-full md:w-80 bg-black/40 border-b md:border-b-0 md:border-r border-white/5 p-4 space-y-2 shrink-0">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 px-2">
+              {language === 'tr' ? 'Sektör Seçin' : language === 'de' ? 'Branche wählen' : 'Select Industry'}
+            </div>
             {[
-              { id: 'ecommerce', label: 'E-Ticaret & Perakende' },
-              { id: 'b2b', label: 'Kurumsal (B2B)' },
-              { id: 'clinic', label: 'Sağlık & Klinik' }
-            ].map(sector => (
+              { id: 'ecommerce', label: language === 'tr' ? 'E-Ticaret & Perakende' : language === 'de' ? 'E-Commerce & Einzelhandel' : 'E-Commerce & Retail' },
+              { id: 'b2b',       label: language === 'tr' ? 'Kurumsal (B2B)' : language === 'de' ? 'Unternehmen (B2B)' : 'Corporate (B2B)' },
+              { id: 'clinic',    label: language === 'tr' ? 'Sağlık & Klinik' : language === 'de' ? 'Gesundheit & Kliniken' : 'Healthcare & Clinics' }
+            ].map((tab) => (
               <button
-                key={sector.id}
-                onClick={() => setActiveSector(sector.id as any)}
-                className={`p-3 sm:p-4 rounded-xl text-left transition-all ${
-                  activeSector === sector.id 
-                    ? 'bg-[#8B5CF6]/20 border border-[#8B5CF6]/50 text-white' 
-                    : 'bg-white/5 border border-transparent text-gray-400 hover:bg-white/10'
+                key={tab.id}
+                onClick={() => setActiveSector(tab.id as any)}
+                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 relative ${
+                  activeSector === tab.id
+                    ? 'bg-white/10 border-[#8B5CF6] text-white'
+                    : 'bg-white/5 border-transparent text-gray-400 hover:bg-white/[0.07] hover:text-gray-300'
                 }`}
               >
-                <div className="font-medium">{sector.label}</div>
-                {activeSector === sector.id && (
-                  <motion.div layoutId="active-indicator" className="mt-2 text-xs text-[#8B5CF6] flex items-center gap-1">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8B5CF6] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8B5CF6]"></span>
-                    </span>
-                    Simülasyon Aktif
+                <div className="font-semibold text-sm">{tab.label}</div>
+                {activeSector === tab.id && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="flex items-center gap-1 text-xs text-[#10B981] mt-1"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+                    <span>{language === 'tr' ? 'Simülasyon Aktif' : language === 'de' ? 'Simulation Aktiv' : 'Simulation Active'}</span>
                   </motion.div>
                 )}
               </button>
@@ -145,9 +204,12 @@ export default function InteractiveAIDemo() {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="text-white font-medium">StarWebflow Operasyon Ajanı</div>
+                  <div className="text-white font-medium">
+                    {language === 'tr' ? 'StarWebflow Operasyon Ajanı' : language === 'de' ? 'StarWebFlow Operations-Agent' : 'StarWebFlow Operations Agent'}
+                  </div>
                   <div className="text-xs text-[#10B981] flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> Çevrimiçi & Hazır
+                    <CheckCircle2 className="w-3 h-3" />
+                    {language === 'tr' ? 'Çevrimiçi & Hazır' : language === 'de' ? 'Online & Bereit' : 'Online & Ready'}
                   </div>
                 </div>
               </div>
@@ -170,7 +232,11 @@ export default function InteractiveAIDemo() {
                     }`}>
                       <div className="flex items-center gap-2 mb-2 opacity-50">
                         {msg.role === 'user' ? <User className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
-                        <span className="text-xs uppercase tracking-wider">{msg.role === 'user' ? 'Siz (Patron)' : 'AI Ajan'}</span>
+                        <span className="text-xs uppercase tracking-wider">
+                          {msg.role === 'user' 
+                            ? (language === 'tr' ? 'Siz (Patron)' : language === 'de' ? 'Sie (Geschäftsführer)' : 'You (Boss)') 
+                            : (language === 'tr' ? 'AI Ajan' : language === 'de' ? 'KI-Agent' : 'AI Agent')}
+                        </span>
                       </div>
                       <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
@@ -200,8 +266,12 @@ export default function InteractiveAIDemo() {
                 <input 
                   type="text" 
                   disabled
-                  placeholder={step >= demoChats[activeSector].length && !isTyping ? "Senaryo tamamlandı..." : "Ajan işlem yapıyor..."}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-400 placeholder:text-gray-600 focus:outline-none"
+                  placeholder={
+                    step >= activeLangChats[activeSector].length && !isTyping 
+                      ? (language === 'tr' ? 'Senaryo tamamlandı...' : language === 'de' ? 'Szenario abgeschlossen...' : 'Scenario completed...') 
+                      : (language === 'tr' ? 'Ajan işlem yapıyor...' : language === 'de' ? 'Agent verarbeitet...' : 'Agent processing...')
+                  }
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-gray-400 placeholder:text-gray-600 focus:outline-none text-xs sm:text-sm"
                 />
                 <button disabled className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/5 rounded-lg text-gray-500">
                   <Send className="w-4 h-4" />

@@ -5,14 +5,93 @@ import { Bot, Sparkles, X, Send, ChevronDown, BrainCircuit, Zap } from 'lucide-r
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
 import { useSectionTracker } from '@/hooks/useSectionTracker';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { LanguageType } from '@/lib/i18n/dictionaries';
 
 const TRACKED_SECTIONS = ['hero', 'services', 'pricing', 'process', 'roi'];
+
+interface ChatTranslation {
+  welcome: string;
+  headerSubtitle: string;
+  closeLabel: string;
+  placeholder: string;
+  footerBadge: string;
+  quickActions: { label: string; prompt: string }[];
+}
+
+const chatTranslations: Record<LanguageType, ChatTranslation> = {
+  de: {
+    welcome: "Hallo! Ich bin der autonome KI-Assistent von StarWebFlow. ⚡\n\nIch entwerfe Architekturen für digitale Transformation und künstliche Intelligenz, die zu 100 % den gesetzlichen Standards in Deutschland (DSGVO), der Europäischen Union (GDPR) und der Türkei (KVKK) entsprechen.\n\nWebprojekte, KI-Agenten, n8n-Workflows oder Werbestrategien: Ich kann Ihre Fragen sofort beantworten und ein maßgeschneidertes Angebot für Sie erstellen.\n\nIn welchem Markt (DE / EU / TR) sind Sie tätig – wollen wir uns austauschen? 👇",
+    headerSubtitle: "Autonomer KI-Berater",
+    closeLabel: "Schließen",
+    placeholder: "Ihre Nachricht eingeben...",
+    footerBadge: "Star KI-Agent • DSGVO & KVKK Verschlüsselt 🔒",
+    quickActions: [
+      {
+        label: "🇩🇪 DSGVO-konformes KI-Agent-Angebot anfordern",
+        prompt: "Ich möchte ein KI-Agent-Angebot nach deutschen & EU-Rechtsstandards (DSGVO) erhalten."
+      },
+      {
+        label: "🌐 Web & SaaS-Angebot berechnen",
+        prompt: "Ich interessiere mich für ein Sub-Second Next.js Webprojekt und ein individuelles SaaS-Angebot."
+      },
+      {
+        label: "📅 Live-Termin mit Experten vereinbaren",
+        prompt: "Ich möchte ein persönliches Beratungsgespräch mit einem Ihrer Experten vereinbaren."
+      }
+    ]
+  },
+  en: {
+    welcome: "Hello! I am StarWebFlow's autonomous AI assistant. ⚡\n\nI design digital transformation and AI architectures that are 100% compliant with legal standards in Germany (GDPR/DSGVO), the European Union, and Turkey (KVKK).\n\nWeb projects, AI Agents, n8n workflows, or advertising strategies: I can instantly answer your questions and prepare a customized proposal for you.\n\nWhich market (DE / EU / TR) do you operate in – shall we chat? 👇",
+    headerSubtitle: "Autonomous AI Consultant",
+    closeLabel: "Close",
+    placeholder: "Type your message...",
+    footerBadge: "Star AI Agent • GDPR & KVKK Encrypted 🔒",
+    quickActions: [
+      {
+        label: "🇩🇪 Get GDPR-Compliant AI Agent Quote",
+        prompt: "I would like to receive an AI Agent quote compliant with German & EU legal standards (GDPR)."
+      },
+      {
+        label: "🌐 Calculate Web & SaaS Price Quote",
+        prompt: "I would like a price quote for a Sub-Second Next.js web project and custom SaaS."
+      },
+      {
+        label: "📅 Schedule a Live Call with an Expert",
+        prompt: "I would like to schedule a live consultation call with one of your experts."
+      }
+    ]
+  },
+  tr: {
+    welcome: "Merhaba! Ben StarWebFlow otonom AI temsilcisiyim. ⚡\n\nAlmanya (DSGVO), Avrupa Birliği (GDPR) ve Türkiye (KVKK) yasal standartlarına %100 uyumlu dijital dönüşüm ve yapay zeka mimarileri tasarlıyorum.\n\nWeb projesi, AI Agent, n8n iş akışları veya reklam stratejileri hakkında sorularınızı anında yanıtlayabilir, size özel fiyat teklifi hazırlayabilirim.\n\nHangi pazarda (DE / EU / TR) hizmet veriyorsunuz, konuşalım mı? 👇",
+    headerSubtitle: "Otonom Satış Temsilcisi",
+    closeLabel: "Kapat",
+    placeholder: "Mesajınızı yazın...",
+    footerBadge: "Star AI Ajanı • DSGVO & KVKK Encrypted 🔒",
+    quickActions: [
+      {
+        label: "🇩🇪 DSGVO Uyumlu AI Agent Teklifi Al",
+        prompt: "Almanya & AB yasal standartlarında (DSGVO) AI Agent teklifi almak istiyorum."
+      },
+      {
+        label: "🌐 Web & SaaS Fiyat Teklifi Hesapla",
+        prompt: "Sub-Second Next.js web projesi ve özel SaaS fiyat teklifi istiyorum."
+      },
+      {
+        label: "📅 Uzman ile Canlı Randevu Ayarla",
+        prompt: "Proje hakkında uzmanınızla canlı randevu görüşmesi ayarlamak istiyorum."
+      }
+    ]
+  }
+};
 
 export default function ChatWidget() {
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpenedAutomatically, setHasOpenedAutomatically] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
+  const tChat = chatTranslations[language] || chatTranslations.tr;
 
   useEffect(() => {
     setMounted(true);
@@ -21,21 +100,38 @@ export default function ChatWidget() {
   // Track sections
   const { activeSection, timeOnPage } = useSectionTracker(TRACKED_SECTIONS);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
+  const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading, append } = useChat({
     api: '/api/chat',
     initialMessages: [
       {
         id: 'welcome',
         role: 'assistant',
-        content: "Merhaba! Ben StarWebflow'un otonom büyüme temsilcisiyim. ⚡\n\nSıradan bir chat kutusu değilim; işletmenizin ihtiyaçlarını analiz eden ve size özel dijital büyüme stratejileri çıkaran bir yapay zeka ajanıyım.\n\nSayfamızı incelerken; web tasarım, SEO veya otonom iş akışları (AI Agents) paketlerimizin detaylarını ve fiyat tekliflerini sizin için anında hesaplayabilirim.\n\nHangi sektördesiniz, dijital hedeflerinizi konuşalım mı? 👇"
+        content: tChat.welcome
       }
     ],
     body: {
       tenantId: 'default-tenant',
       activeSection,
-      timeOnPage
+      timeOnPage,
+      language
     }
   });
+
+  // Keep initial welcome message synced when language switches and user hasn't messaged yet
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].id === 'welcome') {
+      const activeWelcome = (chatTranslations[language] || chatTranslations.tr).welcome;
+      if (messages[0].content !== activeWelcome) {
+        setMessages([
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: activeWelcome
+          }
+        ]);
+      }
+    }
+  }, [language, messages, setMessages]);
 
   // Proactive Engagement Trigger
   useEffect(() => {
@@ -89,13 +185,13 @@ export default function ChatWidget() {
                     StarWebflow AI
                     <Sparkles className="w-3.5 h-3.5 text-[#D946EF] animate-pulse" />
                   </h4>
-                  <p className="text-[11px] text-slate-400 font-medium">Otonom Satış Temsilcisi</p>
+                  <p className="text-[11px] text-slate-400 font-medium">{tChat.headerSubtitle}</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)} 
                 className="p-2 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl transition-all duration-200 active:scale-95"
-                aria-label="Kapat"
+                aria-label={tChat.closeLabel}
               >
                 <ChevronDown className="w-6 h-6" />
               </button>
@@ -132,27 +228,22 @@ export default function ChatWidget() {
                 {/* Quick Actions (only show when there's 1 message) */}
                 {messages.length === 1 && !isLoading && (
                   <div className="flex flex-col gap-2 mt-1 ml-9 max-w-[85%] self-start animate-fade-in-up">
-                    <button 
-                      onClick={() => append({ role: 'user', content: 'Web projem için fiyat teklifi almak istiyorum.' })}
-                      className="text-left text-xs bg-white/5 hover:bg-[#8B5CF6]/20 text-slate-300 hover:text-white border border-white/10 hover:border-[#8B5CF6]/50 rounded-xl px-3.5 py-2.5 transition-all duration-300 flex items-center gap-2"
-                    >
-                      <Zap className="w-3.5 h-3.5 text-[#D946EF]" />
-                      Bütçeme Özel Fiyat Teklifi Al
-                    </button>
-                    <button 
-                      onClick={() => append({ role: 'user', content: 'Sektörüme özel ücretsiz analiz raporu ve danışmanlık talep ediyorum.' })}
-                      className="text-left text-xs bg-white/5 hover:bg-[#8B5CF6]/20 text-slate-300 hover:text-white border border-white/10 hover:border-[#8B5CF6]/50 rounded-xl px-3.5 py-2.5 transition-all duration-300 flex items-center gap-2"
-                    >
-                      <BrainCircuit className="w-3.5 h-3.5 text-[#8B5CF6]" />
-                      Ücretsiz Proje Analizi İste
-                    </button>
-                    <button 
-                      onClick={() => append({ role: 'user', content: 'Yetkili biriyle görüşme ayarlamak istiyorum.' })}
-                      className="text-left text-xs bg-white/5 hover:bg-[#8B5CF6]/20 text-slate-300 hover:text-white border border-white/10 hover:border-[#8B5CF6]/50 rounded-xl px-3.5 py-2.5 transition-all duration-300 flex items-center gap-2"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-[#6366F1]" />
-                      Yetkili ile Görüşme Ayarla
-                    </button>
+                    {tChat.quickActions.map((qa, idx) => (
+                      <button 
+                        key={idx}
+                        onClick={() => append({ role: 'user', content: qa.prompt })}
+                        className="text-left text-xs bg-white/5 hover:bg-[#8B5CF6]/20 text-slate-300 hover:text-white border border-white/10 hover:border-[#8B5CF6]/50 rounded-xl px-3.5 py-2.5 transition-all duration-300 flex items-center gap-2"
+                      >
+                        {idx === 0 ? (
+                          <Zap className="w-3.5 h-3.5 text-[#D946EF]" />
+                        ) : idx === 1 ? (
+                          <BrainCircuit className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                        ) : (
+                          <Sparkles className="w-3.5 h-3.5 text-[#6366F1]" />
+                        )}
+                        {qa.label}
+                      </button>
+                    ))}
                   </div>
                 )}
                 
@@ -177,7 +268,7 @@ export default function ChatWidget() {
                   <div className="flex-1 relative">
                     <input 
                       type="text"
-                      placeholder="Mesajınızı yazın..."
+                      placeholder={tChat.placeholder}
                       value={input || ''}
                       onChange={handleInputChange}
                       className="w-full bg-[#121220]/80 border border-white/10 rounded-xl pl-4 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6]/30 outline-none transition-all duration-300 shadow-inner"
@@ -193,8 +284,8 @@ export default function ChatWidget() {
                   </button>
                 </form>
                 <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
-                  <BrainCircuit className="w-3 h-3 text-[#8B5CF6]" />
-                  <span>Star AI Ajanı aktif • Yanıtlar anında üretilir</span>
+                  <BrainCircuit className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                  <span>{tChat.footerBadge}</span>
                 </div>
               </div>
             </div>

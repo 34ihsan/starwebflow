@@ -56,12 +56,17 @@ Lütfen bu taslağı hedef dilde, belirtilen kurallara tam uyarak HTML formatın
   }
 }
 
-// Omni-Routing Logic
+// Enterprise Omni-Routing & Warmup Protection Logic
 export async function omniRouteSelector(targetEmail: string, tenantId: string, campaignId?: string) {
-  // Demo Logic: Check if it's outlook or gmail
-  const domain = targetEmail.split('@')[1] || '';
-  
-  const whereClause: any = { tenantId, status: { in: ['WARMUP', 'ACTIVE'] } };
+  const targetDomain = (targetEmail.split('@')[1] || '').toLowerCase();
+  const isTargetGoogle = targetDomain.includes('gmail') || targetDomain.includes('google');
+  const isTargetMicrosoft = targetDomain.includes('outlook') || targetDomain.includes('hotmail') || targetDomain.includes('live') || targetDomain.includes('office365');
+
+  const whereClause: any = { 
+    tenantId, 
+    isPaused: false,
+    status: { not: 'ERROR' }
+  };
   
   if (campaignId) {
     whereClause.campaigns = { some: { id: campaignId } };
@@ -74,25 +79,60 @@ export async function omniRouteSelector(targetEmail: string, tenantId: string, c
 
   if (mailboxes.length === 0) {
     if (campaignId) {
-      throw new Error('Lütfen bu kampanya için en az 1 e-posta hesabı (Mailbox) seçin. Gönderim durduruldu.');
+      throw new Error('Lütfen bu kampanya için en az 1 aktif ve sağlıklı e-posta hesabı (Mailbox) seçin.');
     }
-    throw new Error('No active mailboxes available for this tenant.');
+    throw new Error('Bu organizasyon için gönderim yapabilecek aktif posta kutusu bulunamadı.');
   }
 
-  // Find a mailbox that hasn't reached its max daily limit
-  const availableMailbox = mailboxes.find(mb => mb.sentToday < mb.maxDailyLimit);
+  // 1. Isınma Kalkanı (Warmup Protection Shield):
+  // Yeni eklenen ve henüz 14 gününü doldurmamış (warmupDay < 14) ve 'ACTIVE' onayına geçmemiş kutuları
+  // soğuk satış kampanyalarına sokup domaini yakma!
+  const matureMailboxes = mailboxes.filter(mb => {
+    if (mb.status === 'ACTIVE') return true;
+    if (mb.status === 'WARMUP' && (mb.warmupDay >= 14 || mb.warmupProgress >= 50) && mb.reputation >= 80) return true;
+    return false;
+  });
+
+  if (matureMailboxes.length === 0) {
+    throw new Error(
+      'Seçilen posta kutusu henüz ilk 14 günlük ısınma (warmup) aşamasında. Domaininizin spam kara listelerine girmesini önlemek için soğuk satış kampanyaları en az 14 gün ısınmış veya ACTIVE onaylı hesaplarla başlatılabilir.'
+    );
+  }
+
+  // 2. Günlük Limit Kotası Kontrolü
+  const availableMailboxes = matureMailboxes.filter(mb => (mb.sentToday || 0) < (mb.maxDailyLimit || mb.limit || 40));
   
-  if (!availableMailbox) {
-    throw new Error('All mailboxes have reached their daily sending limit.');
+  if (availableMailboxes.length === 0) {
+    throw new Error('Seçilen tüm sağlıklı posta kutuları günlük gönderim limitlerine ulaştı.');
   }
 
-  // Increment the sentToday counter for the selected mailbox
+  // 3. Akıllı ESP Yönlendirme (ESP Omni-Routing):
+  // Google hedeflerine Google kutusu, Microsoft hedeflerine Microsoft kutusu öncelikli
+  let selectedMailbox = availableMailboxes[0];
+
+  if (isTargetGoogle) {
+    const googleMb = availableMailboxes.find(mb => 
+      mb.provider === 'GOOGLE' || 
+      (mb.email || '').toLowerCase().includes('gmail') || 
+      (mb.smtpHost || '').toLowerCase().includes('google')
+    );
+    if (googleMb) selectedMailbox = googleMb;
+  } else if (isTargetMicrosoft) {
+    const msMb = availableMailboxes.find(mb => 
+      mb.provider === 'MICROSOFT' || 
+      (mb.email || '').toLowerCase().includes('outlook') || 
+      (mb.smtpHost || '').toLowerCase().includes('office365')
+    );
+    if (msMb) selectedMailbox = msMb;
+  }
+
+  // Gönderim sayacını güncelle
   await prisma.emailMailbox.update({
-    where: { id: availableMailbox.id },
+    where: { id: selectedMailbox.id },
     data: { sentToday: { increment: 1 } }
   });
 
-  return availableMailbox.email;
+  return selectedMailbox.email;
 }
 
 export async function processOutreachBatch(bulkOutreachId: string, tenantId: string, basePrompt: string) {

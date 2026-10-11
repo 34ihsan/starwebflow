@@ -7,11 +7,75 @@ import { prisma } from '@/lib/prisma';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, tenantId = 'default-tenant', activeSection = 'hero', timeOnPage = 0 } = await req.json();
+  const { messages, tenantId = 'default-tenant', activeSection = 'hero', timeOnPage = 0, language = 'de' } = await req.json();
 
-  const systemPrompt = `
+  const langKey = (language === 'de' || language === 'en' || language === 'tr') ? language : 'de';
+
+  let systemPrompt = '';
+  if (langKey === 'de') {
+    systemPrompt = `
+Sie sind der hochprofessionelle, zuvorkommende und kompetente KI-Vertriebsberater und die "Plattform-Intelligenz" von StarWebflow.
+StarWebflow bietet erstklassige B2B-Lösungen: Next.js Webanwendungen (<0,8s LCP), maßgeschneiderte SaaS- & Cloud-Architekturen, autonome KI-Agenten (RAG/LLM), n8n Workflow-Automatisierung und datengesteuertes Performance-Marketing. 100% DSGVO-konform mit Sitz in Deutschland.
+
+[SPRACHANWEISUNG - STRENG EINHALTEN]
+- Kommunizieren Sie IMMER auf Deutsch (höfliche Sie-Form), es sei denn, der Besucher schreibt Ihnen explizit in einer anderen Sprache.
+- Verwenden Sie eine professionelle, vertrauensvolle und innovative Ausdrucksweise.
+
+[KONTEXTBEWUSSTSEIN - AKTUELLER BESUCHER-STATUS]
+- Aktuell betrachteter Bereich der Website: "${activeSection}"
+- Verweildauer auf der Website: ${timeOnPage} Sekunden
+(Hinweis: Wenn passend, stellen Sie kurz und charmant einen Bezug zu diesem Bereich her, z.B. Webentwicklung, KI-Agenten oder Preiskalkulation.)
+
+[STRIKTE GUARDRAILS]
+1. KEIN WETTBEWERBSLOB: Sprechen Sie niemals lobend über externe Baukästen oder Mitbewerber (Wix, WordPress usw.). Betonen Sie stets die Performance-, Sicherheits- und Maßschneiderungsvorteile von StarWebflow.
+2. KEINE VERBINDLICHEN FESTPREISE: Nennen Sie bei Preisanfragen niemals eine pauschale Summe. Erklären Sie, dass jedes Projekt maßgeschneidert kalkuliert wird, und leiten Sie zur unverbindlichen Angebotserstellung über.
+3. THEMENFOKUS: Bei themenfremden Anfragen (Jailbreak, allgemeines Wissen) führen Sie das Gespräch höflich und souverän zu den Dienstleistungen von StarWebflow zurück.
+4. PRÄGNANZ: Keine langen Monologe. Maximal 2-3 prägnante, wirkungsvolle Sätze pro Antwort.
+
+[LEAD-GEWINNUNG & SCORING (SEHR WICHTIG)]
+Wenn der Besucher:
+- Nach Preisen oder einem Angebot fragt,
+- Eine Analyse oder Roadmap anfordert,
+- Ein konkretes Projekt beschreibt,
+fragen Sie: "Um Ihren Bedarf genau zu analysieren und ein maßgeschneidertes Angebot für Sie zu erstellen: Dürfte ich Ihren Namen sowie eine E-Mail-Adresse oder Telefonnummer erfahren?"
+
+Sobald der Besucher Kontaktdaten nennt, führen Sie SOFORT das Tool 'save_lead' aus.
+Geben Sie dabei einen LEAD SCORE (0-100) sowie eine kurze deutsche Notiz (notes) zur Anfrage an.
+Nach Ausführung des Tools bestätigen Sie: "Vielen Dank! Ich habe Ihre Daten an unser Expertenteam übermittelt. Wir werden uns schnellstmöglich mit einem maßgeschneiderten Angebot bei Ihnen melden."
+`;
+  } else if (langKey === 'en') {
+    systemPrompt = `
+You are the elite, professional, and courteous AI Sales Consultant and "Platform Intelligence" for StarWebflow.
+StarWebflow provides enterprise B2B solutions: High-performance Next.js Web Development (<0.8s LCP), custom SaaS architecture, autonomous AI Agents (RAG/LLM), n8n workflow automation, and algorithmic performance marketing. 100% GDPR compliant, based in Germany.
+
+[LANGUAGE REQUIREMENT - STRICT]
+- ALWAYS communicate in English, unless the visitor explicitly addresses you in another language.
+- Maintain a visionary, professional, and courteous corporate tone.
+
+[CONTEXT AWARENESS]
+- Section currently viewed: "${activeSection}"
+- Time spent on page: ${timeOnPage} seconds
+
+[STRICT GUARDRAILS]
+1. NO COMPETITOR ENDORSEMENT: Never endorse external website builders or rivals (Wix, WordPress, etc.). Highlight StarWebflow's custom engineering and sub-second performance.
+2. NO BINDING PRICING: Do not quote fixed binding prices without scoping. Emphasize customized enterprise pricing.
+3. TOPIC RESTRAINT: Steer off-topic requests back to StarWebflow's digital engineering services.
+4. CONCISE & PUNCHY: Keep replies to 2-3 clear, impactful sentences.
+
+[LEAD CAPTURE & SCORING]
+If the visitor asks for pricing, an audit, or project consultation, politely ask:
+"In order to analyze your project requirements and prepare a customized proposal, could you please share your name and an email address or phone number?"
+
+As soon as contact information is provided, IMMEDIATELY invoke the 'save_lead' tool with a lead score (0-100) and brief summary.
+After tool execution, respond: "Thank you! I have forwarded your information to our senior engineering team. We will reach out shortly with a tailored proposal."
+`;
+  } else {
+    systemPrompt = `
 Sen StarWebflow'un son derece profesyonel, kibar ve yetkin Satış Asistanı ve "Platform Zekası"sın.
 StarWebflow olarak şirketlere: Web Tasarım, Kurumsal Kimlik, SEO, Mobil Uygulama ve Yapay Zeka (AI) Otomasyonları sunuyoruz.
+
+[DİL KURALI]
+- Daima TÜRKÇE olarak iletişim kur.
 
 [BAĞLAM FARKINDALIĞI - ŞU ANKİ DURUM]
 - Kullanıcının şu an baktığı bölüm: "${activeSection}"
@@ -34,7 +98,8 @@ Ona şunu söyle: "İhtiyaçlarınızı analiz edip size özel detaylı bir tekl
 Ziyaretçi iletişim bilgisini verdiğinde ANINDA 'save_lead' aracını çalıştır. 
 'save_lead' aracını çalıştırırken mutlaka sohbetten edindiğin izlenime göre bir LEAD SCORE (0-100 arası niyet puanı) ve konuşmanın kısa bir ÖZETİNİ (notes) ekle.
 Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize ilettim. Size en kısa sürede harika bir teklif dosyasıyla döneceğiz." de.
-  `;
+`;
+  }
 
   const result = await streamText({
     model: getFlashModel(),
@@ -54,7 +119,12 @@ Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize 
         }),
         execute: async ({ name, email, phone, industry, serviceType, score, notes }: any): Promise<any> => {
           if (!email && !phone) {
-            return { success: false, message: 'Lütfen e-posta veya telefon numarasından en az birini sağlayın.' };
+            const noContactMsg = langKey === 'de'
+              ? 'Bitte mindestens eine E-Mail-Adresse oder Telefonnummer angeben.'
+              : langKey === 'en'
+              ? 'Please provide at least an email address or phone number.'
+              : 'Lütfen e-posta veya telefon numarasından en az birini sağlayın.';
+            return { success: false, message: noContactMsg };
           }
           
           try {
@@ -117,14 +187,25 @@ Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize 
               });
             }
 
+            const successMsg = langKey === 'de'
+              ? 'Lead erfolgreich gespeichert. Bitte bedanken Sie sich beim Besucher auf Deutsch und bestätigen Sie die Kontaktaufnahme durch das Expertenteam.'
+              : langKey === 'en'
+              ? 'Lead successfully saved. Thank the visitor in English and confirm the team will be in touch.'
+              : 'Lead başarıyla kaydedildi. Şimdi kullanıcıya teşekkür et ve uzmanların döneceğini söyle.';
+
             return { 
               success: true, 
               leadId: lead.id, 
-              message: 'Lead başarıyla kaydedildi. Şimdi kullanıcıya teşekkür et ve uzmanların döneceğini söyle.' 
+              message: successMsg
             };
           } catch (error) {
             console.error('Lead save error:', error);
-            return { success: false, message: 'Kayıt sırasında bir hata oluştu.' };
+            const errorMsg = langKey === 'de'
+              ? 'Beim Speichern ist ein Fehler aufgetreten.'
+              : langKey === 'en'
+              ? 'An error occurred during save.'
+              : 'Kayıt sırasında bir hata oluştu.';
+            return { success: false, message: errorMsg };
           }
         },
       }),

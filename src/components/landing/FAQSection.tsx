@@ -1,74 +1,82 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
-import { ChevronDown, HelpCircle } from 'lucide-react'
+import { useRef, useEffect, useState, useMemo } from 'react'
+import { ChevronDown, HelpCircle, Search, Filter } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 const faqs = {
   tr: [
     {
       q: 'Bir proje teklifi almak ne kadar sürer?',
-      a: 'Formu doldurduktan sonra 24 saat içinde size özel hazırlanmış detaylı bir teklifle dönüyoruz. Acil durumlar için WhatsApp üzerinden anında iletişime geçebilirsiniz.'
+      a: 'Formu doldurduktan veya bizimle iletişime geçtikten sonra 24 saat içinde işletmenizin ihtiyaçlarına özel hazırlanmış detaylı teknik analiz ve fiyat teklifi sunuyoruz. Acil projeleriniz için WhatsApp üzerinden anında uzmanımızla görüşebilirsiniz.'
     },
     {
-      q: 'Web sitenizi geliştirmek için minimum bütçem ne olmalı?',
-      a: 'Başlangıç paketlerimiz 4.990 €\'dan başlamaktadır. Proje kapsamına ve özelliklere göre fiyatlandırma kişiselleştirilmektedir. Yatırım geri dönüşünüzü (ROI) ilk görüşmede analiz ediyoruz.'
+      q: 'Web sitesi veya yazılım projem için bütçe nasıl belirlenir?',
+      a: 'Proje maliyetleri; yapılacak teknik işlemlere, sayfa sayısına, özel UI/UX tasarım taleplerine, istenen entegrasyonlara (CRM, ERP, AI Agent) ve dil seçeneklerine göre şeffaf bir şekilde hesaplanır. Her işletmenin ihtiyacına özel modüler fiyatlandırma sunulur. İlk görüşmede yatırımınızın geri dönüşünü (ROI) ve projenin operasyonel kârlılığını birlikte analiz ederiz.'
     },
     {
       q: 'AI Agents ve otomasyon ne kadar sürede devreye girer?',
-      a: 'Temel AI otomasyon akışları 3-7 iş günü içinde aktive edilir. CRM entegrasyonlu karmaşık çok kanallı sistemler 2-4 haftada tamamlanır. Tek seferlik kurulum ücreti sonrası aylık yönetim ücretiyle çalışırız.'
+      a: 'Temel AI otomasyon akışları 3-7 iş günü içinde aktive edilir. CRM entegrasyonlu karmaşık çok kanallı sistemler 2-4 haftada tamamlanır. Tek seferlik kurulum ücreti sonrası opsiyonel aylık bakım & geliştirme paketleriyle çalışırız.'
     },
     {
       q: 'Hangi platformlarla entegrasyon yapıyorsunuz?',
-      a: 'Zapier, Make (Integromat), n8n, HubSpot, Notion, Slack, WhatsApp Business API, Google Workspace, Stripe, WooCommerce, Shopify ve 200+ diğer platformla native entegrasyon sağlıyoruz.'
+      a: 'Zapier, Make, n8n, HubSpot, Salesforce, SAP, Odoo, WhatsApp Business API, Stripe, PayPal, Klarna, WooCommerce, Shopify ve 200+ global platformla native ve güvenli API entegrasyonu sağlıyoruz.'
     },
     {
-      q: 'KVKK ve GDPR uyumluluğu nasıl sağlanıyor?',
-      a: 'Tüm sistemlerimiz KVKK (Türkiye) ve GDPR (AB) gerekliliklerine tam uyumludur. Veri işleme sözleşmeleri, veri imha protokolleri ve Çerez Yönetim Sistemi dahil kapsamlı hukuki altyapıyı birlikte kuruyoruz.'
+      q: 'DSGVO, GDPR ve KVKK yasal uyumluluğu nasıl sağlanıyor?',
+      a: 'Almanya (DSGVO), Avrupa Birliği (GDPR) ve Türkiye (KVKK) veri koruma yasalarına %100 tam uyumlu altyapı kuruyoruz. Veri işleme sözleşmeleri (AVV / DPA), veri gizliliği politikaları, otomatik veri imha protokolleri ve AB standartlarında Çerez Yönetim Sistemi (Cookie Consent) dahil tüm hukuki altyapıyı projenize entegre ediyoruz.'
     },
     {
       q: 'Projem teslim edildikten sonra destek alabilir miyim?',
-      a: 'Tüm projelerimizde 30 günlük ücretsiz garanti desteği bulunmaktadır. Sonrasında aylık bakım & büyüme paketlerimizle 7/24 teknik destek, güvenlik güncellemeleri ve performans optimizasyonu sağlıyoruz.'
+      a: 'Tüm projelerimizde 30 günlük ücretsiz garanti ve teknik destek sunulur. Sonrasında aylık bakım & büyüme paketlerimizle 7/24 teknik destek, güvenlik güncellemeleri, sunucu optimizasyonu ve yeni özellik geliştirmeleri sağlıyoruz.'
     },
     {
-      q: 'Mevcut web sitemin çok mu yavaş, ne yapabiliriz?',
-      a: 'Site hızınızı ücretsiz analiz ederek Lighthouse skorunuzu, Core Web Vitals değerlerinizi ve gelir kaybınızı raporluyoruz. Ortalama %40 dönüşüm artışı sağlayan hız optimizasyon paketimiz mevcuttur.'
+      q: 'Mevcut web sitem çok mu yavaş, ne yapabiliriz?',
+      a: 'Sitenizi ücretsiz teknik analize tabi tutarak Lighthouse skorunuzu, Core Web Vitals değerlerinizi ve hız kaynaklı gelir kaybınızı raporluyoruz. Ortalama %40 dönüşüm artışı sağlayan Next.js / SSR performans optimizasyon paketimiz mevcuttur.'
     },
     {
       q: 'Reklam bütçemi yönetmenizi isteyebilir miyim?',
-      a: 'Evet. Meta Ads, Google Ads ve TikTok Ads yönetimi için minimum ₺50.000/ay reklam bütçesi ile çalışıyoruz. Performans bazlı ücretlendirme seçeneği de mevcuttur.'
+      a: 'Evet. Almanya, Avrupa ve Türkiye pazarlarında Meta Ads, Google Ads ve TikTok Ads yönetimi yapıyoruz. Minimum 1.500 € / ay (veya Türkiye odaklı projeler için ₺50.000 / ay) reklam bütçeleri ile çalışıyoruz. Performans odaklı (ROAS) stratejiler uyguluyoruz.'
     },
     {
       q: 'İşletmeme özel AI Agent nasıl eğitilir?',
-      a: 'Şirketinizin mevcut verilerini (PDF\'ler, web sitesi, önceki yazışmalar, ürün katalogları) kullanarak LLM modellerini eğitiyoruz. Böylece Agent, sadece sizin markanızın dilinde ve sizin bilgi tabanınıza göre müşterilerle konuşur.'
+      a: 'Şirketinizin mevcut verilerini (PDF belgeleri, web sitesi içeriği, önceki yazışmalar, ürün katalogları, Fiyat listeleri) kullanarak özel RAG mimarisiyle LLM modellerini eğitiyoruz. Böylece Agent, sadece sizin markanızın dilinde ve sizin bilgi tabanınıza göre müşterilerinizle 7/24 iletişim kurar.'
     },
     {
       q: 'AI otomasyonları işletmeme ne gibi faydalar sağlar?',
-      a: 'Tekrarlayan işleri otomatikleştirerek insan hatasını sıfıra indirir, 7/24 müşteri desteği sunar ve operasyonel maliyetlerinizi %60\'a varan oranda düşürür. Ekibiniz stratejik işlere odaklanırken, AI rutin süreçleri yönetir.'
+      a: 'Tekrarlayan manuel işleri otomatikleştirerek insan hatasını sıfıra indirir, 7/24 kesintisiz müşteri desteği sunar ve operasyonel maliyetlerinizi %60\'a varan oranda düşürür. Ekibiniz yüksek katma değerli stratejik işlere odaklanırken, AI rutin süreçleri yönetir.'
     },
     {
-      q: 'AI Agent\'lar müşteri verilerini güvende tutuyor mu?',
-      a: 'Evet. Tüm modellerimiz kapalı ortamda çalışır ve müşteri verileri LLM eğitiminde kullanılmaz. OpenAI, Anthropic gibi platformların Enterprise API\'leri ile KVKK ve GDPR uyumlu, şifrelenmiş veri iletimi sağlıyoruz.'
+      q: 'AI Agent\'lar müşteri verilerini güvende tutuyor mu? (DSGVO / GDPR)',
+      a: 'Evet, kesinlikle. Tüm sistemlerimiz Almanya ve AB sunucularında (Frankfurt/Europe) şifrelenmiş (AES-256) kapalı ortamlarda çalışır. Müşteri verileriniz hiçbir şekilde kamuya açık LLM modellerinin eğitiminde kullanılmaz. OpenAI Enterprise ve Anthropic API standartlarıyla DSGVO, GDPR ve KVKK uyumlu uçtan uca veri güvenliği sağlıyoruz.'
     },
     {
       q: 'Mevcut sistemlerim (ERP, CRM) AI ile konuşabilir mi?',
-      a: 'Kesinlikle. Geliştirdiğimiz AI sistemleri API üzerinden HubSpot, Salesforce, SAP, Odoo gibi CRM ve ERP yazılımlarınızla çift yönlü veri alışverişi yapabilir. Agent, CRM\'den bilgi çekebilir ve yeni müşteri kayıtları oluşturabilir.'
+      a: 'Kesinlikle. Geliştirdiğimiz AI sistemleri API üzerinden HubSpot, Salesforce, SAP, Odoo gibi CRM ve ERP yazılımlarınızla çift yönlü veri alışverişi yapabilir. Agent, CRM\'den müşteri bilgisi çekebilir, stok kontrol edebilir ve yeni sipariş/randevu kayıtları oluşturabilir.'
     },
     {
       q: 'Müşteri destek ekibimin yerini tamamen AI mı alacak?',
-      a: 'Hayır, AI Agent\'lar ekibinizin yerini almak yerine onları desteklemek için tasarlanmıştır. Sıkça sorulan soruları, rutin randevu veya sipariş işlemlerini AI çözerken, ekibiniz yalnızca daha karmaşık ve insan dokunuşu gerektiren özel müşteri taleplerine odaklanır.'
+      a: 'Hayır, AI Agent\'lar ekibinizi ikame etmek için değil, onların üzerindeki yükü almak için tasarlanmıştır. Sıkça sorulan soruları, rutin randevu veya sipariş durum sorgularını AI otomatik yanıtlar; insan dokunuşu ve uzmanlık gerektiren özel talepleri ise anında ilgili temsilcinize aktarır.'
     },
     {
       q: 'E-ticaret sitemde AI Agent satışlarımı artırabilir mi?',
-      a: 'Kesinlikle. E-ticaret için eğittiğimiz AI asistanlar, kullanıcının sepetindeki ürünlere veya arama geçmişine göre kişiselleştirilmiş ürün önerileri sunar, sepet terk etme oranlarını düşürür ve 7/24 aktif bir satış danışmanı gibi çalışarak dönüşüm oranlarını artırır.'
+      a: 'Evet. E-ticaret için eğittiğimiz AI asistanlar; kullanıcının sepetine veya ilgi alanına özel kişiselleştirilmiş ürün tavsiyeleri sunar, sepet terk etme oranlarını düşürür ve 7/24 aktif bir satış danışmanı gibi çalışarak dönüşüm oranlarınızı artırır.'
     },
     {
       q: 'Şirket içi operasyonlarda (İnsan Kaynakları, Finans) otomasyon kullanabilir miyim?',
       a: 'Evet. Sadece dış müşterileriniz için değil, iç ekibiniz için de AI sistemleri kuruyoruz. İzin talepleri, masraf onayları, yeni çalışan oryantasyonu (onboarding) veya şirket içi bilgi bankası sorgulamaları gibi süreçleri tamamen otomatik hale getirebiliriz.'
     },
     {
+      q: 'Arama Motoru Optimizasyonu (SEO) hizmetiniz neler içeriyor ve ne zaman sonuç alınır?',
+      a: 'SEO mimarimiz; Next.js SSR (Server-Side Rendering) altyapısı, 0.4 saniye altı sayfa açılış hızı, mobil öncelikli UX tasarımı, Core Web Vitals değerlerinin mükemmelleştirilmesi ve anahtar kelime odaklı içerik stratejisini kapsar. Sektöre göre değişmekle birlikte genellikle 4-8 hafta içinde Google arama sonuçlarında belirgin sıralama ve organik trafik artışı sağlanır.'
+    },
+    {
+      q: 'GEO (Generative Engine Optimization / AI Arama Optimizasyonu) nedir ve bize ne kazandırır?',
+      a: 'GEO (veya AEO - Answer Engine Optimization); ChatGPT, Claude, Perplexity ve Google Gemini gibi yapay zeka arama motorlarının kullanıcı sorularına yanıt verirken şirketinizin markasını, hizmetlerini ve ürünlerini öncelikli tavsiye edilen kaynak olarak önermesini sağlayan yeni nesil optimizasyon teknolojisidir. Geliştirdiğimiz 10 katmanlı JSON-LD şema mimarisi, SpeakableSpec ve AEO veri blokları sayesinde markanız yapay zekaların ilk sırada önerdiği lider konuma gelir.'
+    },
+    {
       q: 'Geliştirdiğiniz AI çözümleri sadece metin mi anlıyor?',
-      a: 'Hayır. Entegre ettiğimiz yeni nesil AI modelleri çoklu model (multimodal) yeteneklere sahiptir. Müşterilerinizin gönderdiği ses kayıtlarını dinleyip anlayabilir, görselleri analiz edebilir ve hatta telefon aramalarına doğal bir insan sesiyle anında yanıt verebilir.'
+      a: 'Hayır. Entegre ettiğimiz çoklu model (multimodal) AI sistemleri ses kayıtlarını dinleyip anlayabilir, doküman ve görselleri analiz edebilir ve hatta telefon aramalarına doğal insan sesiyle anında yanıt verebilir.'
     }
   ],
   en: [
@@ -243,8 +251,21 @@ export default function FAQSection() {
   const { language } = useLanguage()
   const sectionRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'ai' | 'web'>('all')
 
   const items = faqs[language] || faqs.tr
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item, idx) => {
+      const matchesSearch = item.q.toLowerCase().includes(searchQuery.toLowerCase()) || item.a.toLowerCase().includes(searchQuery.toLowerCase())
+      if (!matchesSearch) return false
+
+      if (selectedCategory === 'ai') return idx >= 2 && idx <= 15
+      if (selectedCategory === 'web') return idx < 2 || idx === 6 || idx === 7
+      return true
+    })
+  }, [items, searchQuery, selectedCategory])
 
   const titles = {
     tr: { badge: 'Sıkça Sorulan Sorular', h2: 'Aklınızdaki ', h2g: 'Her Soruya Cevap', sub: 'Projeye başlamadan önce merak ettiğiniz her şeyi burada yanıtlıyoruz.' },
@@ -272,7 +293,7 @@ export default function FAQSection() {
 
       <div ref={sectionRef} className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className={`text-center mb-14 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+        <div className={`text-center mb-10 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 mb-4">
             <HelpCircle className="w-4 h-4 text-[#8B5CF6]" />
             <span className="tag-badge">{t.badge}</span>
@@ -280,20 +301,55 @@ export default function FAQSection() {
           <h2 className="heading-lg text-white mt-2 mb-4">
             {t.h2}<span className="gradient-text">{t.h2g}</span>
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto">{t.sub}</p>
+          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto mb-8">{t.sub}</p>
+
+          {/* Search & Filter Bar */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 max-w-lg mx-auto">
+            <div className="relative flex-1 w-full">
+              <Search className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder={language === 'tr' ? 'Soru veya anahtar kelime ara...' : language === 'de' ? 'Frage oder Stichwort suchen...' : 'Search question or keyword...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#0F0F1A] border border-white/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#8B5CF6]/50 transition-colors"
+              />
+            </div>
+            <div className="flex items-center gap-1.5 bg-[#0F0F1A] border border-white/[0.08] rounded-xl p-1 w-full sm:w-auto justify-center">
+              {[
+                { id: 'all', label: language === 'tr' ? 'Tümü' : 'All' },
+                { id: 'ai',  label: 'AI & Bot' },
+                { id: 'web', label: 'Web' }
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id as any)}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${selectedCategory === cat.id ? 'bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30' : 'text-[#64748B] hover:text-white'}`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* FAQ List */}
         <div className="space-y-3">
-          {items.map((item, i) => (
-            <div
-              key={i}
-              className={`transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-              style={{ transitionDelay: `${i * 60}ms` }}
-            >
-              <FAQItem q={item.q} a={item.a} index={i} />
+          {filteredItems.length === 0 ? (
+            <div className="text-center py-8 text-[#64748B] text-sm">
+              {language === 'tr' ? 'Aramanızla eşleşen soru bulunamadı.' : 'No matching questions found.'}
             </div>
-          ))}
+          ) : (
+            filteredItems.map((item, i) => (
+              <div
+                key={i}
+                className={`transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+                style={{ transitionDelay: `${Math.min(i * 40, 400)}ms` }}
+              >
+                <FAQItem q={item.q} a={item.a} index={i} />
+              </div>
+            ))
+          )}
         </div>
 
         {/* Bottom CTA */}

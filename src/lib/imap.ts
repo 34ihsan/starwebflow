@@ -68,14 +68,16 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
           const headerPart = item.parts.find(part => part.which === 'HEADER');
           const from = headerPart?.body?.from?.[0] || '';
           
-          // Eğer bu bizim ağımızdan veya starwebflow'dan veya seed hesaplardan gelen bir mail ise kurtar!
-          const isSeedAccount = seedEmails.some(seed => from.toLowerCase().includes(seed));
-          if (from.toLowerCase().includes('starwebflow') || isSeedAccount) {
+          // Eğer bu bizim havuzumuzdan veya seed hesaplardan veya bültenlerden gelen bir mail ise kurtar!
+          const isSeedAccount = seedEmails.some(seed => from.toLowerCase().includes(seed.toLowerCase()));
+          const isKnownNewsletter = ['tldr', 'substack', 'beehiiv', 'densediscovery', 'hackernewsletter', 'medium'].some(d => from.toLowerCase().includes(d));
+
+          if (isSeedAccount || isKnownNewsletter) {
             const uid = item.attributes.uid as number;
-            // IMAP Move command
+            // IMAP Move command to INBOX (Not Spam signal)
             await connection.moveMessage(String(uid), 'INBOX');
             rescuedFromSpam++;
-            console.log(`[SPAM RESCUE] Moved email from ${from} to INBOX for ${config.email}`);
+            console.log(`[SPAM RESCUE] Rescued email from ${from} to INBOX for ${config.email}`);
           }
         }
       } catch (err) {
@@ -115,8 +117,8 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
         console.error('Mail parsing failed', err);
       }
 
-      // 2.A: BOUNCE DETECTION
-      const isBounce = from.includes('mailer-daemon') || from.includes('postmaster') || from.includes('bounce');
+      // 2.A: BOUNCE DETECTION (Universal parser)
+      const isBounce = from.includes('mailer-daemon') || from.includes('postmaster') || from.includes('bounce') || subject.toLowerCase().includes('delivery status notification') || subject.toLowerCase().includes('undelivered');
       if (isBounce) {
         bounceCount++;
         
@@ -127,14 +129,21 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
         const senderLower = config.email.toLowerCase();
         for (const match of matches) {
            const emailMatch = match.toLowerCase();
-           if (emailMatch !== senderLower && emailMatch.includes('starwebflow')) {
+           // Ignore mailer daemons and the current mailbox itself
+           if (
+             emailMatch !== senderLower && 
+             !emailMatch.includes('mailer-daemon') && 
+             !emailMatch.includes('postmaster') &&
+             !emailMatch.includes('google.com') &&
+             !emailMatch.includes('protection.outlook.com')
+           ) {
               if (!bouncedRecipients.includes(emailMatch)) {
                  bouncedRecipients.push(emailMatch);
               }
            }
         }
 
-        // Optionally mark as read
+        // Mark bounce notification as seen
         await connection.addFlags(uid, 'SEEN');
         continue;
       }
@@ -154,7 +163,7 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
 
         if (confirmLink) {
           try {
-            await fetch(confirmLink, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' } });
+            await fetch(confirmLink, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(5000) });
             console.log(`[Warmup] Confirmed newsletter for ${config.email}`);
           } catch (fetchErr) {
             // Ignore fetch errors
@@ -163,8 +172,14 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
       }
 
       // 2.C: STAR, CLICK & MARK SEEN FOR WARMUP EMAILS
-      const isSeedAccount = seedEmails.some(seed => from.includes(seed));
-      const isWarmupInteraction = from.includes('starwebflow') || from.includes('tldr') || from.includes('substack') || isSeedAccount;
+      const isSeedAccount = seedEmails.some(seed => from.includes(seed.toLowerCase()));
+      const isKnownNewsletterSender = ['tldr', 'substack', 'beehiiv', 'densediscovery', 'hackernewsletter', 'medium'].some(d => from.includes(d));
+      const isSwfWarmupTag = 
+        (rawPart?.body || '').toString().toLowerCase().includes('x-starwebflow-warmup') ||
+        (htmlContent || '').includes('swf-warmup-token') ||
+        (bodyText || '').includes('swf-warmup-token');
+
+      const isWarmupInteraction = isSeedAccount || isKnownNewsletterSender || isSwfWarmupTag;
       
       if (isWarmupInteraction || isConfirmEmail) {
         // Elite Pro: Link Click Simulation (Tıklama Simülasyonu)

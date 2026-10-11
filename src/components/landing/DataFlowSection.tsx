@@ -3,12 +3,36 @@
 import { motion } from 'framer-motion'
 import { Mail, BrainCircuit, Database, Calendar, Smartphone, ArrowRight } from 'lucide-react'
 
+import { useLanguage } from '@/lib/i18n/LanguageContext'
+
 export default function DataFlowSection() {
+  const { language } = useLanguage()
+
   const steps = [
-    { icon: Mail, title: 'Veri Girişi', desc: 'Müşteri form doldurur, e-posta atar veya mesaj gönderir.', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-    { icon: BrainCircuit, title: 'AI İşleme', desc: 'Sistem saniyeler içinde niyeti anlar, bütçeyi süzer ve en iyi yanıtı hazırlar.', color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/10', border: 'border-[#8B5CF6]/20' },
-    { icon: Database, title: 'CRM Senkronu', desc: 'Lead otomatik olarak HubSpot/Pipedrive\'a eklenir ve puanlanır.', color: 'text-[#10B981]', bg: 'bg-[#10B981]/10', border: 'border-[#10B981]/20' },
-    { icon: Calendar, title: 'Aksiyon & Dönüşüm', desc: 'Müşteriye takvim linki veya indirim kodu otomatik olarak iletilir.', color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'border-pink-400/20' }
+    {
+      icon: Mail,
+      title: language === 'tr' ? 'Veri Girişi' : language === 'de' ? 'Dateneingabe' : 'Data Input',
+      desc: language === 'tr' ? 'Müşteri form doldurur, e-posta atar veya mesaj gönderir.' : language === 'de' ? 'Kunde füllt Formular aus, sendet E-Mail oder Nachricht.' : 'Customer fills out form, sends email or message.',
+      color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20'
+    },
+    {
+      icon: BrainCircuit,
+      title: language === 'tr' ? 'AI İşleme' : language === 'de' ? 'KI-Verarbeitung' : 'AI Processing',
+      desc: language === 'tr' ? 'Sistem saniyeler içinde niyeti anlar, bütçeyi süzer ve en iyi yanıtı hazırlar.' : language === 'de' ? 'System versteht Intent in Sekunden und bereitet beste Antwort vor.' : 'System understands intent in seconds and prepares best response.',
+      color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/10', border: 'border-[#8B5CF6]/20'
+    },
+    {
+      icon: Database,
+      title: language === 'tr' ? 'CRM Senkronu' : language === 'de' ? 'CRM-Synchronisation' : 'CRM Sync',
+      desc: language === 'tr' ? 'Lead otomatik olarak HubSpot/Pipedrive\'a eklenir ve puanlanır.' : language === 'de' ? 'Lead wird automatisch in CRM hinzugefügt und bewertet.' : 'Lead is automatically added to CRM and scored.',
+      color: 'text-[#10B981]', bg: 'bg-[#10B981]/10', border: 'border-[#10B981]/20'
+    },
+    {
+      icon: Calendar,
+      title: language === 'tr' ? 'Aksiyon & Dönüşüm' : language === 'de' ? 'Aktion & Konversion' : 'Action & Conversion',
+      desc: language === 'tr' ? 'Müşteriye takvim linki veya indirim kodu otomatik olarak iletilir.' : language === 'de' ? 'Kalenderlink oder Rabattcode wird automatisch gesendet.' : 'Calendar link or promo code is automatically sent.',
+      color: 'text-pink-400', bg: 'bg-pink-400/10', border: 'border-pink-400/20'
+    }
   ]
 
   return (
@@ -19,10 +43,12 @@ export default function DataFlowSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white"
+            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white font-['Outfit']"
           >
-            Arka Planda Neler Oluyor? <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600 text-2xl md:text-3xl">(Kognitif İş Akışı)</span>
+            {language === 'tr' ? 'Arka Planda Neler Oluyor?' : language === 'de' ? 'Was passiert im Hintergrund?' : 'What Happens Behind the Scenes?'} <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600 text-2xl md:text-3xl font-medium">
+              ({language === 'tr' ? 'Kognitif İş Akışı' : language === 'de' ? 'Kognitiver Arbeitsablauf' : 'Cognitive Workflow'})
+            </span>
           </motion.h2>
         </div>
 

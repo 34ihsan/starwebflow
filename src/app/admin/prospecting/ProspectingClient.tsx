@@ -25,6 +25,8 @@ export default function ProspectingClient() {
   const [country, setCountry] = useState("");
   const [location, setLocation] = useState("");
   const [platform, setPlatform] = useState("google_maps");
+  const [personName, setPersonName] = useState("");
+  const [personRole, setPersonRole] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   
@@ -94,7 +96,7 @@ export default function ProspectingClient() {
       const response = await fetch('/api/prospecting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles })
+        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles, personName, personRole })
       });
       
       const data = await response.json();
@@ -124,7 +126,9 @@ export default function ProspectingClient() {
           keyword: sector,
           location: `${location || ''} ${country}`.trim(),
           platform: platform,
-          targetRoles: selectedTargetRoles
+          targetRoles: selectedTargetRoles,
+          personName,
+          personRole
         })
       });
       
@@ -233,7 +237,7 @@ export default function ProspectingClient() {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-[#8B5CF6]/10 to-[#4F8EF7]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse"></div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
           <div>
             <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Globe2 className="w-4 h-4" /> Hangi Ülke?</label>
             <div className="relative">
@@ -315,6 +319,30 @@ export default function ProspectingClient() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Users className="w-4 h-4" /> İsim (Opsiyonel)</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                value={personName}
+                onChange={e => setPersonName(e.target.value)}
+                placeholder="Örn: John Doe"
+                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Briefcase className="w-4 h-4" /> Rol/Konum (Opsiyonel)</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                value={personRole}
+                onChange={e => setPersonRole(e.target.value)}
+                placeholder="Örn: Marketing Manager"
+                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
+              />
             </div>
           </div>
           <div>

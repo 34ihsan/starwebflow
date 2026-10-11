@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
 
+import RegionBanner from './RegionBanner'
+
 export default function Navbar() {
   const { language, setLanguage, t } = useLanguage()
   const { settings } = useSettings()
@@ -21,38 +23,48 @@ export default function Navbar() {
   const services = [
     {
       icon: Globe,
-      label: t('services.web.title'),
-      desc: t('services.web.desc'),
+      label: 'Sub-Second Web Ekosistemi',
+      subLabel: 'Next.js 14 & Ultra Hız',
+      desc: '0.4s açılış süresi ile ziyaretçi kaybını önler, satış dönüşümünü 3x artırır.',
       href: '/hizmetler/web-gelistirme',
       color: '#4F8EF7',
+      badge: 'SSR / Ultra Hız',
     },
     {
       icon: Monitor,
-      label: t('services.saas.title'),
-      desc: t('services.saas.desc'),
+      label: 'Özel SaaS & Bulut Mimari',
+      subLabel: 'Cloud-Native & Paneller',
+      desc: 'Excel karmaşasına son veren, şirketinize özel bulut yönetim altyapıları.',
       href: '/hizmetler/web-uygulamasi',
       color: '#06B6D4',
+      badge: 'Cloud-Native',
     },
     {
       icon: Bot,
-      label: t('services.agents.title'),
-      desc: t('services.agents.desc'),
+      label: 'Otonom AI Ajanları',
+      subLabel: 'LLM & RAG Mimarisi',
+      desc: '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
       href: '/hizmetler/ai-agents',
       color: '#8B5CF6',
+      badge: 'GPT-4o / RAG',
     },
     {
       icon: Cog,
-      label: t('services.automation.title'),
-      desc: t('services.automation.desc'),
+      label: 'Kognitif İş Akışı Otomasyonu',
+      subLabel: 'n8n & API Entegrasyonu',
+      desc: 'Süreçleri otomatikleştirerek ekibinize haftalık 15+ saat kazandırır.',
       href: '/hizmetler/ai-otomasyon',
       color: '#10B981',
+      badge: 'n8n & Webhooks',
     },
     {
       icon: Megaphone,
-      label: t('services.marketing.title'),
-      desc: t('services.marketing.desc'),
+      label: 'Veri Odaklı Algoritmik Büyüme',
+      subLabel: 'Growth & Performance Ads',
+      desc: 'Meta CAPI & Google Ads ile hedef kitleye nokta atışı müşteri akışı.',
       href: '/hizmetler/reklam-sosyal-medya',
       color: '#F59E0B',
+      badge: 'High ROAS',
     },
   ]
 
@@ -100,14 +112,17 @@ export default function Navbar() {
 
   return (
     <>
+      <RegionBanner />
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#0A0A0F]/80 backdrop-blur-xl border-b border-white/[0.06] shadow-[0_4px_30px_rgba(0,0,0,0.5)]'
+            ? 'bg-[#0A0A0F]/85 backdrop-blur-2xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.6)]'
             : 'bg-transparent'
         }`}
         style={{ animation: 'slideDown 0.5s ease both' }}
       >
+        {/* Top subtle neon line */}
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
@@ -139,22 +154,33 @@ export default function Navbar() {
                 {/* Dropdown */}
                 {servicesOpen && (
                   <div
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[480px] rounded-2xl border border-white/[0.08] overflow-hidden shadow-2xl"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[620px] rounded-3xl border border-white/[0.1] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(79,142,247,0.15)] font-sans"
                     style={{
-                      background: 'rgba(12,12,22,0.95)',
-                      backdropFilter: 'blur(20px)',
+                      background: 'rgba(10, 10, 18, 0.96)',
+                      backdropFilter: 'blur(24px)',
                       animation: 'fadeInUp 0.2s ease both',
                     }}
                   >
-                    {/* Dropdown header */}
-                    <div className="px-5 py-3 border-b border-white/[0.06]">
-                      <div className="text-[10px] text-[#475569] uppercase tracking-widest font-semibold">
-                        {t('navbar.portfolioTitle')}
+                    {/* Top Accent Line */}
+                    <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#4F8EF7] via-[#8B5CF6] to-[#06B6D4]" />
+
+                    {/* Dropdown Header */}
+                    <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.01]">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4F8EF7] block mb-0.5">
+                          HİZMET PORTFÖYÜMÜZ
+                        </span>
+                        <h4 className="text-sm font-bold text-white leading-none">
+                          Mühendislik Gücü + Somut İşletme Kazancı
+                        </h4>
                       </div>
+                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                        ● Sistemler Aktif
+                      </span>
                     </div>
 
-                    {/* Services grid */}
-                    <div className="p-3">
+                    {/* Services Grid (2 Columns) */}
+                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-1.5">
                       {services.map((service) => {
                         const Icon = service.icon
                         return (
@@ -162,45 +188,49 @@ export default function Navbar() {
                             key={service.href}
                             href={service.href}
                             onClick={() => setServicesOpen(false)}
-                            className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/[0.04] transition-all duration-200 group"
+                            className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/[0.04] border border-transparent hover:border-white/[0.08] transition-all duration-200 group"
                           >
                             <div
-                              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 mt-0.5"
                               style={{
                                 background: `${service.color}15`,
-                                border: `1px solid ${service.color}25`,
+                                border: `1px solid ${service.color}30`,
                               }}
                             >
-                              <Icon className="w-4.5 h-4.5" style={{ color: service.color }} />
+                              <Icon className="w-5 h-5" style={{ color: service.color }} />
                             </div>
-                            <div>
-                              <div className="text-sm font-semibold text-white group-hover:text-white transition-colors">
-                                {service.label}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-bold text-white group-hover:text-[#4F8EF7] transition-colors truncate">
+                                  {service.label}
+                                </span>
+                                <span
+                                  className="text-[9px] font-bold px-1.5 py-0.5 rounded text-slate-300 bg-white/[0.05] border border-white/[0.08] flex-shrink-0"
+                                >
+                                  {service.badge}
+                                </span>
                               </div>
-                              <div className="text-xs text-[#64748B]">{service.desc}</div>
-                            </div>
-                            <div
-                              className="ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                              style={{ color: service.color }}
-                            >
-                              →
+                              <p className="text-[11px] text-[#94A3B8] leading-tight line-clamp-2">
+                                {service.desc}
+                              </p>
                             </div>
                           </Link>
                         )
                       })}
                     </div>
 
-                    {/* Footer */}
-                    <div className="px-5 py-3 border-t border-white/[0.06] flex items-center justify-between">
-                      <span className="text-[10px] text-[#334155]">
-                        {language === 'tr' ? 'Tüm hizmetler dahil' : language === 'en' ? 'All services included' : 'Alle Dienstleistungen inklusive'}
-                      </span>
+                    {/* Dropdown Footer Banner */}
+                    <div className="px-6 py-3.5 border-t border-white/[0.06] bg-[#07070F] flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <Zap className="w-3.5 h-3.5 text-[#F59E0B]" />
+                        <span>Hangi çözüme ihtiyacınız olduğundan emin değil misiniz?</span>
+                      </div>
                       <Link
                         href="/#services"
                         onClick={() => setServicesOpen(false)}
-                        className="text-xs text-[#4F8EF7] hover:text-white transition-colors"
+                        className="text-xs font-bold text-[#4F8EF7] hover:text-white transition-colors flex items-center gap-1"
                       >
-                        {t('navbar.allServices')}
+                        Tüm Mimarileri İncele →
                       </Link>
                     </div>
                   </div>

@@ -66,17 +66,49 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
         {/* --- ANIMATED VISUAL SPACE --- */}
         <div className="flex-grow flex items-center justify-center relative">
           {service.badge === 'AI Agents' && (
-            <div className="relative w-full h-full min-h-[120px] flex items-center justify-center my-4">
-              <div className="absolute inset-0 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700" />
-              <div className="relative w-24 h-24 rounded-full border border-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-700">
-                <div className="w-16 h-16 rounded-full border border-purple-500/30 flex items-center justify-center animate-[spin_10s_linear_infinite]">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full absolute -top-1" />
+            <div className="relative w-full h-full min-h-[140px] flex items-center justify-center my-4">
+              <div className="absolute inset-0 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/15 transition-all duration-700" />
+              {/* Node flow visualization */}
+              <div className="relative flex items-center gap-2">
+                {/* Input node */}
+                <div className="flex flex-col gap-1.5">
+                  {['CRM', 'E-posta', 'Chat'].map((label, i) => (
+                    <div key={label} className="flex items-center gap-1.5">
+                      <div
+                        className="px-2 py-0.5 rounded text-[9px] font-bold text-purple-300 border border-purple-500/20"
+                        style={{ background: 'rgba(139,92,246,0.1)', animationDelay: `${i * 0.2}s` }}
+                      >
+                        {label}
+                      </div>
+                      <div className="w-4 h-px bg-gradient-to-r from-purple-500/40 to-purple-500/10" />
+                    </div>
+                  ))}
                 </div>
-                <div className="absolute w-8 h-8 bg-purple-500/20 rounded-full blur-md animate-pulse" />
-                <Bot className="w-6 h-6 text-purple-400 relative z-10" />
+                {/* AI Brain */}
+                <div className="relative w-14 h-14 rounded-full border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full border border-purple-500/20 flex items-center justify-center animate-[spin_12s_linear_infinite]">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full absolute -top-1 shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
+                  </div>
+                  <div className="absolute w-8 h-8 bg-purple-500/15 rounded-full blur-md animate-pulse" />
+                  <Bot className="w-5 h-5 text-purple-400 relative z-10" />
+                </div>
+                {/* Output node */}
+                <div className="flex flex-col gap-1.5">
+                  {['Lead', 'Randevu', 'Rapor'].map((label, i) => (
+                    <div key={label} className="flex items-center gap-1.5">
+                      <div className="w-4 h-px bg-gradient-to-r from-purple-500/10 to-purple-500/40" />
+                      <div
+                        className="px-2 py-0.5 rounded text-[9px] font-bold text-purple-300 border border-purple-500/20"
+                        style={{ background: 'rgba(139,92,246,0.1)' }}
+                      >
+                        {label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="absolute w-2 h-2 rounded-full bg-purple-400 top-2 left-1/4 animate-ping" />
-              <div className="absolute w-1.5 h-1.5 rounded-full bg-purple-300 bottom-4 right-1/3 animate-ping" style={{ animationDelay: '500ms' }} />
+              <div className="absolute w-2 h-2 rounded-full bg-purple-400 top-2 left-1/4 animate-ping" aria-hidden="true" />
+              <div className="absolute w-1.5 h-1.5 rounded-full bg-purple-300 bottom-4 right-1/3 animate-ping" style={{ animationDelay: '500ms' }} aria-hidden="true" />
             </div>
           )}
 
@@ -92,17 +124,34 @@ function ServiceBentoCard({ service, index }: { service: any; index: number }) {
           )}
 
           {service.badge === 'Web Sitesi' && (
-            <div className="relative w-full h-full min-h-[80px] flex items-center justify-center my-4">
-              <div className="w-32 h-20 rounded-lg border border-blue-500/20 bg-blue-500/5 overflow-hidden group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.3)] transition-all duration-500">
+            <div className="relative w-full h-full min-h-[80px] flex items-center justify-center my-4 gap-4">
+              {/* Browser mockup */}
+              <div className="w-28 h-20 rounded-lg border border-blue-500/20 bg-blue-500/5 overflow-hidden group-hover:-translate-y-2 group-hover:shadow-[0_10px_30px_-10px_rgba(59,130,246,0.3)] transition-all duration-500 flex-shrink-0">
                 <div className="h-4 border-b border-blue-500/20 bg-blue-500/10 flex items-center px-2 gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400/50" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400/50" />
                 </div>
-                <div className="p-3 space-y-2">
+                <div className="p-2 space-y-1.5">
                   <div className="h-1.5 w-3/4 bg-blue-500/20 rounded animate-pulse" />
                   <div className="h-1.5 w-1/2 bg-blue-500/20 rounded animate-pulse" style={{ animationDelay: '150ms' }} />
                   <div className="h-1.5 w-5/6 bg-blue-500/20 rounded animate-pulse" style={{ animationDelay: '300ms' }} />
+                  <div className="h-3 w-1/3 bg-blue-500/30 rounded mt-2" />
+                </div>
+              </div>
+              {/* Lighthouse score */}
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black text-green-400 border-2 border-green-500/40"
+                  style={{ background: 'rgba(16,185,129,0.08)' }}
+                >
+                  95
+                </div>
+                <span className="text-[8px] text-[#64748B] font-bold uppercase tracking-wider">Score</span>
+                <div className="flex gap-0.5">
+                  {['P', 'A', 'B', 'S'].map((l) => (
+                    <div key={l} className="w-4 h-1.5 bg-green-500/40 rounded-sm" title={l} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -280,7 +329,11 @@ export default function ServicesSection() {
   ]
 
   return (
-    <section id="services" className="section relative overflow-hidden">
+    <section
+      id="services"
+      className="section relative overflow-hidden"
+      aria-label="StarWebFlow Hizmetler: AI Agents, Web Sitesi, Otomasyon, SaaS, Dijital Pazarlama"
+    >
       <div className="absolute inset-0 mesh-bg pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -312,10 +365,29 @@ export default function ServicesSection() {
         </div>
 
         {/* Bento Grid */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 auto-rows-auto gap-6">
           {services.map((service, i) => (
             <ServiceBentoCard key={service.badge} service={service} index={i} />
           ))}
+        </div>
+
+        {/* CTA */}
+        <div className={`text-center mt-14 transition-all duration-700 delay-500 ${titleVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <Link
+            href="/hizmetler"
+            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+            style={{
+              background: 'linear-gradient(135deg, #4F8EF7 0%, #8B5CF6 100%)',
+              boxShadow: '0 0 30px rgba(79,142,247,0.3), 0 0 60px rgba(139,92,246,0.15)',
+            }}
+          >
+            <Zap className="w-4 h-4" aria-hidden="true" />
+            {language === 'tr' ? 'Tüm Hizmetleri İncele' : language === 'de' ? 'Alle Leistungen ansehen' : 'Explore All Services'}
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </Link>
+          <p className="mt-3 text-xs text-[#475569]">
+            {language === 'tr' ? 'Ücretsiz danışmanlık · Taahhüt gerektirmez' : language === 'de' ? 'Kostenlose Beratung · Keine Verpflichtung' : 'Free consultation · No commitment'}
+          </p>
         </div>
       </div>
     </section>

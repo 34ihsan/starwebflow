@@ -55,6 +55,7 @@ export async function createLeadWithProposal(data: {
   tenantId: string;
   name: string;
   email: string;
+  phone?: string;
   industry: string;
   serviceType: string;
   source?: string;
@@ -74,6 +75,7 @@ export async function createLeadWithProposal(data: {
         tenantId: data.tenantId,
         name: data.name,
         email: data.email,
+        phone: data.phone || null,
         industry: data.industry,
         serviceType: data.serviceType,
         source: data.source || 'Website Popup',

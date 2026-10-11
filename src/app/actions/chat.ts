@@ -94,18 +94,28 @@ export async function sendChatMessage(data: {
 
     // AI Intent Detection & Auto Voice Funnel Trigger
     let aiResponse = null;
-    const isHighIntent = /fiyat|ücret|teklif|randevu|arama|telefon|bilgi almak|kurulum|satın al/i.test(data.content);
+    const isDeIntent = /preis|kosten|angebot|termin|anruf|telefon|kaufen|buchen/i.test(data.content);
+    const isEnIntent = /price|cost|quote|appointment|call|phone|buy|book/i.test(data.content);
+    const isTrIntent = /fiyat|ücret|teklif|randevu|arama|telefon|bilgi almak|kurulum|satın al/i.test(data.content);
+    const isHighIntent = isDeIntent || isEnIntent || isTrIntent;
     
     if (isHighIntent) {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.starwebflow.com';
       const voiceCallUrl = `${baseUrl}/call/guest-lead`;
+      
+      let replyContent = `🤖 [STAR AI OTOPİLOT]: İlginiz için teşekkürler! Projenizle ilgili detayları sıcağı sıcağına değerlendirmek ve 30 saniye içinde AI Sesli Asistanımızla görüşmek için tıklayın: ${voiceCallUrl}`;
+      if (isDeIntent) {
+        replyContent = `🤖 [STAR KI-AUTOPILOT]: Vielen Dank für Ihr Interesse! Um die Details Ihres Projekts sofort zu besprechen und innerhalb von 30 Sekunden mit unserem KI-Sprachassistenten zu sprechen, klicken Sie hier: ${voiceCallUrl}`;
+      } else if (isEnIntent) {
+        replyContent = `🤖 [STAR AI AUTOPILOT]: Thank you for your interest! To review your project requirements and speak with our AI Voice Assistant within 30 seconds, click here: ${voiceCallUrl}`;
+      }
       
       // Auto AI reply suggesting voice call or instant connection
       aiResponse = await prisma.chatMessage.create({
         data: {
           threadId: data.threadId,
           senderId: data.senderId, // System bot response
-          content: `🤖 [STAR AI OTOPİLOT]: İlginiz için teşekkürler! Projenizle ilgili detayları sıcağı sıcağına değerlendirmek ve 30 saniye içinde AI Sesli Asistanımızla görüşmek için tıklayın: ${voiceCallUrl}`,
+          content: replyContent,
           attachments: { type: 'VOICE_CALL_PITCH', url: voiceCallUrl }
         }
       });

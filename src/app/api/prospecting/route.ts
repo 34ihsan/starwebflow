@@ -5,9 +5,9 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { sector, country, location, platform, targetRoles } = body;
+    const { sector, country, location, platform, targetRoles, personName, personRole } = body;
 
-    console.log("[Prospecting API] Received search request:", { sector, country, location, platform, targetRoles });
+    console.log("[Prospecting API] Received search request:", { sector, country, location, platform, targetRoles, personName, personRole });
 
     // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
     // Eğer veritabanında daha önce aynı arama yapılmış ve kaydedilmişse Apify'a gitmeyip direkt onları döndürüyoruz.
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Apify Scraper'ı Webhook veya Senkron olarak tetikle
-    const scraperResult = await runApifyScraperAction('default-tenant', {}, { sector, location, country, platform, targetRoles });
+    const scraperResult = await runApifyScraperAction('default-tenant', {}, { sector, location, country, platform, targetRoles, personName, personRole });
     
     if (scraperResult.isAsync) {
       return NextResponse.json({

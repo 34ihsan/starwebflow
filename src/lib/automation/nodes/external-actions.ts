@@ -9,7 +9,7 @@ import { fetchWebsiteTech } from "../utils/technographics";
  * Connects to Apify using APIFY_API_TOKEN to fetch real data
  */
 export async function runApifyScraperAction(tenantId: string, payload: any, nodeData: any) {
-  const { sector = "Dentist", location = "Berlin", country = "Germany", platform = "google_maps", targetRoles = [] } = nodeData;
+  const { sector = "Dentist", location = "Berlin", country = "Germany", platform = "google_maps", targetRoles = [], personName = "", personRole = "" } = nodeData;
   console.log(`[Apify Node] Starting scraping for ${sector} in ${location}, ${country} via ${platform}...`);
   
   const token = process.env.APIFY_API_TOKEN;
@@ -24,9 +24,11 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
   let actorId = "apify/google-maps-scraper";
   let input: any = {};
 
-  // Hedef roller için sorgu eklemesi
+  // Hedef roller ve kişi ismi için sorgu eklemesi
   let roleQuery = "";
-  if (Array.isArray(targetRoles) && targetRoles.length > 0) {
+  if (personRole) {
+    roleQuery = ` "${personRole}"`;
+  } else if (Array.isArray(targetRoles) && targetRoles.length > 0) {
     const roleMap: Record<string, string> = {
       founder: '"Founder" OR "Kurucu"',
       owner: '"Owner" OR "Sahip"',
@@ -46,26 +48,31 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
     }
   }
 
+  let personQuery = "";
+  if (personName) {
+    personQuery = ` "${personName}"`;
+  }
+
   // Dinamik Platform Seçimi (Pro/Elite Seviye)
   switch (platform) {
     case "linkedin":
       actorId = "apify/google-search-scraper"; 
       input = { 
-        queries: [`site:linkedin.com/in/ "${sector}" "${location}" "${country}"${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
+        queries: [`site:linkedin.com/in/ "${sector}" "${location}" "${country}"${personQuery}${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
         maxPagesPerQuery: 2 
       };
       break;
     case "apollo":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:apollo.io/company "${sector}" "${location}"${roleQuery}`], 
+        queries: [`site:apollo.io/company "${sector}" "${location}"${personQuery}${roleQuery}`], 
         maxPagesPerQuery: 2 
       };
       break;
     case "instagram":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:instagram.com "${sector}" "${location}" "${country}"${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
+        queries: [`site:instagram.com "${sector}" "${location}" "${country}"${personQuery}${roleQuery} ("@gmail.com" OR "@yahoo.com" OR "@hotmail.com")`], 
         maxPagesPerQuery: 2 
       };
       break;
@@ -76,7 +83,7 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
     case "crunchbase":
       actorId = "apify/google-search-scraper";
       input = { 
-        queries: [`site:crunchbase.com/organization "${sector}" "${location}"${roleQuery}`], 
+        queries: [`site:crunchbase.com/organization "${sector}" "${location}"${personQuery}${roleQuery}`], 
         maxPagesPerQuery: 2 
       };
       break;
@@ -84,13 +91,14 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
       // Gelecekte eklenecek özel scraper'lar için hazır altyapı
       console.log(`[Apify Node] Platform ${platform} is in development. Falling back to generic web search.`);
       actorId = "apify/google-search-scraper";
-      input = { queries: [`${sector} ${location} ${country}${roleQuery}`], maxPagesPerQuery: 2 };
+      input = { queries: [`${sector} ${location} ${country}${personQuery}${roleQuery}`], maxPagesPerQuery: 2 };
       break;
     case "google_maps":
     default:
       actorId = "apify/google-maps-scraper";
+      const mapsSearchStr = `${personName} ${personRole} ${sector} in ${location}, ${country}`.trim();
       input = {
-        searchStringsArray: [`${sector} in ${location}, ${country}`],
+        searchStringsArray: [mapsSearchStr],
         maxCrawledPlacesPerSearch: 50, // Bütçe dostu limit (Pro seviyesi)
         language: "en",
         maxReviews: 5,
@@ -360,18 +368,44 @@ export async function createLeadsAction(tenantId: string, payload: any, nodeData
     if (!item.name && !item.company && !item.website && !item.phone) continue; // Bomboşsa geç
     
     try {
-      // Mükerrer Kontrolü (Anti-Duplicate) ve Master Data Pool Güncellemesi
-      // Aramayı telefon numarasına (veya websiteye) göre yapıyoruz
-      const existingLead = await prisma.lead.findFirst({
-        where: {
-          tenantId,
-          OR: [
-            item.phone ? { phone: item.phone } : undefined,
-            item.website ? { website: item.website } : undefined,
-            item.email ? { email: item.email } : undefined
-          ].filter(Boolean) as any[]
+      // Mükerrer Kontrolü (Anti-Duplicate)
+      // Aynı şirketten birden fazla kişi olabilmesi için sadece website/phone ile eşleştirme yapmıyoruz.
+      // Kişi adı veya email eşleşiyorsa duplicate sayıyoruz.
+      const orConditions: any[] = [];
+      
+      if (item.email) orConditions.push({ email: item.email });
+      if (item.linkedinUrl) orConditions.push({ linkedinUrl: item.linkedinUrl });
+
+      const personIdentifier = item.decisionMakerName || item.name;
+
+      if (item.website) {
+        if (personIdentifier) {
+           orConditions.push({ website: item.website, decisionMakerName: personIdentifier });
+           orConditions.push({ website: item.website, name: personIdentifier });
+        } else {
+           // Sadece genel şirket kaydıysa
+           orConditions.push({ website: item.website, decisionMakerName: null });
         }
-      });
+      }
+      
+      if (item.phone) {
+        if (personIdentifier) {
+           orConditions.push({ phone: item.phone, decisionMakerName: personIdentifier });
+           orConditions.push({ phone: item.phone, name: personIdentifier });
+        } else {
+           orConditions.push({ phone: item.phone, decisionMakerName: null });
+        }
+      }
+
+      let existingLead = null;
+      if (orConditions.length > 0) {
+        existingLead = await prisma.lead.findFirst({
+          where: {
+            tenantId,
+            OR: orConditions
+          }
+        });
+      }
 
       if (existingLead) {
         // Zaten varsa ve Master Data Pool kuralı gereği yeni bilgi gelmişse güncelle (Upsert mantığı)

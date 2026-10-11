@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, RefreshCw, Wrench } from 'lucide-react';
-import { updateMailboxStatus, testMailboxConnection } from '@/app/actions/email';
+import { Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, RefreshCw, Wrench, ShieldCheck, Globe } from 'lucide-react';
+import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns } from '@/app/actions/email';
+import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
 
 interface MailboxWarmupTabProps {
   dbMailboxes: any[];
@@ -17,6 +18,7 @@ export default function MailboxWarmupTab({
   const [isTriggeringWarmup, setIsTriggeringWarmup] = useState(false);
   const [warmupMessage, setWarmupMessage] = useState<string | null>(null);
   const [testingMailboxId, setTestingMailboxId] = useState<string | null>(null);
+  const [verifyingDnsMailboxId, setVerifyingDnsMailboxId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; text: string }>>({});
 
   const erroredMailboxes = dbMailboxes.filter(m => m.status === 'ERROR' || m.isPaused);
@@ -37,6 +39,39 @@ export default function MailboxWarmupTab({
       setWarmupMessage(`❌ Bağlantı hatası: ${err.message}`);
     } finally {
       setIsTriggeringWarmup(false);
+    }
+  };
+
+  const handleVerifyDns = async (mailboxId: string) => {
+    setVerifyingDnsMailboxId(mailboxId);
+    try {
+      const res = await verifyMailboxDns(mailboxId);
+      if (res.success && res.data) {
+        setDbMailboxes(prev => prev.map(m => m.id === mailboxId ? { 
+          ...m, 
+          spfStatus: res.data.spfStatus, 
+          dkimStatus: res.data.dkimStatus, 
+          dmarcStatus: res.data.dmarcStatus,
+          status: res.data.status,
+          reputation: res.data.reputation
+        } : m));
+        setTestResults(prev => ({
+          ...prev,
+          [mailboxId]: { success: true, text: res.message || 'DNS kayıtları güncellendi.' }
+        }));
+      } else {
+        setTestResults(prev => ({
+          ...prev,
+          [mailboxId]: { success: false, text: res.error || 'DNS doğrulama başarısız.' }
+        }));
+      }
+    } catch (err: any) {
+      setTestResults(prev => ({
+        ...prev,
+        [mailboxId]: { success: false, text: err.message || 'DNS test hatası.' }
+      }));
+    } finally {
+      setVerifyingDnsMailboxId(null);
     }
   };
 
@@ -136,36 +171,66 @@ export default function MailboxWarmupTab({
         </div>
       )}
 
-      {/* 14-Day Seed Phase & Auto-Clean Visualizer Badge */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-[#0A0A0F] border border-blue-500/20 rounded-2xl p-5 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
-            <span className="text-xl">🌱</span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-white">14 Günlük Akıllı Bülten Tohumlama (Seed Phase)</h4>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold">Aktif</span>
+      {/* Pro A++ Architecture Visualizer Badges */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-[#0A0A0F] border border-blue-500/20 rounded-2xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center shrink-0">
+              <span className="text-lg">🌐</span>
             </div>
-            <p className="text-xs text-[#94A3B8] mt-1 leading-relaxed">
-              Yeni eklenen e-posta adresleri ilk 14 gün Substack/Medium bültenlerine otonom olarak kaydedilir. Gönderim/alınım dengelenir ve 14. günde otonom olarak abonelikten çıkılır.
-            </p>
+            <div>
+              <h4 className="text-xs font-bold text-white">Çapraz Domain & ESP Ağı</h4>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold">Anti-Looping Aktif</span>
+            </div>
           </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+            Aynı domain içinde kısır döngüye girilmez. Google, Microsoft 365 ve kurumsal SMTP kutuları arasında çapraz itibar inşası yapılır.
+          </p>
         </div>
 
-        <div className="bg-[#0A0A0F] border border-cyan-500/20 rounded-2xl p-5 flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
-            <span className="text-xl">🧹</span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-white">48 Saatlik Otonom Mail Temizliği (Auto-Trash)</h4>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-semibold">Aktif</span>
+        <div className="bg-[#0A0A0F] border border-purple-500/20 rounded-2xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shrink-0">
+              <span className="text-lg">🛡️</span>
             </div>
-            <p className="text-xs text-[#94A3B8] mt-1 leading-relaxed">
-              Warmup havuzundan ve bültenlerden gelen mailler okunup yıldızlandıktan 24-48 saat sonra gelen kutunuzun dolmaması için otomatik olarak Çöp Kutusu'na taşınır. Müşteri maillerine dokunulmaz.
-            </p>
+            <div>
+              <h4 className="text-xs font-bold text-white">AI B2B & Sıfır-Spam Kalkanı</h4>
+              <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[9px] font-semibold">A++ Kalite</span>
+            </div>
           </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+            Gemini 2.5 Flash ile gerçekçi B2B senaryoları üretilir. Satış/pazarlama kelimeleri içermez, antispam algoritmalarını tetiklemez.
+          </p>
+        </div>
+
+        <div className="bg-[#0A0A0F] border border-emerald-500/20 rounded-2xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <span className="text-lg">🌱</span>
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white">Dış Ağ Bülten Tohumlama</h4>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-semibold">Seed Network</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+            TLDR, Substack, Hacker Newsletter gibi küresel saygın kaynaklardan gerçek gelen kutusu trafiği sağlanır ve otonom onaylanır.
+          </p>
+        </div>
+
+        <div className="bg-[#0A0A0F] border border-cyan-500/20 rounded-2xl p-5 flex flex-col justify-between">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shrink-0">
+              <span className="text-lg">⏰</span>
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-white">İnsan Ritmi & Auto-Trash</h4>
+              <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[9px] font-semibold">08:00 - 19:00</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">
+            Mesai saatlerine uygun rastgele zamanlama uygulanır. Isıtma mailleri 48 saat sonra arşive alınır, kutunuz dolmaz.
+          </p>
         </div>
       </div>
 
@@ -236,7 +301,19 @@ export default function MailboxWarmupTab({
         {dbMailboxes.map((box) => {
           const safeStatus = box.status?.toUpperCase() || 'WARMUP';
           const isTestingThis = testingMailboxId === box.id;
+          const isVerifyingDnsThis = verifyingDnsMailboxId === box.id;
           const testResult = testResults[box.id];
+
+          const deliv = calculateDeliverabilityScore({
+            spfStatus: !!box.spfStatus,
+            dkimStatus: !!box.dkimStatus,
+            dmarcStatus: !!box.dmarcStatus,
+            reputation: box.reputation || 100,
+            bounceCount: box.bounceCount || 0,
+            spamCount: box.spamCount || 0,
+            sentToday: box.sentToday || 0,
+            warmupDay: box.warmupDay || 1
+          });
 
           return (
           <div key={box.id} className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 hover:border-white/[0.1] transition-all duration-300 relative overflow-hidden group shadow-xl hover:-translate-y-1">
@@ -248,16 +325,35 @@ export default function MailboxWarmupTab({
                 </div>
                 <div>
                   <h3 className="text-white font-medium text-sm truncate max-w-[150px]">{box.email}</h3>
-                  <p className="text-[10px] text-[#64748B] mt-0.5 font-mono">DNS: <span className="text-emerald-400 drop-shadow-[0_0_2px_rgba(16,185,129,0.8)]">DMARC/SPF/DKIM ✓</span></p>
+                  <div className="flex items-center gap-1.5 mt-1 text-[9px] font-mono">
+                    <span className={`px-1.5 py-0.5 rounded ${box.spfStatus ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                      SPF {box.spfStatus ? '✓' : '✗'}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded ${box.dkimStatus ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                      DKIM {box.dkimStatus ? '✓' : '✗'}
+                    </span>
+                    <span className={`px-1.5 py-0.5 rounded ${box.dmarcStatus ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                      DMARC {box.dmarcStatus ? '✓' : '✗'}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-                safeStatus === 'ACTIVE' ? 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 
-                safeStatus === 'WARMUP' ? 'text-[#4F8EF7] bg-[#4F8EF7]/10 border-[#4F8EF7]/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]' :
-                'text-red-400 bg-red-400/10 border-red-400/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
-              }`}>
-                {safeStatus === 'WARMUP' ? '🔥 WARMUP' : safeStatus === 'WARNING' ? '⚠️ DİNLENİYOR' : safeStatus === 'ERROR' ? '❌ HATA / PAUSE' : safeStatus}
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                  safeStatus === 'ACTIVE' ? 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 
+                  safeStatus === 'WARMUP' ? 'text-[#4F8EF7] bg-[#4F8EF7]/10 border-[#4F8EF7]/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]' :
+                  'text-red-400 bg-red-400/10 border-red-400/20 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
+                }`}>
+                  {safeStatus === 'WARMUP' ? '🔥 WARMUP' : safeStatus === 'WARNING' ? '⚠️ DİNLENİYOR' : safeStatus === 'ERROR' ? '❌ HATA / PAUSE' : safeStatus}
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${
+                  deliv.grade === 'A+' || deliv.grade === 'A' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                  deliv.grade === 'B' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                  'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                }`}>
+                  Skor: {deliv.grade} (%{deliv.score})
+                </span>
+              </div>
             </div>
 
             <div className="space-y-5 relative z-10">
@@ -325,13 +421,23 @@ export default function MailboxWarmupTab({
               </button>
 
               <button 
+                onClick={() => handleVerifyDns(box.id)}
+                disabled={isVerifyingDnsThis}
+                className="py-2 px-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-xs font-semibold text-emerald-400 transition-colors flex items-center justify-center gap-1"
+                title="Canlı DNS (SPF, DKIM, DMARC) Doğrula"
+              >
+                {isVerifyingDnsThis ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Globe className="w-3.5 h-3.5" />}
+                DNS
+              </button>
+
+              <button 
                 onClick={() => handleTestConnection(box.id)}
                 disabled={isTestingThis}
-                className="py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-xs font-semibold text-cyan-400 transition-colors flex items-center justify-center gap-1.5"
+                className="py-2 px-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-xs font-semibold text-cyan-400 transition-colors flex items-center justify-center gap-1"
                 title="SMTP/IMAP Bağlantı ve Şifre Testi Yap"
               >
                 {isTestingThis ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wrench className="w-3.5 h-3.5" />}
-                Test Et
+                Test
               </button>
 
               {safeStatus === "WARMUP" ? (

@@ -1,7 +1,8 @@
 'use client'
 import { motion } from 'framer-motion'
-import { FileText, ArrowRight, Clock, ChevronRight, Activity, FolderKanban } from 'lucide-react'
+import { FileText, ArrowRight, Clock, ChevronRight, Activity, FolderKanban, Zap, MessageSquare, LifeBuoy, Plus, TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import Link from 'next/link'
 
 export default function ClientDashboardOverview({ initialData, initialActivities = [] }: { initialData: any, initialActivities?: any[] }) {
   const { client, projects, contracts, recentInvoices } = initialData;
@@ -33,16 +34,61 @@ export default function ClientDashboardOverview({ initialData, initialActivities
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
         <div>
-          <h1 className="text-4xl font-black font-['Outfit'] text-white flex items-center gap-3 tracking-tight">
-            <span className="gradient-text">{t('dashboard.overview.welcome')}, {client?.name || 'Client'}</span>
-          </h1>
-          <p className="text-slate-400 mt-2 font-medium">{t('dashboard.overview.subtitle')}</p>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-4xl font-black font-['Outfit'] text-white tracking-tight">
+              <span className="gradient-text">{t('dashboard.overview.welcome')},</span>{' '}
+              <span className="text-white">{client?.name || 'Client'}</span>
+            </h1>
+          </div>
+          <p className="text-slate-400 font-medium">{t('dashboard.overview.subtitle')}</p>
         </div>
-        <div className="px-5 py-2.5 glass border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-emerald-400 text-sm font-bold rounded-xl flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-          {language === 'tr' ? 'Sistem Aktif' : language === 'en' ? 'System Online' : 'System Aktiv'}
+        <div className="flex items-center gap-3">
+          {/* Sparkline mini chart */}
+          <div className="hidden lg:flex items-end gap-0.5 h-8 px-3 py-2 glass rounded-xl">
+            {[40, 65, 45, 80, 60, 90, 75].map((h, i) => (
+              <div
+                key={i}
+                className="sparkline-bar w-2 rounded-sm"
+                style={{
+                  height: `${h}%`,
+                  background: `linear-gradient(to top, #4F8EF7, #06B6D4)`,
+                  opacity: 0.4 + i * 0.08,
+                }}
+              />
+            ))}
+          </div>
+          <div className="px-5 py-2.5 glass border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-emerald-400 text-sm font-bold rounded-xl flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 activity-dot" />
+            {language === 'tr' ? 'Sistem Aktif' : language === 'en' ? 'System Online' : 'System Aktiv'}
+          </div>
         </div>
       </header>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10">
+        {[
+          { icon: Plus,         label: language === 'tr' ? 'Yeni Talep' : language === 'de' ? 'Neue Anfrage' : 'New Request', href: '/client/support', color: '#4F8EF7' },
+          { icon: MessageSquare, label: language === 'tr' ? 'Mesajlar'  : language === 'de' ? 'Nachrichten'  : 'Messages',    href: '/client/messages', color: '#8B5CF6' },
+          { icon: FileText,     label: language === 'tr' ? 'Faturalar'  : language === 'de' ? 'Rechnungen'   : 'Invoices',    href: '/client/invoices', color: '#06B6D4' },
+          { icon: LifeBuoy,     label: language === 'tr' ? 'Destek'     : language === 'de' ? 'Support'      : 'Support',     href: '/client/support',  color: '#10B981' },
+        ].map(({ icon: Icon, label, href, color }, i) => (
+          <Link
+            key={i}
+            href={href}
+            className="dashboard-card flex items-center gap-3 px-4 py-3 group hover:no-underline"
+          >
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
+              style={{ background: `${color}15`, border: `1px solid ${color}25` }}
+            >
+              <Icon className="w-4 h-4" style={{ color }} aria-hidden="true" />
+            </div>
+            <span className="text-sm font-semibold text-[#94A3B8] group-hover:text-white transition-colors whitespace-nowrap truncate">
+              {label}
+            </span>
+          </Link>
+        ))}
+      </div>
 
       {/* Header Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
@@ -201,24 +247,30 @@ export default function ClientDashboardOverview({ initialData, initialActivities
             </h2>
 
             <div className="glass rounded-3xl p-3 card-hover">
-              <div className="space-y-1">
-                {RECENT_ACTIVITY.length === 0 ? (
-                  <div className="p-5 text-center text-sm font-medium text-slate-400">
-                    {language === 'tr' ? 'Henüz aktivite yok.' : 'No recent activity.'}
-                  </div>
-                ) : (
-                  RECENT_ACTIVITY.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/[0.03] transition-colors group cursor-default">
-                      <div className="mt-1">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#4F8EF7] shadow-[0_0_10px_rgba(79,142,247,0.5)] ring-4 ring-[#4F8EF7]/10 group-hover:ring-[#4F8EF7]/30 transition-all" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-200 font-bold">{activity.title}</p>
-                        <p className="text-xs font-medium text-slate-500 mt-1">{activity.time}</p>
-                      </div>
-                    </div>
-                  ))
+              <div className="relative">
+                {/* Timeline connector line */}
+                {RECENT_ACTIVITY.length > 1 && (
+                  <div className="absolute left-[22px] top-7 bottom-7 dashboard-timeline-connector" aria-hidden="true" />
                 )}
+                <div className="space-y-1">
+                  {RECENT_ACTIVITY.length === 0 ? (
+                    <div className="p-5 text-center text-sm font-medium text-slate-400">
+                      {language === 'tr' ? 'Henüz aktivite yok.' : 'No recent activity.'}
+                    </div>
+                  ) : (
+                    RECENT_ACTIVITY.map((activity, idx) => (
+                      <div key={activity.id} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/[0.03] transition-colors group cursor-default relative z-10">
+                        <div className="mt-1 flex-shrink-0">
+                          <div className={`w-2.5 h-2.5 rounded-full bg-[#4F8EF7] shadow-[0_0_10px_rgba(79,142,247,0.5)] ring-4 ring-[#4F8EF7]/10 group-hover:ring-[#4F8EF7]/30 transition-all ${idx === 0 ? 'activity-dot' : ''}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-slate-200 font-bold truncate">{activity.title}</p>
+                          <p className="text-xs font-medium text-slate-500 mt-0.5">{activity.time}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </div>

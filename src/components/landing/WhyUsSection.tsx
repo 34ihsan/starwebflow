@@ -53,6 +53,8 @@ export default function WhyUsSection() {
     { value: 3,  suffix: 'x',  label: t('whyUsExtra.stat2'), icon: Users,       color: '#4F8EF7' },
     { value: 48, suffix: language === 'tr' ? 'sa' : language === 'de' ? 'Std.' : 'hrs', label: t('whyUsExtra.stat3'), icon: Zap, color: '#8B5CF6' },
     { value: 99, suffix: '%',  label: t('whyUsExtra.stat4'), icon: Shield,      color: '#06B6D4' },
+    { value: 24, suffix: '/7', label: language === 'tr' ? 'Kesintisiz Otonom Sistem' : language === 'de' ? 'Autonomer Betrieb' : 'Autonomous Runtime', icon: Zap, color: '#F59E0B' },
+    { value: 100, suffix: '%', label: language === 'tr' ? 'Özel Kodlama & KVKK' : language === 'de' ? 'Custom Code & DSGVO' : 'Custom Code & GDPR', icon: Shield, color: '#EC4899' },
   ]
 
   useEffect(() => {
@@ -143,8 +145,8 @@ export default function WhyUsSection() {
               {/* Top glow */}
               <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
 
-              <div className="grid grid-cols-2 divide-x divide-y divide-white/[0.06]">
-                {stats.map((stat, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-white/[0.06]">
+                {stats.map((stat) => (
                   <StatCounter
                     key={stat.label}
                     {...stat}
@@ -160,6 +162,20 @@ export default function WhyUsSection() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Trust & Tech Logos Banner */}
+        <div className="mt-16 pt-10 border-t border-white/[0.06] flex flex-col items-center gap-4">
+          <p className="text-[10px] font-bold tracking-[0.2em] text-[#64748B] uppercase">
+            {language === 'tr' ? 'GÜVENDİĞİMİZ VE KULLANDIĞIMIZ TEKNOLOJİ ALTYAPISI' : language === 'de' ? 'TECHNOLOGIE-STACK' : 'ENTERPRISE TECH STACK'}
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            {['Next.js 14', 'PostgreSQL', 'n8n Workflow', 'OpenAI GPT-4o', 'Meta CAPI', 'Cloudflare Enterprise'].map((tech) => (
+              <span key={tech} className="text-xs font-black tracking-wider text-[#94A3B8] font-['Outfit'] border border-white/5 px-3 py-1.5 rounded-lg bg-white/[0.02]">
+                {tech}
+              </span>
+            ))}
           </div>
         </div>
       </div>
