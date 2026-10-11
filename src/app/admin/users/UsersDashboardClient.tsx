@@ -43,7 +43,7 @@ export default function UsersDashboardClient({ initialData, initialActivities }:
       setNewUserData({ name: '', email: '', password: '', role: 'DEVELOPER' });
       showToast('Kullanıcı başarıyla eklendi', 'success');
     } else {
-      showToast('Kullanıcı eklenemedi', 'error');
+      showToast(res.error || 'Kullanıcı eklenemedi', 'error');
     }
     setIsCreating(false);
   };

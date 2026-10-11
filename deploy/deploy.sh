@@ -20,6 +20,7 @@ npm install || npm ci --legacy-peer-deps
 echo "Updating Database Safely..."
 npx prisma generate
 npx prisma db push
+node scripts/seed_sinan.js
 
 # Backup old build
 echo "Backing up current build..."

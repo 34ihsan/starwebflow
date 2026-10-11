@@ -14,10 +14,14 @@ async function hashPassword(password: string): Promise<string> {
   return `${buf.toString('hex')}.${salt}`;
 }
 
-export async function getUsers(tenantId: string) {
+export async function getUsers(tenantId?: string) {
   try {
+    const where: any = { deletedAt: null };
+    if (tenantId && tenantId !== 'default-tenant' && tenantId !== 'all') {
+      where.tenantId = tenantId;
+    }
     const users = await prisma.user.findMany({
-      where: { tenantId, deletedAt: null },
+      where,
       orderBy: { createdAt: 'desc' },
     });
     return { success: true, data: users };
@@ -35,28 +39,61 @@ export async function createUser(data: {
   password?: string;
 }) {
   try {
+    const cleanEmail = (data.email || '').trim().toLowerCase();
+    if (!cleanEmail) {
+      return { success: false, error: 'E-posta adresi zorunludur.' };
+    }
+
     let passwordHash: string;
     if (data.password) {
       passwordHash = await hashPassword(data.password);
     } else {
-      // Şifre verilmediyse (örneğin sadece sihirli bağlantı için oluşturuluyorsa)
-      // güvenli ve rastgele bir şifre üretip hashliyoruz, böylece sisteme asla dummy değer kaydedilmez.
       const randomPass = randomBytes(16).toString('hex');
       passwordHash = await hashPassword(randomPass);
     }
-    
+
+    // Check if user already exists
+    const existing = await prisma.user.findFirst({
+      where: { email: { equals: cleanEmail, mode: 'insensitive' } }
+    });
+
+    if (existing) {
+      // If user exists, update their details safely
+      const updated = await prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          name: data.name || existing.name,
+          role: data.role || existing.role,
+          passwordHash,
+          deletedAt: null,
+          emailVerified: true,
+        }
+      });
+      safeRevalidatePath('/admin/users');
+      return { success: true, data: updated };
+    }
+
+    // Ensure tenant exists
+    let targetTenantId = data.tenantId;
+    const tenantExists = await prisma.tenant.findUnique({ where: { id: targetTenantId } });
+    if (!tenantExists) {
+      const firstTenant = await prisma.tenant.findFirst();
+      if (firstTenant) targetTenantId = firstTenant.id;
+    }
+
     const user = await prisma.user.create({
       data: {
-        tenant: { connect: { id: data.tenantId } },
-        email: data.email,
+        tenant: { connect: { id: targetTenantId } },
+        email: cleanEmail,
         name: data.name,
         role: data.role,
         passwordHash,
+        emailVerified: true,
       }
     });
     
     await logActivity({
-      tenantId: data.tenantId,
+      tenantId: targetTenantId,
       action: 'USER_CREATED',
       entityType: 'User',
       entityId: user.id,
@@ -65,9 +102,9 @@ export async function createUser(data: {
 
     safeRevalidatePath('/admin/users');
     return { success: true, data: user };
-  } catch (error) {
+  } catch (error: any) {
     console.error('createUser error:', error);
-    return { success: false, error: 'Failed to create user' };
+    return { success: false, error: error?.message || 'Failed to create user' };
   }
 }
 

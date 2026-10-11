@@ -27,6 +27,9 @@ echo "🗄️ 4/5: Veritabanı GÜVENLİ bir şekilde güncelleniyor..."
 # Böylece mevcut veriler (mailler, kullanıcılar) ASLA silinmez.
 npx prisma db push
 
+echo "👤 Süper Admin kullanıcısı (Sinan Günay) güvenle eşitleniyor..."
+node scripts/seed_sinan.js
+
 echo "🏗️ 5/5: Next.js Projesi derleniyor (Build)..."
 npm run build
 

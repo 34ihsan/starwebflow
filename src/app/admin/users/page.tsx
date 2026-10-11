@@ -3,7 +3,7 @@ import { getActivities } from '@/app/actions/activity';
 import UsersDashboardClient from './UsersDashboardClient';
 
 export default async function AdminUsersDashboardPage() {
-  const res = await getUsers('default-tenant');
+  const res = await getUsers();
   const initialData = res.success ? res.data : [];
   
   const activitiesRes = await getActivities('default-tenant');
