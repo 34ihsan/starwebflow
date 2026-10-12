@@ -886,7 +886,7 @@ export default function ServicesSection() {
           }`}
         >
           <Link
-            href="/hizmetler"
+            href="/#services"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 shadow-[0_10px_30px_rgba(37,99,235,0.3)] group"
             style={{
               background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
