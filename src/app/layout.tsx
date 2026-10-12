@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { SettingsProvider } from '@/lib/settings/SettingsContext'
 import { RecaptchaProvider } from '@/components/ui/RecaptchaProvider'
 import { ThemeProvider, Theme } from '@/lib/theme/ThemeContext'
+import { PwaRegistrar } from '@/components/pwa/PwaRegistrar'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -209,6 +210,7 @@ export default async function RootLayout({
               </div>
 
               {children}
+              <PwaRegistrar />
               <CookieConsent />
               <SystemHealthWidget />
             </RecaptchaProvider>

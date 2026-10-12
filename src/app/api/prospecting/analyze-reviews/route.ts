@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { generateTextResilient } from '@/lib/ai/gemini-client';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
@@ -11,8 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'Yorum verisi bulunamadı.' }, { status: 400 });
     }
 
-    const { text } = await generateText({
-      model: getFlashModel(),
+    const { text } = await generateTextResilient({
       system: `Sen elit bir dijital ajansın baş stratejisti ve metin yazarısın. Şirket yorumlarını inceleyip en büyük acı noktasını (Pain Point) tespit et ve ikna edici bir teklif cümlesi (Custom Pitch) yaz. Çıktıyı SADECE JSON formatında ver: {"painPoint": "...", "customPitch": "..."}`,
       prompt: `Şirket Adı: ${companyName || 'Bu Şirket'}\nMüşteri Yorumları:\n${reviews.map((r: string) => `- ${r}`).join('\n')}`
     });

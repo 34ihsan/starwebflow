@@ -382,6 +382,8 @@ model LeadSequence {
   @@index([tenantId])
   @@index([leadId])
   @@index([nextRunAt])
+  @@index([tenantId, status, nextRunAt])
+  @@index([status, nextRunAt])
   @@map("lead_sequences")
 }
 
@@ -553,6 +555,7 @@ model OutreachItem {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@index([bulkOutreachId])
+  @@index([bulkOutreachId, status])
   @@map("outreach_items")
 }
 
@@ -1164,6 +1167,8 @@ model EmailLog {
 
   @@index([tenantId])
   @@index([toEmail])
+  @@index([tenantId, createdAt])
+  @@index([campaignId, status])
   @@map("email_logs")
 }
 

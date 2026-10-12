@@ -187,6 +187,22 @@ Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize 
               });
             }
 
+            // Emit internal system event for notifications & automation triggers
+            try {
+              const { EventBus } = await import('@/lib/automation/eventBus');
+              await EventBus.emit('lead.created', {
+                leadId: lead.id,
+                tenantId,
+                name,
+                email,
+                phone,
+                score: score || 0,
+                source: 'AI Chat Assistant'
+              });
+            } catch (e) {
+              console.warn('[Chat API] EventBus warning:', e);
+            }
+
             const successMsg = langKey === 'de'
               ? 'Lead erfolgreich gespeichert. Bitte bedanken Sie sich beim Besucher auf Deutsch und bestätigen Sie die Kontaktaufnahme durch das Expertenteam.'
               : langKey === 'en'
@@ -209,6 +225,76 @@ Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize 
           }
         },
       }),
+      schedule_meeting: tool({
+        description: 'Ziyaretçi doğrudan canlı danışmanlık veya demo görüşmesi planlamak istediğinde bu aracı çalıştır.',
+        parameters: z.object({
+          name: z.string().describe('Ziyaretçinin Adı'),
+          email: z.string().describe('Ziyaretçinin E-posta adresi'),
+          phone: z.string().optional().describe('Ziyaretçinin telefon numarası'),
+          preferredDate: z.string().optional().describe('Tercih ettiği gün veya saat aralığı'),
+          topic: z.string().optional().describe('Görüşmek istediği konu (Web, AI Ajanı, Otomasyon vb.)')
+        }),
+        execute: async ({ name, email, phone, preferredDate, topic }: any): Promise<any> => {
+          try {
+            // Find or create lead first
+            let lead = await prisma.lead.findFirst({
+              where: {
+                tenantId,
+                OR: [{ email }, ...(phone ? [{ phone }] : [])]
+              }
+            });
+
+            if (!lead) {
+              lead = await prisma.lead.create({
+                data: {
+                  tenantId,
+                  name,
+                  email,
+                  phone,
+                  notes: `Toplantı Talebi: ${topic || 'Genel Görüşme'} | Tercih Edilen Zaman: ${preferredDate || 'En Kısa Sürede'}`,
+                  source: 'AI Chat Scheduler',
+                  status: 'new',
+                  score: 85
+                }
+              });
+            }
+
+            // Create appointment record
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 1); // default next business day
+            targetDate.setHours(11, 0, 0, 0);
+
+            await prisma.appointment.create({
+              data: {
+                tenantId,
+                leadId: lead.id,
+                title: `StarWebFlow Keşif Toplantısı - ${name}`,
+                date: targetDate,
+                duration: 30,
+                status: 'PENDING',
+                type: 'ONLINE',
+                notes: `Talep Konusu: ${topic || 'Genel Proje Keşfi'}. Ziyaretçi Talebi: ${preferredDate || 'Müsait ilk saat'}.`
+              }
+            });
+
+            const replyMsg = langKey === 'de'
+              ? 'Toplantı talebi başarıyla oluşturuldu. Ziyaretçiye onay mesajı ver ve takvim rezervasyon sayfamız olan /randevu üzerinden de anlık saat seçebileceğini ilet.'
+              : langKey === 'en'
+              ? 'Meeting request created. Confirm with the visitor and let them know they can also pick an exact slot at /randevu.'
+              : 'Toplantı talebiniz oluşturuldu! Uzmanımız belirtilen saatte görüşmek üzere sizinle iletişime geçecektir. İsterseniz /randevu sayfamızdan da dilediğiniz saati anında rezerve edebilirsiniz.';
+
+            return {
+              success: true,
+              meetingConfirmed: true,
+              bookingUrl: '/randevu',
+              message: replyMsg
+            };
+          } catch (e: any) {
+            console.error('[Scheduler Tool] Error:', e);
+            return { success: false, message: 'Toplantı kaydı alınırken bir hata oluştu.' };
+          }
+        }
+      })
     },
     maxSteps: 3,
   });

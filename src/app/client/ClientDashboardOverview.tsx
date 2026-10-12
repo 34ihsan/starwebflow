@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { FileText, ArrowRight, Clock, ChevronRight, Activity, FolderKanban, Zap, MessageSquare, LifeBuoy, Plus, TrendingUp } from 'lucide-react'
+import { FileText, ArrowRight, Clock, ChevronRight, Activity, FolderKanban, Zap, MessageSquare, LifeBuoy, Plus, TrendingUp, Sparkles, Bot, Search, Share2 } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import Link from 'next/link'
 
@@ -267,6 +267,77 @@ export default function ClientDashboardOverview({ initialData, initialActivities
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* B2B Ek Hizmet & Büyüme Fırsatları (One-Click AI & Web Add-ons) */}
+      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border border-blue-900/40 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold mb-2 border border-blue-500/30">
+                <Sparkles className="w-3.5 h-3.5" />
+                {language === 'tr' ? 'Büyüme & Otomasyon Fırsatları' : language === 'de' ? 'Wachstum & Automation' : 'Growth & Automation Add-ons'}
+              </div>
+              <h2 className="text-2xl font-black font-['Outfit'] tracking-tight">
+                {language === 'tr' ? 'İşletmenizi Bir Sonraki Seviyeye Taşıyın' : language === 'de' ? 'Bringen Sie Ihr Unternehmen auf das nächste Level' : 'Scale Your Business to the Next Level'}
+              </h2>
+              <p className="text-slate-300 text-sm mt-1 max-w-2xl font-medium">
+                {language === 'tr'
+                  ? 'Mevcut projenize dakikalar içinde entegre edilebilen otonom yapay zeka ajanları, GEO arama optimizasyonu ve iş akışı otomasyonları.'
+                  : language === 'de'
+                  ? 'Autonome KI-Agenten, GEO-Suchoptimierung und Workflow-Automatisierungen, die nahtlos integriert werden können.'
+                  : 'Autonomous AI agents, GEO search optimization, and automated workflows ready to integrate into your existing project.'}
+              </p>
+            </div>
+            <Link
+              href="/client/support?subject=Yeni+Hizmet+Talebi"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-md hover:scale-105 whitespace-nowrap self-start md:self-auto hover:no-underline"
+            >
+              <Zap className="w-4 h-4" />
+              {language === 'tr' ? 'Özel Teklif İste' : language === 'de' ? 'Angebot anfordern' : 'Request Custom Quote'}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            {[
+              {
+                icon: Bot,
+                title: language === 'tr' ? '7/24 AI Satış Ajanı' : language === 'de' ? '24/7 KI-Vertriebsagent' : '24/7 AI Sales Agent',
+                desc: language === 'tr' ? 'WhatsApp ve web sitenizde müşterileri karşılayan, randevu alan otonom ajan.' : language === 'de' ? 'Autonomer Agent für WhatsApp & Web, der Termine bucht.' : 'Autonomous agent handling leads and booking calls on WhatsApp & Web.',
+                badge: 'Hot'
+              },
+              {
+                icon: Search,
+                title: language === 'tr' ? 'GEO & AI Görünürlük' : language === 'de' ? 'GEO & KI-Sichtbarkeit' : 'GEO & AI Engine Ranking',
+                desc: language === 'tr' ? 'Perplexity, ChatGPT ve Claude yanıtlarında markanızın 1. sırada önerilmesi.' : language === 'de' ? 'Top-Platzierung in KI-Suchmaschinen wie Perplexity und ChatGPT.' : 'Top ranking in AI search answers across Perplexity and ChatGPT.',
+                badge: 'Top ROI'
+              },
+              {
+                icon: Share2,
+                title: language === 'tr' ? 'n8n İş Akışı Entegrasyonu' : language === 'de' ? 'n8n Workflow-Integration' : 'n8n Workflow Automation',
+                desc: language === 'tr' ? 'CRM, faturalandırma ve e-posta sistemlerini birbirine bağlayan sıfır hata otomasyon.' : language === 'de' ? 'Fehlerfreie Automatisierung für CRM, Rechnungen und E-Mail.' : 'Zero-error automation connecting CRM, invoicing, and email stacks.',
+                badge: 'Save 20h/wk'
+              }
+            ].map((addon, idx) => {
+              const Icon = addon.icon;
+              return (
+                <div key={idx} className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-5 hover:border-blue-500/50 hover:bg-slate-800/90 transition-all group">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                      {addon.badge}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-base text-white mb-1.5">{addon.title}</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed font-medium">{addon.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

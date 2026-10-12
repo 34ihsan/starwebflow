@@ -1,16 +1,14 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { generateTextResilient } from '@/lib/ai/gemini-client';
 import { sendOutreachEmail } from '@/lib/email';
 import { resolveTenantId } from '@/lib/tenant';
 
 // Helper to deduce language & industry
 export async function analyzeLeadProfile(email: string, name: string | null, company: string | null) {
   try {
-    const { text } = await generateText({
-      model: getFlashModel(),
+    const { text } = await generateTextResilient({
       system: `You are an expert data analyst. Based on the lead's email, name, and company, deduce their primary language (e.g. TR, EN, DE) and industry. Return ONLY a JSON object: {"language": "XX", "industry": "SectorName"}. DO NOT return markdown.`,
       prompt: `Name: ${name || 'N/A'}\nEmail: ${email}\nCompany: ${company || 'N/A'}`
     });
@@ -28,8 +26,7 @@ export async function analyzeLeadProfile(email: string, name: string | null, com
 // Helper to rewrite the template using Metamorphic Design (Spinning for Anti-Spam)
 export async function metamorphicRewrite(basePrompt: string, leadProfile: { name: string | null, company: string | null, language: string, industry: string }) {
   try {
-    const { text } = await generateText({
-      model: getFlashModel(),
+    const { text } = await generateTextResilient({
       system: `Sen elit bir B2B Satış Yöneticisisin. Sana verilen e-posta taslağını (prompt), %100 özgün ve yapısal olarak tamamen farklı olacak şekilde yeniden yazacaksın (Hyper-Spintax / Metamorphic Spinning). Bu işlem spam filtrelerini atlatmak için kritik öneme sahip.
 Kurallar:
 1. Ana mesajın özü ve sunulan değer (Value Proposition) KESİNLİKLE aynı kalmalı ancak cümle yapıları, paragraf dizilimi ve kullanılan kelime dağarcığı tamamen değiştirilmeli. Her bir çıktı birbirinden benzersiz olmalı.
@@ -55,6 +52,41 @@ Lütfen bu taslağı hedef dilde, belirtilen kurallara tam uyarak HTML formatın
     // Fallback to basic HTML if AI fails, to ensure variables are preserved loosely.
     return `<div>${basePrompt.replace(/\n/g, '<br/>')}</div>`;
   }
+}
+
+// Helper to generate dynamic, spam-proof high open-rate subject lines
+export async function generateDynamicSubjectLine(leadProfile: { name: string | null, company: string | null, language: string, industry: string }) {
+  try {
+    const { text } = await generateTextResilient({
+      system: `You are an elite B2B copywriter specializing in ultra-high open-rate cold email subjects.
+Generate EXACTLY ONE natural, personal subject line tailored to the lead.
+STRICT RULES:
+1. NEVER use spam words ("ÜCRETSİZ", "FREE", "GARANTİ", "FIRSAT", "ACİL", "SPECIAL OFFER", "!!!", exclamation marks, all-caps).
+2. Sound like a direct 1-to-1 email from a fellow founder or tech director, not marketing fluff.
+3. If language is TR, output Turkish. If DE, output German. Otherwise English.
+4. Output ONLY the subject string. No quotation marks, no markdown, no prefixes.`,
+      prompt: `Lead Name: ${leadProfile.name || 'Yetkili'}
+Company: ${leadProfile.company || 'İşletme'}
+Industry: ${leadProfile.industry}
+Language: ${leadProfile.language}`
+    });
+
+    const cleanSubject = text.trim().replace(/^["']|["']$/g, '');
+    if (cleanSubject && cleanSubject.length >= 6 && cleanSubject.length <= 80) {
+      return cleanSubject;
+    }
+  } catch (err) {
+    console.error("AI Subject Line Generation Failed, falling back", err);
+  }
+
+  // Graceful language-specific fallback
+  if (leadProfile.language === 'DE') {
+    return leadProfile.company ? `Kurze Frage bezüglich ${leadProfile.company}` : `Digitale Infrastruktur für ${leadProfile.industry}`;
+  }
+  if (leadProfile.language === 'TR') {
+    return leadProfile.company ? `${leadProfile.company} hakkında kısa bir soru` : `${leadProfile.industry} sektörü için teknoloji altyapısı`;
+  }
+  return leadProfile.company ? `Quick question regarding ${leadProfile.company}` : `Digital infrastructure for ${leadProfile.industry}`;
 }
 
 // Enterprise Omni-Routing & Warmup Protection Logic
@@ -195,10 +227,13 @@ export async function processOutreachBatch(bulkOutreachId: string, tenantId: str
       const unsubscribeLink = `${appUrl}/api/unsubscribe?email=${encodeURIComponent(item.email)}`;
       const finalHtmlBody = htmlBody.replace(/\[Abonelikten Çık\]/g, `<a href="${unsubscribeLink}" style="color: #6b7280; text-decoration: underline;">Abonelikten Çık</a>`);
 
-      // 5. Send via Resend (merkezi email servisi)
-      const subjectText = profile.language === 'TR'
-        ? `StarWebflow - ${profile.industry} Sektörüne Özel Davet`
-        : `StarWebflow - Exclusive Invitation for ${item.company || profile.industry}`;
+      // 5. Dynamic AI Subject Generation & Resend Send
+      const subjectText = await generateDynamicSubjectLine({
+        name: item.name,
+        company: item.company,
+        industry: profile.industry,
+        language: profile.language
+      });
 
       await sendOutreachEmail({
         from: senderEmail,

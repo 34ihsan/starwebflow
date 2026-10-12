@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bot, Sparkles, X, Send, ChevronDown, BrainCircuit, Zap } from 'lucide-react';
+import { Bot, Sparkles, X, Send, ChevronDown, BrainCircuit, Zap, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChat } from '@ai-sdk/react';
 import { useSectionTracker } from '@/hooks/useSectionTracker';
@@ -188,13 +188,23 @@ export default function ChatWidget() {
                   <p className="text-[11px] text-slate-500 font-medium">{tChat.headerSubtitle}</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)} 
-                className="p-2 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer"
-                aria-label={tChat.closeLabel}
-              >
-                <ChevronDown className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                <a 
+                  href="/randevu" 
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-purple-100/80 hover:bg-purple-600 hover:text-white text-purple-700 text-xs font-bold transition-all border border-purple-200/80 shadow-xs"
+                  title="Canlı Randevu Al"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Randevu</span>
+                </a>
+                <button 
+                  onClick={() => setIsOpen(false)} 
+                  className="p-1.5 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer"
+                  aria-label={tChat.closeLabel}
+                >
+                  <ChevronDown className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Chat Body */}
