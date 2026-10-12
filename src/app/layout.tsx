@@ -41,7 +41,9 @@ export const metadata: Metadata = {
     canonical: 'https://starwebflow.com',
     languages: {
       'tr-TR': 'https://starwebflow.com',
-      'en-US': 'https://starwebflow.com/en',
+      'de-DE': 'https://starwebflow.com',
+      'en-US': 'https://starwebflow.com',
+      'x-default': 'https://starwebflow.com',
     },
   },
   openGraph: {
@@ -51,6 +53,7 @@ export const metadata: Metadata = {
     url: 'https://starwebflow.com',
     siteName: 'StarWebFlow',
     locale: 'tr_TR',
+    alternateLocale: ['de_DE', 'en_US'],
     images: [
       {
         url: 'https://starwebflow.com/og-image.jpg',
@@ -130,8 +133,13 @@ export default async function RootLayout({
         />
         {/* Preload critical assets */}
         <link rel="preload" as="image" href="/starwebflow_banner_1.png" />
-        {/* GEO — AI search engine directives */}
+        {/* GEO & AI Search Engine Standards (LLMs.txt & Machine-Readable Specs) */}
+        <link rel="alternate" type="text/plain" href="https://starwebflow.com/llms.txt" title="StarWebFlow LLM Summary Context" />
+        <link rel="alternate" type="text/plain" href="https://starwebflow.com/llms-full.txt" title="StarWebFlow Comprehensive LLM Documentation" />
+        <link rel="alternate" type="text/plain" href="https://starwebflow.com/ai.txt" title="StarWebFlow AI Directives" />
         <meta name="ai-content-declaration" content="human-reviewed, factual, B2B-technology" />
+        <meta name="rating" content="general" />
+        <meta name="revisit-after" content="2 days" />
         <meta name="geo.region" content="DE-RP" />
         <meta name="geo.placename" content="Schifferstadt, Rheinland-Pfalz, Germany" />
         <meta name="geo.position" content="49.3853;8.3748" />

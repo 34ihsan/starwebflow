@@ -55,7 +55,7 @@ export async function middleware(req: NextRequest) {
     pathname === '/auth/login' ||
     pathname === '/auth/register' ||
     pathname === '/' ||
-    /\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?|json)$/i.test(pathname)
+    /\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?|json|txt|xml|webmanifest)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }

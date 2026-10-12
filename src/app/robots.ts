@@ -31,27 +31,32 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
 
-      // ── AI Arama Motorları: Tam Erişim (GEO Signal) ───────────────────
+      // ── AI Arama Motorları: Tam Erişim (GEO & AI Search Engines) ──────
       {
         userAgent: [
-          'GPTBot',           // OpenAI / ChatGPT
-          'ChatGPT-User',     // OpenAI browsing
-          'ClaudeBot',        // Anthropic / Claude
-          'Claude-Web',       // Anthropic browsing
-          'PerplexityBot',    // Perplexity AI
-          'Google-Extended',  // Google Gemini
-          'Gemini',           // Google Gemini AI
-          'Applebot',         // Apple AI / Siri
-          'cohere-ai',        // Cohere
-          'Amazonbot',        // Amazon Alexa / Bedrock
-          'Bytespider',       // ByteDance / TikTok AI
-          'CCBot',            // Common Crawl (training data)
-          'Diffbot',          // Diffbot AI
+          'OAI-SearchBot',       // OpenAI SearchGPT / ChatGPT Search
+          'GPTBot',              // OpenAI Model Training & Indexing
+          'ChatGPT-User',        // OpenAI Interactive Browsing
+          'ClaudeBot',           // Anthropic Claude
+          'Claude-Web',          // Anthropic Browsing
+          'anthropic-ai',        // Anthropic System Agent
+          'PerplexityBot',       // Perplexity AI Search
+          'Google-Extended',     // Google Gemini & Vertex AI
+          'Gemini',              // Google Gemini Assistant
+          'GoogleOther',         // Google AI & Specialized Crawlers
+          'Applebot',            // Apple Siri & Spotlight
+          'Applebot-Extended',   // Apple Intelligence Generative Search
+          'cohere-ai',           // Cohere AI
+          'Amazonbot',           // Amazon Alexa & Bedrock AI
+          'Bytespider',          // ByteDance AI
+          'CCBot',               // Common Crawl (Universal AI training dataset)
+          'Diffbot',             // Diffbot Knowledge Graph AI
           'facebookexternalhit', // Meta AI
-          'LinkedInBot',      // LinkedIn AI
-          'anthropic-ai',     // Anthropic direct
-          'YouBot',           // You.com AI
-          'Brightbot',        // Bright Data AI
+          'Meta-ExternalAgent',  // Meta AI Web Search
+          'LinkedInBot',         // LinkedIn Graph AI
+          'YouBot',              // You.com AI Search
+          'DuckAssistBot',       // DuckDuckGo AI
+          'Bingbot',             // Microsoft Copilot & Bing AI
         ],
         allow: [
           '/',
@@ -61,6 +66,11 @@ export default function robots(): MetadataRoute.Robots {
           '/datenschutz',
           '/kvkk',
           '/impressum',
+          '/nutzungsbedingungen',
+          '/cookie-richtlinie',
+          '/llms.txt',
+          '/llms-full.txt',
+          '/ai.txt',
         ],
         disallow: [
           '/admin/',
