@@ -40,7 +40,17 @@ cron.schedule('*/10 * * * *', () => {
   runJob('Process Sequences', '/api/cron/process-sequences');
 });
 
-// 4. Daily Reset (Reset sentToday and increment warmupDay): Run every night at 00:00
+// 3. CRM Scoring & Ghosting Detector: Run every 2 hours
+cron.schedule('0 */2 * * *', () => {
+  runJob('CRM Scoring', '/api/cron/crm-scoring');
+});
+
+// 4. Process Funnel (Downsell re-engagement): Run every night at 02:00
+cron.schedule('0 2 * * *', () => {
+  runJob('Process Funnel', '/api/cron/process-funnel');
+});
+
+// 5. Daily Reset (Reset sentToday and increment warmupDay): Run every night at 00:00
 cron.schedule('0 0 * * *', () => {
   runJob('Daily Reset', '/api/cron/daily-reset');
 });
