@@ -12,7 +12,7 @@ import { CURRENCIES as currencies } from '@/lib/utils'
 
 export default function ROICalculatorSection() {
   const { t, language } = useLanguage()
-  const [hours, setHours] = useState(40)
+  const [hours, setHours] = useState(20)
   const [hourlyRate, setHourlyRate] = useState(300)
   const [currencyCode, setCurrencyCode] = useState('TRY')
 
@@ -187,23 +187,38 @@ export default function ROICalculatorSection() {
             </div>
 
             <div className="space-y-8">
-              {/* Slider 1 */}
+              {/* Manual Input + Slider 1: Hours */}
               <div>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-500" />{' '}
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="roi-hours-input" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-purple-600" />{' '}
                     {language === 'tr' ? 'Haftalık Manuel İş Gücü' : language === 'de' ? 'Wöchentliche manuelle Stunden' : 'Weekly Manual Hours'}
                   </label>
-                  <span className="text-slate-900 font-bold font-mono">
-                    {hours} {language === 'tr' ? 'Saat' : language === 'de' ? 'Std.' : 'Hours'}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      id="roi-hours-input"
+                      type="number"
+                      min="1"
+                      max="500"
+                      value={hours === 0 ? '' : hours}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value, 10))
+                        setHours(isNaN(val) ? 0 : val)
+                      }}
+                      className="w-20 px-2.5 py-1 text-right font-mono font-bold text-slate-900 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-xs"
+                      placeholder="20"
+                    />
+                    <span className="text-xs font-bold text-slate-600 font-mono">
+                      {language === 'tr' ? 'Saat' : language === 'de' ? 'Std.' : 'Hours'}
+                    </span>
+                  </div>
                 </div>
                 <input
                   type="range"
-                  min="10"
-                  max="200"
-                  step="10"
-                  value={hours}
+                  min="5"
+                  max="160"
+                  step="5"
+                  value={Math.min(hours, 160)}
                   onChange={(e) => setHours(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                 />
@@ -232,21 +247,36 @@ export default function ROICalculatorSection() {
                 </div>
               </div>
 
-              {/* Slider 2 */}
+              {/* Manual Input + Slider 2: Hourly Rate */}
               <div>
-                <div className="flex justify-between mb-2">
-                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-slate-500" />{' '}
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="roi-rate-input" className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-blue-600" />{' '}
                     {t('roi.hourlyWage')} ({symbol})
                   </label>
-                  <span className="text-slate-900 font-bold font-mono">{symbol}{hourlyRate}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-bold text-slate-600 font-mono">{symbol}</span>
+                    <input
+                      id="roi-rate-input"
+                      type="number"
+                      min="1"
+                      max="50000"
+                      value={hourlyRate === 0 ? '' : hourlyRate}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Math.max(0, parseInt(e.target.value, 10))
+                        setHourlyRate(isNaN(val) ? 0 : val)
+                      }}
+                      className="w-24 px-2.5 py-1 text-right font-mono font-bold text-slate-900 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-xs"
+                      placeholder="300"
+                    />
+                  </div>
                 </div>
                 <input
                   type="range"
-                  min="1"
-                  max="1000"
-                  step="1"
-                  value={hourlyRate}
+                  min={currencyCode === 'TRY' ? 50 : 10}
+                  max={currencyCode === 'TRY' ? 2000 : 250}
+                  step={currencyCode === 'TRY' ? 25 : 5}
+                  value={Math.min(hourlyRate, currencyCode === 'TRY' ? 2000 : 250)}
                   onChange={(e) => setHourlyRate(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
