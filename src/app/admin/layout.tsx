@@ -8,12 +8,13 @@ import {
   FileText, LayoutDashboard, Settings, Users, ArrowLeft, 
   Activity, FileSpreadsheet, FolderKanban, ReceiptText, 
   Mail, Bot, Rocket, Calendar, MessageSquare, Target, Sparkles,
-  TicketCheck, LogOut, Bell, Globe, User, Inbox, TrendingUp
+  TicketCheck, LogOut, Bell, Globe, User, Inbox, TrendingUp, BookOpen
 } from 'lucide-react'
 import { NotificationBell } from '@/components/layout/NotificationBell'
 
 const navItems = [
   { href: '/admin', label: 'Komuta Merkezi', icon: LayoutDashboard, exact: true },
+  { href: '/admin/guide', label: 'Kullanım Kılavuzu', icon: BookOpen, accent: 'emerald' },
   { href: '/admin/growth', label: 'Büyüme Radarı (Apex)', icon: TrendingUp, accent: 'purple' },
   { href: '/admin/analytics', label: 'Analitik & Trafik', icon: Activity },
   { href: '/admin/crm', label: 'CRM ve Leadler', icon: Users },
@@ -56,10 +57,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const getLinkClasses = (href: string, accent?: string, exact?: boolean) => {
     const active = isActive(href, exact)
     if (active) {
+      if (accent === 'emerald') return 'flex items-center gap-3 px-3 py-2 text-sm text-emerald-600 dark:text-emerald-300 font-medium bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg transition-colors'
       if (accent === 'purple') return 'flex items-center gap-3 px-3 py-2 text-sm text-purple-600 dark:text-purple-300 font-medium bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-lg transition-colors'
       if (accent === 'violet') return 'flex items-center gap-3 px-3 py-2 text-sm text-violet-600 dark:text-violet-300 font-medium bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 rounded-lg transition-colors'
       return 'flex items-center gap-3 px-3 py-2 text-sm text-blue-600 dark:text-white font-medium bg-blue-50 dark:bg-white/[0.06] border border-blue-200 dark:border-white/[0.08] rounded-lg transition-colors'
     }
+    if (accent === 'emerald') return 'flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-emerald-600 dark:hover:text-emerald-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-500/5 rounded-lg transition-colors'
     if (accent === 'purple') return 'flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50/50 dark:hover:bg-purple-500/5 rounded-lg transition-colors'
     if (accent === 'violet') return 'flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-violet-600 dark:hover:text-violet-300 hover:bg-violet-50/50 dark:hover:bg-violet-500/5 rounded-lg transition-colors'
     return 'flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/[0.02] rounded-lg transition-colors'

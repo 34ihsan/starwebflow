@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from "react";
+import Link from "next/link";
 import { StatCards } from "@/components/admin/dashboard/StatCards";
 import { ActivityStream } from "@/components/admin/dashboard/ActivityStream";
 import { AiCommandCenter } from "@/components/admin/dashboard/AiCommandCenter";
 import { OverviewCharts } from "@/components/admin/dashboard/OverviewCharts";
-import { Settings, LayoutGrid } from "lucide-react";
+import { Settings, LayoutGrid, BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { type ActivityItem, type ActivityType } from "@/components/admin/dashboard/ActivityStream";
 
 export default function AdminDashboardClient({ initialData, initialActivities }: { initialData: any, initialActivities: any[] }) {
@@ -45,6 +46,14 @@ export default function AdminDashboardClient({ initialData, initialActivities }:
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href="/admin/guide"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:scale-105"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Kullanım Kılavuzu &amp; Rehber</span>
+          </Link>
+
           <button 
             onClick={() => setIsEditMode(!isEditMode)}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
@@ -57,6 +66,31 @@ export default function AdminDashboardClient({ initialData, initialActivities }:
             {isEditMode ? "Düzenlemeyi Bitir" : "Paneli Özelleştir"}
           </button>
         </div>
+      </div>
+
+      {/* Hızlı Kılavuz Bilgilendirme Kartı */}
+      <div className="relative rounded-2xl p-5 border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-teal-950/20 to-slate-900/40 backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-emerald-950/20">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white flex items-center gap-2">
+              Panelleri Nasıl Kullanacağınızı Öğrenin
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Yeni</span>
+            </h4>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Müşteri Avcısı (Prospecting), Cold Outreach, Faturalar, CRM ve tüm modüllerin adım adım işleyiş kılavuzuna tek tıkla ulaşın.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/admin/guide"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-emerald-500 hover:text-white text-emerald-300 border border-emerald-500/30 transition-all whitespace-nowrap"
+        >
+          <span>Kılavuzu İncele</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       <div className={`relative z-10 transition-all duration-500 ${isEditMode ? 'p-6 border-2 border-dashed border-blue-500/50 rounded-3xl bg-blue-500/5' : ''}`}>
