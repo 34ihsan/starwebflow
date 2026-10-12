@@ -5,6 +5,7 @@ import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 import { sendProposalEmail, sendLeadNotification } from '@/lib/email';
+import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 
 // Helper to generate dynamic template based on industry and service
 function generateProposalTemplate(name: string, industry: string, serviceType: string) {
@@ -69,10 +70,13 @@ export async function createLeadWithProposal(data: {
         return { success: false, error: captcha.error || 'Bot doğrulaması başarısız.' };
       }
     }
+
+    const resolvedTenantId = data.tenantId ? resolveTenantId(data.tenantId) : await getTenantIdOrLegacy();
+
     // 1. Create Lead
     const lead = await prisma.lead.create({
       data: {
-        tenantId: data.tenantId,
+        tenantId: resolvedTenantId,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
@@ -140,10 +144,12 @@ export async function createLead(data: any) {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get('swf_visitor_id')?.value;
 
+    const tenantId = data.tenantId ? resolveTenantId(data.tenantId) : await getTenantIdOrLegacy();
+
     const lead = await prisma.lead.create({
       data: {
         ...data,
-        tenantId: data.tenantId || 'default-tenant',
+        tenantId,
         visitorId: visitorId || undefined,
       }
     });
@@ -183,7 +189,7 @@ export async function createPublicLead(data: {
     }
   }
   const { recaptchaToken: _token, ...leadData } = data;
-  return createLead({ ...leadData, tenantId: 'default-tenant' });
+  return createLead({ ...leadData, tenantId: await getTenantIdOrLegacy() });
 }
 
 export async function createLeadWithAIEmail(data: {
@@ -251,10 +257,12 @@ Lütfen yukarıdaki bilgilere göre müşteriye gidecek olan tanışma / ilk ad�
       }
     }
 
+    const resolvedTenantId = data.tenantId ? resolveTenantId(data.tenantId) : await getTenantIdOrLegacy();
+
     // 2. Create Lead
     const lead = await prisma.lead.create({
       data: {
-        tenantId: data.tenantId,
+        tenantId: resolvedTenantId,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
@@ -269,7 +277,7 @@ Lütfen yukarıdaki bilgilere göre müşteriye gidecek olan tanışma / ilk ad�
     // 3. Create Task
     const task = await prisma.task.create({
       data: {
-        tenantId: data.tenantId,
+        tenantId: resolvedTenantId,
         title: data.taskTitle,
         description: data.taskDescription || null,
         priority: data.priority,

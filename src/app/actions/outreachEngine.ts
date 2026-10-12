@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { sendOutreachEmail } from '@/lib/email';
+import { resolveTenantId } from '@/lib/tenant';
 
 // Helper to deduce language & industry
 export async function analyzeLeadProfile(email: string, name: string | null, company: string | null) {
@@ -62,8 +63,9 @@ export async function omniRouteSelector(targetEmail: string, tenantId: string, c
   const isTargetGoogle = targetDomain.includes('gmail') || targetDomain.includes('google');
   const isTargetMicrosoft = targetDomain.includes('outlook') || targetDomain.includes('hotmail') || targetDomain.includes('live') || targetDomain.includes('office365');
 
+  const resolvedTenantId = resolveTenantId(tenantId);
   const whereClause: any = { 
-    tenantId, 
+    tenantId: resolvedTenantId, 
     isPaused: false,
     status: { not: 'ERROR' }
   };

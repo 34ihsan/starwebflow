@@ -5,21 +5,23 @@ import { safeRevalidatePath } from '@/lib/utils/cache';
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
+import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 
-export async function getEmailData(tenantId: string) {
+export async function getEmailData(tenantId?: string) {
   try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
     const campaigns = await prisma.emailCampaign.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
     });
     
     const templates = await prisma.emailTemplate.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
     });
 
     const mailboxes = await prisma.emailMailbox.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -31,7 +33,7 @@ export async function getEmailData(tenantId: string) {
 }
 
 export async function createEmailCampaign(data: {
-  tenantId: string;
+  tenantId?: string;
   name: string;
   subject: string;
   audience?: string;
@@ -40,9 +42,10 @@ export async function createEmailCampaign(data: {
   mailboxPool?: string[];
 }) {
   try {
+    const effectiveTenantId = await resolveTenantId(data.tenantId || (await getTenantIdOrLegacy()));
     const campaign = await prisma.emailCampaign.create({
       data: {
-        tenant: { connect: { id: data.tenantId } },
+        tenant: { connect: { id: effectiveTenantId } },
         name: data.name,
         subject: data.subject,
         status: 'ACTIVE',
@@ -55,7 +58,7 @@ export async function createEmailCampaign(data: {
         } : {}),
         templates: data.htmlBody ? {
           create: [{
-            tenant: { connect: { id: data.tenantId } },
+            tenant: { connect: { id: effectiveTenantId } },
             name: `${data.name} İçeriği`,
             subject: data.subject,
             htmlBody: data.htmlBody,
@@ -76,7 +79,7 @@ export async function createEmailCampaign(data: {
 }
 
 export async function createEmailMailbox(data: {
-  tenantId: string;
+  tenantId?: string;
   email: string;
   provider?: string;
   smtpHost?: string;
@@ -92,6 +95,7 @@ export async function createEmailMailbox(data: {
   dailyLimit?: number;
 }) {
   try {
+    const effectiveTenantId = await resolveTenantId(data.tenantId || (await getTenantIdOrLegacy()));
     const domain = data.email.split('@')[1];
     let spfStatus = false, dkimStatus = false, dmarcStatus = false;
     
@@ -108,7 +112,7 @@ export async function createEmailMailbox(data: {
 
     const mailbox = await prisma.emailMailbox.create({
       data: {
-        tenant: { connect: { id: data.tenantId } },
+        tenant: { connect: { id: effectiveTenantId } },
         email: data.email,
         status: initialStatus,
         reputation: initialStatus === 'WARNING' ? 70 : 100,

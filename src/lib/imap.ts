@@ -24,6 +24,18 @@ function getImapConfig(config: ImapConfig) {
   };
 }
 
+/** "Name <a@b.com>" veya ham adres -> a@b.com */
+function extractAddress(from: any): string {
+  const s = typeof from === 'string' ? from : (from?.address || from?.text || '');
+  const m = String(s).match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  return (m ? m[0] : String(s)).toLowerCase();
+}
+
+export interface PlacementEvent {
+  sender: string;
+  folder: 'INBOX' | 'SPAM';
+}
+
 export async function processInboundEmails(config: ImapConfig, seedEmails: string[] = []) {
   const imapConnectionConfig = getImapConfig(config);
   if (!imapConnectionConfig.imap.password) {
@@ -38,6 +50,7 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
     let readCount = 0;
     let bounceCount = 0;
     let bouncedRecipients: string[] = [];
+    const placements: PlacementEvent[] = [];
 
     // --- 1. SPAM RESCUE (Move to Inbox) ---
     const boxes = await connection.getBoxes();
@@ -73,6 +86,8 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
           const isKnownNewsletter = ['tldr', 'substack', 'beehiiv', 'densediscovery', 'hackernewsletter', 'medium'].some(d => from.toLowerCase().includes(d));
 
           if (isSeedAccount || isKnownNewsletter) {
+            // Ölçüm: kurtarmadan ÖNCE kaydet (warmup göndericisi spam'e düştü)
+            if (isSeedAccount) placements.push({ sender: extractAddress(from), folder: 'SPAM' });
             const uid = item.attributes.uid as number;
             // IMAP Move command to INBOX (Not Spam signal)
             await connection.moveMessage(String(uid), 'INBOX');
@@ -182,6 +197,8 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
       const isWarmupInteraction = isSeedAccount || isKnownNewsletterSender || isSwfWarmupTag;
       
       if (isWarmupInteraction || isConfirmEmail) {
+        // Gerçek inbox yerleşimi: warmup maili spam'e değil INBOX'a düştü
+        if (isSeedAccount || isSwfWarmupTag) placements.push({ sender: extractAddress(headerPart?.body?.from?.[0] || from), folder: 'INBOX' });
         // Elite Pro: Link Click Simulation (Tıklama Simülasyonu)
         if (isWarmupInteraction) {
           const urlRegex = /https?:\/\/[^\s"'<>]+/g;
@@ -318,7 +335,7 @@ export async function processInboundEmails(config: ImapConfig, seedEmails: strin
     }
 
     connection.end();
-    return { success: true, rescuedFromSpam, readCount, bounceCount, bouncedRecipients };
+    return { success: true, rescuedFromSpam, readCount, bounceCount, bouncedRecipients, placements };
   } catch (error) {
     console.error(`IMAP processing error for ${config.email}:`, error);
     return { success: false, error };

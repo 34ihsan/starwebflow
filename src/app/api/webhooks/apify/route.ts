@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ApifyClient } from 'apify-client';
 import { aiCleanDataAction, createLeadsAction } from '@/lib/automation/nodes/external-actions';
 import { prisma } from '@/lib/prisma';
+import { resolveTenantId } from '@/lib/tenant';
 
 // Helper function to split array into batches
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -18,6 +19,9 @@ export async function POST(req: Request) {
     console.log("[Apify Webhook] Received payload:", body);
 
     const { runId, datasetId, status } = body;
+    const url = new URL(req.url);
+    const rawTenantId = url.searchParams.get('tenantId') || body.tenantId || 'default-tenant';
+    const tenantId = resolveTenantId(rawTenantId);
 
     // Sadece başarılı tamamlanan görevleri işle
     if (status !== 'SUCCEEDED' || !datasetId) {
@@ -71,9 +75,9 @@ export async function POST(req: Request) {
       console.log(`[Apify Webhook] Processing batch ${i + 1}/${batches.length}...`);
       
       try {
-        const cleanerResult = await aiCleanDataAction('default-tenant', { rawScrapedData: batches[i] }, {});
+        const cleanerResult = await aiCleanDataAction(tenantId, { rawScrapedData: batches[i] }, {});
         
-        const createResult = await createLeadsAction('default-tenant', { cleanedData: cleanerResult.cleanedData }, { location: null, country: null, industry: null }); // TODO: Pass location/industry if possible (need to save in DB when starting run)
+        const createResult = await createLeadsAction(tenantId, { cleanedData: cleanerResult.cleanedData }, { location: null, country: null, industry: null });
         
         totalImported += createResult.importedCount;
       } catch (err) {

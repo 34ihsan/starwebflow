@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { analyzeSpamWords, SPAM_KEYWORDS } from '@/lib/deliverability-score';
+import { computeMailboxHealth, type MailboxHealthInput } from '@/lib/warmup/health';
 
 export type ProviderType = 'GOOGLE' | 'MICROSOFT' | 'YAHOO' | 'CUSTOM';
 
@@ -218,6 +219,102 @@ export function calculateDynamicWarmupLimit(mailbox: WarmupMailboxMeta): number 
   return safeLimit;
 }
 
+// ---------------------------------------------------------------------------
+// GERÇEK SAĞLIK SKORU & ADAPTİF LİMİT
+// ---------------------------------------------------------------------------
+
+// computeMailboxHealth / MailboxHealthInput -> '@/lib/warmup/health' (client-safe)
+export { computeMailboxHealth };
+export type { MailboxHealthInput };
+
+/**
+ * Rampa limitini sağlığa göre daraltır: sağlıksız kutu yavaşlar, çok sağlıklı kutu rampayı aynen sürdürür.
+ * Spam/bounce sinyali gelirse otomatik olarak hacim düşer (reputation koruması).
+ */
+export function calculateAdaptiveWarmupLimit(mailbox: WarmupMailboxMeta & Partial<MailboxHealthInput>): number {
+  const base = calculateDynamicWarmupLimit(mailbox);
+  const health = computeMailboxHealth({
+    reputation: mailbox.reputation ?? 100,
+    bounceCount: mailbox.bounceCount || 0,
+    spamCount: mailbox.spamCount,
+    spammed: mailbox.spammed,
+    spfStatus: !!mailbox.spfStatus,
+    dkimStatus: !!mailbox.dkimStatus,
+    dmarcStatus: !!mailbox.dmarcStatus,
+    createdAt: mailbox.createdAt
+  });
+  const factor = health >= 75 ? 1 : health >= 55 ? 0.7 : health >= 35 ? 0.4 : 0.2;
+  return Math.max(1, Math.round(base * factor));
+}
+
+// ---------------------------------------------------------------------------
+// DİL SEÇİMİ (alıcı pazarına uygun içerik: DE / TR / EN)
+// ---------------------------------------------------------------------------
+
+export type WarmupLang = 'tr' | 'de' | 'en';
+
+export function pickLanguage(sender: { email: string }, recipient: { email: string }): WarmupLang {
+  const tld = (d: string) => (d.split('@')[1] || '').toLowerCase().split('.').pop() || '';
+  const r = tld(recipient.email);
+  const s = tld(sender.email);
+  if (r === 'de' || r === 'at' || r === 'ch') return 'de';
+  if (r === 'tr') return 'tr';
+  if (r === 'com' || r === 'net' || r === 'org') {
+    // Aynı pazardaki gönderici ile tutarlı kal
+    if (s === 'de') return 'de';
+    if (s === 'tr') return 'tr';
+    return 'en';
+  }
+  return 'en';
+}
+
+const LANG_NAME: Record<WarmupLang, string> = { tr: 'Türkçe', de: 'Deutsch (Deutschland)', en: 'English' };
+
+const I18N_FALLBACKS: Record<'de' | 'en', {
+  conversations: { subject: string; body: string }[];
+  closures: string[];
+  replies: string[];
+}> = {
+  de: {
+    conversations: [
+      { subject: 'Kurze Abstimmung zum Projektplan', body: '<p>Hallo,</p><p>ich habe den aktuellen Zeitplan durchgesehen. Die Meilensteine wirken realistisch. Lass uns die offenen Punkte morgen kurz im Abstimmungstermin klären.</p><p>Viele Grüße</p>' },
+      { subject: 'Wartungsfenster für die Server', body: '<p>Guten Tag,</p><p>wir würden das Wartungsfenster gern auf das Wochenende legen, um Ausfälle zu vermeiden. Passt das aus deiner Sicht?</p><p>Beste Grüße</p>' },
+      { subject: 'Rückfrage zum Monatsbericht', body: '<p>Hallo,</p><p>die Zahlen im Monatsbericht sehen stimmig aus. Kannst du vor dem Versand noch einmal die Zusammenfassung prüfen?</p><p>Danke und Gruß</p>' }
+    ],
+    closures: [
+      '<p>Danke dir, damit ist alles klar. Ich trage die Punkte ins Protokoll ein.</p><p>Viele Grüße</p>',
+      '<p>Super, dann gehen wir so vor. Ich melde mich, sobald es Neuigkeiten gibt.</p><p>Beste Grüße</p>',
+      '<p>Alles klar, ich habe die Aufgaben an das Team weitergegeben. Bis zum nächsten Termin.</p><p>Gruß</p>'
+    ],
+    replies: [
+      '<p>Danke für die Info. Der Ansatz passt gut zum bisherigen Ablauf.</p><p>Viele Grüße</p>',
+      '<p>Habe alles erhalten. Wir können das morgen kurz besprechen und dann entscheiden.</p><p>Beste Grüße</p>',
+      '<p>Danke für das Feedback, ich passe die Version entsprechend an.</p><p>Gruß</p>'
+    ]
+  },
+  en: {
+    conversations: [
+      { subject: 'Quick sync on the project timeline', body: '<p>Hi,</p><p>I went through the current timeline and the milestones look realistic. Let us settle the open items in tomorrow\'s check-in.</p><p>Best regards</p>' },
+      { subject: 'Maintenance window for the servers', body: '<p>Hello,</p><p>We would like to schedule the maintenance window over the weekend to avoid downtime. Does that work on your side?</p><p>Kind regards</p>' },
+      { subject: 'Question about the monthly report', body: '<p>Hi,</p><p>The figures in the monthly report look consistent. Could you double-check the summary before it goes out?</p><p>Thanks</p>' }
+    ],
+    closures: [
+      '<p>Thanks, that clears everything up. I will add the points to the notes.</p><p>Best</p>',
+      '<p>Great, let us proceed that way. I will get back to you as soon as there is news.</p><p>Regards</p>',
+      '<p>Sounds good, I passed the tasks on to the team. Talk at the next sync.</p><p>Cheers</p>'
+    ],
+    replies: [
+      '<p>Thanks for the update. The approach fits well with the current plan.</p><p>Best regards</p>',
+      '<p>Got everything. We can go through it tomorrow and then decide.</p><p>Kind regards</p>',
+      '<p>Thanks for the feedback, I will adjust the version accordingly.</p><p>Regards</p>'
+    ]
+  }
+};
+
+function pickFrom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 // Profesyonel B2B Senaryoları
 const B2B_SCENARIOS = [
   {
@@ -339,6 +436,12 @@ export async function generateWarmupContent(params: {
 
   const persona = B2B_PERSONAS[Math.floor(Math.random() * B2B_PERSONAS.length)];
   const senderSignatureName = sender.senderName || sender.email.split('@')[0];
+  const lang = pickLanguage(sender, recipient);
+  const langName = LANG_NAME[lang];
+  // Dil bazlı yedek havuzu (TR için mevcut havuz, DE/EN için yerel havuz)
+  const FB = lang === 'tr'
+    ? { conversations: FALLBACK_CONVERSATIONS, closures: FALLBACK_CLOSURES, replies: FALLBACK_REPLIES }
+    : I18N_FALLBACKS[lang];
 
   try {
     if (existingThread) {
@@ -352,7 +455,7 @@ export async function generateWarmupContent(params: {
           model: getFlashModel(),
           system: `${persona}
 GÖREV: Karşındaki meslektaşınla "${existingThread.subject}" konusunu görüşüyordunuz ve konu netleşti. 
-Konuşmayı profesyonelce, yapıcı ve samimi bir dille sonlandıran 1-2 cümlelik çok doğal bir Türkçe veda/kapanış yanıtı yaz.
+Konuşmayı profesyonelce, yapıcı ve samimi bir dille sonlandıran 1-2 cümlelik çok doğal bir veda/kapanış yanıtı yaz. YANIT DİLİ: ${langName}.
 KURALLAR:
 - ASLA kalıp veya robotik bir dil kullanma (örn: 'Harika teşekkürler konuyu netleştirdik' gibi kalıplar KULLANMA).
 - Gerçek bir iş insanı gibi: Notları aldığını, süreci başlattığını veya haftalık toplantıda görüşmeyi dileyen özgün bir cümle kur.
@@ -365,7 +468,7 @@ KURALLAR:
         let cleanBody = generatedClosing.replace(/```/g, '').trim();
         const spamCheck = analyzeSpamWords(cleanBody);
         if (spamCheck.found.length > 0) {
-          cleanBody = FALLBACK_CLOSURES[Math.floor(Math.random() * FALLBACK_CLOSURES.length)];
+          cleanBody = pickFrom(FB.closures);
         }
 
         return {
@@ -381,7 +484,7 @@ KURALLAR:
       const { text: generatedEmail } = await generateText({
         model: getFlashModel(),
         system: `${persona}
-GÖREV: Karşındaki meslektaşından gelen "${existingThread.subject}" başlıklı e-postaya 1-3 cümlelik çok doğal, profesyonel bir Türkçe yanıt yaz.
+GÖREV: Karşındaki meslektaşından gelen "${existingThread.subject}" başlıklı e-postaya 1-3 cümlelik çok doğal, profesyonel bir yanıt yaz. YANIT DİLİ: ${langName}.
 KURALLAR:
 - ASLA satış, pazarlama, reklam yapma.
 - ŞU KELİMELERİ ASLA KULLANMA: ${SPAM_KEYWORDS.slice(0, 15).join(', ')}.
@@ -396,7 +499,7 @@ KURALLAR:
       const spamCheck = analyzeSpamWords(cleanBody);
       if (spamCheck.found.length > 0) {
         console.warn(`[WARMUP AI] Spam kelime tespit edildi, zengin yedek seçiliyor:`, spamCheck.found);
-        cleanBody = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
+        cleanBody = pickFrom(FB.replies);
       }
 
       return {
@@ -412,7 +515,7 @@ KURALLAR:
       const { text: generatedEmail } = await generateText({
         model: getFlashModel(),
         system: `${persona}
-GÖREV: İş arkadaşına göndermek üzere "${scenario.topic}" konulu kısa bir kurumsal e-posta hazırla.
+GÖREV: İş arkadaşına göndermek üzere "${scenario.topic}" konulu kısa bir kurumsal e-posta hazırla. E-POSTA DİLİ: ${langName} (konu başlığı ve metin bu dilde, doğal biçimde yazılmalı).
 BAĞLAM: ${scenario.context}
 KURALLAR:
 - ASLA satış, reklam, kampanya yapma.
@@ -430,13 +533,13 @@ KURALLAR:
 
       const parsed = JSON.parse(cleanJson);
       let subject = parsed.subject || scenario.topic;
-      let bodyText = parsed.body || '<p>Merhaba, toplantı notlarını gözden geçirip güncelleyeceğim.</p>';
+      let bodyText = parsed.body || pickFrom(FB.conversations).body;
 
       // Spam kelime filtresi
       const spamCheck = analyzeSpamWords(subject + ' ' + bodyText);
       if (spamCheck.found.length > 0) {
         console.warn(`[WARMUP AI] Üretilen içerikte spam kelime bulundu, yedek seçiliyor:`, spamCheck.found);
-        const fb = FALLBACK_CONVERSATIONS[Math.floor(Math.random() * FALLBACK_CONVERSATIONS.length)];
+        const fb = pickFrom(FB.conversations);
         subject = fb.subject;
         bodyText = fb.body;
       }
@@ -450,7 +553,8 @@ KURALLAR:
           'https://news.ycombinator.com'
         ];
         const link = safeLinks[Math.floor(Math.random() * safeLinks.length)];
-        bodyText += `<p><br>Referans kaynak: <a href="${link}">${link}</a></p>`;
+        const refLabel = lang === 'de' ? 'Quelle' : lang === 'tr' ? 'Referans kaynak' : 'Reference';
+        bodyText += `<p><br>${refLabel}: <a href="${link}">${link}</a></p>`;
       }
 
       return {
@@ -466,9 +570,7 @@ KURALLAR:
         ? existingThread.subject
         : `Re: ${existingThread.subject}`;
 
-      const fallbackBody = isClosingTurn
-        ? FALLBACK_CLOSURES[Math.floor(Math.random() * FALLBACK_CLOSURES.length)]
-        : FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)];
+      const fallbackBody = isClosingTurn ? pickFrom(FB.closures) : pickFrom(FB.replies);
 
       return {
         subject: cleanSubject,
@@ -479,7 +581,7 @@ KURALLAR:
       };
     }
 
-    const fb = FALLBACK_CONVERSATIONS[Math.floor(Math.random() * FALLBACK_CONVERSATIONS.length)];
+    const fb = pickFrom(FB.conversations);
     return {
       subject: fb.subject,
       body: fb.body,

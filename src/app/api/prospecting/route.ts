@@ -1,19 +1,21 @@
 import { NextResponse } from 'next/server';
 import { runApifyScraperAction, aiCleanDataAction, createLeadsAction } from '@/lib/automation/nodes/external-actions';
 import { prisma } from '@/lib/prisma';
+import { getStaffTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 
 export async function POST(req: Request) {
   try {
+    const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());
     const body = await req.json();
     const { sector, country, location, platform, targetRoles, personName, personRole } = body;
 
-    console.log("[Prospecting API] Received search request:", { sector, country, location, platform, targetRoles, personName, personRole });
+    console.log(`[Prospecting API] Received search request for tenant ${tenantId}:`, { sector, country, location, platform, targetRoles, personName, personRole });
 
     // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
     // Eğer veritabanında daha önce aynı arama yapılmış ve kaydedilmişse Apify'a gitmeyip direkt onları döndürüyoruz.
     const existingLeads = await prisma.lead.findMany({
       where: {
-        tenantId: 'default-tenant',
+        tenantId,
         industry: sector,
         location: location,
         country: country,
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
     });
 
     if (existingLeads && existingLeads.length > 0) {
-      console.log(`[Prospecting API] Found ${existingLeads.length} cached leads, returning directly.`);
+      console.log(`[Prospecting API] Found ${existingLeads.length} cached leads for tenant ${tenantId}, returning directly.`);
       return NextResponse.json({
         success: true,
         message: `${existingLeads.length} müşteri önbellekten (ücretsiz) getirildi.`,
@@ -32,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Apify Scraper'ı Webhook veya Senkron olarak tetikle
-    const scraperResult = await runApifyScraperAction('default-tenant', {}, { sector, location, country, platform, targetRoles, personName, personRole });
+    const scraperResult = await runApifyScraperAction(tenantId, {}, { sector, location, country, platform, targetRoles, personName, personRole });
     
     if (scraperResult.isAsync) {
       return NextResponse.json({
@@ -43,14 +45,10 @@ export async function POST(req: Request) {
     }
 
     // Eğer senkron çalıştıysa (Localhost veya küçük veri) hemen AI ve CRM işlemlerini yap
-    const cleanerResult = await aiCleanDataAction('default-tenant', { rawScrapedData: scraperResult.rawScrapedData, platform: platform }, {});
+    const cleanerResult = await aiCleanDataAction(tenantId, { rawScrapedData: scraperResult.rawScrapedData, platform: platform }, {});
     
-    const leadsWithScores = cleanerResult.cleanedData.map((lead: any) => ({
-      ...lead,
-      score: Math.floor(Math.random() * 30) + 70
-    }));
-
-    const createResult = await createLeadsAction('default-tenant', { cleanedData: leadsWithScores }, { location, country, industry: sector });
+    // Skorlar aiCleanDataAction içinde deterministik olarak hesaplanır (rastgele skor kaldırıldı)
+    const createResult = await createLeadsAction(tenantId, { cleanedData: cleanerResult.cleanedData }, { location, country, industry: sector });
 
     return NextResponse.json({
       success: true,

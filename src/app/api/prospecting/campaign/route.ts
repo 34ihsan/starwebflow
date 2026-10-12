@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { EventBus } from '@/lib/automation/eventBus';
+import { getStaffTenantId } from '@/lib/tenant';
 
 export async function POST(req: Request) {
   try {
+    const tenantId = await getStaffTenantId();
+    if (!tenantId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { leadIds, campaignId } = body;
 
@@ -13,10 +19,11 @@ export async function POST(req: Request) {
 
     console.log(`[Campaign API] Assigning ${leadIds.length} leads to campaign ${campaignId}`);
 
-    // Update leads status to indicate they are active in a campaign
+    // Update leads status to indicate they are active in a campaign (sadece kendi tenant'ının lead'leri)
     const updatedCount = await prisma.lead.updateMany({
       where: {
-        id: { in: leadIds }
+        id: { in: leadIds },
+        tenantId
       },
       data: {
         status: "IN_CAMPAIGN",
@@ -29,7 +36,7 @@ export async function POST(req: Request) {
     await EventBus.emit('campaign.started', { 
       campaignId, 
       leadIds, 
-      tenantId: "default-tenant" 
+      tenantId
     });
 
     return NextResponse.json({

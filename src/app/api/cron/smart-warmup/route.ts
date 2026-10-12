@@ -6,12 +6,14 @@ import { checkSPF, checkDKIM, checkDMARC } from '@/lib/utils/dns-check';
 import {
   selectWarmupTarget,
   isWithinOrganicHours,
-  calculateDynamicWarmupLimit,
+  calculateAdaptiveWarmupLimit,
   generateWarmupContent,
   detectProvider,
   WarmupMailboxMeta
 } from '@/lib/warmup/engine';
 import nodemailer from 'nodemailer';
+import { recordPlacements, getPlacementStats, shouldQuarantine } from '@/lib/warmup/placement';
+import { authorizeCronOrStaff } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Max allowed serverless duration
@@ -35,13 +37,9 @@ async function mapConcurrent<T, R>(items: T[], limit: number, fn: (item: T) => P
 }
 
 export async function GET(req: Request) {
-  // Optional CRON Secret authentication
-  const authHeader = req.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    const url = new URL(req.url);
-    if (url.searchParams.get('key') !== process.env.CRON_SECRET && process.env.NODE_ENV === 'production') {
-      // Allow internal calls from same origin / admin session
-    }
+  const authz = await authorizeCronOrStaff(req);
+  if (!authz.ok) {
+    return NextResponse.json({ error: authz.reason || 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -61,6 +59,7 @@ export async function GET(req: Request) {
     }
 
     const allEmails = mailboxes.map((m) => m.email.toLowerCase());
+    const mailboxIdByEmail = new Map<string, string>(mailboxes.map((m) => [m.email.toLowerCase(), m.id]));
 
     let inboundCount = 0;
     let outboundCount = 0;
@@ -102,6 +101,9 @@ export async function GET(req: Request) {
         if (imapRes && imapRes.success) {
           inboundCount += imapRes.readCount || 0;
           rescuedCount += imapRes.rescuedFromSpam || 0;
+
+          // Gerçek inbox placement ölçümü (spam'e düşen / inbox'a düşen warmup mailleri)
+          await recordPlacements(mailbox.email, imapRes.placements, mailboxIdByEmail);
 
           const bounceIncrement = imapRes.bounceCount || 0;
           let newStatus = mailbox.status;
@@ -191,10 +193,22 @@ export async function GET(req: Request) {
       });
     }
 
+    // Son 7 günün GERÇEK yerleşim verisi: sağlık/limit hesabı için kümülatif `spammed` yerine
+    // güncel spam sayısı kullanılır; spam oranı >= %40 olan gönderici geçici olarak sessize alınır.
+    const placementStats = await getPlacementStats(allEmails, 7);
+    mailboxes.forEach((m) => {
+      const st = placementStats.get(m.email.toLowerCase());
+      if (st) (m as any).spammed = st.spam;
+    });
+
     // Limitine ulaşmamış göndericileri belirle (Matematiksel Ramping Eğrisi)
     const activeSenders = mailboxes.filter((m) => {
       if (m.isPaused || m.status === 'ERROR') return false;
-      const dynamicLimit = calculateDynamicWarmupLimit(m as unknown as WarmupMailboxMeta);
+      if (shouldQuarantine(placementStats.get(m.email.toLowerCase()))) {
+        console.warn(`[PLACEMENT] ${m.email} son 7 günde yüksek spam oranı nedeniyle bu turda atlandı.`);
+        return false;
+      }
+      const dynamicLimit = calculateAdaptiveWarmupLimit(m as unknown as WarmupMailboxMeta);
       return (m.sentToday || 0) < dynamicLimit;
     });
 
@@ -237,28 +251,36 @@ export async function GET(req: Request) {
           return;
         }
 
+        // Gerçek çift yönlü konuşma: devam eden thread'de alıcı da havuzdaki gerçek bir kutuysa
+        // yanıtı ALICI gönderir (A->B, B->A). Master seed'lerde kimlik bilgisi yoktur; gönderici devam eder.
+        const recipientBox: any = recipient;
+        const recipientPass = recipientBox.smtpPassword || recipientBox.appPassword || '';
+        const replierIsRecipient = !!(existingThread && recipientBox.smtpHost && recipientPass && contentResult.inReplyTo);
+        const from: any = replierIsRecipient ? recipientBox : sender;
+        const toEmail = replierIsRecipient ? sender.email : recipient.email;
+
+        // İnsan ritmi: gönderimler arasında 0.3-3 sn rastgele gecikme (burst oranını kır)
+        await new Promise((r) => setTimeout(r, 300 + Math.random() * 2700));
+
         // SMTP ile Mail Gönder (5s Timeout)
-        const pass = sender.smtpPassword || sender.appPassword || '';
-        if (sender.smtpHost && pass) {
+        const pass = from.smtpPassword || from.appPassword || '';
+        if (from.smtpHost && pass) {
           try {
             const dynamicTransporter = nodemailer.createTransport({
-              host: sender.smtpHost,
-              port: sender.smtpPort || 587,
-              secure: sender.smtpPort === 465,
-              auth: { user: sender.smtpUser || sender.email, pass },
+              host: from.smtpHost,
+              port: from.smtpPort || 587,
+              secure: from.smtpPort === 465,
+              auth: { user: from.smtpUser || from.email, pass },
               tls: { rejectUnauthorized: false },
               connectionTimeout: 5000
             } as any);
 
+            // NOT: Sağlayıcıların "warmup trafiği" olarak işaretleyebileceği X-Warmup özel başlıkları kaldırıldı.
             const mailOptions: any = {
-              from: `${sender.senderName || 'StarWebFlow'} <${sender.email}>`,
-              to: recipient.email,
+              from: `${from.senderName || 'StarWebFlow'} <${from.email}>`,
+              to: toEmail,
               subject: contentResult.subject,
-              html: `${contentResult.body}\n<!-- swf-warmup-token: ${Date.now()} -->`,
-              headers: {
-                'X-StarWebFlow-Warmup': 'true',
-                'X-Warmup-Service': 'StarWebFlow-Pro-Engine'
-              }
+              html: `${contentResult.body}\n<!-- swf-warmup-token: ${Date.now()} -->`
             };
 
             if (contentResult.inReplyTo) {

@@ -1369,3 +1369,19 @@ model GrowthKPI {
   @@index([date])
   @@map("growth_kpis")
 }
+
+// --- Inbox Placement Measurement (additive table, no relations) ---
+model EmailPlacementLog {
+  id             String   @id @default(uuid())
+  senderMailboxId String? @map("sender_mailbox_id")
+  senderEmail    String   @map("sender_email")
+  recipientEmail String   @map("recipient_email")
+  placement      String   // INBOX, SPAM
+  source         String   @default("WARMUP") // WARMUP, SEED_TEST
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([senderEmail, createdAt])
+  @@index([senderMailboxId])
+  @@map("email_placement_logs")
+}
+

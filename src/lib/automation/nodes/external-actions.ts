@@ -1,8 +1,24 @@
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { ApifyClient } from "apify-client";
-import { verifyEmailLive } from "../utils/email-verifier";
 import { fetchWebsiteTech } from "../utils/technographics";
+import { discoverEmail, EmailDiscoveryResult } from "@/lib/leads/email-intel";
+import { scoreLead } from "@/lib/leads/scoring";
+
+/** Run async fn over items with limited concurrency, preserving order. */
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T, idx: number) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      out[i] = await fn(items[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return out;
+}
 
 /**
  * Initiates an Apify Scraper Actor dynamically based on the platform requested.
@@ -110,7 +126,9 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
   }
 
   try {
-    const webhookUrl = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/apify` : null;
+    const webhookUrl = process.env.NEXT_PUBLIC_APP_URL 
+      ? `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/apify?tenantId=${encodeURIComponent(tenantId)}` 
+      : null;
 
     if (webhookUrl) {
       console.log(`[Apify Node] Starting async run on ${actorId} with webhook: ${webhookUrl}`);
@@ -119,7 +137,7 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
           {
             eventTypes: ["ACTOR.RUN.SUCCEEDED"],
             requestUrl: webhookUrl,
-            payloadTemplate: `{"runId": {{runId}}, "datasetId": {{defaultDatasetId}}, "status": {{status}} }`
+            payloadTemplate: `{"runId": {{runId}}, "datasetId": {{defaultDatasetId}}, "status": {{status}}, "tenantId": "${tenantId}" }`
           }
         ]
       });
@@ -186,49 +204,20 @@ function pruneScrapedData(rawData: any[], platform: string) {
 }
 
 /**
- * Zero-Cost Elite Waterfall Email Enrichment via Live SMTP Verification
+ * Email Enrichment: site crawl (mailto/regex/obfuscation) -> person pattern -> generic guess,
+ * each validated with MX + catch-all detection + optional SMTP ping, with a confidence score.
+ * SMTP ping (port 25) is skipped when DISABLE_SMTP_PING=true (blocked networks).
  */
-async function enrichLeadEmail(website: string, name: string): Promise<string | null> {
-  if (!website && !name) return null;
+async function enrichLeadEmail(website: string, name: string, personName?: string | null): Promise<EmailDiscoveryResult> {
   try {
-    let domain = "";
-    
-    // Geçerli bir şirket web sitesi varsa onu kullan
-    if (website && !website.includes("linkedin.com") && !website.includes("apollo.io") && !website.includes("crunchbase.com") && !website.includes("instagram.com")) {
-      domain = new URL(website.startsWith('http') ? website : `https://${website}`).hostname;
-      domain = domain.replace(/^www\./, "");
-    } 
-    // Şirket web sitesi yoksa ama ismi varsa (Apollo/Crunchbase X-Ray'den geliyorsa), isminden domain tahmin et (Domain Guesser)
-    else if (name) {
-      // "Star Webflow" -> "starwebflow.com"
-      const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (cleanName.length > 2) {
-        domain = `${cleanName}.com`;
-      }
-    }
-
-    if (!domain) return null;
-    
-    const candidates = [
-      `info@${domain}`,
-      `contact@${domain}`,
-      `hello@${domain}`,
-      `iletisim@${domain}`,
-      `sales@${domain}`
-    ];
-
-    for (const email of candidates) {
-      const isValid = await verifyEmailLive(email);
-      if (isValid) {
-        console.log(`[Waterfall Verification] Found valid email via SMTP Ping: ${email}`);
-        return email;
-      }
-    }
-    
-    // .com başarısız olursa ve name'den tahmin edildiyse, yerel uzantıları da deneyebiliriz ama şimdilik performansı çok yormamak için bırakıyoruz
-    return null;
+    return await discoverEmail({
+      website,
+      companyName: name,
+      personName,
+      smtp: process.env.DISABLE_SMTP_PING !== "true",
+    });
   } catch (e) {
-    return null;
+    return { best: null, candidates: [], domain: null, pagesCrawled: 0 };
   }
 }
 
@@ -246,37 +235,30 @@ export async function aiCleanDataAction(tenantId: string, payload: any, nodeData
   }
 
   // PRUNING: Maliyet optimizasyonu
-  const prunedData = pruneScrapedData(rawData, platform);
-  console.log(`[AI Cleaner Node] Pruned ${rawData.length} records. Fetching Technographics...`);
+  const prunedData = pruneScrapedData(rawData, platform).filter((d: any) => d.name || d.website);
+  console.log(`[AI Cleaner Node] Pruned ${rawData.length} -> ${prunedData.length} records. Fetching Technographics...`);
 
-  // ZERO-COST TECHNOGRAPHICS & INTENT:
-  const enrichedPrunedData = await Promise.all(prunedData.map(async (item) => {
-    if (item.website) {
+  // ZERO-COST TECHNOGRAPHICS & INTENT (sınırlı eşzamanlılık: hedef siteleri ve ağı boğma)
+  const enrichedPrunedData = await mapLimit(prunedData, 8, async (item: any, idx: number) => {
+    if (item.website && !/linkedin\.com|instagram\.com|apollo\.io|crunchbase\.com/i.test(item.website)) {
       const techData = await fetchWebsiteTech(item.website);
-      return {
-        ...item,
-        detectedTech: techData.technologies,
-        detectedIntent: techData.intentSignals
-      };
+      return { idx, ...item, detectedTech: techData.technologies, detectedIntent: techData.intentSignals };
     }
-    return item;
-  }));
+    return { idx, ...item, detectedTech: [], detectedIntent: [] };
+  });
 
-  console.log(`[AI Cleaner Node] Sending ${enrichedPrunedData.length} records to Gemini...`);
-
-  try {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) throw new Error("GOOGLE_AI_API_KEY is not defined");
-
+  // AI ANALİZİ: küçük parçalar (chunk) halinde, her kayıt kararlı bir `idx` ile eşleşir.
+  // Tek dev prompt yerine chunk = bir parça bozulursa tüm sonuç kaybolmaz; sıra kayması riski ortadan kalkar.
+  const aiByIdx = new Map<number, any>();
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  if (apiKey) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // STRUCTURED OUTPUTS (Elite Pro Level Stability)
     const responseSchema = {
       type: SchemaType.ARRAY,
       items: {
         type: SchemaType.OBJECT,
         properties: {
-          name: { type: SchemaType.STRING },
+          idx: { type: SchemaType.NUMBER },
           company: { type: SchemaType.STRING },
           decisionMakerName: { type: SchemaType.STRING, nullable: true },
           decisionMakerTitle: { type: SchemaType.STRING, nullable: true },
@@ -285,70 +267,105 @@ export async function aiCleanDataAction(tenantId: string, payload: any, nodeData
           customPitch: { type: SchemaType.STRING, nullable: true },
           winProbability: { type: SchemaType.NUMBER, nullable: true }
         },
-        required: ["name", "company", "painPoints", "digitalGaps"]
+        required: ["idx", "company", "painPoints", "digitalGaps"]
       }
     };
-
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema as any,
-      }
+      generationConfig: { responseMimeType: "application/json", responseSchema: responseSchema as any }
     });
 
-    const prompt = `
-You are an expert data cleaner, enrichment, and business analysis AI.
-The dataset includes 'detectedTech' (technologies they use, e.g. Shopify, WordPress) and 'detectedIntent' (e.g. Hiring, Expanding).
+    const CHUNK = 12;
+    const chunks: any[][] = [];
+    for (let i = 0; i < enrichedPrunedData.length; i += CHUNK) chunks.push(enrichedPrunedData.slice(i, i + CHUNK));
+
+    await mapLimit(chunks, 3, async (chunk, ci) => {
+      const prompt = `
+You are an expert B2B lead analyst for a digital agency (web, SEO, automation, ads).
+Each item has an "idx" - you MUST echo the same idx back, one output object per input item.
+'detectedTech' = technologies found on their site, 'detectedIntent' = buying/growth signals.
 For each item:
-1. Clean the company name (remove GmbH, LLC, etc).
-2. Extract decisionMakerName and decisionMakerTitle if inferable from description.
-3. Analyze 'reviews' to find customer complaints. Extract these into 'painPoints' string array.
-4. Digital Gaps: Look at the data (missing website? outdated tech? lack of booking systems?). Add to 'digitalGaps'.
-5. Custom Pitch: Write a 1-sentence highly personalized cold email hook in Turkish highlighting their painPoints OR referencing their 'detectedTech' / 'detectedIntent' to show we did our research.
-6. winProbability: Score (0.0 to 1.0) on how likely they need our digital agency services.
+1. company: clean company name (remove GmbH, LLC, etc).
+2. decisionMakerName / decisionMakerTitle: ONLY if explicitly present in the data. Never invent people.
+3. painPoints: real customer complaints from 'reviews' (short strings). Empty array if none.
+4. digitalGaps: concrete, evidence-based gaps (no website, outdated tech, no analytics, no booking...).
+5. customPitch: ONE sentence cold-email opening hook in Turkish referencing specific evidence (a real pain point, tech or intent signal). No hype words, no fake claims.
+6. winProbability: 0.0-1.0 realistic likelihood they need our services (be conservative; most are < 0.6).
 
-Dataset: ${JSON.stringify(enrichedPrunedData)}
+Dataset: ${JSON.stringify(chunk)}
 `;
-
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
-    
-    let aiEnhancedData = JSON.parse(responseText);
-    
-    // AI Verisi ile Orijinal Pruned veriyi birleştir ve Email Enrichment ekle
-    const finalCleanedData = await Promise.all(aiEnhancedData.map(async (aiItem: any, index: number) => {
-      const original = enrichedPrunedData[index] || {};
-      
-      let finalEmail = original.email;
-      if (!finalEmail) {
-         finalEmail = await enrichLeadEmail(original.website, original.name);
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await model.generateContent(prompt);
+          const parsed = JSON.parse(res.response.text());
+          for (const a of parsed) if (typeof a.idx === "number") aiByIdx.set(a.idx, a);
+          return;
+        } catch (err) {
+          console.error(`[AI Cleaner Node] Chunk ${ci} attempt ${attempt + 1} failed:`, (err as Error).message);
+        }
       }
-
-      return {
-        ...aiItem,
-        email: finalEmail,
-        phone: original.phone || null,
-        website: original.website || null,
-        score: aiItem.winProbability ? Math.round(aiItem.winProbability * 100) : Math.floor(Math.random() * 30) + 70,
-        source: platform
-      };
-    }));
-
-    return { cleanedData: finalCleanedData };
-
-  } catch (error) {
-    console.error("[AI Cleaner Node] Error with Gemini API, falling back:", error);
-    const cleanedData = prunedData.map((item: any) => ({
-      name: item.name,
-      company: item.name.replace(" GmbH", ""),
-      email: item.email || null,
-      phone: item.phone || null,
-      website: item.website || null,
-      source: platform
-    }));
-    return { cleanedData };
+    });
+  } else {
+    console.warn("[AI Cleaner Node] GOOGLE_AI_API_KEY missing - continuing with rule-based enrichment only.");
   }
+
+  // E-POSTA KEŞFİ + SKORLAMA (sınırlı eşzamanlılık)
+  const cleanedData = await mapLimit(enrichedPrunedData, 4, async (original: any) => {
+    const ai = aiByIdx.get(original.idx) || {};
+    const decisionMakerName = ai.decisionMakerName || null;
+
+    let email: string | null = original.email || null;
+    let emailConfidence: number | null = email ? 70 : null;
+    let emailKind: string | null = null;
+    if (!email) {
+      const found = await enrichLeadEmail(original.website, original.name, decisionMakerName);
+      if (found.best) {
+        email = found.best.email;
+        emailConfidence = found.best.confidence;
+        emailKind = found.best.kind;
+      }
+    }
+
+    const hasWebsite = !!original.website && !/linkedin\.com|instagram\.com|apollo\.io|crunchbase\.com/i.test(original.website);
+    const scored = scoreLead({
+      hasWebsite,
+      website: original.website,
+      googleRating: original.rating,
+      technologies: original.detectedTech,
+      intentSignals: original.detectedIntent,
+      digitalGaps: ai.digitalGaps,
+      painPoints: ai.painPoints,
+      decisionMakerName,
+      email,
+      emailConfidence,
+      phone: original.phone,
+      aiWinProbability: ai.winProbability ?? null
+    });
+
+    return {
+      name: original.name,
+      company: ai.company || original.name.replace(/\s+(GmbH|LLC|Ltd\.?|Inc\.?)$/i, ""),
+      decisionMakerName,
+      decisionMakerTitle: ai.decisionMakerTitle || null,
+      painPoints: ai.painPoints || [],
+      digitalGaps: ai.digitalGaps && ai.digitalGaps.length ? ai.digitalGaps : (hasWebsite ? [] : ["Web sitesi yok"]),
+      customPitch: ai.customPitch || null,
+      winProbability: ai.winProbability ?? null,
+      googleRating: original.rating ?? null,
+      hasWebsite,
+      email,
+      emailConfidence,
+      emailKind,
+      phone: original.phone || null,
+      website: original.website || null,
+      score: scored.score,
+      tier: scored.tier,
+      scoreReasons: scored.reasons,
+      source: platform
+    };
+  });
+
+  return { cleanedData };
 }
 
 /**
@@ -460,6 +477,7 @@ export async function createLeadsAction(tenantId: string, payload: any, nodeData
             painPoints: item.painPoints || [],
             digitalGaps: item.digitalGaps || [],
             customPitch: item.customPitch || null,
+            notes: item.tier ? `[${item.tier}] ${(item.scoreReasons || []).join(" • ")}${item.emailConfidence != null ? ` | E-posta güveni: %${item.emailConfidence}` : ""}` : null,
             winProbability: item.winProbability || null,
             status: "new",
             source: "Apify Scraper",

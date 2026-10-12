@@ -3,20 +3,21 @@
 import { prisma } from '@/lib/prisma';
 import { EMAIL_POOL, MASTER_BLUEPRINT } from '@/lib/email-pool';
 import { generateObject } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
 import { z } from 'zod';
-
-
-const DEFAULT_TENANT_ID = 'default-tenant';
+import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getTenantIdOrLegacy } from '@/lib/tenant';
 
 async function ensureTenant() {
-  const tenant = await prisma.tenant.findUnique({ where: { slug: DEFAULT_TENANT_ID } });
+  const tenantId = await getTenantIdOrLegacy();
+  const tenant = await prisma.tenant.findFirst({
+    where: { OR: [{ id: tenantId }, { slug: tenantId }] }
+  });
   if (!tenant) {
     await prisma.tenant.create({
-      data: { id: DEFAULT_TENANT_ID, slug: DEFAULT_TENANT_ID, name: 'Default Tenant' }
+      data: { id: tenantId, slug: tenantId, name: 'StarWebFlow Tenant' }
     });
   }
-  return DEFAULT_TENANT_ID;
+  return tenantId;
 }
 
 export async function getCampaigns() {

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, RefreshCw, Wrench, ShieldCheck, Globe } from 'lucide-react';
 import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns } from '@/app/actions/email';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
+import { computeMailboxHealth } from '@/lib/warmup/health';
 
 interface MailboxWarmupTabProps {
   dbMailboxes: any[];
@@ -32,6 +33,7 @@ export default function MailboxWarmupTab({
       const json = await res.json();
       if (json.success) {
         setWarmupMessage(`✅ ${json.message}`);
+        loadPlacement();
       } else {
         setWarmupMessage(`⚠️ ${json.error || 'Isıtma hatası oluştu.'}`);
       }
@@ -101,14 +103,64 @@ export default function MailboxWarmupTab({
     }
   };
 
-  // Inbox placement score calculation
-  const totalReputation = dbMailboxes.length > 0 
+  const [measuredRate, setMeasuredRate] = useState<number | null>(null);
+  const [seedMailboxId, setSeedMailboxId] = useState('');
+  const [isSeedTesting, setIsSeedTesting] = useState(false);
+  const [seedMessage, setSeedMessage] = useState<string | null>(null);
+
+  const loadPlacement = React.useCallback(async () => {
+    try {
+      const res = await fetch('/api/v1/email/placement');
+      if (!res.ok) return;
+      const json = await res.json();
+      setMeasuredRate(typeof json.overallInboxRate === 'number' ? json.overallInboxRate : null);
+    } catch {
+      /* ölçüm opsiyonel */
+    }
+  }, []);
+
+  React.useEffect(() => { loadPlacement(); }, [loadPlacement, dbMailboxes.length]);
+
+  const handleSeedTest = async () => {
+    if (!seedMailboxId) return;
+    setIsSeedTesting(true);
+    setSeedMessage(null);
+    try {
+      const res = await fetch('/api/v1/email/placement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mailboxId: seedMailboxId })
+      });
+      const json = await res.json();
+      setSeedMessage(json.message || json.error || 'Test tamamlanamadı.');
+    } catch (err: any) {
+      setSeedMessage(err.message);
+    } finally {
+      setIsSeedTesting(false);
+    }
+  };
+
+  const totalReputation = dbMailboxes.length > 0
     ? (dbMailboxes.reduce((acc, m) => acc + Math.min(100, m.reputation || 100), 0) / dbMailboxes.length)
     : 100;
 
+  // Gerçek sağlık skoru: DNS (SPF/DKIM/DMARC) + itibar + yaş - bounce/spam cezası (ortalama)
   const inboxPlacementScore = dbMailboxes.length > 0
-    ? Math.min(98, Math.max(88, Math.round(totalReputation * 0.95)))
-    : 95;
+    ? Math.round(
+        dbMailboxes.reduce((acc, m) => acc + computeMailboxHealth({
+          reputation: m.reputation ?? 100,
+          bounceCount: m.bounceCount || 0,
+          spamCount: m.spamCount || 0,
+          spammed: m.spammed || 0,
+          spfStatus: !!m.spfStatus,
+          dkimStatus: !!m.dkimStatus,
+          dmarcStatus: !!m.dmarcStatus,
+          createdAt: m.createdAt ? new Date(m.createdAt) : new Date()
+        }), 0) / dbMailboxes.length
+      )
+    : 0;
+
+  const displayedScore = measuredRate ?? inboxPlacementScore;
 
   return (
     <div className="space-y-6 animate-in fade-in">
@@ -273,15 +325,35 @@ export default function MailboxWarmupTab({
             </div>
           </div>
 
-          {/* Corrected Google Inbox Placement Score */}
-          <div className="bg-[#05050A] border border-blue-500/20 rounded-xl p-4 flex flex-col justify-center shadow-[0_0_15px_rgba(59,130,246,0.05)] hover:border-blue-500/40 transition-colors cursor-default">
-             <p className="text-xs text-[#94A3B8] mb-2">Google Inbox Yerleşimi</p>
+          {/* Gerçek Inbox Yerleşimi (IMAP ile ölçülen) */}
+          <div className="bg-[#05050A] border border-blue-500/20 rounded-xl p-4 flex flex-col justify-center shadow-[0_0_15px_rgba(59,130,246,0.05)] hover:border-blue-500/40 transition-colors">
+             <p className="text-xs text-[#94A3B8] mb-2">
+               {measuredRate !== null ? 'Ölçülen Inbox Yerleşimi (7 gün)' : 'Ağ Sağlık Skoru (ölçüm bekleniyor)'}
+             </p>
              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-               <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative" style={{ width: `${inboxPlacementScore}%` }}>
+               <div className="bg-blue-500 h-full shadow-[0_0_10px_rgba(59,130,246,0.8)] relative" style={{ width: `${displayedScore}%` }}>
                  <div className="absolute inset-0 bg-white/30 blur-[1px]"></div>
                </div>
              </div>
-             <p className="text-xs font-bold text-white mt-1 text-right">%{inboxPlacementScore}</p>
+             <p className="text-xs font-bold text-white mt-1 text-right">%{displayedScore}</p>
+             <div className="flex gap-1 mt-2">
+               <select
+                 value={seedMailboxId}
+                 onChange={(e) => setSeedMailboxId(e.target.value)}
+                 className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded text-[10px] text-white px-1 py-1"
+               >
+                 <option value="">Seed testi için kutu seç</option>
+                 {dbMailboxes.map((m) => <option key={m.id} value={m.id}>{m.email}</option>)}
+               </select>
+               <button
+                 onClick={handleSeedTest}
+                 disabled={!seedMailboxId || isSeedTesting}
+                 className="px-2 py-1 rounded bg-blue-500/20 text-blue-300 text-[10px] font-semibold disabled:opacity-40"
+               >
+                 {isSeedTesting ? '...' : 'Test'}
+               </button>
+             </div>
+             {seedMessage && <p className="text-[10px] text-[#94A3B8] mt-1">{seedMessage}</p>}
           </div>
         </div>
 
