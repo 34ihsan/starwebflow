@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Button from '@/components/ui/Button'
-import { Menu, X, Zap, LogIn, UserPlus, Globe, Bot, Megaphone, Cog, Monitor, ChevronDown } from 'lucide-react'
+import { Menu, X, Zap, LogIn, UserPlus, Globe, Bot, Megaphone, Cog, Monitor, ChevronDown, Check } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
+import FlagIcon from '@/components/ui/FlagIcon'
 
 import RegionBanner from './RegionBanner'
 
@@ -131,9 +132,9 @@ export default function Navbar() {
               className="flex items-center gap-2.5 group"
             >
               {settings?.preferences?.branding?.logoUrl ? (
-                <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-[51px] md:h-[55px] object-contain" />
+                <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-[54px] md:h-[58px] object-contain" />
               ) : (
-                <img src="/starwebflow_logo_main.png" alt="StarWebFlow Logo" className="h-[55px] lg:h-[63px] w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
+                <img src="/starwebflow_logo_main.png" alt="StarWebFlow Logo" className="h-[58px] lg:h-[66px] w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
               )}
             </Link>
 
@@ -267,14 +268,15 @@ export default function Navbar() {
               <div className="relative" ref={langDropdownRef}>
                 <button
                   onClick={() => setLangOpen(!langOpen)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer border border-transparent hover:border-slate-200"
+                  className="flex items-center gap-2 px-2.5 py-1.5 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer border border-slate-200/80 bg-white/70 shadow-2xs"
+                  aria-label="Dil seçimi"
                 >
-                  <Globe className="w-4 h-4 text-blue-500" />
-                  <span className="uppercase">{language}</span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+                  <FlagIcon code={language} className="w-4.5 h-3" />
+                  <span className="uppercase text-xs tracking-wider font-bold">{language}</span>
+                  <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langOpen && (
-                  <div className="absolute right-0 mt-2 w-28 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="absolute right-0 mt-2 w-36 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xl z-50 animate-in fade-in slide-in-from-top-1 duration-150 p-1">
                     {(['tr', 'en', 'de'] as const).map((lang) => (
                       <button
                         key={lang}
@@ -282,11 +284,13 @@ export default function Navbar() {
                           setLanguage(lang);
                           setLangOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-slate-100 transition-colors uppercase ${
-                          language === lang ? 'text-blue-600 bg-blue-50/50' : 'text-slate-700'
+                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg transition-colors ${
+                          language === lang ? 'text-blue-600 bg-blue-50/80 font-bold' : 'text-slate-700 hover:bg-slate-100'
                         }`}
                       >
-                        {lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'Deutsch'}
+                        <FlagIcon code={lang} className="w-4.5 h-3" />
+                        <span className="flex-1 text-left">{lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'Deutsch'}</span>
+                        {language === lang && <Check className="w-3.5 h-3.5 text-blue-600 ml-auto" />}
                       </button>
                     ))}
                   </div>
@@ -377,21 +381,21 @@ export default function Navbar() {
             ))}
 
             {/* Mobile Language Switcher */}
-            <div className="flex items-center justify-around py-3 border-t border-b border-slate-200 my-2">
+            <div className="flex items-center justify-around py-3 border-t border-b border-slate-200 my-2 gap-2">
               {(['tr', 'en', 'de'] as const).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => {
                     setLanguage(lang);
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${
+                  className={`flex-1 py-2 px-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                     language === lang 
                       ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs' 
-                      : 'text-slate-600 hover:text-slate-900'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent'
                   }`}
                 >
-                  <Globe className="w-3.5 h-3.5" />
-                  {lang === 'tr' ? 'Türkçe (TR)' : lang === 'en' ? 'English (EN)' : 'Deutsch (DE)'}
+                  <FlagIcon code={lang} className="w-4 h-2.5" />
+                  <span>{lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'Deutsch'}</span>
                 </button>
               ))}
             </div>

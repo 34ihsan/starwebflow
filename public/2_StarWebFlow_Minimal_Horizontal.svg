@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 150" width="100%" height="100%">
+  <g transform="translate(50, 35) scale(0.8)">
+    <path d="M50 0 Q50 50 100 50 Q50 50 50 100 Q50 50 0 50 Q50 50 50 0 Z" fill="#0F172A"/>
+    <circle cx="85" cy="15" r="10" fill="#2563EB"/>
+  </g>
+  <text x="150" y="85" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="40" font-weight="800" letter-spacing="-1.5" text-anchor="start" fill="#0F172A">
+    star<tspan font-weight="400" fill="#64748B">web</tspan>flow<tspan fill="#2563EB">.</tspan>
+  </text>
+  <text x="153" y="110" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" letter-spacing="3" text-anchor="start" fill="#94A3B8">
+    SIMPLIFY THE DIGITAL
+  </text>
+</svg>

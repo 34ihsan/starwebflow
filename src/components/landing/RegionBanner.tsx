@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRegion, REGION_CONFIGS, RegionMode } from '@/lib/i18n/RegionContext';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import FlagIcon from '@/components/ui/FlagIcon';
 import { Globe, Shield, Sparkles, ChevronDown, Check, X } from 'lucide-react';
 
 export default function RegionBanner() {
@@ -64,7 +65,7 @@ export default function RegionBanner() {
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 shadow-2xs transition-all duration-200"
               aria-label={t.switcherLabel}
             >
-              <span className="text-sm">{config.flag}</span>
+              <FlagIcon code={config.id} className="w-4 h-2.5" />
               <span className="font-bold text-[11px] tracking-wide text-slate-900">{config.shortLabel}</span>
               <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -95,7 +96,7 @@ export default function RegionBanner() {
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        <span className="text-sm">{item.flag}</span>
+                        <FlagIcon code={key} className="w-4 h-2.5" />
                         <span>{item.label}</span>
                       </span>
                       {isSelected && <Check className="w-3.5 h-3.5 text-blue-600" />}

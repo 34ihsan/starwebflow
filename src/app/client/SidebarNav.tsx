@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FolderKanban, LayoutDashboard, FileText, LifeBuoy, ScrollText, Globe, MessageSquare } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import FlagIcon from '@/components/ui/FlagIcon'
 
 const SECTION_LABELS = {
   main: { tr: 'ANA MENÜ', en: 'MAIN MENU', de: 'HAUPTMENÜ' },
@@ -86,13 +87,13 @@ export default function SidebarNav() {
             <button
               key={l}
               onClick={() => setLanguage(l)}
-              className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-1 ${
+              className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all flex items-center justify-center gap-1.5 ${
                 language === l
                   ? 'bg-blue-50 text-blue-600 border border-blue-200 shadow-2xs font-bold'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent'
               }`}
             >
-              <Globe className="w-2.5 h-2.5" aria-hidden="true" />
+              <FlagIcon code={l} className="w-3.5 h-2.5" />
               {l.toUpperCase()}
             </button>
           ))}
