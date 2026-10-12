@@ -91,7 +91,11 @@ async function fetchText(url: string, timeoutMs = 4500): Promise<string | null> 
     const t = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; StarWebFlowBot/1.0)', Accept: 'text/html' },
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'de-DE,de;q=0.9,tr-TR,tr;q=0.8,en-US,en;q=0.7'
+      },
       redirect: 'follow',
     });
     clearTimeout(t);

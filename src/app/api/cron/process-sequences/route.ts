@@ -82,7 +82,7 @@ export async function GET(request: Request) {
       });
     }
 
-    // Find sequences ready to run
+    // Find sequences ready to run (İnsan hızında: tek seferde maks 4 e-posta)
     const sequences = await prisma.leadSequence.findMany({
       where: {
         status: 'ACTIVE',
@@ -93,7 +93,7 @@ export async function GET(request: Request) {
         }
       },
       include: { lead: true },
-      take: 50 // process in batches
+      take: 4 // İnsan doğallığında işleme (Anti-Spam & Domain Kalkanı)
     });
 
     // 3. CIRCUIT BREAKER KONTROLÜ (%2.0 Hard Bounce Koruması)
@@ -212,13 +212,20 @@ export async function GET(request: Request) {
         });
 
         // Send Email via Nodemailer + SMTP
+        // 1. Gün (Soğuk Tanışma) maillerinde piksel gizlenir; Gmail/Outlook spam filtresi tetiklenmez
         await sendOutreachEmail({
           from: senderEmail,
           to: email,
           subject: subjectText,
           html: personalizedHtml,
           replyTo: senderEmail,
-          trackingId: emailLog.id
+          trackingId: sequence.currentStep > 1 ? emailLog.id : undefined
+        });
+
+        // Update lead last contact timestamp
+        await prisma.lead.update({
+          where: { id: sequence.leadId },
+          data: { lastContactedAt: new Date() }
         });
 
         // Calculate next step
@@ -245,8 +252,13 @@ export async function GET(request: Request) {
 
         sentCount++;
         
-        // Stealth Delay (1-3 seconds)
-        await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 2000) + 1000));
+        // İnsan Davranışı Benzetimi (Human Jitter Delay: 25 ile 50 saniye arası rastgele bekleme)
+        // Robot gibi arka arkaya 1 saniyede göndermez; spam filtreleri doğal insan yazımı olarak görür
+        if (sentCount < sequences.length) {
+          const humanDelayMs = Math.floor(Math.random() * 25000) + 25000;
+          console.log(`[Human Emulation] Sent 1 email. Waiting ${(humanDelayMs / 1000).toFixed(1)}s before next send to protect domain reputation...`);
+          await new Promise(resolve => setTimeout(resolve, humanDelayMs));
+        }
         
       } catch (err) {
         console.error(`Failed sequence ${sequence.id}`, err);

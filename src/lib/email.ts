@@ -109,16 +109,26 @@ export async function sendMail({
       }
     }
 
+    const plainText = finalHtml
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\n\s*\n\s*\n/g, '\n\n')
+      .trim();
+
     const mailOptions: any = {
       from: from || FROM,
       to,
       subject,
+      text: plainText,
       html: finalHtml,
       replyTo: replyTo || ADMIN_EMAIL,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:115.0) Gecko/20100101 Thunderbird/115.6.0',
         'X-Mailer': 'Thunderbird 115.6.0',
-        'X-StarAutoFlow-Fingerprint': 't13d151600_8da589013b23_normalized'
       }
     };
 
