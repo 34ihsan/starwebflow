@@ -28,7 +28,7 @@ import EuropeTurksTrustSection from '@/components/landing/EuropeTurksTrustSectio
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-white text-slate-900 w-full max-w-full overflow-x-hidden">
       <Navbar />
       <div id="hero"><HeroSection /></div>
       <div id="trust"><TrustBar /></div>

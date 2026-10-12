@@ -155,26 +155,28 @@ export default function SpecBuilderSimulation() {
                         : language === 'de'
                         ? "z. B. Ich möchte eine E-Commerce-Plattform der nächsten Generation aufbauen. Sie soll auf einem Abonnementmodell basieren und KI-gestützte Produktempfehlungen bieten..."
                         : "e.g. I want to build a next-gen e-commerce platform. It will run on a subscription model and offer AI-powered product recommendations..."}
-                      className="w-full bg-slate-50/50 border border-slate-300 rounded-xl p-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white transition-all resize-none h-28 shadow-2xs"
+                      className="w-full bg-slate-50/50 border border-slate-300 rounded-xl p-4 pb-16 sm:pb-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white transition-all resize-none h-32 sm:h-28 shadow-2xs text-sm sm:text-base"
                     />
-                    <Button 
-                      variant="primary" 
-                      onClick={handleSimulate}
-                      disabled={isAnalyzing || !projectIdea.trim()}
-                      className="absolute bottom-4 right-4 group disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
-                    >
-                      {isAnalyzing ? (
-                        <span className="flex items-center gap-2">
-                          {language === 'tr' ? 'Analiz Ediliyor...' : language === 'de' ? 'Analysiere...' : 'Analyzing...'}
-                          <span className="animate-spin text-xl leading-none">⟳</span>
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          {language === 'tr' ? 'Taslak Oluştur' : language === 'de' ? 'Entwurf erstellen' : 'Generate Draft'}
-                          <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
-                        </span>
-                      )}
-                    </Button>
+                    <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
+                      <Button 
+                        variant="primary" 
+                        onClick={handleSimulate}
+                        disabled={isAnalyzing || !projectIdea.trim()}
+                        className="group disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-600/20 text-xs sm:text-sm px-3.5 sm:px-5 py-2 sm:py-2.5 font-bold"
+                      >
+                        {isAnalyzing ? (
+                          <span className="flex items-center gap-2">
+                            {language === 'tr' ? 'Analiz Ediliyor...' : language === 'de' ? 'Analysiere...' : 'Analyzing...'}
+                            <span className="animate-spin text-lg leading-none">⟳</span>
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-2">
+                            {language === 'tr' ? 'Taslak Oluştur' : language === 'de' ? 'Entwurf erstellen' : 'Generate Draft'}
+                            <Sparkles className="w-4 h-4 group-hover:animate-pulse" />
+                          </span>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

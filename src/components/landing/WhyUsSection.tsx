@@ -25,20 +25,20 @@ function StatCounter({ value, suffix, label, icon: Icon, color, isVisible }: {
   }, [isVisible, value])
 
   return (
-    <div className="flex flex-col items-center text-center p-6 group">
+    <div className="flex flex-col items-center text-center p-3.5 sm:p-6 group min-w-0">
       <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
+        className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-3 sm:mb-4 transition-transform duration-300 group-hover:scale-110"
         style={{ background: `${color}15`, border: `1px solid ${color}30` }}
       >
-        <Icon className="w-7 h-7" style={{ color }} />
+        <Icon className="w-6 h-6 sm:w-7 sm:h-7" style={{ color }} />
       </div>
       <div
-        className="text-4xl font-black font-['Outfit'] mb-1 transition-all duration-300"
+        className="text-3xl sm:text-4xl font-black font-['Outfit'] mb-1 transition-all duration-300"
         style={{ color }}
       >
         {isVisible ? count : 0}{suffix}
       </div>
-      <p className="text-sm text-slate-600 font-semibold leading-tight max-w-24">{label}</p>
+      <p className="text-xs sm:text-sm text-slate-600 font-semibold leading-tight max-w-[130px]">{label}</p>
     </div>
   )
 }

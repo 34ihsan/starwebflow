@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
 import './globals.css'
 import CookieConsent from '@/components/ui/CookieConsent'
@@ -14,6 +14,13 @@ import { prisma } from '@/lib/prisma'
 import { SettingsProvider } from '@/lib/settings/SettingsContext'
 import { RecaptchaProvider } from '@/components/ui/RecaptchaProvider'
 import { ThemeProvider, Theme } from '@/lib/theme/ThemeContext'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#ffffff',
+}
 
 export const metadata: Metadata = {
   title: 'StarWebFlow — Premium AI Otomasyon & Web Geliştirme Ekosistemi',

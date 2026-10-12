@@ -76,11 +76,11 @@ export default function HeroSection() {
       </div>
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24 w-full">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center w-full min-w-0">
 
           {/* Left — Text */}
-          <div className="text-center lg:text-left" style={{ animation: 'fadeInLeft 0.8s ease both' }}>
+          <div className="text-center lg:text-left min-w-0 w-full" style={{ animation: 'fadeInLeft 0.8s ease both' }}>
 
             {/* Badge */}
             <div className="inline-flex items-center mb-6">
@@ -91,23 +91,23 @@ export default function HeroSection() {
             </div>
 
             {/* H1 — SEO optimized */}
-            <h1 className="heading-xl text-slate-900 dark:text-white mb-6" data-speakable="true">
+            <h1 className="heading-xl text-slate-900 dark:text-white mb-5 sm:mb-6 break-words" data-speakable="true">
               {t('hero.title')}{' '}
-              <span className="block gradient-text">{t('hero.titleHighlight')}</span>
+              <span className="block gradient-text mt-1">{t('hero.titleHighlight')}</span>
             </h1>
 
             {/* Sub-headline */}
-            <p className="text-lg text-slate-600 dark:text-[#94A3B8] mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-[#94A3B8] mb-8 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
               {t('hero.desc')}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full sm:w-auto">
               <Button
                 variant="primary"
                 size="lg"
                 onClick={() => handleScroll('#contact')}
-                className="group relative overflow-hidden"
+                className="group relative overflow-hidden w-full sm:w-auto font-bold"
                 id="hero-cta-primary"
               >
                 {/* Shimmer overlay */}
@@ -122,7 +122,7 @@ export default function HeroSection() {
                 size="lg"
                 onClick={() => handleScroll('#services')}
                 id="hero-cta-secondary"
-                className="group"
+                className="group w-full sm:w-auto font-bold"
               >
                 <span>{t('hero.ctaSecondary')}</span>
                 <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" aria-hidden="true" />
@@ -130,7 +130,7 @@ export default function HeroSection() {
             </div>
 
             {/* Social Proof */}
-            <div className="mt-10 flex items-center gap-6 justify-center lg:justify-start">
+            <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 sm:gap-6 justify-center lg:justify-start">
               {/* Avatars */}
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
@@ -142,7 +142,7 @@ export default function HeroSection() {
                   ].map(({ bg, label }, i) => (
                     <div
                       key={i}
-                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm"
+                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0"
                       style={{ background: bg }}
                       aria-hidden="true"
                     >
@@ -158,7 +158,7 @@ export default function HeroSection() {
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-slate-200" />
+              <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
               {/* Stars */}
               <div className="flex items-center gap-1.5">
@@ -181,14 +181,14 @@ export default function HeroSection() {
 
           {/* Right — Neural Orb Visual */}
           <div
-            className="flex items-center justify-center"
+            className="flex items-center justify-center min-w-0 w-full max-w-full overflow-hidden sm:overflow-visible py-4"
             style={{ animation: 'fadeInRight 0.8s ease both 0.2s', animationFillMode: 'both' }}
           >
-            <div className="relative w-80 h-80 lg:w-[420px] lg:h-[420px]">
+            <div className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] max-w-full">
               {/* Outer rings */}
               <div className="orb-ring absolute inset-0 border-[#4F8EF7]/20" style={{ animationDuration: '20s' }} />
-              <div className="orb-ring orb-ring-reverse absolute inset-4 border-[#8B5CF6]/15" style={{ animationDuration: '15s' }} />
-              <div className="orb-ring absolute inset-8 border-[#06B6D4]/10" style={{ animationDuration: '25s' }} />
+              <div className="orb-ring orb-ring-reverse absolute inset-3 sm:inset-4 border-[#8B5CF6]/15" style={{ animationDuration: '15s' }} />
+              <div className="orb-ring absolute inset-6 sm:inset-8 border-[#06B6D4]/10" style={{ animationDuration: '25s' }} />
 
               {/* Dashed orbit */}
               <div
@@ -212,7 +212,7 @@ export default function HeroSection() {
 
               {/* Core orb */}
               <div
-                className="absolute inset-16 rounded-full flex items-center justify-center"
+                className="absolute inset-12 sm:inset-16 rounded-full flex items-center justify-center"
                 style={{
                   background: 'radial-gradient(circle at 35% 35%, rgba(79,142,247,0.7) 0%, rgba(139,92,246,0.5) 40%, rgba(6,182,212,0.2) 70%, transparent 100%)',
                   boxShadow: '0 0 80px rgba(79,142,247,0.35), 0 0 160px rgba(79,142,247,0.12), inset 0 0 50px rgba(255,255,255,0.06)',
@@ -220,7 +220,7 @@ export default function HeroSection() {
                 }}
               >
                 <div
-                  className="w-20 h-20 rounded-full"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full"
                   style={{
                     background: 'radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(79,142,247,0.4) 50%, transparent 100%)',
                     animation: 'orbPulse 4s ease-in-out infinite 1s',
@@ -228,23 +228,23 @@ export default function HeroSection() {
                 />
               </div>
 
-              {/* Floating Tech Badges */}
-              <TechBadge label="AI Agent" icon="🤖" color="#8B5CF6" style={{ top: '4%', right: '-4%', animation: 'float 7s ease-in-out infinite' }} />
-              <TechBadge label="Next.js" icon="▲" color="#4F8EF7" style={{ bottom: '6%', left: '0%', animation: 'float 5s ease-in-out infinite 1s' }} />
-              <TechBadge label="OpenAI" icon="⚡" color="#10B981" style={{ top: '38%', left: '-8%', animation: 'float 6s ease-in-out infinite 0.5s' }} />
-              <TechBadge label="n8n" icon="🔄" color="#F59E0B" style={{ top: '10%', left: '15%', animation: 'float 8s ease-in-out infinite 2s' }} />
+              {/* Floating Tech Badges - Positioned within bounds for mobile */}
+              <TechBadge label="AI Agent" icon="🤖" color="#8B5CF6" style={{ top: '4%', right: '2%', animation: 'float 7s ease-in-out infinite' }} />
+              <TechBadge label="Next.js" icon="▲" color="#4F8EF7" style={{ bottom: '6%', left: '4%', animation: 'float 5s ease-in-out infinite 1s' }} />
+              <TechBadge label="OpenAI" icon="⚡" color="#10B981" style={{ top: '38%', left: '2%', animation: 'float 6s ease-in-out infinite 0.5s' }} />
+              <TechBadge label="n8n" icon="🔄" color="#F59E0B" style={{ top: '8%', left: '18%', animation: 'float 8s ease-in-out infinite 2s' }} />
             </div>
           </div>
         </div>
 
         {/* ── Metrics Ticker ─────────────────────────────────────────── */}
-        <div className="mt-20 relative" aria-label="Key performance metrics">
+        <div className="mt-16 sm:mt-20 relative w-full overflow-hidden max-w-full" aria-label="Key performance metrics">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 w-12 sm:w-20 h-full bg-gradient-to-r from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 w-12 sm:w-20 h-full bg-gradient-to-l from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
 
-          <div className="overflow-hidden">
-            <div className="metrics-ticker flex gap-8 w-max">
+          <div className="overflow-hidden w-full">
+            <div className="metrics-ticker flex gap-4 sm:gap-8 w-max">
               {[...TICKER_METRICS, ...TICKER_METRICS].map((metric, i) => {
                 const Icon = metric.icon
                 return (

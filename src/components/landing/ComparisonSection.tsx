@@ -120,10 +120,10 @@ export default function ComparisonSection() {
             ))}
           </div>
 
-          <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{language === 'tr' ? 'Sonuç:' : language === 'de' ? 'Ergebnis:' : 'Result:'}</span>
-              <span className="text-lg font-bold text-slate-900">
+          <div className="mt-12 text-center px-2">
+            <div className="inline-flex flex-col sm:flex-row items-center text-center gap-2 sm:gap-3 px-4 sm:px-6 py-3.5 max-w-full rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">{language === 'tr' ? 'Sonuç:' : language === 'de' ? 'Ergebnis:' : 'Result:'}</span>
+              <span className="text-base sm:text-lg font-bold text-slate-900 break-words">
                 {language === 'tr' ? '10x Daha Hızlı Büyüme & %80 Daha Az İş Yükü' : language === 'de' ? '10x schnelleres Wachstum & 80% weniger Workload' : '10x Faster Growth & 80% Less Workload'}
               </span>
             </div>
