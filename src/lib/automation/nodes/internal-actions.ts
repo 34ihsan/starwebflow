@@ -45,7 +45,8 @@ export async function sendInternalChatAction(tenantId: string, payload: any, nod
   console.log("[Action] sendInternalChatAction called", { tenantId, payload, nodeData });
   
   if (!payload.clientId && !payload.leadId) {
-    throw new Error("clientId or leadId is required to send a chat message");
+    console.warn("[Action] sendInternalChatAction skipped: clientId or leadId is missing in event payload");
+    return { success: false, reason: "Hedef clientId veya leadId bulunamadığı için sohbet mesajı adımı atlandı." };
   }
 
   // Find or create thread
