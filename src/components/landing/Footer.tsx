@@ -72,9 +72,9 @@ export default function Footer() {
               onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
             >
               {settings?.preferences?.branding?.logoUrl ? (
-                <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-9 object-contain" />
+                <img src={settings.preferences.branding.logoUrl} alt="Logo" className="h-[51px] md:h-[55px] object-contain" />
               ) : (
-                <img src="/starwebflow_banner_1.png" alt="StarWebFlow Logo" className="h-10 object-contain" />
+                <img src="/starwebflow_logo_main.png" alt="StarWebFlow Logo" className="h-[55px] sm:h-[63px] w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
               )}
             </a>
 

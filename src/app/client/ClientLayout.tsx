@@ -86,21 +86,17 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
         <div className="p-6 border-b border-slate-200/80 dark:border-white/[0.06] relative overflow-hidden">
           {/* Top glow line */}
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
-          <Link href="/" className="flex items-center gap-3 group" aria-label="StarPortal home">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-              style={{
-                background: 'linear-gradient(135deg, #4F8EF7, #06B6D4)',
-                boxShadow: '0 0 20px rgba(79,142,247,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-              }}
-            >
-              <span className="text-white font-black text-sm font-['Outfit']">SW</span>
-            </div>
-            <div>
-              <span className="font-black text-lg tracking-tight font-['Outfit'] block leading-none">
-                Star<span className="text-[#4F8EF7]">Portal</span>
+          <Link href="/" className="flex items-center gap-2.5 group" aria-label="StarWebFlow home">
+            <img 
+              src="/starwebflow_logo_main.png" 
+              alt="StarWebFlow" 
+              className="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
+            />
+            <div className="border-l border-slate-200 dark:border-white/10 pl-2">
+              <span className="font-bold text-xs tracking-tight font-['Outfit'] block leading-none text-slate-800 dark:text-slate-200">
+                Client<span className="text-[#4F8EF7]">Portal</span>
               </span>
-              <span className="status-online text-[9px] text-[#10B981] font-semibold tracking-widest uppercase">
+              <span className="status-online text-[8px] text-[#10B981] font-semibold tracking-widest uppercase mt-0.5 block">
                 {dict.online}
               </span>
             </div>
