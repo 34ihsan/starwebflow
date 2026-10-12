@@ -3,6 +3,28 @@ import { runApifyScraperAction, aiCleanDataAction, createLeadsAction } from '@/l
 import { prisma } from '@/lib/prisma';
 import { getStaffTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 
+export async function GET(req: Request) {
+  try {
+    const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+
+    const leads = await prisma.lead.findMany({
+      where: { tenantId },
+      orderBy: { createdAt: 'desc' },
+      take: limit
+    });
+
+    return NextResponse.json({
+      success: true,
+      results: leads
+    });
+  } catch (error: any) {
+    console.error("[Prospecting API GET] Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());

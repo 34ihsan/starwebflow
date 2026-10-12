@@ -30,12 +30,13 @@ export default function ProspectingClient() {
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   
-  // Kampanya Aktarımı İçin Yeni Stateler
-  const [selectedLeads, setSelectedLeads] = useState<number[]>([]);
+  // Kampanya Aktarımı İçin Stateler
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState("master-blueprint-1");
   const [isExporting, setIsExporting] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [searchStatusText, setSearchStatusText] = useState<string | null>(null);
   
   // Apify tetikleme state
   const [isApifyTriggering, setIsApifyTriggering] = useState(false);
@@ -43,6 +44,23 @@ export default function ProspectingClient() {
   // Hedef Roller state
   const [selectedTargetRoles, setSelectedTargetRoles] = useState<string[]>([]);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+
+  // Sayfa açıldığında mevcut lead'leri yükle
+  React.useEffect(() => {
+    fetchExistingLeads();
+  }, []);
+
+  const fetchExistingLeads = async () => {
+    try {
+      const res = await fetch('/api/prospecting');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.results) && data.results.length > 0) {
+        setResults(data.results);
+      }
+    } catch (e) {
+      console.warn("Önceki müşteriler yüklenirken hata:", e);
+    }
+  };
 
   const toggleTargetRole = (roleId: string) => {
     setSelectedTargetRoles(prev => 
@@ -76,7 +94,7 @@ export default function ProspectingClient() {
     }
   };
 
-  const toggleLeadSelection = (id: number) => {
+  const toggleLeadSelection = (id: string) => {
     setSelectedLeads(prev => prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]);
   };
 
@@ -84,13 +102,14 @@ export default function ProspectingClient() {
     if (selectedLeads.length === results.length) {
       setSelectedLeads([]);
     } else {
-      setSelectedLeads(results.map(r => r.id));
+      setSelectedLeads(results.map(r => String(r.id)));
     }
   };
 
   const handleSearch = async () => {
     if (!sector || !country) return alert("Lütfen sektör ve ülke giriniz.");
     setIsSearching(true);
+    setSearchStatusText("Hedef şirketler ve karar vericiler taranıyor...");
     
     try {
       const response = await fetch('/api/prospecting', {
@@ -102,13 +121,40 @@ export default function ProspectingClient() {
       const data = await response.json();
       
       if (data.success) {
-        setResults(data.results);
+        if (Array.isArray(data.results) && data.results.length > 0) {
+          setResults(data.results);
+          setSearchStatusText(null);
+        } else {
+          // Arka planda çalışma veya asenkron kuyruk durumunda 3 saniyede bir polling başlat
+          setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
+          let attempts = 0;
+          const interval = setInterval(async () => {
+            attempts++;
+            try {
+              const checkRes = await fetch('/api/prospecting');
+              const checkData = await checkRes.json();
+              if (checkData.success && checkData.results && checkData.results.length > 0) {
+                setResults(checkData.results);
+                setSearchStatusText(null);
+                clearInterval(interval);
+              }
+            } catch (err) {
+              // Devam et
+            }
+            if (attempts >= 10) {
+              clearInterval(interval);
+              setSearchStatusText(null);
+            }
+          }, 3000);
+        }
       } else {
         alert("Arama sırasında hata oluştu: " + data.error);
+        setSearchStatusText(null);
       }
     } catch (err) {
       console.error(err);
       alert("Sistemle bağlantı kurulamadı.");
+      setSearchStatusText(null);
     } finally {
       setIsSearching(false);
     }
@@ -401,10 +447,17 @@ export default function ProspectingClient() {
         </div>
 
         <div className="mt-8 flex flex-col md:flex-row justify-end items-center gap-4 relative z-10 border-t border-white/[0.05] pt-6">
-          <div className="flex items-center gap-2 text-xs text-[#94A3B8] mr-auto bg-white/[0.02] px-3 py-1.5 rounded-lg border border-white/[0.05]">
-            <Info className="w-4 h-4 text-[#4F8EF7]" />
-            Tarama sonuçları anında <strong className="text-white">CRM</strong> panelinize işlenecektir.
-          </div>
+          {searchStatusText ? (
+            <div className="flex items-center gap-2 text-xs text-purple-300 bg-purple-500/10 border border-purple-500/30 px-3.5 py-2 rounded-xl mr-auto animate-pulse">
+              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+              <span>{searchStatusText}</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-[#94A3B8] mr-auto bg-white/[0.02] px-3 py-1.5 rounded-lg border border-white/[0.05]">
+              <Info className="w-4 h-4 text-[#4F8EF7]" />
+              Tarama sonuçları anında <strong className="text-white">CRM</strong> panelinize işlenecektir.
+            </div>
+          )}
           
           <button 
             onClick={handleSearch}
