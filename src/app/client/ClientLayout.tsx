@@ -78,12 +78,12 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#05050A] text-white flex font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#05050A] text-slate-900 dark:text-white flex font-sans transition-colors duration-200">
       {/* ── Sidebar ─────────────────────────────────────────────── */}
-      <aside className="w-64 flex flex-col h-screen sticky top-0 border-r border-white/[0.06]" style={{ background: 'linear-gradient(180deg, #0A0A0F 0%, #080810 100%)' }}>
+      <aside className="w-64 flex flex-col h-screen sticky top-0 border-r border-slate-200/80 dark:border-white/[0.06] bg-white/90 dark:bg-[#0A0A0F]/90 backdrop-blur-2xl">
 
         {/* Logo */}
-        <div className="p-6 border-b border-white/[0.06] relative overflow-hidden">
+        <div className="p-6 border-b border-slate-200/80 dark:border-white/[0.06] relative overflow-hidden">
           {/* Top glow line */}
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
           <Link href="/" className="flex items-center gap-3 group" aria-label="StarPortal home">
@@ -110,10 +110,10 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
         <SidebarNav />
 
         {/* Bottom — Back to site */}
-        <div className="p-4 border-t border-white/[0.06]">
+        <div className="p-4 border-t border-slate-200/80 dark:border-white/[0.06]">
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-[#64748B] hover:text-white rounded-xl transition-all duration-200 hover:bg-white/[0.04] group"
+            className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-slate-500 dark:text-[#64748B] hover:text-slate-900 dark:hover:text-white rounded-xl transition-all duration-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.04] group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             <span>{dict.backToSite}</span>
@@ -126,8 +126,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
         {/* Header */}
         <header
-          className="h-16 border-b border-white/[0.06] flex items-center px-8 shrink-0 justify-between relative"
-          style={{ background: 'rgba(10, 10, 15, 0.85)', backdropFilter: 'blur(20px)' }}
+          className="h-16 border-b border-slate-200/80 dark:border-white/[0.06] flex items-center px-8 shrink-0 justify-between relative bg-white/80 dark:bg-[#0A0A0F]/80 backdrop-blur-xl"
         >
           {/* Top glow line */}
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/20 to-transparent" />
@@ -135,10 +134,10 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
           {/* Greeting + Time */}
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="font-semibold font-['Outfit'] text-base text-white leading-none">
+              <h1 className="font-semibold font-['Outfit'] text-base text-slate-900 dark:text-white leading-none">
                 {greeting}, <span className="text-[#4F8EF7]">Müşteri</span>
               </h1>
-              <p className="text-[10px] text-[#475569] mt-0.5 font-medium">{currentTime}</p>
+              <p className="text-[10px] text-slate-400 dark:text-[#475569] mt-0.5 font-medium">{currentTime}</p>
             </div>
           </div>
 
@@ -152,7 +151,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
             {/* Notification bell */}
             <button
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-200 text-[#94A3B8] hover:text-white border border-white/[0.06] hover:border-white/[0.12] relative"
+              className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] transition-all duration-200 text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white border border-slate-200/80 dark:border-white/[0.06] relative"
               aria-label={dict.notifications}
             >
               <Bell className="w-4 h-4" aria-hidden="true" />
@@ -173,23 +172,23 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
               </button>
 
               {/* Dropdown */}
-              <div className="absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden" style={{ background: '#0F0F1A', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="px-4 pt-3 pb-2 border-b border-white/[0.06]">
-                  <p className="text-xs text-[#64748B] font-medium">Müşteri</p>
-                  <p className="text-sm font-semibold text-white mt-0.5">client@domain.com</p>
+              <div className="absolute right-0 mt-2 w-52 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden bg-white border border-slate-200">
+                <div className="px-4 pt-3 pb-2 border-b border-slate-100">
+                  <p className="text-xs text-slate-500 font-medium">Müşteri</p>
+                  <p className="text-sm font-bold text-slate-900 mt-0.5">client@domain.com</p>
                 </div>
                 <div className="p-2">
                   <Link
                     href="/client/profile"
-                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-[#94A3B8] hover:text-white hover:bg-white/[0.04] transition-colors rounded-xl"
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 transition-colors rounded-xl font-medium"
                   >
-                    <User className="w-4 h-4" />
+                    <User className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
                     {dict.profile}
                   </Link>
-                  <div className="h-px bg-white/[0.05] my-1 mx-1" />
+                  <div className="h-px bg-slate-100 my-1 mx-1" />
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors rounded-xl"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors rounded-xl font-medium"
                   >
                     <LogOut className="w-4 h-4" />
                     {dict.logout}
@@ -201,7 +200,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
         </header>
 
         {/* Page content */}
-        <div className="flex-1 overflow-auto bg-[#05050A]">
+        <div className="flex-1 overflow-auto bg-[#FAFBFD]">
           {children}
         </div>
       </main>

@@ -218,30 +218,31 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
 
   return (
     <div
-      className={`border border-white/[0.06] rounded-2xl overflow-hidden transition-all duration-300 ${open ? 'bg-white/[0.04]' : 'bg-transparent hover:bg-white/[0.02]'}`}
+      className={`border rounded-2xl overflow-hidden transition-all duration-300 ${
+        open 
+          ? 'bg-purple-50/30 border-purple-300 shadow-sm' 
+          : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'
+      }`}
     >
       <button
-        className="w-full flex items-center justify-between px-6 py-5 text-left gap-4"
+        className="w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
       >
         <span className="flex items-center gap-3">
-          <span
-            className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0"
-            style={{ background: 'rgba(139,92,246,0.15)', color: '#8B5CF6', border: '1px solid rgba(139,92,246,0.3)' }}
-          >
+          <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 bg-purple-100 text-purple-700 border border-purple-200">
             {index + 1}
           </span>
-          <span className="font-semibold text-white text-sm sm:text-base">{q}</span>
+          <span className="font-bold text-slate-900 text-sm sm:text-base">{q}</span>
         </span>
         <ChevronDown
-          className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180 text-[#8B5CF6]' : 'text-[#64748B]'}`}
+          className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180 text-purple-600' : 'text-slate-400'}`}
         />
       </button>
       <div
-        className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}
+        className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <p className="px-6 pb-5 text-[#94A3B8] text-sm leading-relaxed pl-[4.25rem]">{a}</p>
+        <p className="px-6 pb-5 text-slate-600 text-sm leading-relaxed pl-[4.25rem]">{a}</p>
       </div>
     </div>
   )
@@ -286,36 +287,38 @@ export default function FAQSection() {
   }, [])
 
   return (
-    <section id="faq" className="section relative overflow-hidden">
+    <section id="faq" className="py-24 relative overflow-hidden bg-white border-t border-slate-200/80">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#8B5CF6]/3 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-purple-100/40 blur-3xl" />
       </div>
 
       <div ref={sectionRef} className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className={`text-center mb-10 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 mb-4">
-            <HelpCircle className="w-4 h-4 text-[#8B5CF6]" />
-            <span className="tag-badge">{t.badge}</span>
+            <HelpCircle className="w-4 h-4 text-purple-600" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+              {t.badge}
+            </span>
           </div>
-          <h2 className="heading-lg text-white mt-2 mb-4">
-            {t.h2}<span className="gradient-text">{t.h2g}</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mt-2 mb-4 font-['Outfit'] tracking-tight">
+            {t.h2}<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">{t.h2g}</span>
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto mb-8">{t.sub}</p>
+          <p className="text-slate-600 text-lg max-w-xl mx-auto mb-8 leading-relaxed">{t.sub}</p>
 
           {/* Search & Filter Bar */}
           <div className="flex flex-col sm:flex-row items-center gap-3 max-w-lg mx-auto">
             <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder={language === 'tr' ? 'Soru veya anahtar kelime ara...' : language === 'de' ? 'Frage oder Stichwort suchen...' : 'Search question or keyword...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#0F0F1A] border border-white/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#8B5CF6]/50 transition-colors"
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
               />
             </div>
-            <div className="flex items-center gap-1.5 bg-[#0F0F1A] border border-white/[0.08] rounded-xl p-1 w-full sm:w-auto justify-center">
+            <div className="flex items-center gap-1.5 bg-slate-100/80 border border-slate-200 rounded-xl p-1 w-full sm:w-auto justify-center">
               {[
                 { id: 'all', label: language === 'tr' ? 'Tümü' : language === 'de' ? 'Alle' : 'All' },
                 { id: 'ai',  label: 'AI & Bot' },
@@ -324,7 +327,11 @@ export default function FAQSection() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id as any)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${selectedCategory === cat.id ? 'bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30' : 'text-[#64748B] hover:text-white'}`}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    selectedCategory === cat.id 
+                      ? 'bg-white text-purple-700 shadow-2xs border border-slate-200' 
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
                   {cat.label}
                 </button>
@@ -336,7 +343,7 @@ export default function FAQSection() {
         {/* FAQ List */}
         <div className="space-y-3">
           {filteredItems.length === 0 ? (
-            <div className="text-center py-8 text-[#64748B] text-sm">
+            <div className="text-center py-8 text-slate-500 text-sm">
               {language === 'tr'
                 ? 'Aramanızla eşleşen soru bulunamadı.'
                 : language === 'de'
@@ -358,9 +365,9 @@ export default function FAQSection() {
 
         {/* Bottom CTA */}
         <div className={`text-center mt-12 transition-all duration-700 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <p className="text-[#64748B] text-sm">
+          <p className="text-slate-600 text-sm">
             {language === 'tr' ? 'Başka sorularınız mı var?' : language === 'de' ? 'Haben Sie weitere Fragen?' : 'Have more questions?'}{' '}
-            <a href="#contact" className="text-[#8B5CF6] hover:text-[#7C3AED] font-medium transition-colors underline underline-offset-4">
+            <a href="#contact" className="text-purple-600 hover:text-purple-700 font-semibold transition-colors underline underline-offset-4">
               {language === 'tr' ? 'Bizimle konuşun →' : language === 'de' ? 'Sprechen Sie mit uns →' : 'Talk to us →'}
             </a>
           </p>

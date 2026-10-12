@@ -401,7 +401,7 @@ function CreativeGenerator() {
   const selectedPlatformLabel = platform ? platforms.find(p => p.id === platform)?.label : ''
 
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#12121F]/80 backdrop-blur-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden">
       <LeadFormModal
         isOpen={showLeadModal}
         title={dict.generator.modalTitle}
@@ -411,33 +411,33 @@ function CreativeGenerator() {
         onClose={() => setShowLeadModal(false)}
         onSubmitSuccess={handleLeadSubmit}
       />
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+      <div className="border-b border-slate-200 px-6 py-4 flex items-center gap-3 bg-slate-50/70">
+        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+          <Sparkles className="w-4 h-4 text-amber-600" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">{dict.generator.title}</div>
-          <div className="text-xs text-[#64748B]">{dict.generator.subtitle}</div>
+          <div className="text-sm font-bold text-slate-900">{dict.generator.title}</div>
+          <div className="text-xs text-slate-500 font-medium">{dict.generator.subtitle}</div>
         </div>
       </div>
 
       <div className="p-6 space-y-5">
         {/* Brand input */}
         <div>
-          <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-2 block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 block">
             {dict.generator.brandLabel}
           </label>
           <input
             value={brand}
             onChange={e => setBrand(e.target.value)}
             placeholder={dict.generator.brandPlaceholder}
-            className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#475569] outline-none focus:border-[#F59E0B]/40 transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-amber-500 focus:bg-white transition-colors"
           />
         </div>
 
         {/* Platform selection */}
         <div>
-          <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-3 block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 block">
             {dict.generator.platformLabel}
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -445,14 +445,12 @@ function CreativeGenerator() {
               <button
                 key={p.id}
                 onClick={() => { setPlatform(p.id); setResult(null) }}
-                className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all flex items-center gap-2 ${
+                className={`px-4 py-3 rounded-xl border text-sm font-bold transition-all flex items-center gap-2 ${
                   platform === p.id
-                    ? 'text-white'
-                    : 'border-white/[0.06] text-[#64748B] hover:border-white/20 hover:text-white'
+                    ? 'border-amber-500 bg-amber-50 text-amber-800 shadow-2xs'
+                    : 'border-slate-200 bg-slate-50/80 text-slate-700 hover:border-amber-300 hover:bg-amber-50/40 hover:text-amber-700'
                 }`}
                 style={platform === p.id ? {
-                  background: `${p.color}20`,
-                  borderColor: `${p.color}40`,
                   color: p.color,
                 } : {}}
               >
@@ -467,18 +465,17 @@ function CreativeGenerator() {
           size="md"
           onClick={generate}
           disabled={!brand.trim() || !platform || generating}
-          className="w-full"
-          style={{ background: ACCENT, borderColor: ACCENT }}
+          className="w-full font-bold shadow-xs bg-amber-500 hover:bg-amber-600 border-amber-500 text-slate-950"
         >
           {generating ? (
-            <><Loader2 className="w-4 h-4 animate-spin" />{dict.generator.btnGenerating}</>
+            <><Loader2 className="w-4 h-4 animate-spin text-slate-950" />{dict.generator.btnGenerating}</>
           ) : (
-            <><Sparkles className="w-4 h-4" />{dict.generator.btnGenerate}</>
+            <><Sparkles className="w-4 h-4 text-slate-950" />{dict.generator.btnGenerate}</>
           )}
         </Button>
 
         {generating && (
-          <div className="text-xs text-[#475569] font-mono text-center animate-pulse">
+          <div className="text-xs text-slate-600 font-mono text-center animate-pulse">
             {dict.generator.aiThinking}
           </div>
         )}
@@ -487,34 +484,31 @@ function CreativeGenerator() {
           <div style={{ animation: 'fadeInUp 0.4s ease both' }}>
             {/* Ad preview */}
             <div
-              className="rounded-xl border overflow-hidden"
-              style={{ borderColor: `${platformColors[platform]}30` }}
+              className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-2xs"
             >
               {/* Platform header */}
               <div
-                className="px-4 py-2 flex items-center gap-2"
-                style={{ background: `${platformColors[platform]}15` }}
+                className="px-4 py-2 flex items-center gap-2 bg-slate-50 border-b border-slate-200"
               >
                 <span>{platforms.find(p => p.id === platform)?.icon}</span>
                 <span className="text-xs font-bold" style={{ color: platformColors[platform] }}>
                   {platforms.find(p => p.id === platform)?.label} {dict.generator.previewTitle}
                 </span>
-                <span className="ml-auto text-[10px] text-[#64748B] bg-white/5 px-2 py-0.5 rounded">{dict.generator.sponsored}</span>
+                <span className="ml-auto text-[10px] text-slate-600 bg-slate-200 px-2 py-0.5 rounded font-medium">{dict.generator.sponsored}</span>
               </div>
 
               {/* Visual placeholder */}
               <div
-                className="h-24 flex items-center justify-center text-sm text-[#475569] border-b border-white/[0.06]"
-                style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(239,68,68,0.05))' }}
+                className="h-24 flex items-center justify-center text-sm text-slate-700 border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50"
               >
                 <span className="text-2xl mr-2">🎨</span>
-                <span className="text-xs">{result.visual}</span>
+                <span className="text-xs font-semibold text-slate-700">{result.visual}</span>
               </div>
 
               {/* Copy */}
-              <div className="p-4 bg-white/[0.01]">
-                <div className="text-sm font-bold text-white mb-2">{result.headline}</div>
-                <div className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-line mb-3">{result.body}</div>
+              <div className="p-4 bg-white">
+                <div className="text-sm font-bold text-slate-900 mb-2">{result.headline}</div>
+                <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-line mb-3 font-normal">{result.body}</div>
                 <div
                   className="text-xs font-bold px-3 py-1.5 rounded-lg inline-block"
                   style={{ background: `${platformColors[platform]}20`, color: platformColors[platform] }}
@@ -610,11 +604,11 @@ export default function ReklamSosyalPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">✨ AI Creative</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {language === 'tr' ? 'Markanız İçin ' : language === 'en' ? 'Generate Instant Ads ' : 'Erstellen Sie Anzeigen '}
-              <span className="gradient-text">{language === 'tr' ? 'Anında Reklam Üret' : language === 'en' ? 'For Your Brand' : 'für Ihre Marke'}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{language === 'tr' ? 'Markanız İçin ' : language === 'en' ? 'Generate Instant Ads ' : 'Erstellen Sie Anzeigen '}</span>
+              <span className="text-amber-600 font-extrabold">{language === 'tr' ? 'Anında Reklam Üret' : language === 'en' ? 'For Your Brand' : 'für Ihre Marke'}</span>
             </h2>
-            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">
               {dict.generator.subtitle}
             </p>
           </div>
@@ -622,13 +616,13 @@ export default function ReklamSosyalPage() {
           <div className="grid lg:grid-cols-2 gap-10 items-start">
             <CreativeGenerator />
             <div className="space-y-4">
-              <div className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
+              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
                 {dict.whyUs.title}
               </div>
               {servicesList.map((s, i) => {
                 const Icon = s.icon
                 return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:border-white/10 transition-all">
+                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-amber-300 hover:shadow-xs transition-all">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ background: `${s.color}15` }}
@@ -636,19 +630,19 @@ export default function ReklamSosyalPage() {
                       <Icon className="w-5 h-5" style={{ color: s.color }} />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white mb-0.5">{s.title}</div>
-                      <div className="text-xs text-[#64748B] leading-relaxed">{s.desc}</div>
+                      <div className="text-sm font-bold text-slate-900 mb-0.5">{s.title}</div>
+                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{s.desc}</div>
                     </div>
                   </div>
                 )
               })}
 
               {/* Platform logos */}
-              <div className="p-4 rounded-xl border border-white/[0.05] bg-white/[0.01]">
-                <div className="text-xs text-[#64748B] mb-3">{dict.whyUs.platformsTitle}</div>
+              <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
+                <div className="text-xs font-bold text-slate-700 mb-3">{dict.whyUs.platformsTitle}</div>
                 <div className="flex flex-wrap gap-2">
                   {['Meta Ads', 'Google Ads', 'TikTok Ads', 'LinkedIn Ads', 'YouTube', 'Instagram', 'Pinterest'].map(p => (
-                    <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-white/5 text-[#94A3B8] border border-white/[0.06]">
+                    <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-medium">
                       {p}
                     </span>
                   ))}
@@ -659,12 +653,12 @@ export default function ReklamSosyalPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {language === 'tr' ? 'Reklam ' : language === 'en' ? 'Advertising ' : 'Werbe-'}
-              <span className="gradient-text">{language === 'tr' ? 'ROI Analizi' : language === 'en' ? 'ROI Analysis' : 'ROI-Analyse'}</span>
+              <span className="text-amber-600 font-extrabold">{language === 'tr' ? 'ROI Analizi' : language === 'en' ? 'ROI Analysis' : 'ROI-Analyse'}</span>
             </h2>
           </div>
           <ValueMatrix
@@ -672,16 +666,16 @@ export default function ReklamSosyalPage() {
             rows={dict.roi.rows.map((row, i) => ({
               ...row,
               delta: ['+%239', '-%58', '+%325', '+%1900', '-%96'][i],
-              deltaPositive: i !== 1 && i !== 4 // CPA and Production time delta is negative but positive impact (already marked as deltaPositive in schema though)
+              deltaPositive: i !== 1 && i !== 4
             }))}
           />
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {dict.comparison.title}
             </h2>
           </div>

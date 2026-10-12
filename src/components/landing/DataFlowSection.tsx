@@ -36,26 +36,26 @@ export default function DataFlowSection() {
   ]
 
   return (
-    <section className="py-24 bg-[#0A0A0F] relative overflow-hidden">
+    <section className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white font-['Outfit']"
+            className="text-3xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900 font-['Outfit']"
           >
-            {language === 'tr' ? 'Arka Planda Neler Oluyor?' : language === 'de' ? 'Was passiert im Hintergrund?' : 'What Happens Behind the Scenes?'} <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-600 text-2xl md:text-3xl font-medium">
-              ({language === 'tr' ? 'Kognitif İş Akışı' : language === 'de' ? 'Kognitiver Arbeitsablauf' : 'Cognitive Workflow'})
-            </span>
+            {language === 'tr' ? 'Arka Planda Neler Oluyor?' : language === 'de' ? 'Was passiert im Hintergrund?' : 'What Happens Behind the Scenes?'}
           </motion.h2>
+          <p className="text-xl font-semibold bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
+            {language === 'tr' ? 'Kognitif İş Akışı ve Otonom Veri Hattı' : language === 'de' ? 'Kognitiver Arbeitsablauf & Autonome Datenpipeline' : 'Cognitive Workflow & Autonomous Data Pipeline'}
+          </p>
         </div>
 
         <div className="max-w-5xl mx-auto">
           <div className="relative">
             {/* Connection Line (Desktop) */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500/20 via-[#8B5CF6]/50 to-pink-500/20 -translate-y-1/2 z-0" />
+            <div className="hidden md:block absolute top-10 left-0 w-full h-0.5 bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 -translate-y-1/2 z-0" />
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {steps.map((step, idx) => {
@@ -67,17 +67,17 @@ export default function DataFlowSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: idx * 0.2 }}
-                    className="relative z-10 flex flex-col items-center text-center"
+                    className="relative z-10 flex flex-col items-center text-center p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <motion.div 
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-6 border backdrop-blur-xl ${step.bg} ${step.border} ${step.color}`}
+                      whileHover={{ scale: 1.08, rotate: 4 }}
+                      className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 border shadow-2xs ${step.bg} ${step.border} ${step.color}`}
                     >
-                      <Icon className="w-10 h-10" />
+                      <Icon className="w-8 h-8" />
                     </motion.div>
                     
-                    <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                    <p className="text-sm text-gray-400">{step.desc}</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{step.title}</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed font-normal">{step.desc}</p>
                     
                     {/* Animated Data Particles */}
                     {idx < steps.length - 1 && (
@@ -85,7 +85,7 @@ export default function DataFlowSection() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: [0, 1, 0], x: [0, 40, 80] }}
                         transition={{ repeat: Infinity, duration: 2, delay: idx * 0.5 }}
-                        className="hidden md:block absolute top-10 -right-10 w-4 h-4 text-[#8B5CF6]"
+                        className="hidden md:block absolute top-8 -right-8 w-4 h-4 text-purple-600"
                       >
                         <ArrowRight className="w-4 h-4" />
                       </motion.div>

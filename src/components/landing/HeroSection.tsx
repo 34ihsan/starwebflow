@@ -45,7 +45,7 @@ export default function HeroSection() {
       data-speakable="true"
     >
       {/* ── Aurora + Grid Background ──────────────────────────────────── */}
-      <div className="absolute inset-0 bg-[#0A0A0F]" />
+      <div className="absolute inset-0 bg-white dark:bg-[#0A0A0F] transition-colors duration-200" />
       <div className="aurora-bg absolute inset-0 pointer-events-none" aria-hidden="true" />
       <div className="grid-pattern absolute inset-0 pointer-events-none opacity-40" aria-hidden="true" />
 
@@ -91,13 +91,13 @@ export default function HeroSection() {
             </div>
 
             {/* H1 — SEO optimized */}
-            <h1 className="heading-xl text-white mb-6" data-speakable="true">
+            <h1 className="heading-xl text-slate-900 dark:text-white mb-6" data-speakable="true">
               {t('hero.title')}{' '}
               <span className="block gradient-text">{t('hero.titleHighlight')}</span>
             </h1>
 
             {/* Sub-headline */}
-            <p className="text-lg text-[#94A3B8] mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-lg text-slate-600 dark:text-[#94A3B8] mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               {t('hero.desc')}
             </p>
 
@@ -142,7 +142,7 @@ export default function HeroSection() {
                   ].map(({ bg, label }, i) => (
                     <div
                       key={i}
-                      className="w-9 h-9 rounded-full border-2 border-[#0A0A0F] flex items-center justify-center text-xs font-bold text-white shadow-lg"
+                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm"
                       style={{ background: bg }}
                       aria-hidden="true"
                     >
@@ -151,14 +151,14 @@ export default function HeroSection() {
                   ))}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">50+</p>
-                  <p className="text-xs text-[#94A3B8]">
+                  <p className="text-sm font-bold text-slate-900">50+</p>
+                  <p className="text-xs text-slate-600 font-medium">
                     {lang === 'tr' ? 'mutlu müşteri' : lang === 'de' ? 'Kunden' : 'happy clients'}
                   </p>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-white/10" />
+              <div className="h-8 w-px bg-slate-200" />
 
               {/* Stars */}
               <div className="flex items-center gap-1.5">
@@ -170,8 +170,8 @@ export default function HeroSection() {
                   ))}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">4.9</p>
-                  <p className="text-xs text-[#94A3B8]">
+                  <p className="text-sm font-bold text-slate-900">4.9</p>
+                  <p className="text-xs text-slate-600 font-medium">
                     {lang === 'tr' ? 'puan (38 yorum)' : lang === 'de' ? 'Sterne (38)' : 'rating (38)'}
                   </p>
                 </div>
@@ -240,8 +240,8 @@ export default function HeroSection() {
         {/* ── Metrics Ticker ─────────────────────────────────────────── */}
         <div className="mt-20 relative" aria-label="Key performance metrics">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 w-20 h-full bg-gradient-to-r from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-l from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
 
           <div className="overflow-hidden">
             <div className="metrics-ticker flex gap-8 w-max">
@@ -250,7 +250,7 @@ export default function HeroSection() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-3 px-6 py-3 glass rounded-xl border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 group shrink-0"
+                    className="flex items-center gap-3 px-6 py-3 glass rounded-xl border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 group shrink-0 shadow-sm"
                   >
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -301,15 +301,15 @@ function TechBadge({
 }) {
   return (
     <div
-      className="absolute glass rounded-xl px-3 py-2 flex items-center gap-2 shadow-xl"
+      className="absolute bg-white/95 rounded-xl px-3 py-2 flex items-center gap-2 border border-slate-200/90 shadow-md backdrop-blur-md"
       style={{
         ...style,
-        borderColor: `${color}20`,
-        boxShadow: `0 0 20px ${color}15, 0 4px 24px rgba(0,0,0,0.3)`,
+        borderColor: `${color}40`,
+        boxShadow: `0 8px 24px -4px ${color}20, 0 2px 8px rgba(0,0,0,0.06)`,
       }}
     >
       <span className="text-sm" aria-hidden="true">{icon}</span>
-      <span className="text-xs font-bold text-white/90 whitespace-nowrap">{label}</span>
+      <span className="text-xs font-bold text-slate-800 whitespace-nowrap">{label}</span>
       <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: color }} />
     </div>
   )

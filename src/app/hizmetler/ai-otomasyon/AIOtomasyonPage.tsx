@@ -454,14 +454,14 @@ function CostSaverCalculator() {
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#12121F]/80 backdrop-blur-sm overflow-hidden">
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#10B981]/15 flex items-center justify-center">
-          <TrendingUp className="w-4 h-4 text-[#10B981]" />
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden">
+      <div className="border-b border-slate-200 px-6 py-4 flex items-center gap-3 bg-slate-50/70">
+        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+          <TrendingUp className="w-4 h-4 text-emerald-600" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">{dict.calculator.title}</div>
-          <div className="text-xs text-[#64748B]">{dict.calculator.subtitle}</div>
+          <div className="text-sm font-bold text-slate-900">{dict.calculator.title}</div>
+          <div className="text-xs text-slate-500 font-medium">{dict.calculator.subtitle}</div>
         </div>
       </div>
 
@@ -469,12 +469,11 @@ function CostSaverCalculator() {
         {/* Slider 1 */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
               {dict.calculator.labelHours}
             </label>
             <span
-              className="text-lg font-black font-['Outfit']"
-              style={{ color: ACCENT }}
+              className="text-lg font-black font-['Outfit'] text-emerald-600"
             >
               {hours} {dict.calculator.hoursSuffix}
             </span>
@@ -485,12 +484,9 @@ function CostSaverCalculator() {
             max={80}
             value={hours}
             onChange={e => setHours(Number(e.target.value))}
-            className="w-full h-2 rounded-full appearance-none cursor-pointer"
-            style={{
-              background: `linear-gradient(to right, ${ACCENT} 0%, ${ACCENT} ${((hours - 2) / 78) * 100}%, rgba(255,255,255,0.1) ${((hours - 2) / 78) * 100}%, rgba(255,255,255,0.1) 100%)`,
-            }}
+            className="w-full h-2 rounded-full appearance-none cursor-pointer bg-slate-200 accent-emerald-600"
           />
-          <div className="flex justify-between text-[10px] text-[#334155] mt-1">
+          <div className="flex justify-between text-[11px] text-slate-500 font-medium mt-1">
             <span>2 {dict.calculator.hoursSuffix}</span><span>80 {dict.calculator.hoursSuffix}</span>
           </div>
         </div>
@@ -498,10 +494,10 @@ function CostSaverCalculator() {
         {/* Slider 2 */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
               {dict.calculator.labelRate}
             </label>
-            <span className="text-lg font-black font-['Outfit']" style={{ color: ACCENT }}>
+            <span className="text-lg font-black font-['Outfit'] text-emerald-600">
               €{rate}
             </span>
           </div>
@@ -511,58 +507,53 @@ function CostSaverCalculator() {
             max={80}
             value={rate}
             onChange={e => setRate(Number(e.target.value))}
-            className="w-full h-2 rounded-full appearance-none cursor-pointer"
-            style={{
-              background: `linear-gradient(to right, ${ACCENT} 0%, ${ACCENT} ${((rate - 10) / 70) * 100}%, rgba(255,255,255,0.1) ${((rate - 10) / 70) * 100}%, rgba(255,255,255,0.1) 100%)`,
-            }}
+            className="w-full h-2 rounded-full appearance-none cursor-pointer bg-slate-200 accent-emerald-600"
           />
-          <div className="flex justify-between text-[10px] text-[#334155] mt-1">
+          <div className="flex justify-between text-[11px] text-slate-500 font-medium mt-1">
             <span>€10</span><span>€80</span>
           </div>
         </div>
 
         {/* Pain amplifier */}
         <div
-          className="p-4 rounded-xl border"
-          style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'rgba(239,68,68,0.2)' }}
+          className="p-4 rounded-xl border border-rose-200 bg-rose-50/60"
         >
-          <div className="text-xs font-semibold text-[#EF4444] mb-2">{dict.calculator.lossTitle}</div>
+          <div className="text-xs font-bold text-rose-700 mb-2">{dict.calculator.lossTitle}</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.lossAnnualHours}</div>
-              <div className="text-lg font-bold text-[#EF4444]">{(hours * 52).toLocaleString(language === 'tr' ? 'tr-TR' : 'de-DE')} {dict.calculator.hourLabel}</div>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.lossAnnualHours}</div>
+              <div className="text-lg font-extrabold text-rose-600">{(hours * 52).toLocaleString(language === 'tr' ? 'tr-TR' : 'de-DE')} {dict.calculator.hourLabel}</div>
             </div>
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.lossCapacity}</div>
-              <div className="text-lg font-bold text-[#EF4444]">%{percentOfYear}</div>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.lossCapacity}</div>
+              <div className="text-lg font-extrabold text-rose-600">%{percentOfYear}</div>
             </div>
           </div>
         </div>
 
         {/* Results */}
         <div
-          className="p-4 rounded-xl border"
-          style={{ background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}
+          className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60"
         >
-          <div className="text-xs font-semibold text-[#10B981] mb-3">{dict.calculator.savingsTitle}</div>
+          <div className="text-xs font-bold text-emerald-800 mb-3">{dict.calculator.savingsTitle}</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.savingsWeeklyHours}</div>
-              <div className="text-2xl font-black text-white font-['Outfit']">{weeklyTimeSaved}{dict.calculator.hourLabel}</div>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.savingsWeeklyHours}</div>
+              <div className="text-2xl font-black text-slate-900 font-['Outfit']">{weeklyTimeSaved}{dict.calculator.hourLabel}</div>
             </div>
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.savingsMonthlyCost}</div>
-              <div className="text-2xl font-black font-['Outfit']" style={{ color: ACCENT }}>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.savingsMonthlyCost}</div>
+              <div className="text-2xl font-black font-['Outfit'] text-emerald-700">
                 €{monthlySaved.toLocaleString(language === 'tr' ? 'tr-TR' : 'de-DE')}
               </div>
             </div>
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.savingsAnnual}</div>
-              <div className="text-xl font-bold text-white">€{annualSaved.toLocaleString(language === 'tr' ? 'tr-TR' : 'de-DE')}</div>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.savingsAnnual}</div>
+              <div className="text-xl font-bold text-slate-900">€{annualSaved.toLocaleString(language === 'tr' ? 'tr-TR' : 'de-DE')}</div>
             </div>
             <div>
-              <div className="text-xs text-[#64748B]">{dict.calculator.savingsCapacity}</div>
-              <div className="text-xl font-bold text-white">{weeksFreed} {dict.calculator.weekLabel}</div>
+              <div className="text-xs text-slate-600 font-medium">{dict.calculator.savingsCapacity}</div>
+              <div className="text-xl font-bold text-slate-900">{weeksFreed} {dict.calculator.weekLabel}</div>
             </div>
           </div>
         </div>
@@ -665,32 +656,32 @@ export default function AIOtomasyonPage() {
         </div>
       </section>
 
-      <section id="simulation" className="section relative overflow-hidden">
-        <div className="absolute inset-0 mesh-bg pointer-events-none" />
+      <section id="simulation" className="section relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{dict.calculatorSection.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {dict.calculatorSection.title}<span className="gradient-text">{dict.calculatorSection.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{dict.calculatorSection.title}</span> <span className="text-emerald-600 font-extrabold">{dict.calculatorSection.titleHighlight}</span>
             </h2>
-            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">
               {dict.calculatorSection.desc}
             </p>
           </div>
           <div className="grid lg:grid-cols-2 gap-10 items-start">
             <CostSaverCalculator />
             <div className="space-y-4">
-              <div className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
+              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
                 {dict.calculatorSection.asideTitle}
               </div>
               {dict.calculatorSection.asideTasks.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] bg-white/[0.01]">
+                <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-emerald-300 transition-all">
                   <span className="text-xl">{item.emoji}</span>
-                  <span className="text-sm text-[#94A3B8] flex-1">{item.text}</span>
-                  <span className="text-xs font-semibold text-[#EF4444]">{item.hours}</span>
+                  <span className="text-sm text-slate-700 font-medium flex-1">{item.text}</span>
+                  <span className="text-xs font-bold text-rose-600">{item.hours}</span>
                 </div>
               ))}
-              <div className="text-center text-xs text-[#475569] mt-2">
+              <div className="text-center text-xs text-slate-500 mt-2 font-medium">
                 {dict.calculatorSection.asideTotal}
               </div>
             </div>
@@ -698,19 +689,19 @@ export default function AIOtomasyonPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{dict.packages.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {dict.packages.title}<span className="gradient-text">{dict.packages.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{dict.packages.title}</span> <span className="text-emerald-600 font-extrabold">{dict.packages.titleHighlight}</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {automationsList.map((a, i) => {
               const Icon = a.icon
               return (
-                <GlowCard key={i} glowColor="emerald" className="p-6">
+                <GlowCard key={i} glowColor="emerald" className="p-6 bg-white border border-slate-200/90 shadow-sm">
                   <div className="flex items-start gap-3 mb-3">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -719,16 +710,16 @@ export default function AIOtomasyonPage() {
                       <Icon className="w-5 h-5" style={{ color: a.color }} />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-white">{a.title}</div>
+                      <div className="text-base font-bold text-slate-900 mb-0.5">{a.title}</div>
                       <span
-                        className="text-[10px] px-2 py-0.5 rounded font-semibold"
+                        className="text-[10px] px-2 py-0.5 rounded font-bold"
                         style={{ color: a.color, background: `${a.color}15` }}
                       >
                         {a.tag}
                       </span>
                     </div>
                   </div>
-                  <p className="text-xs text-[#64748B] leading-relaxed">{a.desc}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed font-normal">{a.desc}</p>
                 </GlowCard>
               )
             })}
@@ -736,12 +727,12 @@ export default function AIOtomasyonPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {language === 'tr' ? 'Otomasyon ' : language === 'en' ? 'Automation ' : 'Automatisierungs-'}
-              <span className="gradient-text">{language === 'tr' ? 'ROI Analizi' : language === 'en' ? 'ROI Analysis' : 'ROI-Analyse'}</span>
+              <span className="text-emerald-600 font-extrabold">{language === 'tr' ? 'ROI Analizi' : language === 'en' ? 'ROI Analysis' : 'ROI-Analyse'}</span>
             </h2>
           </div>
           <ValueMatrix
@@ -755,12 +746,12 @@ export default function AIOtomasyonPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {language === 'tr' ? 'Manuel vs ' : language === 'en' ? 'Manual vs ' : 'Manuell vs '}
-              <span className="gradient-text">{language === 'tr' ? 'Otomatik' : language === 'en' ? 'Automated' : 'Automatisiert'}</span>
+              <span className="text-emerald-600 font-extrabold">{language === 'tr' ? 'Otomatik' : language === 'en' ? 'Automated' : 'Automatisiert'}</span>
             </h2>
           </div>
           <ComparisonTable

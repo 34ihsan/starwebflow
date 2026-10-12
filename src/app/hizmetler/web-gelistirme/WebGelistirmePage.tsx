@@ -695,7 +695,7 @@ function ConversionAnalyzer() {
   }
 
   return (
-    <div className="relative rounded-2xl border border-white/[0.06] bg-[#12121F]/80 backdrop-blur-sm overflow-hidden">
+    <div className="relative rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden">
       <LeadFormModal
         isOpen={showLeadModal}
         title={dict.analyzer.modalTitle}
@@ -705,24 +705,24 @@ function ConversionAnalyzer() {
         onSubmitSuccess={handleLeadSubmit}
       />
       {/* Header */}
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#4F8EF7]/15 flex items-center justify-center">
-          <BarChart3 className="w-4 h-4 text-[#4F8EF7]" />
+      <div className="border-b border-slate-200 px-6 py-4 flex items-center gap-3 bg-slate-50/70">
+        <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+          <BarChart3 className="w-4 h-4 text-blue-600" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">{dict.analyzer.title}</div>
-          <div className="text-xs text-[#64748B]">{dict.analyzer.subtitle}</div>
+          <div className="text-sm font-bold text-slate-900">{dict.analyzer.title}</div>
+          <div className="text-xs text-slate-500 font-medium">{dict.analyzer.subtitle}</div>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-          <span className="text-xs text-[#10B981]">{dict.analyzer.activeText}</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-xs text-emerald-700 font-bold">{dict.analyzer.activeText}</span>
         </div>
       </div>
 
       <div className="p-6">
         {/* Step 1: Industry selection */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-3">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
             {dict.analyzer.industriesLabel}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -735,8 +735,8 @@ function ConversionAnalyzer() {
                   onClick={() => { setSelected(trIndustry); setResult(null) }}
                   className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all duration-200 text-left ${
                     selected === trIndustry
-                      ? 'bg-[#4F8EF7]/15 border-[#4F8EF7]/40 text-[#4F8EF7]'
-                      : 'border-white/[0.06] text-[#64748B] hover:border-white/20 hover:text-white'
+                      ? 'bg-blue-50 border-blue-500 text-blue-700 font-bold shadow-2xs'
+                      : 'border-slate-200 bg-slate-50/80 text-slate-700 hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-600'
                   }`}
                 >
                   {ind}
@@ -752,7 +752,7 @@ function ConversionAnalyzer() {
           size="md"
           onClick={analyze}
           disabled={!selected || analyzing}
-          className="w-full mb-6"
+          className="w-full mb-6 font-bold shadow-xs bg-blue-600 hover:bg-blue-700 border-blue-600"
         >
           {analyzing ? (
             <>
@@ -770,17 +770,17 @@ function ConversionAnalyzer() {
         {/* Progress bar */}
         {analyzing && (
           <div className="mb-6">
-            <div className="flex justify-between text-xs text-[#64748B] mb-2">
+            <div className="flex justify-between text-xs text-slate-600 mb-2 font-medium">
               <span>{dict.analyzer.progressMsg}</span>
               <span>{progress}%</span>
             </div>
-            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full transition-all duration-300"
-                style={{ width: `${progress}%`, background: '#4F8EF7' }}
+                className="h-full rounded-full transition-all duration-300 bg-blue-600"
+                style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="mt-2 text-xs text-[#475569] font-mono">
+            <div className="mt-2 text-xs text-slate-500 font-mono">
               {progress < 35 && dict.analyzer.progressScan}
               {progress >= 35 && progress < 65 && dict.analyzer.progressPerf}
               {progress >= 65 && progress < 90 && dict.analyzer.progressConv}
@@ -793,10 +793,10 @@ function ConversionAnalyzer() {
         {result && (
           <div style={{ animation: 'fadeInUp 0.5s ease both' }}>
             {/* Score */}
-            <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
               <div className="relative w-16 h-16">
                 <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
-                  <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15" fill="none" stroke="#E2E8F0" strokeWidth="3" />
                   <circle
                     cx="18" cy="18" r="15" fill="none"
                     stroke={result.score < 40 ? '#EF4444' : '#F59E0B'}
@@ -806,19 +806,19 @@ function ConversionAnalyzer() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">{result.score}</span>
+                  <span className="text-base font-black text-slate-900">{result.score}</span>
                 </div>
               </div>
               <div>
-                <div className="text-sm font-semibold text-white mb-1">{dict.analyzer.scoreLabel}</div>
-                <div className="text-xs text-[#EF4444] font-medium">{dict.analyzer.scoreSubtitle}</div>
-                <div className="text-xs text-[#64748B] mt-0.5">{dict.analyzer.scoreAvg}</div>
+                <div className="text-sm font-bold text-slate-900 mb-0.5">{dict.analyzer.scoreLabel}</div>
+                <div className="text-xs text-rose-600 font-bold">{dict.analyzer.scoreSubtitle}</div>
+                <div className="text-xs text-slate-500 mt-0.5 font-medium">{dict.analyzer.scoreAvg}</div>
               </div>
             </div>
 
             {/* Problems */}
             <div className="mb-4">
-              <div className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-3">
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
                 {dict.analyzer.problemsLabel}
               </div>
               <div className="space-y-2">
@@ -828,13 +828,13 @@ function ConversionAnalyzer() {
                   return (
                     <div
                       key={i}
-                      className="p-3 rounded-xl border flex items-start gap-3"
-                      style={{ background: sev.bg, borderColor: p.severity === 'high' ? 'rgba(239,68,68,0.2)' : p.severity === 'medium' ? 'rgba(245,158,11,0.2)' : 'rgba(79,142,247,0.2)' }}
+                      className="p-3.5 rounded-xl border flex items-start gap-3 bg-white shadow-2xs"
+                      style={{ borderColor: p.severity === 'high' ? '#FECDD3' : p.severity === 'medium' ? '#FED7AA' : '#BFDBFE' }}
                     >
                       <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: sev.text }} />
                       <div>
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-xs font-semibold text-white">{p.label}</span>
+                          <span className="text-xs font-bold text-slate-900">{p.label}</span>
                           <span
                             className="text-[10px] px-1.5 py-0.5 rounded font-bold"
                             style={{ color: sev.text, background: `${sev.text}15` }}
@@ -842,7 +842,7 @@ function ConversionAnalyzer() {
                             {sevLabel}
                           </span>
                         </div>
-                        <div className="text-xs text-[#94A3B8]">{p.value} · {p.impact}</div>
+                        <div className="text-xs text-slate-600 font-normal">{p.value} · {p.impact}</div>
                       </div>
                     </div>
                   )
@@ -852,17 +852,16 @@ function ConversionAnalyzer() {
 
             {/* Improvements */}
             <div
-              className="p-4 rounded-xl border"
-              style={{ background: 'rgba(16,185,129,0.06)', borderColor: 'rgba(16,185,129,0.2)' }}
+              className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60"
             >
-              <div className="text-xs font-semibold text-[#10B981] uppercase tracking-wider mb-3">
+              <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3">
                 {dict.analyzer.improvementsLabel}
               </div>
               <div className="space-y-2">
                 {result.improvements.map((imp, i) => (
                   <div key={i} className="flex items-center justify-between">
-                    <span className="text-xs text-[#94A3B8]">{imp.label}</span>
-                    <span className="text-xs font-bold text-[#10B981]">{imp.value}</span>
+                    <span className="text-xs text-slate-700 font-medium">{imp.label}</span>
+                    <span className="text-xs font-bold text-emerald-700">{imp.value}</span>
                   </div>
                 ))}
               </div>
@@ -962,17 +961,17 @@ export default function WebGelistirmePage() {
       </section>
 
       {/* ─── SIMULATION ─── */}
-      <section id="simulation" className="section relative overflow-hidden">
-        <div className="absolute inset-0 mesh-bg pointer-events-none" />
+      <section id="simulation" className="section relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">🔬 {language === 'tr' ? 'Canlı Simülasyon' : language === 'en' ? 'Live Simulation' : 'Live-Simulation'}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {language === 'tr' ? 'Sitenizin ' : language === 'en' ? 'See the ' : 'Erkennen Sie die '}
-              <span className="gradient-text">{language === 'tr' ? 'Gerçek Maliyetini' : language === 'en' ? 'Real Cost' : 'echten Kosten'}</span>
-              {language === 'tr' ? ' Görün' : language === 'en' ? ' of Your Site' : ' Ihrer Website'}
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{language === 'tr' ? 'Sitenizin ' : language === 'en' ? 'See the ' : 'Erkennen Sie die '}</span>
+              <span className="text-blue-600 font-extrabold">{language === 'tr' ? 'Gerçek Maliyetini' : language === 'en' ? 'Real Cost' : 'echten Kosten'}</span>
+              <span className="text-slate-900 font-extrabold">{language === 'tr' ? ' Görün' : language === 'en' ? ' of Your Site' : ' Ihrer Website'}</span>
             </h2>
-            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">
               {dict.analyzer.subtitle}
             </p>
           </div>
@@ -982,11 +981,11 @@ export default function WebGelistirmePage() {
 
             {/* Right: What we deliver */}
             <div className="space-y-4">
-              <div className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">{dict.whyUs.title}</div>
+              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">{dict.whyUs.title}</div>
               {servicesList.map((item, i) => {
                 const Icon = item.icon
                 return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:border-white/10 transition-all">
+                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ background: `${item.color}15` }}
@@ -994,8 +993,8 @@ export default function WebGelistirmePage() {
                       <Icon className="w-5 h-5" style={{ color: item.color }} />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white mb-0.5">{item.title}</div>
-                      <div className="text-xs text-[#64748B] leading-relaxed">{item.desc}</div>
+                      <div className="text-sm font-bold text-slate-900 mb-0.5">{item.title}</div>
+                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{item.desc}</div>
                     </div>
                   </div>
                 )
@@ -1006,22 +1005,21 @@ export default function WebGelistirmePage() {
       </section>
 
       {/* ─── PORTFOLIO ─── */}
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{dict.portfolio.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {dict.portfolio.title}<span className="gradient-text">{dict.portfolio.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{dict.portfolio.title}</span> <span className="text-blue-600 font-extrabold">{dict.portfolio.titleHighlight}</span>
             </h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {portfolioItems.map((item, i) => (
-              <GlowCard key={i} glowColor="blue" className="p-6 flex flex-col">
+              <GlowCard key={i} glowColor="blue" className="p-6 flex flex-col bg-white border border-slate-200/90 shadow-sm">
                 <div className="flex items-start justify-between mb-4">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold text-white"
-                    style={{ background: `${item.color}20`, border: `1px solid ${item.color}30` }}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold text-blue-600 bg-blue-50 border border-blue-200"
                   >
                     {item.name.charAt(0)}
                   </div>
@@ -1032,12 +1030,12 @@ export default function WebGelistirmePage() {
                     {item.metric}
                   </span>
                 </div>
-                <div className="text-sm font-semibold text-white mb-1">{item.name}</div>
-                <div className="text-xs text-[#64748B] mb-3">{item.category}</div>
-                <p className="text-xs text-[#94A3B8] leading-relaxed mb-4 flex-1">{item.description}</p>
+                <div className="text-base font-bold text-slate-900 mb-1">{item.name}</div>
+                <div className="text-xs text-slate-500 font-medium mb-3">{item.category}</div>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4 flex-1 font-normal">{item.description}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {item.tech.map(t => (
-                    <span key={t} className="text-[10px] px-2 py-1 rounded bg-white/5 text-[#64748B] font-mono">
+                    <span key={t} className="text-[10px] px-2 py-1 rounded bg-slate-100 text-slate-700 font-mono font-medium">
                       {t}
                     </span>
                   ))}
@@ -1049,12 +1047,12 @@ export default function WebGelistirmePage() {
       </section>
 
       {/* ─── VALUE MATRIX ─── */}
-      <section className="section">
+      <section className="section bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">ROI {language === 'tr' ? 'Analizi' : language === 'en' ? 'Analysis' : 'Analyse'}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {dict.roi.title}<span className="gradient-text">{dict.roi.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4 font-extrabold">
+              <span className="text-slate-900 font-extrabold">{dict.roi.title}</span> <span className="text-blue-600 font-extrabold">{dict.roi.titleHighlight}</span>
             </h2>
           </div>
           <ValueMatrix
@@ -1069,12 +1067,12 @@ export default function WebGelistirmePage() {
       </section>
 
       {/* ─── COMPARISON ─── */}
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{dict.comparison.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {dict.comparison.title}<span className="gradient-text">{dict.comparison.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4 font-extrabold">
+              <span className="text-slate-900 font-extrabold">{dict.comparison.title}</span> <span className="text-blue-600 font-extrabold">{dict.comparison.titleHighlight}</span>
             </h2>
           </div>
           <ComparisonTable

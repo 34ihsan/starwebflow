@@ -31,9 +31,9 @@ export default function ServiceLayout({
   caseStudy,
 }: ServiceLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#0A0A0F]">
+    <div className="min-h-screen bg-white text-slate-900">
       <Navbar />
-      <main>{children}</main>
+      <main className="bg-white text-slate-900">{children}</main>
       <Footer />
       <AIChatBot />
       <ExpertTerminal logs={terminalLogs} />

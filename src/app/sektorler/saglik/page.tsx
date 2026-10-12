@@ -61,7 +61,7 @@ const faqSchema = {
 
 export default function SaglikSektorPage() {
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white">
+    <div className="min-h-screen bg-[#FAFBFD] text-slate-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sectorSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
@@ -69,67 +69,67 @@ export default function SaglikSektorPage() {
       <main className="pt-28 pb-16">
         {/* HERO */}
         <section className="py-16 px-4 max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-xs font-semibold text-rose-400 mb-6">
-            <HeartPulse className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 mb-6">
+            <HeartPulse className="w-4 h-4 text-rose-600" />
             Sağlık Turizmi & Klinik Ekosistemi
           </div>
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 text-slate-900">
             Uluslararası Hastalar İçin <br />
-            <span className="bg-gradient-to-r from-rose-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="text-rose-600">
               7/24 AI Hasta Kabul & Randevu Otomasyonu
             </span>
           </h1>
-          <p className="max-w-3xl mx-auto text-[#94A3B8] text-lg sm:text-xl leading-relaxed mb-8">
+          <p className="max-w-3xl mx-auto text-slate-600 text-lg sm:text-xl leading-relaxed mb-8 font-normal">
             Gece saat farkı nedeniyle kaçan yurt dışı hastalarına son verin. Almanca, İngilizce ve Arapça bilen AI Ajanı ile hastalarınızı anında karşılayın, ön bilgi toplayın ve doğrudan CRM takviminize randevu düşürün.
           </p>
           {/* Ampirik Kanıt */}
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-sm text-emerald-300 mb-12">
-            <TrendingUp className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span><strong>Ampirik Kanıt:</strong> DentalPro Kliniği — Ayda 312 otomatik randevu, +€28.000 ek gelir, %0 kaçan hasta sorusu</span>
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-sm text-slate-800 mb-12 shadow-2xs">
+            <TrendingUp className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span><strong className="text-emerald-800">Ampirik Kanıt:</strong> DentalPro Kliniği — Ayda 312 otomatik randevu, +€28.000 ek gelir, %0 kaçan hasta sorusu</span>
           </div>
         </section>
 
         {/* FEATURES GRID */}
         <section className="py-12 max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <Bot className="w-10 h-10 text-rose-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Çok Dilli AI Hasta Karşılama</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <Bot className="w-10 h-10 text-rose-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Çok Dilli AI Hasta Karşılama</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               Almanca, İngilizce, Fransızca ve Arapça dillerinde 7/24 hastaları karşılar. Tedavi paketleri, fiyatlar, klinik hakkında soruları anında yanıtlar. Ortalama yanıt süresi: 2 saniye.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <Clock className="w-10 h-10 text-purple-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Otomatik Randevu & CRM</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <Clock className="w-10 h-10 text-purple-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Otomatik Randevu & CRM</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               Hasta taleplerini ve tıbbi fotoğraflarını güvenli şekilde toplayıp doktor takviminizle eşzamanlar. Pipedrive, HubSpot veya özel CRM entegrasyonu dahil.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <ShieldCheck className="w-10 h-10 text-emerald-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">KVKK & HIPAA Uyumlu Güvenlik</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <ShieldCheck className="w-10 h-10 text-emerald-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">KVKK & HIPAA Uyumlu Güvenlik</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               AES-256 şifreli veri iletimi, AWS Frankfurt AB bölgesi sunucu altyapısı, otomatik veri imha motoru. Hasta mahremiyeti standartlarına tam uyumlu.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <Globe className="w-10 h-10 text-blue-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Uluslararası SEO & GEO Uyumlu Site</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <Globe className="w-10 h-10 text-blue-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Uluslararası SEO & GEO Uyumlu Site</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               Sub-second LCP (&lt;0.8s) garantili Next.js web sitesi. &quot;Türkiye diş implantı fiyatları&quot; gibi arama sorgularında Google ve ChatGPT arama sonuçlarında öne çıkar.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <CheckCircle2 className="w-10 h-10 text-yellow-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Önce/Sonra Galeri & Güven Bölümleri</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <CheckCircle2 className="w-10 h-10 text-amber-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Önce/Sonra Galeri & Güven Bölümleri</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               Uluslararası hastalar klinikleri seçerken önceki vakalara ve gerçek yorumlara bakar. Dönüşüm odaklı galeri, video testimonyal ve Google Review entegrasyonu.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <TrendingUp className="w-10 h-10 text-rose-400 mb-4" />
-            <h2 className="text-xl font-bold text-white mb-2">Performans Reklamcılığı</h2>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all">
+            <TrendingUp className="w-10 h-10 text-rose-600 mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Performans Reklamcılığı</h2>
+            <p className="text-slate-600 text-sm leading-relaxed font-normal">
               Google Ads, Meta ve YouTube&apos;da sağlık turizmi odaklı kampanya yönetimi. Hedef ülke (DE, CH, AT, UK) bazlı segmentasyon ve A/B test otomasyonu.
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function SaglikSektorPage() {
 
         {/* SSS — RAG için kritik "long-tail" içerik */}
         <section className="py-12 max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-white mb-8 text-center">Sık Sorulan Sorular</h2>
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-8 text-center">Sık Sorulan Sorular</h2>
           <div className="space-y-6">
             {[
               {
@@ -153,9 +153,9 @@ export default function SaglikSektorPage() {
                 a: 'AES-256 şifreli veri iletimi, AWS Frankfurt (AB bölgesi) sunucu altyapısı ve otomatik veri imha motoruyla tam uyumlu çalışır. Hasta belgeleri şifreli, yalnızca yetkili hesaplara erişilebilir.'
               }
             ].map((item, i) => (
-              <div key={i} className="p-6 rounded-2xl border border-white/10 bg-[#0E0E17]">
-                <h3 className="font-bold text-white mb-2">{item.q}</h3>
-                <p className="text-[#94A3B8] text-sm leading-relaxed">{item.a}</p>
+              <div key={i} className="p-6 rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+                <h3 className="font-bold text-slate-900 mb-2 text-lg">{item.q}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed font-normal">{item.a}</p>
               </div>
             ))}
           </div>

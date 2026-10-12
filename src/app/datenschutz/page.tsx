@@ -18,7 +18,7 @@ export default function DatenschutzPage() {
           <p>
             Bu web sitesi, Avrupa Birliği Genel Veri Koruma Yönetmeliği (GDPR/DSGVO) ve Türkiye Cumhuriyeti 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ile uyumlu olarak veri işleme faaliyetleri gerçekleştirmektedir.
           </p>
-          <p className="font-bold mt-4 text-white">Veri Sorumlusu (Verantwortlicher):</p>
+          <p className="font-bold mt-4 text-slate-900">Veri Sorumlusu (Verantwortlicher):</p>
           <p>
             StarWebFlow Dijital Ajans<br />
             E-posta: privacy@starwebflow.com<br />
@@ -34,7 +34,7 @@ export default function DatenschutzPage() {
           <p>
             Diese Website verarbeitet Daten im Einklang mit der Datenschutz-Grundverordnung (DSGVO / GDPR) der Europäischen Union und dem türkischen Datenschutzgesetz (KVKK).
           </p>
-          <p className="font-bold mt-4 text-white">Verantwortlicher im Sinne der DSGVO:</p>
+          <p className="font-bold mt-4 text-slate-900">Verantwortlicher im Sinne der DSGVO:</p>
           <p>
             StarWebFlow Digital Agent<br />
             E-Mail: privacy@starwebflow.com<br />
@@ -50,7 +50,7 @@ export default function DatenschutzPage() {
           <p>
             This website processes data in accordance with the European Union General Data Protection Regulation (GDPR) and the Law on Protection of Personal Data of the Republic of Turkey No. 6698 (KVKK).
           </p>
-          <p className="font-bold mt-4 text-white">Data Controller:</p>
+          <p className="font-bold mt-4 text-slate-900">Data Controller:</p>
           <p>
             StarWebFlow Digital Agent<br />
             Email: privacy@starwebflow.com<br />

@@ -223,20 +223,20 @@ export default function AIChatBot() {
         {/* Teaser bubble */}
         {!open && pulseCount < 2 && (
           <div
-            className="bg-[#0F0F1A] border border-[#4F8EF7]/30 rounded-2xl px-4 py-2.5 shadow-lg max-w-48 text-right"
+            className="bg-white border border-purple-200 rounded-2xl px-4 py-2.5 shadow-xl max-w-48 text-right"
             style={{ animation: 'fadeInUp 0.4s ease both' }}
           >
-            <p className="text-xs text-white font-medium">{config.teaserTitle}</p>
-            <p className="text-xs text-[#94A3B8] mt-0.5">{config.teaserSub}</p>
+            <p className="text-xs text-slate-900 font-bold">{config.teaserTitle}</p>
+            <p className="text-xs text-slate-600 mt-0.5">{config.teaserSub}</p>
           </div>
         )}
 
         <button
           onClick={() => setOpen((o) => !o)}
-          className="relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+          className="relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
           style={{
-            background: 'linear-gradient(135deg, #4F8EF7 0%, #8B5CF6 100%)',
-            boxShadow: '0 0 30px rgba(79,142,247,0.5), 0 8px 25px rgba(0,0,0,0.4)',
+            background: 'linear-gradient(135deg, #7C3AED 0%, #4F8EF7 100%)',
+            boxShadow: '0 8px 30px rgba(124,58,237,0.35)',
           }}
           aria-label={config.ariaLabel}
           id="ai-chat-bot-toggle"
@@ -247,7 +247,7 @@ export default function AIChatBot() {
             <>
               <Bot className="w-6 h-6 text-white" />
               {/* Pulse ring */}
-              <span className="absolute inset-0 rounded-2xl bg-[#4F8EF7]/30 animate-ping" />
+              <span className="absolute inset-0 rounded-2xl bg-purple-400/30 animate-ping" />
             </>
           )}
         </button>
@@ -256,46 +256,43 @@ export default function AIChatBot() {
       {/* Chat Window */}
       {open && (
         <div
-          className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 rounded-2xl overflow-hidden border border-white/[0.08] shadow-2xl"
+          className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 rounded-2xl overflow-hidden border border-slate-200/90 shadow-2xl bg-white"
           style={{
-            background: '#0F0F1A',
-            boxShadow: '0 0 60px rgba(79,142,247,0.15), 0 25px 50px rgba(0,0,0,0.6)',
+            boxShadow: '0 20px 60px rgba(15,23,42,0.15)',
             animation: 'scaleIn 0.25s ease both',
             transformOrigin: 'bottom right',
           }}
         >
           {/* Header */}
           <div
-            className="px-4 py-3.5 flex items-center gap-3 border-b border-white/[0.06]"
-            style={{ background: 'linear-gradient(135deg, rgba(79,142,247,0.12) 0%, rgba(139,92,246,0.08) 100%)' }}
+            className="px-4 py-3.5 flex items-center gap-3 border-b border-slate-200 bg-slate-50/90"
           >
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #4F8EF7, #8B5CF6)' }}
+              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-sm"
             >
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white">StarFlow AI</span>
-                <Sparkles className="w-3 h-3 text-[#4F8EF7]" />
+                <span className="text-sm font-bold text-slate-900">StarFlow AI</span>
+                <Sparkles className="w-3 h-3 text-purple-600" />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                <span className="text-xs text-[#64748B]">{config.onlineStatus}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs text-slate-500 font-medium">{config.onlineStatus}</span>
               </div>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="h-72 overflow-y-auto p-4 space-y-3 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+          <div className="h-72 overflow-y-auto p-4 space-y-3 scrollbar-none bg-slate-50/50" style={{ scrollbarWidth: 'none' }}>
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-line shadow-2xs ${
                     msg.role === 'user'
-                      ? 'bg-[#4F8EF7] text-white rounded-tr-sm'
-                      : 'bg-[#1A1A2E] text-[#E2E8F0] rounded-tl-sm border border-white/[0.06]'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-tr-sm font-medium'
+                      : 'bg-white text-slate-800 rounded-tl-sm border border-slate-200'
                   }`}
                   style={{ animation: 'fadeInUp 0.3s ease both' }}
                 >
@@ -307,7 +304,7 @@ export default function AIChatBot() {
                         <button
                           key={opt}
                           onClick={() => handleOption(opt)}
-                          className="text-left text-xs px-3 py-2 rounded-xl bg-[#4F8EF7]/10 border border-[#4F8EF7]/25 text-[#93BBFD] hover:bg-[#4F8EF7]/20 hover:text-white transition-all duration-200 font-medium"
+                          className="text-left text-xs px-3 py-2 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100/70 hover:text-purple-900 transition-all duration-200 font-semibold cursor-pointer shadow-2xs"
                         >
                           {opt}
                         </button>
@@ -321,12 +318,12 @@ export default function AIChatBot() {
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-[#1A1A2E] border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3">
+                <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-2xs">
                   <div className="flex gap-1">
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-[#4F8EF7]"
+                        className="w-1.5 h-1.5 rounded-full bg-purple-600"
                         style={{ animation: `orbPulse 1s ease-in-out ${i * 0.15}s infinite` }}
                       />
                     ))}
@@ -338,26 +335,25 @@ export default function AIChatBot() {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-white/[0.06]">
-            <div className="flex gap-2 bg-[#1A1A2E] rounded-xl border border-white/[0.06] p-2">
+          <div className="p-3 border-t border-slate-200 bg-white">
+            <div className="flex gap-2 bg-slate-50 rounded-xl border border-slate-300 p-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={config.placeholder}
-                className="flex-1 bg-transparent text-sm text-white placeholder-[#475569] outline-none px-1"
+                className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none px-1"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-all duration-200"
-                style={{ background: 'linear-gradient(135deg, #4F8EF7, #8B5CF6)' }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-40 transition-all duration-200 bg-gradient-to-r from-purple-600 to-indigo-600 cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
-            <p className="text-center text-[10px] text-[#475569] mt-2">{config.footerNote}</p>
+            <p className="text-center text-[10px] text-slate-500 mt-2 font-medium">{config.footerNote}</p>
           </div>
         </div>
       )}

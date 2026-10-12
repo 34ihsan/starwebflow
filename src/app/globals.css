@@ -6,6 +6,32 @@
 
 /* ─── Design Tokens ─── */
 :root {
+  /* Light Mode — Ultra Minimalist White (Apple Aesthetic) */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+
+  --accent-blue: #2563EB;
+  --accent-blue-dark: #1D4ED8;
+  --accent-cyan: #0284C7;
+  --accent-purple: #7C3AED;
+  --accent-emerald: #059669;
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+
+  --border-subtle: #E2E8F0;
+  --border-glow: rgba(37, 99, 235, 0.2);
+
+  --glow-blue: 0 4px 20px rgba(37, 99, 235, 0.12);
+  --glow-purple: 0 4px 20px rgba(124, 58, 237, 0.12);
+  --glow-cyan: 0 4px 20px rgba(2, 132, 199, 0.12);
+}
+
+.dark {
+  /* Dark Mode — High-end Sleek Cyberpunk */
   --bg-primary: #0A0A0F;
   --bg-secondary: #0F0F1A;
   --bg-card: #12121F;
@@ -166,6 +192,11 @@ select option, select optgroup {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideRight {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
 /* Scrollbar hide utility */
 .scrollbar-none {
   scrollbar-width: none;
@@ -249,6 +280,13 @@ select option, select optgroup {
 /* Gradient mesh background */
 .mesh-bg {
   background:
+    radial-gradient(ellipse at 20% 50%, rgba(37, 99, 235, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(2, 132, 199, 0.03) 0%, transparent 50%),
+    var(--bg-primary);
+}
+.dark .mesh-bg {
+  background:
     radial-gradient(ellipse at 20% 50%, rgba(79, 142, 247, 0.08) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.07) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
@@ -296,6 +334,12 @@ select option, select optgroup {
 
 /* Grid pattern */
 .grid-pattern {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.dark .grid-pattern {
   background-image:
     linear-gradient(rgba(79, 142, 247, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(79, 142, 247, 0.05) 1px, transparent 1px);
@@ -471,11 +515,22 @@ select option, select optgroup {
   border-left: 2px solid transparent;
 }
 .dashboard-nav-item:hover {
+  background: rgba(37, 99, 235, 0.07);
+  border-left-color: rgba(37, 99, 235, 0.4);
+  color: #0F172A;
+}
+.dark .dashboard-nav-item:hover {
   background: rgba(79, 142, 247, 0.07);
   border-left-color: rgba(79, 142, 247, 0.4);
   color: #F8FAFC;
 }
 .dashboard-nav-active {
+  background: rgba(37, 99, 235, 0.08);
+  border-left: 2px solid var(--accent-blue);
+  color: #0F172A;
+  box-shadow: inset 4px 0 12px rgba(37, 99, 235, 0.05);
+}
+.dark .dashboard-nav-active {
   background: rgba(79, 142, 247, 0.12);
   border-left: 2px solid var(--accent-blue);
   color: #F8FAFC;
@@ -484,16 +539,26 @@ select option, select optgroup {
 
 /* Dashboard card */
 .dashboard-card {
-  background: rgba(15, 15, 26, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(20px);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
+.dark .dashboard-card {
+  background: rgba(15, 15, 26, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
 .dashboard-card:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+.dark .dashboard-card:hover {
   border-color: rgba(79, 142, 247, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(79, 142, 247, 0.05);
-  transform: translateY(-2px);
 }
 
 /* Dashboard metric counter animation */

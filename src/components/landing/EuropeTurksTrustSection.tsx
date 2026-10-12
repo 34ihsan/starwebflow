@@ -149,24 +149,24 @@ export default function EuropeTurksTrustSection() {
   }, []);
 
   return (
-    <section className="section relative overflow-hidden bg-[#07070D]">
-      {/* Glow Effects */}
+    <section className="py-24 relative overflow-hidden bg-slate-50/70 border-y border-slate-200/80">
+      {/* Subtle Glow Effects */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/2 left-0 w-96 h-96 rounded-full bg-[#4F8EF7]/5 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-[#8B5CF6]/5 blur-3xl" />
+        <div className="absolute top-1/2 left-0 w-96 h-96 rounded-full bg-blue-100/50 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-purple-100/50 blur-3xl" />
       </div>
 
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#4F8EF7]/10 text-[#4F8EF7] border border-[#4F8EF7]/20 uppercase tracking-widest mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-widest mb-4 shadow-2xs">
             {currentContent.badge}
           </div>
-          <h2 className="heading-lg text-white mb-4">
-            {currentContent.titleMain}<span className="gradient-text">{currentContent.titleHighlight}</span>{currentContent.titleEnd}
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight font-['Outfit']">
+            {currentContent.titleMain}<span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">{currentContent.titleHighlight}</span>{currentContent.titleEnd}
           </h2>
-          <p className="text-[#94A3B8] text-base sm:text-lg leading-relaxed">
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed font-normal">
             {currentContent.description}
           </p>
         </div>
@@ -178,33 +178,33 @@ export default function EuropeTurksTrustSection() {
             return (
               <div
                 key={card.title}
-                className={`dashboard-card p-6 flex flex-col justify-between transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                className={`bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md flex flex-col justify-between transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
                 style={{ transitionDelay: `${i * 120}ms` }}
               >
                 <div>
                   <div className="flex justify-between items-start mb-5">
                     <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-2xs"
                       style={{ background: `${card.color}15`, border: `1px solid ${card.color}30` }}
                     >
                       <Icon className="w-6 h-6" style={{ color: card.color }} />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border" style={{ color: card.color, borderColor: `${card.color}30`, background: `${card.color}10` }}>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border shadow-2xs" style={{ color: card.color, borderColor: `${card.color}30`, background: `${card.color}10` }}>
                       {card.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-white mb-2 leading-snug">
+                  <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug">
                     {card.title}
                   </h3>
 
-                  <p className="text-xs text-[#94A3B8] leading-relaxed mb-4">
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4 font-normal">
                     {card.desc}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-white/[0.06] flex items-center gap-2 text-xs font-semibold text-[#10B981]">
-                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                <div className="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-bold text-emerald-700">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
                   <span>DSGVO & EU Certified</span>
                 </div>
               </div>
@@ -214,13 +214,13 @@ export default function EuropeTurksTrustSection() {
 
         {/* Call to action */}
         <div className={`mt-14 text-center transition-all duration-700 delay-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          <div className="glass inline-flex flex-col sm:flex-row items-center gap-4 p-4 sm:px-8 rounded-3xl border-white/[0.08]">
-            <p className="text-sm text-slate-300 font-medium text-center sm:text-left">
-              🇩🇪 <strong className="text-white">{currentContent.ctaText}</strong> {currentContent.ctaSub}
+          <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-4 sm:px-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
+            <p className="text-sm text-slate-700 font-medium text-center sm:text-left">
+              🇩🇪 <strong className="text-slate-900 font-bold">{currentContent.ctaText}</strong> {currentContent.ctaSub}
             </p>
             <Link
               href="#contact"
-              className="px-6 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6] hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap shadow-[0_0_20px_rgba(79,142,247,0.4)]"
+              className="px-6 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 transition-all flex items-center gap-2 whitespace-nowrap shadow-md shadow-blue-500/20"
             >
               <span>{currentContent.ctaButton}</span>
               <ArrowRight className="w-3.5 h-3.5" />

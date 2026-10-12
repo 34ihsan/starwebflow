@@ -214,12 +214,12 @@ function TestimonialCard({ item, delay }: { item: typeof testimonials.tr[0]; del
       className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <div className="relative h-full rounded-2xl border border-white/[0.06] bg-[#0F0F1A]/80 p-6 hover:border-white/10 hover:bg-[#0F0F1A] transition-all duration-300 flex flex-col">
+      <div className="relative h-full rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05),0_8px_24px_-6px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-blue-400/50 transition-all duration-300 flex flex-col">
         {/* Top glow line */}
-        <div className="absolute inset-x-0 top-0 h-px rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${item.color}50, transparent)` }} />
+        <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl" style={{ background: `linear-gradient(90deg, transparent, ${item.color}, transparent)` }} />
 
         {/* Quote icon */}
-        <Quote className="w-8 h-8 mb-4 opacity-20" style={{ color: item.color }} />
+        <Quote className="w-8 h-8 mb-4 opacity-25" style={{ color: item.color }} />
 
         {/* Stars */}
         <div className="flex gap-1 mb-4">
@@ -229,12 +229,12 @@ function TestimonialCard({ item, delay }: { item: typeof testimonials.tr[0]; del
         </div>
 
         {/* Text */}
-        <p className="text-[#CBD5E1] text-sm leading-relaxed flex-1 mb-6">&ldquo;{item.text}&rdquo;</p>
+        <p className="text-slate-700 text-sm leading-relaxed flex-1 mb-6 font-normal">&ldquo;{item.text}&rdquo;</p>
 
         {/* Metric badge */}
         <div
-          className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold mb-5 w-fit"
-          style={{ background: `${item.color}15`, color: item.color, border: `1px solid ${item.color}30` }}
+          className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold mb-5 w-fit shadow-xs"
+          style={{ background: `${item.color}15`, color: item.color, border: `1px solid ${item.color}35` }}
         >
           {item.metric}
         </div>
@@ -242,18 +242,18 @@ function TestimonialCard({ item, delay }: { item: typeof testimonials.tr[0]; del
         {/* Author */}
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 shadow-xs"
             style={{ background: `${item.color}20`, color: item.color, border: `1.5px solid ${item.color}40` }}
           >
             {item.avatar}
           </div>
           <div>
-            <p className="text-white text-sm font-semibold">{item.name}</p>
-            <p className="text-[#64748B] text-xs">{item.role}</p>
+            <p className="text-slate-900 text-sm font-bold">{item.name}</p>
+            <p className="text-slate-500 text-xs font-medium">{item.role}</p>
           </div>
           <span
-            className="ml-auto text-[10px] px-2 py-1 rounded-full font-medium"
-            style={{ background: `${item.color}10`, color: item.color }}
+            className="ml-auto text-[10px] px-2.5 py-1 rounded-full font-bold shadow-xs"
+            style={{ background: `${item.color}15`, color: item.color }}
           >
             {item.industry}
           </span>
@@ -289,11 +289,11 @@ export default function TestimonialsSection() {
   }, [])
 
   return (
-    <section id="testimonials" className="section relative overflow-hidden">
+    <section id="testimonials" className="section relative overflow-hidden bg-white">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 left-1/4 w-96 h-96 rounded-full bg-[#10B981]/4 blur-3xl" />
-        <div className="absolute -bottom-40 right-1/4 w-96 h-96 rounded-full bg-[#4F8EF7]/4 blur-3xl" />
+        <div className="absolute -top-40 left-1/4 w-96 h-96 rounded-full bg-emerald-100/30 blur-3xl" />
+        <div className="absolute -bottom-40 right-1/4 w-96 h-96 rounded-full bg-blue-100/30 blur-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -303,10 +303,10 @@ export default function TestimonialsSection() {
           className={`text-center mb-16 transition-all duration-700 ${headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <span className="tag-badge mb-4">{t.badge}</span>
-          <h2 className="heading-lg text-white mt-4 mb-4">
-            {t.h2}<span className="gradient-text">{t.h2g}</span>
+          <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+            {t.h2}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold">{t.h2g}</span>
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">{t.sub}</p>
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">{t.sub}</p>
         </div>
 
         {/* Grid */}
@@ -323,8 +323,8 @@ export default function TestimonialsSection() {
               <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
             ))}
           </div>
-          <span className="text-white font-black text-3xl font-['Outfit']">4.9/5</span>
-          <span className="text-[#64748B] text-sm">
+          <span className="text-slate-900 font-black text-3xl font-['Outfit']">4.9/5</span>
+          <span className="text-slate-600 text-sm font-semibold">
             {language === 'tr' ? '150+ müşteri değerlendirmesine dayalı' : language === 'de' ? 'Basierend auf 150+ Kundenbewertungen' : 'Based on 150+ client reviews'}
           </span>
         </div>

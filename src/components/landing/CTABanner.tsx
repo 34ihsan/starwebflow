@@ -310,26 +310,16 @@ export default function CTABanner() {
 
 
   return (
-    <section id="contact" className="py-24 relative overflow-hidden border-t border-white/[0.04] bg-[#0A0A0F]">
+    <section id="contact" className="py-24 relative overflow-hidden border-t border-slate-200/80 bg-slate-50/70">
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at 50% 50%, rgba(79,142,247,0.1) 0%, rgba(139,92,246,0.05) 50%, transparent 80%)',
-        }}
-      />
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
+          background: 'radial-gradient(ellipse at 50% 50%, rgba(79,142,247,0.06) 0%, rgba(139,92,246,0.03) 50%, transparent 80%)',
         }}
       />
 
-      <div className="absolute -top-40 left-1/4 w-[500px] h-[500px] rounded-full bg-[#4F8EF7]/5 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-[#8B5CF6]/5 blur-3xl pointer-events-none" />
+      <div className="absolute -top-40 left-1/4 w-[500px] h-[500px] rounded-full bg-blue-100/40 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 right-1/4 w-[500px] h-[500px] rounded-full bg-purple-100/40 blur-3xl pointer-events-none" />
 
       <div
         ref={sectionRef}
@@ -340,40 +330,40 @@ export default function CTABanner() {
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
           
           <div className="lg:col-span-5 space-y-6">
-            <span className="tag-badge">
-              <Sparkles className="w-3 h-3" />
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-widest shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
               {c.badge}
             </span>
-            <h2 className="heading-lg text-white mt-4 tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mt-4 tracking-tight font-['Outfit']">
               {c.title1} <br />
-              <span className="gradient-text">{c.title2}</span>
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">{c.title2}</span>
             </h2>
-            <p className="text-[#94A3B8] text-base leading-relaxed">
+            <p className="text-slate-600 text-base leading-relaxed font-normal">
               {c.desc}
             </p>
 
-            <div className="pt-6 border-t border-white/[0.06] space-y-4">
-              <div className="flex items-center gap-3 text-sm text-[#E2E8F0]">
-                <div className="w-8 h-8 rounded-lg bg-[#4F8EF7]/15 flex items-center justify-center text-[#4F8EF7]">
+            <div className="pt-6 border-t border-slate-200 space-y-4">
+              <div className="flex items-center gap-3 text-sm text-slate-700 font-semibold">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shadow-2xs">
                   <CalendarDays className="w-4 h-4" />
                 </div>
                 <span>{c.point1}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#E2E8F0]">
-                <div className="w-8 h-8 rounded-lg bg-[#10B981]/15 flex items-center justify-center text-[#10B981]">
+              <div className="flex items-center gap-3 text-sm text-slate-700 font-semibold">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-2xs">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <span>{c.point2}</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#E2E8F0]">
-                <div className="w-8 h-8 rounded-lg bg-[#8B5CF6]/15 flex items-center justify-center text-[#8B5CF6]">
+              <div className="flex items-center gap-3 text-sm text-slate-700 font-semibold">
+                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 shadow-2xs">
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <span>{c.point3}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-6 text-xs text-[#64748B] font-medium">
+            <div className="grid grid-cols-2 gap-3 pt-6 text-xs text-slate-600 font-semibold">
               <div>{c.trust1}</div>
               <div>{c.trust2}</div>
               <div>{c.trust3}</div>
@@ -382,63 +372,63 @@ export default function CTABanner() {
           </div>
 
           <div className="lg:col-span-7">
-            <GlowCard glowColor="purple" className="p-6 sm:p-8">
+            <GlowCard glowColor="purple" className="p-6 sm:p-8 bg-white border border-slate-200 shadow-xl rounded-2xl">
               {submitted ? (
                 <div className="text-center py-12 space-y-6" style={{ animation: 'scaleIn 0.4s ease both' }}>
-                  <div className="inline-flex w-16 h-16 rounded-full bg-[#10B981]/25 items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-                    <Check className="w-8 h-8 text-[#10B981]" />
+                  <div className="inline-flex w-16 h-16 rounded-full bg-emerald-100 items-center justify-center shadow-md">
+                    <Check className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <h3 className="text-2xl font-black text-white font-['Outfit']">{c.successTitle}</h3>
-                  <p className="text-[#94A3B8] max-w-md mx-auto text-sm leading-relaxed">
-                    {c.successDesc1} <strong className="text-white">{name}</strong>, {c.successDesc2}
+                  <h3 className="text-2xl font-black text-slate-900 font-['Outfit']">{c.successTitle}</h3>
+                  <p className="text-slate-600 max-w-md mx-auto text-sm leading-relaxed">
+                    {c.successDesc1} <strong className="text-slate-900 font-bold">{name}</strong>, {c.successDesc2}
                   </p>
                   
                   {budget !== 'low' ? (
-                    <div className="space-y-4 pt-6 border-t border-white/[0.06] text-center" style={{ animation: 'fadeIn 0.5s ease both' }}>
-                      <p className="text-xs font-bold text-[#4F8EF7] uppercase tracking-wider flex items-center justify-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#FBBF24]" />
+                    <div className="space-y-4 pt-6 border-t border-slate-200 text-center" style={{ animation: 'fadeIn 0.5s ease both' }}>
+                      <p className="text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center justify-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                         {c.priorityTitle}
                       </p>
-                      <p className="text-[11px] text-[#94A3B8] leading-relaxed max-w-md mx-auto">
+                      <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto font-medium">
                         {c.priorityDesc}
                       </p>
-                      <div className="w-full h-[360px] rounded-xl overflow-hidden border border-white/[0.08] bg-[#05050A]">
+                      <div className="w-full h-[360px] rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
                         <iframe
                           src={`https://calendly.com/starwebflow/30min?embed_domain=localhost&embed_type=Inline&locale=${language}`}
                           width="100%"
                           height="100%"
                           frameBorder="0"
                           title="StarWebFlow Toplantı Planlama"
-                          className="w-full h-full opacity-90 hover:opacity-100 transition-opacity"
+                          className="w-full h-full"
                         />
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs text-[#64748B]">
+                    <p className="text-xs text-slate-500 font-medium">
                       {c.fallbackDesc}
                     </p>
                   )}
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="border-b border-white/[0.06] pb-4 mb-4">
-                    <h3 className="text-lg font-bold text-white font-['Outfit']">{c.formTitle}</h3>
-                    <p className="text-xs text-[#64748B] mt-1">{c.formSubtitle}</p>
+                  <div className="border-b border-slate-100 pb-4 mb-4">
+                    <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">{c.formTitle}</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-1">{c.formSubtitle}</p>
                   </div>
 
                   {error && (
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold">
                       {error}
                     </div>
                   )}
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                         {c.labelName}
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-3.5 text-[#475569]">
+                        <span className="absolute left-3 top-3.5 text-slate-400">
                           <User className="w-4 h-4" />
                         </span>
                         <input
@@ -448,17 +438,17 @@ export default function CTABanner() {
                           value={name}
                           onChange={e => setName(e.target.value)}
                           placeholder={c.placeholderName}
-                          className="w-full bg-[#0A0A0F]/60 border border-white/[0.06] rounded-xl py-3 pl-10 pr-4 text-xs text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/50 transition-all"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs transition-all"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                         {c.labelEmail}
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-3.5 text-[#475569]">
+                        <span className="absolute left-3 top-3.5 text-slate-400">
                           <Mail className="w-4 h-4" />
                         </span>
                         <input
@@ -468,7 +458,7 @@ export default function CTABanner() {
                           value={email}
                           onChange={e => setEmail(e.target.value)}
                           placeholder={c.placeholderEmail}
-                          className="w-full bg-[#0A0A0F]/60 border border-white/[0.06] rounded-xl py-3 pl-10 pr-4 text-xs text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/50 transition-all"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs transition-all"
                         />
                       </div>
                     </div>
@@ -476,11 +466,11 @@ export default function CTABanner() {
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                        {c.labelPhone} <span className="text-[#475569] normal-case">{c.optional}</span>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        {c.labelPhone} <span className="text-slate-400 normal-case font-normal">{c.optional}</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-3.5 text-[#475569]">
+                        <span className="absolute left-3 top-3.5 text-slate-400">
                           <Phone className="w-4 h-4" />
                         </span>
                         <input
@@ -489,17 +479,17 @@ export default function CTABanner() {
                           value={phone}
                           onChange={e => setPhone(e.target.value)}
                           placeholder={c.placeholderPhone}
-                          className="w-full bg-[#0A0A0F]/60 border border-white/[0.06] rounded-xl py-3 pl-10 pr-4 text-xs text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/50 transition-all"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs transition-all"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
-                        {c.labelCompany} <span className="text-[#475569] normal-case">{c.optional}</span>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        {c.labelCompany} <span className="text-slate-400 normal-case font-normal">{c.optional}</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-3.5 text-[#475569]">
+                        <span className="absolute left-3 top-3.5 text-slate-400">
                           <Building2 className="w-4 h-4" />
                         </span>
                         <input
@@ -508,14 +498,14 @@ export default function CTABanner() {
                           value={company}
                           onChange={e => setCompany(e.target.value)}
                           placeholder={c.placeholderCompany}
-                          className="w-full bg-[#0A0A0F]/60 border border-white/[0.06] rounded-xl py-3 pl-10 pr-4 text-xs text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/50 transition-all"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs transition-all"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-3">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
                       {c.labelType}
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -524,10 +514,10 @@ export default function CTABanner() {
                           key={p.id}
                           type="button"
                           onClick={() => setProjectType(p.id)}
-                          className={`px-3 py-2 rounded-xl border text-xs font-semibold text-center transition-all ${
+                          className={`px-3 py-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
                             projectType === p.id
-                              ? 'bg-[#8B5CF6]/15 border-[#8B5CF6]/40 text-[#8B5CF6]'
-                              : 'border-white/[0.04] text-[#64748B] hover:border-white/20 hover:text-[#94A3B8]'
+                              ? 'bg-purple-50 border-purple-500 text-purple-700 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:text-slate-900'
                           }`}
                         >
                           {p.label}
@@ -537,11 +527,11 @@ export default function CTABanner() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                         {c.labelBudget}
                       </label>
-                      <div className="flex gap-1 bg-[#0A0A0F]/80 p-0.5 rounded-lg border border-white/[0.04]">
+                      <div className="flex gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
                         {currencies.map(curr => (
                           <button
                             key={curr.code}
@@ -549,10 +539,10 @@ export default function CTABanner() {
                             onClick={() => {
                               setCurrencyCode(curr.code)
                             }}
-                            className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all ${
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
                               currencyCode === curr.code
-                                ? 'bg-[#4F8EF7]/20 text-[#4F8EF7] border border-[#4F8EF7]/30'
-                                : 'text-[#64748B] hover:text-[#94A3B8] border border-transparent'
+                                ? 'bg-blue-600 text-white shadow-2xs'
+                                : 'text-slate-600 hover:text-slate-900 border border-transparent'
                             }`}
                           >
                             {curr.code}
@@ -566,13 +556,13 @@ export default function CTABanner() {
                           key={b.id}
                           type="button"
                           onClick={() => setBudget(b.id)}
-                          className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
+                          className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                             budget === b.id
-                              ? 'bg-[#4F8EF7]/15 border-[#4F8EF7]/40 text-[#4F8EF7]'
-                              : 'border-white/[0.04] text-[#64748B] hover:border-white/20 hover:text-[#94A3B8]'
+                              ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:text-slate-900'
                           }`}
                         >
-                          <span className="w-4 h-4 rounded bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-[#94A3B8]">
+                          <span className="w-4 h-4 rounded bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600">
                             {currencies.find(curr => curr.code === currencyCode)?.symbol || '₺'}
                           </span>
                           {b.label}
@@ -582,11 +572,11 @@ export default function CTABanner() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider mb-2">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                       {c.labelMessage}
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-3 text-[#475569]">
+                      <span className="absolute left-3 top-3 text-slate-400">
                         <HelpCircle className="w-4 h-4" />
                       </span>
                       <textarea
@@ -594,7 +584,7 @@ export default function CTABanner() {
                         onChange={e => setMessage(e.target.value)}
                         placeholder={c.placeholderMessage}
                         rows={3}
-                        className="w-full bg-[#0A0A0F]/60 border border-white/[0.06] rounded-xl py-3 pl-10 pr-4 text-xs text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/50 transition-all resize-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-600 shadow-2xs transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -604,7 +594,7 @@ export default function CTABanner() {
                     variant="primary"
                     size="lg"
                     disabled={loading}
-                    className="w-full shadow-[0_0_20px_rgba(79,142,247,0.2)]"
+                    className="w-full shadow-md shadow-blue-600/20 font-bold"
                   >
                     {loading ? (
                       <>
@@ -619,8 +609,8 @@ export default function CTABanner() {
                     )}
                   </Button>
 
-                  <div className="flex items-center gap-2 justify-center text-[10px] text-[#64748B]">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+                  <div className="flex items-center gap-2 justify-center text-xs text-slate-500 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
                     {c.footerSecurity}
                   </div>
                 </form>

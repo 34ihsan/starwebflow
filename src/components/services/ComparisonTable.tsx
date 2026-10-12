@@ -54,28 +54,28 @@ export default function ComparisonTable({ rows, accentColor }: ComparisonTablePr
       ref={ref}
       className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
     >
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
         {/* Header */}
         <div className="grid grid-cols-3">
-          <div className="px-6 py-4 border-b border-white/[0.06] bg-white/[0.01]" />
-          <div className="px-6 py-4 border-b border-white/[0.06] bg-white/[0.01] text-center">
-            <span className="text-sm font-semibold text-[#64748B]">{c.traditional}</span>
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50" />
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 text-center">
+            <span className="text-sm font-bold text-slate-600">{c.traditional}</span>
           </div>
           <div
             className="px-6 py-4 border-b text-center relative"
             style={{
               background: `${accentColor}10`,
-              borderColor: `${accentColor}20`,
+              borderColor: `${accentColor}25`,
             }}
           >
             {/* Popular badge */}
             <div
-              className="absolute -top-px inset-x-0 h-0.5"
+              className="absolute -top-px inset-x-0 h-1"
               style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }}
             />
-            <span className="text-sm font-bold text-white">StarWebFlow</span>
+            <span className="text-sm font-extrabold text-slate-900">StarWebFlow</span>
             <div
-              className="text-[10px] mt-0.5 font-semibold"
+              className="text-[11px] mt-0.5 font-bold"
               style={{ color: accentColor }}
             >
               {c.recommended}
@@ -87,20 +87,20 @@ export default function ComparisonTable({ rows, accentColor }: ComparisonTablePr
         {rows.map((row, i) => (
           <div
             key={i}
-            className="grid grid-cols-3 border-t border-white/[0.04]"
-            style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}
+            className="grid grid-cols-3 border-t border-slate-200"
+            style={{ background: i % 2 === 0 ? '#FFFFFF' : '#F8FAFC' }}
           >
-            <div className="px-6 py-4 text-sm text-[#94A3B8] font-medium flex items-center">
+            <div className="px-6 py-4 text-sm text-slate-800 font-semibold flex items-center">
               {row.feature}
             </div>
-            <div className="px-6 py-4 flex items-center justify-center text-[#64748B]">
+            <div className="px-6 py-4 flex items-center justify-center text-slate-600">
               {renderCell(row.traditional)}
             </div>
             <div
-              className="px-6 py-4 flex items-center justify-center font-semibold"
+              className="px-6 py-4 flex items-center justify-center font-bold text-slate-900"
               style={{
-                background: `${accentColor}05`,
-                color: typeof row.starwebflow === 'string' ? '#F8FAFC' : undefined,
+                background: `${accentColor}08`,
+                color: typeof row.starwebflow === 'string' ? '#0F172A' : undefined,
               }}
             >
               {renderCell(row.starwebflow, accentColor)}

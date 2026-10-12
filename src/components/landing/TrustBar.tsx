@@ -50,29 +50,29 @@ export default function TrustBar() {
   const doubled = [...techLogos, ...techLogos]
 
   return (
-    <section id="trust-bar" className="py-16 border-y border-white/[0.05] overflow-hidden relative">
+    <section id="trust-bar" className="py-14 bg-slate-50/70 border-y border-slate-200/80 overflow-hidden relative">
       {/* Side fades */}
-      <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 w-32 h-full bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 w-32 h-full bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 text-center mb-10">
-        <p className="text-sm font-medium text-[#475569] uppercase tracking-widest">
+      <div className="max-w-7xl mx-auto px-4 text-center mb-8">
+        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
           {t('trustBar.title')}
         </p>
       </div>
 
       <div className="flex overflow-hidden">
-        <div className="marquee-track gap-12 items-center">
+        <div className="marquee-track gap-8 items-center">
           {doubled.map((tech, i) => (
             <div
               key={`${tech.name}-${i}`}
-              className="flex items-center gap-2.5 px-6 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 group cursor-default flex-shrink-0"
+              className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-blue-400 hover:shadow-sm transition-all duration-300 group cursor-default flex-shrink-0 shadow-2xs"
               title={tech.name}
             >
-              <span className="text-[#475569] group-hover:text-[#94A3B8] transition-colors">
+              <span className="text-slate-600 group-hover:text-blue-600 transition-colors">
                 {tech.svg}
               </span>
-              <span className="text-sm font-medium text-[#475569] group-hover:text-[#94A3B8] transition-colors whitespace-nowrap">
+              <span className="text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition-colors whitespace-nowrap">
                 {tech.name}
               </span>
             </div>
@@ -81,7 +81,7 @@ export default function TrustBar() {
       </div>
 
       {/* Trust badges */}
-      <div className="max-w-7xl mx-auto px-4 mt-10 flex flex-wrap gap-4 justify-center">
+      <div className="max-w-7xl mx-auto px-4 mt-8 flex flex-wrap gap-3 justify-center">
         {[
           { icon: '🛡️', label: t('trustBar.gdpr') },
           { icon: '🔒', label: t('trustBar.ssl') },
@@ -90,10 +90,10 @@ export default function TrustBar() {
         ].map((badge) => (
           <div
             key={badge.label}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/[0.06] bg-white/[0.02] text-sm text-[#475569]"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-700 shadow-2xs"
           >
             <span>{badge.icon}</span>
-            <span className="font-medium">{badge.label}</span>
+            <span>{badge.label}</span>
           </div>
         ))}
       </div>

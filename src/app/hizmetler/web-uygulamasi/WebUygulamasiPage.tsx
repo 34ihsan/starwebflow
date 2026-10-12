@@ -494,7 +494,7 @@ function DigitalTwinGenerator() {
   const dash = getLocalizedDash()
 
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#12121F]/80 backdrop-blur-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden">
       <LeadFormModal
         isOpen={showLeadModal}
         title={dict.generator.modalTitle}
@@ -503,19 +503,19 @@ function DigitalTwinGenerator() {
         value={25000} // Custom estimated value
         onSubmitSuccess={handleLeadSubmit}
       />
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-[#06B6D4]/15 flex items-center justify-center">
-          <Monitor className="w-4 h-4 text-[#06B6D4]" />
+      <div className="border-b border-slate-200 px-6 py-4 flex items-center gap-3 bg-slate-50/70">
+        <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
+          <Monitor className="w-4 h-4 text-cyan-600" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-white">{dict.generator.title}</div>
-          <div className="text-xs text-[#64748B]">{dict.generator.subtitle}</div>
+          <div className="text-sm font-bold text-slate-900">{dict.generator.title}</div>
+          <div className="text-xs text-slate-500 font-medium">{dict.generator.subtitle}</div>
         </div>
       </div>
 
       <div className="p-6">
         <div className="mb-5">
-          <label className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-3 block">
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 block">
             {dict.generator.label}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -527,8 +527,8 @@ function DigitalTwinGenerator() {
                   onClick={() => { setSelected(trId); setShowDashboard(false) }}
                   className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-left flex items-center gap-2 ${
                     selected === trId
-                      ? 'bg-[#06B6D4]/15 border-[#06B6D4]/40 text-[#06B6D4]'
-                      : 'border-white/[0.06] text-[#64748B] hover:border-white/20 hover:text-white'
+                      ? 'bg-cyan-50 border-cyan-500 text-cyan-700 font-bold shadow-2xs'
+                      : 'border-slate-200 bg-slate-50/80 text-slate-700 hover:border-cyan-300 hover:bg-cyan-50/40 hover:text-cyan-700'
                   }`}
                 >
                   <span>{s.icon}</span> {s.label}
@@ -543,8 +543,7 @@ function DigitalTwinGenerator() {
           size="md"
           onClick={generate}
           disabled={!selected || generating}
-          className="w-full mb-5"
-          style={{ background: ACCENT, borderColor: ACCENT }}
+          className="w-full mb-5 font-bold shadow-xs bg-cyan-600 hover:bg-cyan-700 border-cyan-600"
         >
           {generating ? (
             <><Loader2 className="w-4 h-4 animate-spin" />{dict.generator.btnGenerating}</>
@@ -555,13 +554,13 @@ function DigitalTwinGenerator() {
 
         {generating && (
           <div className="mb-4 text-center">
-            <div className="text-xs text-[#475569] font-mono mb-2">
+            <div className="text-xs text-slate-600 font-mono mb-2">
               {dict.generator.aiThinking}
             </div>
-            <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full"
-                style={{ width: '70%', background: ACCENT, animation: 'shimmer 1s linear infinite' }}
+                className="h-full rounded-full bg-cyan-600"
+                style={{ width: '70%', animation: 'shimmer 1s linear infinite' }}
               />
             </div>
           </div>
@@ -570,29 +569,29 @@ function DigitalTwinGenerator() {
         {showDashboard && dash && (
           <div style={{ animation: 'fadeInUp 0.5s ease both' }}>
             {/* Illustration dashboard */}
-            <div className="rounded-xl border border-white/[0.08] overflow-hidden">
+            <div className="rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
               {/* Illustration browser bar */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border-b border-white/[0.06]">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]/60" />
-                <div className="flex-1 mx-3 px-3 py-1 rounded-md bg-white/[0.04] text-[10px] text-[#334155] font-mono">
+              <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 border-b border-slate-200">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <div className="flex-1 mx-3 px-3 py-1 rounded-md bg-white border border-slate-200 text-[10px] text-slate-600 font-mono">
                   app.starwebflow.com/{selected}
                 </div>
               </div>
 
-              <div className="p-4" style={{ background: 'rgba(8,8,14,0.8)' }}>
+              <div className="p-4 bg-white">
                 {/* Sidebar + content layout */}
                 <div className="flex gap-3">
                   {/* Illustration sidebar */}
                   <div className="w-24 shrink-0 space-y-1">
                     {dict.generator.sidebar.map((item, i) => {
-                      const accentColor = ACCENT
                       return (
                         <div
                           key={i}
-                          className="px-2 py-1.5 rounded-lg text-[10px] font-medium"
-                          style={i === 0 ? { background: `${accentColor}20`, color: accentColor } : { color: '#475569' }}
+                          className={`px-2 py-1.5 rounded-lg text-[10px] font-medium ${
+                            i === 0 ? 'bg-cyan-100 text-cyan-800 font-bold' : 'text-slate-600 hover:bg-slate-50'
+                          }`}
                         >
                           {item}
                         </div>
@@ -602,25 +601,21 @@ function DigitalTwinGenerator() {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="text-xs font-bold text-white mb-3">{dash.title}</div>
+                    <div className="text-xs font-bold text-slate-900 mb-3">{dash.title}</div>
                     <div className="grid grid-cols-2 gap-2">
                       {dash.metrics.map((m, i) => {
                         const isPositive = m.change ? !m.change.includes('-') : true
                         return (
                           <div
                             key={i}
-                            className="p-2.5 rounded-lg border"
-                            style={{
-                              background: 'rgba(255,255,255,0.02)',
-                              borderColor: 'rgba(255,255,255,0.06)',
-                            }}
+                            className="p-2.5 rounded-lg border border-slate-200 bg-slate-50/70"
                           >
-                            <div className="text-[10px] text-[#475569] mb-1">{m.label}</div>
-                            <div className="text-sm font-bold text-white">{m.value}</div>
+                            <div className="text-[10px] text-slate-500 font-medium mb-1">{m.label}</div>
+                            <div className="text-sm font-bold text-slate-900">{m.value}</div>
                             {m.change && (
                               <div
-                                className="text-[10px] font-semibold mt-0.5"
-                                style={{ color: isPositive ? '#10B981' : '#EF4444' }}
+                                className="text-[10px] font-bold mt-0.5"
+                                style={{ color: isPositive ? '#059669' : '#DC2626' }}
                               >
                                 {m.change}
                               </div>
@@ -631,8 +626,8 @@ function DigitalTwinGenerator() {
                     </div>
 
                     {/* Illustration chart bar */}
-                    <div className="mt-3 p-2 rounded-lg border border-white/[0.04] bg-white/[0.01]">
-                      <div className="text-[10px] text-[#475569] mb-2">{language === 'tr' ? 'Aylık Trend' : language === 'en' ? 'Monthly Trend' : 'Monatlicher Trend'}</div>
+                    <div className="mt-3 p-2 rounded-lg border border-slate-200 bg-slate-50">
+                      <div className="text-[10px] text-slate-600 font-medium mb-2">{language === 'tr' ? 'Aylık Trend' : language === 'en' ? 'Monthly Trend' : 'Monatlicher Trend'}</div>
                       <div className="flex items-end gap-1 h-10">
                         {[40, 65, 45, 80, 60, 90, 75, 95, 70, 100, 85, 92].map((h, i) => {
                           const accentColor = ACCENT
@@ -642,7 +637,7 @@ function DigitalTwinGenerator() {
                               className="flex-1 rounded-sm"
                               style={{
                                 height: `${h}%`,
-                                background: `${accentColor}${i === 11 ? 'ff' : '50'}`,
+                                background: `${accentColor}${i === 11 ? 'ff' : '60'}`,
                               }}
                             />
                           )
@@ -654,7 +649,7 @@ function DigitalTwinGenerator() {
               </div>
             </div>
 
-            <p className="text-[10px] text-[#475569] mt-3 text-center">
+            <p className="text-[11px] text-slate-500 mt-3 text-center font-medium">
               {dict.generator.previewNote}
             </p>
           </div>
@@ -719,16 +714,16 @@ export default function WebUygulamasiPage() {
         </div>
       </section>
 
-      <section id="simulation" className="section relative overflow-hidden">
-        <div className="absolute inset-0 mesh-bg pointer-events-none" />
+      <section id="simulation" className="section relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">🖥 Digital Twin</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {language === 'tr' ? 'Projenizi ' : language === 'en' ? 'See Your Project ' : 'Sehen Sie Ihr Projekt '}
-              <span className="gradient-text">{language === 'tr' ? 'Koddan Önce Görün' : language === 'en' ? 'Before Code' : 'vor der Codierung'}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{language === 'tr' ? 'Projenizi ' : language === 'en' ? 'See Your Project ' : 'Sehen Sie Ihr Projekt '}</span>
+              <span className="text-cyan-600 font-extrabold">{language === 'tr' ? 'Koddan Önce Görün' : language === 'en' ? 'Before Code' : 'vor der Codierung'}</span>
             </h2>
-            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">
               {dict.generator.subtitle}
             </p>
           </div>
@@ -736,13 +731,13 @@ export default function WebUygulamasiPage() {
           <div className="grid lg:grid-cols-2 gap-10 items-start">
             <DigitalTwinGenerator />
             <div className="space-y-4">
-              <div className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
+              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
                 {dict.whyUs.title}
               </div>
               {featuresList.map((f, i) => {
                 const Icon = f.icon
                 return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:border-white/10 transition-all">
+                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-cyan-300 hover:shadow-xs transition-all">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ background: `${f.color}15` }}
@@ -750,8 +745,8 @@ export default function WebUygulamasiPage() {
                       <Icon className="w-5 h-5" style={{ color: f.color }} />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-white mb-0.5">{f.title}</div>
-                      <div className="text-xs text-[#64748B] leading-relaxed">{f.desc}</div>
+                      <div className="text-sm font-bold text-slate-900 mb-0.5">{f.title}</div>
+                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{f.desc}</div>
                     </div>
                   </div>
                 )
@@ -761,11 +756,11 @@ export default function WebUygulamasiPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
-              {dict.roi.title}<span className="gradient-text">{dict.roi.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
+              <span className="text-slate-900 font-extrabold">{dict.roi.title}</span> <span className="text-cyan-600 font-extrabold">{dict.roi.titleHighlight}</span>
             </h2>
           </div>
           <ValueMatrix
@@ -779,11 +774,11 @@ export default function WebUygulamasiPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
-              {dict.comparison.title}<span className="gradient-text">{dict.comparison.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
+              <span className="text-slate-900 font-extrabold">{dict.comparison.title}</span> <span className="text-cyan-600 font-extrabold">{dict.comparison.titleHighlight}</span>
             </h2>
           </div>
           <ComparisonTable

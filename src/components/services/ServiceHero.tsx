@@ -130,7 +130,7 @@ export default function ServiceHero({
             </div>
 
             {/* Headline */}
-            <h1 className="heading-xl text-white mb-4">
+            <h1 className="heading-xl text-slate-900 mb-4 tracking-tight">
               {headline}{' '}
               <span
                 className="block"
@@ -146,16 +146,16 @@ export default function ServiceHero({
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg text-[#94A3B8] mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-lg text-slate-600 mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               {subheadline}
             </p>
 
             {/* Pain statement — psychological hook */}
             <div
-              className="mb-8 p-4 rounded-xl border-l-2 text-sm text-[#94A3B8] italic"
+              className="mb-8 p-4 rounded-xl border-l-4 text-sm text-slate-700 font-medium italic shadow-2xs"
               style={{
                 borderColor: accentColor,
-                background: `${accentColor}08`,
+                background: `${accentColor}10`,
               }}
             >
               {painStatement}
@@ -167,7 +167,7 @@ export default function ServiceHero({
                 variant="primary"
                 size="lg"
                 onClick={scrollToContact}
-                className="group"
+                className="group cursor-pointer font-semibold shadow-md"
                 style={{
                   background: accentColor,
                   borderColor: accentColor,
@@ -181,6 +181,7 @@ export default function ServiceHero({
                 variant="secondary"
                 size="lg"
                 onClick={scrollToSimulation}
+                className="cursor-pointer font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50"
               >
                 {displayCtaSecondary}
                 <ChevronDown className="w-5 h-5" />
@@ -194,21 +195,21 @@ export default function ServiceHero({
                 return (
                   <div
                     key={i}
-                    className="text-center lg:text-left p-3 rounded-xl border border-white/5 bg-white/[0.02]"
+                    className="text-center lg:text-left p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs"
                   >
                     <div className="flex items-center justify-center lg:justify-start gap-1.5 mb-1">
                       <Icon className="w-3.5 h-3.5" style={{ color: accentColor }} />
-                      <span className="text-xs text-[#64748B] uppercase tracking-wide">{stat.label}</span>
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{stat.label}</span>
                     </div>
-                    <div className="text-xl font-bold text-white font-['Outfit']">{stat.value}</div>
+                    <div className="text-xl font-extrabold text-slate-900 font-['Outfit']">{stat.value}</div>
                   </div>
                 )
               })}
             </div>
 
             {/* Guarantee micro-badge */}
-            <div className="mt-6 flex items-center gap-2 justify-center lg:justify-start text-xs text-[#64748B]">
-              <Shield className="w-3.5 h-3.5 text-[#10B981]" />
+            <div className="mt-6 flex items-center gap-2 justify-center lg:justify-start text-xs font-medium text-slate-600">
+              <Shield className="w-3.5 h-3.5 text-emerald-600" />
               {c.guarantee}
             </div>
           </div>
@@ -222,21 +223,21 @@ export default function ServiceHero({
               <div
                 className="orb-ring absolute inset-0"
                 style={{
-                  borderColor: `${accentColor}20`,
+                  borderColor: `${accentColor}30`,
                   animationDuration: '20s',
                 }}
               />
               <div
                 className="orb-ring orb-ring-reverse absolute inset-4"
                 style={{
-                  borderColor: `${gradientTo}15`,
+                  borderColor: `${gradientTo}25`,
                   animationDuration: '15s',
                 }}
               />
               <div
                 className="orb-ring absolute inset-8"
                 style={{
-                  borderColor: `${accentColor}10`,
+                  borderColor: `${accentColor}20`,
                   animationDuration: '25s',
                 }}
               />
@@ -265,15 +266,15 @@ export default function ServiceHero({
               <div
                 className="absolute inset-16 rounded-full flex items-center justify-center"
                 style={{
-                  background: `radial-gradient(circle at 35% 35%, ${accentColor}60 0%, ${gradientTo}40 40%, ${accentColor}20 70%, transparent 100%)`,
-                  boxShadow: `0 0 60px ${accentColor}30, 0 0 120px ${accentColor}10, inset 0 0 40px rgba(255,255,255,0.05)`,
+                  background: `radial-gradient(circle at 35% 35%, ${accentColor}40 0%, ${gradientTo}30 40%, ${accentColor}15 70%, transparent 100%)`,
+                  boxShadow: `0 0 60px ${accentColor}20, 0 0 120px ${accentColor}10, inset 0 0 40px rgba(255,255,255,0.6)`,
                   animation: 'orbPulse 4s ease-in-out infinite',
                 }}
               >
                 <div
                   className="w-20 h-20 rounded-full"
                   style={{
-                    background: `radial-gradient(circle, rgba(255,255,255,0.2) 0%, ${accentColor}30 50%, transparent 100%)`,
+                    background: `radial-gradient(circle, rgba(255,255,255,0.8) 0%, ${accentColor}30 50%, transparent 100%)`,
                     animation: 'orbPulse 4s ease-in-out infinite 1s',
                   }}
                 />
@@ -283,11 +284,11 @@ export default function ServiceHero({
               {floatingBadges.map((badge, i) => (
                 <div
                   key={i}
-                  className="absolute glass rounded-xl px-3 py-2 flex items-center gap-2 border border-white/10 shadow-lg"
+                  className="absolute bg-white/95 backdrop-blur-md rounded-xl px-3 py-2 flex items-center gap-2 border border-slate-200 shadow-md"
                   style={badge.style}
                 >
                   <span className="text-sm">{badge.icon}</span>
-                  <span className="text-xs font-semibold text-white/90 whitespace-nowrap">{badge.label}</span>
+                  <span className="text-xs font-bold text-slate-800 whitespace-nowrap">{badge.label}</span>
                 </div>
               ))}
             </div>
@@ -296,11 +297,11 @@ export default function ServiceHero({
 
         {/* Scroll indicator */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#475569] cursor-pointer"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 cursor-pointer"
           onClick={scrollToSimulation}
         >
-          <span className="text-xs font-medium tracking-widest uppercase">{c.explore}</span>
-          <div className="w-5 h-8 rounded-full border border-[#475569]/50 flex items-start justify-center pt-1.5 hover:border-opacity-80 transition-colors">
+          <span className="text-xs font-semibold tracking-widest uppercase">{c.explore}</span>
+          <div className="w-5 h-8 rounded-full border border-slate-300 flex items-start justify-center pt-1.5 hover:border-slate-500 transition-colors">
             <div
               className="w-1 h-2 rounded-full"
               style={{ background: accentColor, animation: 'float 1.5s ease-in-out infinite' }}

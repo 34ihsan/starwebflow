@@ -554,15 +554,15 @@ export default function ClientContractsClient({
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-bold font-['Outfit'] text-white flex items-center gap-3">
-            <FileSignature className="w-8 h-8 text-[#06B6D4]" />
+          <h1 className="text-3xl font-black font-['Outfit'] text-slate-900 flex items-center gap-3">
+            <FileSignature className="w-8 h-8 text-cyan-600" />
             {dict.title}
           </h1>
-          <p className="text-slate-400 mt-2">{dict.subtitle}</p>
+          <p className="text-slate-600 mt-2 font-medium">{dict.subtitle}</p>
         </div>
         <button 
           onClick={() => setIsGeneratorModalOpen(true)}
-          className="flex items-center gap-2 bg-gradient-to-r from-[#06B6D4] to-cyan-500 hover:opacity-90 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] select-none cursor-pointer"
+          className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-md shadow-cyan-600/20 select-none cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           {language === 'tr' ? "Yeni Proje Talebi (Lastenheft)" : "New Project Request"}
@@ -571,33 +571,33 @@ export default function ClientContractsClient({
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-lg">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{dict.pendingApproval}</p>
-          <h3 className="text-2xl font-bold text-orange-400 font-['Outfit'] flex items-center gap-2">
+          <h3 className="text-2xl font-black text-orange-600 font-['Outfit'] flex items-center gap-2">
             {contracts.filter(c => c.status === 'İmza Bekliyor' || c.status === 'PENDING' || c.status === 'draft').length}
-            <span className="text-sm font-normal text-slate-400">{dict.pcs}</span>
+            <span className="text-sm font-normal text-slate-500">{dict.pcs}</span>
           </h3>
         </div>
-        <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-lg">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{dict.activeContracts}</p>
-          <h3 className="text-2xl font-bold text-white font-['Outfit'] flex items-center gap-2">
+          <h3 className="text-2xl font-black text-slate-900 font-['Outfit'] flex items-center gap-2">
             {contracts.filter(c => c.status === 'Onaylandı' || c.status === 'SIGNED').length}
-            <span className="text-sm font-normal text-slate-400">{dict.pcs}</span>
+            <span className="text-sm font-normal text-slate-500">{dict.pcs}</span>
           </h3>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#0A0A0F] border border-white/[0.05] p-4 rounded-2xl">
-        <div className="flex bg-[#131B2A] rounded-lg p-1 border border-white/[0.05] w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-200/90 p-4 rounded-2xl shadow-xs">
+        <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 w-full sm:w-auto">
           {["ALL", "PENDING", "APPROVED"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-all ${
                 activeTab === tab 
-                  ? "bg-[#06B6D4] text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-cyan-600 text-white shadow-xs" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white"
               }`}
             >
               {tab === "ALL" ? dict.all : tab === "PENDING" ? dict.pending : dict.approved}
@@ -612,20 +612,20 @@ export default function ClientContractsClient({
             placeholder={dict.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#06B6D4] transition-colors"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 transition-colors shadow-2xs"
           />
         </div>
       </div>
 
       {/* Contracts List */}
-      <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl overflow-hidden shadow-lg">
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
         {filteredContracts.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center border-dashed border border-white/[0.05] rounded-2xl m-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-              <FileSignature className="w-8 h-8 text-slate-500" />
+          <div className="py-20 flex flex-col items-center justify-center border-dashed border border-slate-200 rounded-2xl m-6 bg-slate-50">
+            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-4">
+              <FileSignature className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 font-['Outfit']">{dict.notFound}</h3>
-            <p className="text-slate-400 text-center max-w-md">
+            <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Outfit']">{dict.notFound}</h3>
+            <p className="text-slate-600 text-center max-w-md text-sm">
               {dict.notFoundDesc}
             </p>
           </div>
@@ -633,7 +633,7 @@ export default function ClientContractsClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/[0.05] bg-[#131B2A]/50">
+                <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{dict.contractName}</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{dict.status}</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">{dict.actions}</th>
@@ -644,21 +644,21 @@ export default function ClientContractsClient({
                   const isPending = contract.status === 'İmza Bekliyor' || contract.status === 'PENDING' || contract.status === 'draft';
                   const localizedStatus = dict.statusMapping[contract.status as keyof typeof dict.statusMapping] || contract.status;
                   return (
-                    <tr key={contract.id} className={`group hover:bg-white/[0.02] transition-colors ${i !== filteredContracts.length - 1 ? 'border-b border-white/[0.05]' : ''}`}>
+                    <tr key={contract.id} className={`group hover:bg-slate-50 transition-colors ${i !== filteredContracts.length - 1 ? 'border-b border-slate-100' : ''}`}>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${!isPending ? 'bg-[#06B6D4]/10' : 'bg-orange-500/10'}`}>
-                            <FileSignature className={`w-5 h-5 ${!isPending ? 'text-[#06B6D4]' : 'text-orange-400'}`} />
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${!isPending ? 'bg-cyan-50 text-cyan-600 border border-cyan-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}`}>
+                            <FileSignature className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="font-bold text-white">{contract.title}</p>
+                            <p className="font-bold text-slate-900">{contract.title}</p>
                             <p className="text-xs text-slate-500 mt-0.5">ID: {contract.id}</p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-md border uppercase tracking-wider ${
-                          !isPending ? 'bg-[#06B6D4]/10 text-[#06B6D4] border-[#06B6D4]/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                          !isPending ? 'bg-cyan-50 text-cyan-700 border-cyan-200' : 'bg-orange-50 text-orange-700 border-orange-200'
                         }`}>
                           {localizedStatus}
                         </span>
@@ -667,7 +667,7 @@ export default function ClientContractsClient({
                         <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => { setSelectedContract(contract); setIsViewModalOpen(true); }}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-colors"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                             {dict.view}

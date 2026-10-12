@@ -63,11 +63,10 @@ export default function ExpertTerminal({ logs }: ExpertTerminalProps) {
       className="fixed bottom-6 right-6 z-40 transition-all duration-500"
       style={{ maxWidth: expanded ? '380px' : '320px' }}
     >
-      <div className="glass rounded-xl border border-white/10 overflow-hidden shadow-2xl">
+      <div className="rounded-xl border border-slate-700/80 overflow-hidden shadow-2xl">
         {/* Header */}
         <div
-          className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.06] cursor-pointer"
-          style={{ background: 'rgba(10,10,15,0.9)' }}
+          className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 cursor-pointer bg-slate-950/95"
           onClick={() => setExpanded(e => !e)}
         >
           <div className="flex items-center gap-2.5">
@@ -76,15 +75,15 @@ export default function ExpertTerminal({ logs }: ExpertTerminalProps) {
               <div className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
             </div>
-            <Terminal className="w-3.5 h-3.5 text-[#4F8EF7]" />
-            <span className="text-xs font-mono text-[#64748B]">starwebflow-ai ~ system</span>
+            <Terminal className="w-3.5 h-3.5 text-blue-400" />
+            <span className="text-xs font-mono text-slate-400">starwebflow-ai ~ system</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             {expanded ? (
-              <ChevronDown className="w-3.5 h-3.5 text-[#475569]" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             ) : (
-              <ChevronUp className="w-3.5 h-3.5 text-[#475569]" />
+              <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
             )}
           </div>
         </div>
@@ -92,9 +91,8 @@ export default function ExpertTerminal({ logs }: ExpertTerminalProps) {
         {/* Logs */}
         <div
           ref={logRef}
-          className="overflow-y-auto scrollbar-none"
+          className="overflow-y-auto scrollbar-none bg-slate-950/95"
           style={{
-            background: 'rgba(8,8,14,0.95)',
             maxHeight: expanded ? '200px' : '130px',
             transition: 'max-height 0.3s ease',
           }}
@@ -108,19 +106,19 @@ export default function ExpertTerminal({ logs }: ExpertTerminalProps) {
                   className="flex items-start gap-2 text-xs font-mono"
                   style={{ animation: 'fadeInLeft 0.3s ease both' }}
                 >
-                  <span className="text-[#334155] shrink-0">{log.ts}</span>
+                  <span className="text-slate-500 shrink-0">{log.ts}</span>
                   <span
                     className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold"
-                    style={{ color: meta.color, background: `${meta.color}15` }}
+                    style={{ color: meta.color, background: `${meta.color}25` }}
                   >
                     {meta.label}
                   </span>
-                  <span className="text-[#64748B] leading-relaxed">{log.text}</span>
+                  <span className="text-slate-200 leading-relaxed font-normal">{log.text}</span>
                 </div>
               )
             })}
             {visibleLogs.length === 0 && (
-              <div className="text-[#334155] text-xs font-mono">Başlatılıyor...</div>
+              <div className="text-slate-400 text-xs font-mono">Başlatılıyor...</div>
             )}
           </div>
         </div>

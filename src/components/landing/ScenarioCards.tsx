@@ -39,10 +39,10 @@ export default function ScenarioCards() {
   const [activeTab, setActiveTab] = useState(scenarios[0].id)
 
   return (
-    <section className="py-24 bg-[#0A0A0F] relative overflow-hidden">
+    <section className="py-24 bg-white relative overflow-hidden">
       {/* Background elements */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-gradient-to-r from-transparent via-[#8B5CF6]/50 to-transparent" />
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-gradient-to-r from-transparent via-[#8B5CF6]/30 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -50,10 +50,10 @@ export default function ScenarioCards() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-50 border border-purple-200 mb-6 shadow-2xs"
           >
             <span className="w-2 h-2 rounded-full bg-[#8B5CF6] animate-pulse" />
-            <span className="text-sm text-gray-400">
+            <span className="text-xs font-bold text-purple-700">
               {language === 'tr' ? 'Somut Çözümler' : language === 'de' ? 'Konkrete Lösungen' : 'Concrete Solutions'}
             </span>
           </motion.div>
@@ -62,7 +62,7 @@ export default function ScenarioCards() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-white font-['Outfit']"
+            className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-slate-900 font-['Outfit']"
           >
             {language === 'tr' ? (
               <>Sizin Sektörünüzde, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#D946EF]">Sizin Probleminiz</span></>
@@ -77,7 +77,7 @@ export default function ScenarioCards() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-gray-400"
+            className="text-lg text-slate-600 font-normal"
           >
             {language === 'tr' 
               ? 'Soyut teknolojileri değil, günlük hayatınızdaki problemleri nasıl tarihe gömdüğümüzü inceleyin.' 
@@ -102,35 +102,35 @@ export default function ScenarioCards() {
                 onMouseEnter={() => setActiveTab(scenario.id)}
                 className={`relative p-8 rounded-2xl border transition-all duration-300 cursor-pointer ${
                   isActive 
-                    ? 'bg-white/10 border-[#8B5CF6]/50 shadow-[0_0_30px_rgba(139,92,246,0.15)]' 
-                    : 'bg-white/5 border-white/10 hover:bg-white/[0.07]'
+                    ? 'bg-purple-50/40 border-purple-300 shadow-xl shadow-purple-500/5 -translate-y-1' 
+                    : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-md'
                 }`}
               >
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
-                  isActive ? 'bg-[#8B5CF6]/20 text-[#8B5CF6]' : 'bg-white/10 text-gray-400'
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 shadow-2xs ${
+                  isActive ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30' : 'bg-slate-100 text-slate-700'
                 }`}>
                   <Icon className="w-6 h-6" />
                 </div>
                 
-                <h3 className="text-2xl font-bold text-white mb-4">{scenario.title}</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">{scenario.title}</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-[#EF4444] font-semibold mb-2">
+                    <h4 className="text-xs uppercase tracking-wider text-rose-600 font-bold mb-1.5">
                       {language === 'tr' ? 'Klasik Durum' : language === 'de' ? 'Klassische Situation' : 'Traditional Problem'}
                     </h4>
-                    <p className="text-sm text-gray-400 leading-relaxed">{scenario.problem}</p>
+                    <p className="text-sm text-slate-600 leading-relaxed font-normal">{scenario.problem}</p>
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-[#10B981] font-semibold mb-2">
+                    <h4 className="text-xs uppercase tracking-wider text-emerald-600 font-bold mb-1.5">
                       {language === 'tr' ? 'StarWebflow Çözümü' : language === 'de' ? 'StarWebFlow Lösung' : 'StarWebFlow Solution'}
                     </h4>
-                    <p className="text-sm text-gray-200 leading-relaxed">{scenario.solution}</p>
+                    <p className="text-sm text-slate-800 leading-relaxed font-medium">{scenario.solution}</p>
                   </div>
                 </div>
 
-                <div className={`absolute bottom-8 right-8 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="px-3 py-1 rounded-full bg-[#10B981]/20 text-[#10B981] text-xs font-medium border border-[#10B981]/30">
+                <div className={`mt-6 pt-4 border-t border-slate-100 flex justify-end transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-80'}`}>
+                  <div className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-2xs">
                     {scenario.stats}
                   </div>
                 </div>

@@ -64,8 +64,8 @@ export default function ProcessSection() {
   }, [])
 
   return (
-    <section id="process" className="section relative overflow-hidden">
-      <div className="absolute inset-0 grid-pattern opacity-50 pointer-events-none" />
+    <section id="process" className="section relative overflow-hidden bg-white">
+      <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
 
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -73,13 +73,13 @@ export default function ProcessSection() {
           <span className="tag-badge mb-4">
             {t('processSection.tag')}
           </span>
-          <h2 className="heading-lg text-white mt-4 mb-4">
+          <h2 className="heading-lg text-slate-900 mt-4 mb-4">
             {t('processSection.title')}{' '}
-            <span className="gradient-text">{t('processSection.titleHighlight')}</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold">{t('processSection.titleHighlight')}</span>
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto">
+          <p className="text-slate-600 text-lg max-w-xl mx-auto font-normal">
             {t('processSection.desc1')}{' '}
-            <span className="text-white font-semibold">{t('processSection.desc2')}</span>
+            <span className="text-slate-900 font-bold">{t('processSection.desc2')}</span>
           </p>
         </div>
 
@@ -107,19 +107,19 @@ export default function ProcessSection() {
                 >
                   {/* Content card */}
                   <div className={`flex-1 lg:w-[calc(50%-3rem)] ${isLeft ? 'lg:pr-12' : 'lg:pl-12'}`}>
-                    <div className="rounded-2xl border border-white/[0.06] bg-[#0F0F1A]/80 p-6 hover:border-white/10 transition-all duration-300 group">
+                    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05),0_8px_24px_-6px_rgba(0,0,0,0.03)] hover:shadow-md hover:border-blue-400/50 transition-all duration-300 group">
                       {/* Badge */}
                       <span
-                        className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3"
-                        style={{ background: `${step.color}15`, color: step.color, border: `1px solid ${step.color}25` }}
+                        className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3 shadow-xs"
+                        style={{ background: `${step.color}15`, color: step.color, border: `1px solid ${step.color}30` }}
                       >
                         {step.badge}
                       </span>
 
-                      <h3 className="font-bold text-white text-lg mb-2 font-['Outfit']">
+                      <h3 className="font-bold text-slate-900 text-lg mb-2 font-['Outfit']">
                         {step.title}
                       </h3>
-                      <p className="text-sm text-[#94A3B8] leading-relaxed">
+                      <p className="text-sm text-slate-600 leading-relaxed font-normal">
                         {step.description}
                       </p>
                     </div>

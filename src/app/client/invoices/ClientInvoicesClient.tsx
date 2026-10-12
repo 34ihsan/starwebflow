@@ -280,27 +280,27 @@ export default function ClientInvoicesClient({
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-bold font-['Outfit'] text-white flex items-center gap-3">
-            <Receipt className="w-8 h-8 text-emerald-400" />
+          <h1 className="text-3xl font-black font-['Outfit'] text-slate-900 flex items-center gap-3">
+            <Receipt className="w-8 h-8 text-emerald-600" />
             {dict.title}
           </h1>
-          <p className="text-slate-400 mt-2">{dict.subtitle}</p>
+          <p className="text-slate-600 mt-2 font-medium">{dict.subtitle}</p>
         </div>
       </div>
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-lg">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{dict.totalPending}</p>
-          <h3 className="text-2xl font-bold text-white font-['Outfit']">
+          <h3 className="text-2xl font-black text-slate-900 font-['Outfit']">
             {new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: 'TRY' }).format(
               initialInvoices.filter(i => i.status === 'PENDING' || i.status === 'OVERDUE').reduce((acc, curr) => acc + Number(curr.amount), 0)
             )}
           </h3>
         </div>
-        <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-lg">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{dict.lastPaid}</p>
-          <h3 className="text-2xl font-bold text-emerald-400 font-['Outfit']">
+          <h3 className="text-2xl font-black text-emerald-600 font-['Outfit']">
             {initialInvoices.filter(i => i.status === 'PAID').length > 0 
               ? new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: 'TRY' }).format(Number(initialInvoices.filter(i => i.status === 'PAID')[0].amount))
               : dict.none}
@@ -309,16 +309,16 @@ export default function ClientInvoicesClient({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#0A0A0F] border border-white/[0.05] p-4 rounded-2xl">
-        <div className="flex bg-[#131B2A] rounded-lg p-1 border border-white/[0.05] w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-200/90 p-4 rounded-2xl shadow-xs">
+        <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 w-full sm:w-auto">
           {["ALL", "PENDING", "PAID"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-all ${
                 activeTab === tab 
-                  ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-emerald-600 text-white shadow-xs" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white"
               }`}
             >
               {tab === "ALL" ? dict.all : tab === "PENDING" ? dict.pending : dict.paid}
@@ -333,20 +333,20 @@ export default function ClientInvoicesClient({
             placeholder={dict.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition-colors shadow-2xs"
           />
         </div>
       </div>
 
       {/* Invoices List */}
-      <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl overflow-hidden shadow-lg">
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-xs">
         {filteredInvoices.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center border-dashed border border-white/[0.05] rounded-2xl m-6">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-              <Receipt className="w-8 h-8 text-slate-500" />
+          <div className="py-20 flex flex-col items-center justify-center border-dashed border border-slate-200 rounded-2xl m-6 bg-slate-50">
+            <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mb-4 border border-slate-200">
+              <Receipt className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 font-['Outfit']">{dict.notFound}</h3>
-            <p className="text-slate-400 text-center max-w-md">
+            <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Outfit']">{dict.notFound}</h3>
+            <p className="text-slate-600 text-center max-w-md text-sm">
               {dict.notFoundDesc}
             </p>
           </div>
@@ -354,7 +354,7 @@ export default function ClientInvoicesClient({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/[0.05] bg-[#131B2A]/50">
+                <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{dict.invoiceNo}</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{dict.date}</th>
                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-widest">{dict.amount}</th>
@@ -364,16 +364,16 @@ export default function ClientInvoicesClient({
               </thead>
               <tbody>
                 {filteredInvoices.map((invoice, i) => (
-                  <tr key={invoice.id} className={`group hover:bg-white/[0.02] transition-colors ${i !== filteredInvoices.length - 1 ? 'border-b border-white/[0.05]' : ''}`}>
+                  <tr key={invoice.id} className={`group hover:bg-slate-50 transition-colors ${i !== filteredInvoices.length - 1 ? 'border-b border-slate-100' : ''}`}>
                      <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${invoice.status === 'PAID' ? 'bg-emerald-500/10' : 'bg-orange-500/10'}`}>
-                          <Receipt className={`w-5 h-5 ${invoice.status === 'PAID' ? 'text-emerald-400' : 'text-orange-400'}`} />
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${invoice.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}`}>
+                          <Receipt className="w-5 h-5" />
                         </div>
                         <div>
                           <p 
                             onClick={() => setViewInvoice(invoice)}
-                            className="font-bold text-white hover:text-emerald-400 transition-colors cursor-pointer"
+                            className="font-bold text-slate-900 hover:text-emerald-600 transition-colors cursor-pointer"
                           >
                             {invoice.invoiceNo || 'TASLAK'}
                           </p>
@@ -382,10 +382,10 @@ export default function ClientInvoicesClient({
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="text-sm text-slate-300">{new Date(invoice.createdAt).toLocaleDateString(currencyLocale)}</span>
+                      <span className="text-sm text-slate-600 font-medium">{new Date(invoice.createdAt).toLocaleDateString(currencyLocale)}</span>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="text-sm font-bold text-white font-['Outfit']">
+                      <span className="text-sm font-black text-slate-900 font-['Outfit']">
                         {new Intl.NumberFormat(currencyLocale, { style: 'currency', currency: invoice.currency || 'TRY' }).format(Number(invoice.amount || invoice.grossAmount || 0))}
                       </span>
                     </td>
@@ -396,7 +396,7 @@ export default function ClientInvoicesClient({
                       <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => setViewInvoice(invoice)} 
-                          className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors" 
+                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors" 
                           title="Görüntüle"
                         >
                           <Eye className="w-4 h-4" />
@@ -411,7 +411,7 @@ export default function ClientInvoicesClient({
                               grossAmount: invoice.grossAmount || invoice.amount
                             });
                           }}
-                          className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors" 
+                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors" 
                           title="Faturayı İndir"
                         >
                           <Download className="w-4 h-4" />
@@ -447,7 +447,7 @@ export default function ClientInvoicesClient({
                                 setPayingId(null);
                               }
                             }}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-xs"
                           >
                             <CreditCard className="w-4 h-4" />
                             {payingId === invoice.id ? '...' : dict.pay}

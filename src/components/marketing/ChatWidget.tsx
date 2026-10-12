@@ -161,36 +161,36 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.92 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="w-full sm:w-[380px] h-[600px] max-h-[calc(100dvh-120px)] mb-4 bg-[#0B0B14]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.7)] flex flex-col overflow-hidden relative pointer-events-auto"
+            className="w-full sm:w-[380px] h-[600px] max-h-[calc(100dvh-120px)] mb-4 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_20px_60px_rgba(15,23,42,0.15)] flex flex-col overflow-hidden relative pointer-events-auto"
           >
             {/* Glowing Accent Top border */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#6366F1]" />
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600" />
 
-            {/* Subtle purple backdrop glow */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#8B5CF6]/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-[#6366F1]/10 rounded-full blur-2xl pointer-events-none" />
+            {/* Subtle light backdrop glow */}
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-purple-100/60 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-100/60 rounded-full blur-2xl pointer-events-none" />
 
             {/* Header */}
-            <div className="bg-[#121220]/75 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-white/5 relative z-10 shrink-0">
+            <div className="bg-slate-50/90 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-slate-200/80 relative z-10 shrink-0">
               <div className="flex items-center gap-3">
                 {/* Agent Avatar with Green status dot */}
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#8B5CF6] to-[#D946EF] flex items-center justify-center shadow-lg shadow-[#8B5CF6]/25 border border-white/20">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center shadow-md shadow-purple-500/20 border border-white">
                     <BrainCircuit className="w-5.5 h-5.5 text-white" />
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-[#121220] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-sm animate-pulse" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white text-sm tracking-tight flex items-center gap-1.5 font-['Outfit']">
+                  <h4 className="font-extrabold text-slate-900 text-sm tracking-tight flex items-center gap-1.5 font-['Outfit']">
                     StarWebflow AI
-                    <Sparkles className="w-3.5 h-3.5 text-[#D946EF] animate-pulse" />
+                    <Sparkles className="w-3.5 h-3.5 text-purple-600 animate-pulse" />
                   </h4>
-                  <p className="text-[11px] text-slate-400 font-medium">{tChat.headerSubtitle}</p>
+                  <p className="text-[11px] text-slate-500 font-medium">{tChat.headerSubtitle}</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsOpen(false)} 
-                className="p-2 hover:bg-white/10 text-slate-300 hover:text-white rounded-xl transition-all duration-200 active:scale-95"
+                className="p-2 hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer"
                 aria-label={tChat.closeLabel}
               >
                 <ChevronDown className="w-6 h-6" />
@@ -198,9 +198,9 @@ export default function ChatWidget() {
             </div>
 
             {/* Chat Body */}
-            <div className="flex-1 overflow-hidden flex flex-col bg-[#05050A]/70 relative z-10">
+            <div className="flex-1 overflow-hidden flex flex-col bg-slate-50/50 relative z-10">
               {/* Chat View */}
-              <div className="flex-1 p-4 overflow-y-auto overflow-x-hidden flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              <div className="flex-1 p-4 overflow-y-auto overflow-x-hidden flex flex-col gap-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
                 {messages.map((msg: any) => (
                   <div 
                     key={msg.id} 
@@ -208,16 +208,16 @@ export default function ChatWidget() {
                   >
                     {/* Bot avatar next to message */}
                     {msg.role !== 'user' && (
-                      <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#8B5CF6] to-[#D946EF] shadow-md flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                         <BrainCircuit className="w-3.5 h-3.5 text-white" />
                       </div>
                     )}
                     
                     <div 
-                      className={`rounded-2xl px-4 py-3 text-[15px] sm:text-sm leading-relaxed shadow-sm whitespace-pre-wrap break-words ${
+                      className={`rounded-2xl px-4 py-3 text-[14px] leading-relaxed shadow-2xs whitespace-pre-wrap break-words ${
                         msg.role === 'user' 
-                          ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white rounded-tr-none' 
-                          : 'bg-[#181826]/90 border border-white/5 text-slate-200 rounded-tl-none'
+                          ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-tr-none font-medium' 
+                          : 'bg-white border border-slate-200/90 text-slate-800 rounded-tl-none font-normal'
                       }`}
                     >
                       {msg.content}
@@ -227,21 +227,21 @@ export default function ChatWidget() {
                 
                 {/* Quick Actions (only show when there's 1 message) */}
                 {messages.length === 1 && !isLoading && (
-                  <div className="flex flex-col gap-2 mt-1 ml-9 max-w-[85%] self-start animate-fade-in-up">
+                  <div className="flex flex-col gap-2 mt-1 ml-8 max-w-[85%] self-start animate-fade-in-up">
                     {tChat.quickActions.map((qa, idx) => (
                       <button 
                         key={idx}
                         onClick={() => append({ role: 'user', content: qa.prompt })}
-                        className="text-left text-xs bg-white/5 hover:bg-[#8B5CF6]/20 text-slate-300 hover:text-white border border-white/10 hover:border-[#8B5CF6]/50 rounded-xl px-3.5 py-2.5 transition-all duration-300 flex items-center gap-2"
+                        className="text-left text-xs bg-white hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 hover:border-purple-300 rounded-xl px-3.5 py-2.5 transition-all duration-200 flex items-center gap-2 shadow-2xs cursor-pointer font-medium"
                       >
                         {idx === 0 ? (
-                          <Zap className="w-3.5 h-3.5 text-[#D946EF]" />
+                          <Zap className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                         ) : idx === 1 ? (
-                          <BrainCircuit className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                          <BrainCircuit className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                         ) : (
-                          <Sparkles className="w-3.5 h-3.5 text-[#6366F1]" />
+                          <Sparkles className="w-3.5 h-3.5 text-pink-600 shrink-0" />
                         )}
-                        {qa.label}
+                        <span>{qa.label}</span>
                       </button>
                     ))}
                   </div>
@@ -249,13 +249,13 @@ export default function ChatWidget() {
                 
                 {isLoading && (
                   <div className="flex gap-2.5 max-w-[85%] self-start">
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#8B5CF6] to-[#D946EF] shadow-md flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 shadow-sm flex items-center justify-center flex-shrink-0 mt-0.5">
                       <BrainCircuit className="w-3.5 h-3.5 text-white animate-pulse" />
                     </div>
-                    <div className="bg-[#181826]/90 border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 text-sm flex gap-1.5 items-center">
-                      <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                      <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                      <span className="w-2 h-2 bg-[#8B5CF6] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none px-4 py-3 text-sm flex gap-1.5 items-center shadow-2xs">
+                      <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                      <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                      <span className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                     </div>
                   </div>
                 )}
@@ -263,7 +263,7 @@ export default function ChatWidget() {
               </div>
               
               {/* Input Area */}
-              <div className="p-4 bg-[#0E0E18]/80 border-t border-white/5 shrink-0">
+              <div className="p-4 bg-white border-t border-slate-200 shrink-0">
                 <form onSubmit={handleSubmit} className="flex gap-2 items-center">
                   <div className="flex-1 relative">
                     <input 
@@ -271,20 +271,20 @@ export default function ChatWidget() {
                       placeholder={tChat.placeholder}
                       value={input || ''}
                       onChange={handleInputChange}
-                      className="w-full bg-[#121220]/80 border border-white/10 rounded-xl pl-4 pr-10 py-3 text-sm text-white placeholder-slate-500 focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6]/30 outline-none transition-all duration-300 shadow-inner"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 outline-none transition-all duration-200 shadow-2xs"
                     />
-                    <Sparkles className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B5CF6]/40 pointer-events-none" />
+                    <Sparkles className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400 pointer-events-none" />
                   </div>
                   <button 
                     type="submit"
                     disabled={isLoading || !(input || '').trim()}
-                    className="w-11 h-11 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white flex-shrink-0 disabled:opacity-50 hover:shadow-lg hover:shadow-[#8B5CF6]/30 transition-all duration-300"
+                    className="w-11 h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center text-white flex-shrink-0 disabled:opacity-40 hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 cursor-pointer"
                   >
                     <Send className="w-4 h-4 ml-0.5" />
                   </button>
                 </form>
-                <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
-                  <BrainCircuit className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                  <BrainCircuit className="w-3.5 h-3.5 text-purple-600" />
                   <span>{tChat.footerBadge}</span>
                 </div>
               </div>

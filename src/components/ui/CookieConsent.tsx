@@ -189,7 +189,7 @@ export default function CookieConsent() {
     return (
       <button
         onClick={() => setShowBanner(true)}
-        className="fixed bottom-6 left-6 z-40 p-3 rounded-full bg-[#12121F]/90 border border-white/[0.08] hover:border-[#4F8EF7]/40 text-[#4F8EF7] shadow-xl hover:shadow-[#4F8EF7]/10 backdrop-blur-md transition-all group"
+        className="fixed bottom-6 left-6 z-40 p-3 rounded-full bg-white/90 dark:bg-[#12121F]/90 border border-slate-200 dark:border-white/[0.08] hover:border-[#4F8EF7]/40 text-[#4F8EF7] shadow-xl hover:shadow-[#4F8EF7]/10 backdrop-blur-md transition-all group"
         aria-label="Cookie-Einstellungen"
         title="Cookie-Einstellungen"
       >
@@ -213,10 +213,10 @@ export default function CookieConsent() {
 
       {/* Cookie Banner Overlay */}
       {showBanner && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-6 bg-[#000]/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 sm:p-6 bg-slate-900/40 dark:bg-[#000]/60 backdrop-blur-sm">
           {/* Modal Container */}
           <div
-            className="w-full max-w-2xl bg-[#0F0F1A]/95 border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl max-h-[90vh] overflow-y-auto relative"
+            className="w-full max-w-2xl bg-white/95 dark:bg-[#0F0F1A]/95 border border-slate-200 dark:border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl max-h-[90vh] overflow-y-auto relative"
             style={{ animation: 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both' }}
           >
             {/* Glow spots */}
@@ -224,12 +224,12 @@ export default function CookieConsent() {
             <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-[#8B5CF6]/5 blur-3xl pointer-events-none" />
 
             {/* Language Selection */}
-            <div className="flex justify-between items-center mb-6 border-b border-white/[0.06] pb-4">
+            <div className="flex justify-between items-center mb-6 border-b border-slate-200/80 dark:border-white/[0.06] pb-4">
               <div className="flex items-center gap-2 text-[#4F8EF7]">
                 <Shield className="w-5 h-5" />
                 <span className="text-sm font-bold font-['Outfit'] tracking-wide uppercase">DSGVO Compliant Consent</span>
               </div>
-              <div className="flex gap-1.5 bg-[#000]/30 p-0.5 rounded-lg border border-white/[0.04]">
+              <div className="flex gap-1.5 bg-slate-100 dark:bg-[#000]/30 p-0.5 rounded-lg border border-slate-200 dark:border-white/[0.04]">
                 {(['DE', 'EN', 'TR'] as Language[]).map(l => (
                   <button
                     key={l}
@@ -237,7 +237,7 @@ export default function CookieConsent() {
                     className={`px-2.5 py-1 rounded-md text-[10px] font-black transition-all ${
                       lang === l
                         ? 'bg-[#4F8EF7]/20 text-[#4F8EF7] border border-[#4F8EF7]/30'
-                        : 'text-[#64748B] hover:text-[#94A3B8]'
+                        : 'text-slate-500 dark:text-[#64748B] hover:text-slate-800 dark:hover:text-[#94A3B8]'
                     }`}
                   >
                     {l}
@@ -248,11 +248,11 @@ export default function CookieConsent() {
 
             {/* Banner Header */}
             <div className="space-y-3 mb-6">
-              <h3 className="text-lg sm:text-xl font-black text-white font-['Outfit'] tracking-tight flex items-center gap-2">
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white font-['Outfit'] tracking-tight flex items-center gap-2">
                 <Cookie className="w-5 h-5 text-[#8B5CF6]" />
                 {t.title}
               </h3>
-              <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#94A3B8] leading-relaxed">
                 {t.description}
               </p>
             </div>

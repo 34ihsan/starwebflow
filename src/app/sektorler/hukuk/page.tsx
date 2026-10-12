@@ -46,46 +46,46 @@ const faqSchema = {
 
 export default function HukukSektorPage() {
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white">
+    <div className="min-h-screen bg-[#FAFBFD] text-slate-900">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(sectorSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <Navbar />
       <main className="pt-28 pb-16">
         <section className="py-16 px-4 max-w-7xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-semibold text-amber-400 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-700 mb-6">
             <Scale className="w-4 h-4" />
             Hukuk Büroları & Danışmanlık Ekosistemi
           </div>
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 text-slate-900">
             Müvekkil Ön Eleme & <br />
-            <span className="bg-gradient-to-r from-amber-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="text-amber-600">
               Otomatik Danışmanlık Randevu Sistemi
             </span>
           </h1>
-          <p className="max-w-3xl mx-auto text-[#94A3B8] text-lg sm:text-xl leading-relaxed mb-8">
+          <p className="max-w-3xl mx-auto text-slate-600 text-lg sm:text-xl leading-relaxed mb-8">
             Uygun olmayan dava ve danışmanlık talepleriyle vakit kaybetmeyin. AI Asistanı müvekkillerinizin hukuki konusunu önden analiz eder, gerekli ön bilgileri toplar ve filtrelenmiş nitelikli danışmanlık randevusunu oluşturur.
           </p>
         </section>
 
         <section className="py-12 max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <Bot className="w-10 h-10 text-amber-400 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Akıllı Müvekkil Ön Eleme</h3>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow">
+            <Bot className="w-10 h-10 text-amber-600 mb-4" />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Akıllı Müvekkil Ön Eleme</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">
               Danışmanlık konusunu (Ticaret, İş, Ceza, Gayrimenkul) tespit ederek ön soru setlerini yanıtlatır.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <FileText className="w-10 h-10 text-purple-400 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Otomatik Evrak & Ön Bilgi Toplama</h3>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow">
+            <FileText className="w-10 h-10 text-purple-600 mb-4" />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Otomatik Evrak & Ön Bilgi Toplama</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">
               Görüşme öncesi gerekli dava evraklarını ve özet detayları güvenli kanaldan toplar.
             </p>
           </div>
-          <div className="p-8 rounded-2xl border border-white/10 bg-[#0E0E17]">
-            <ShieldCheck className="w-10 h-10 text-emerald-400 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">DSGVO / KVKK Tam Gizlilik Mührü</h3>
-            <p className="text-[#94A3B8] text-sm">
+          <div className="p-8 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow">
+            <ShieldCheck className="w-10 h-10 text-emerald-600 mb-4" />
+            <h3 className="text-xl font-bold text-slate-900 mb-2">DSGVO / KVKK Tam Gizlilik Mührü</h3>
+            <p className="text-slate-600 text-sm leading-relaxed">
               Sır saklama ve gizlilik protokollerine uygun, izole veri sunucuları ile sıfır veri sızıntısı.
             </p>
           </div>

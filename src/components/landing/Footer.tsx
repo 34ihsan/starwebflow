@@ -57,9 +57,9 @@ export default function Footer() {
   }
 
   return (
-    <footer className="relative overflow-hidden border-t border-white/[0.06]">
+    <footer className="relative overflow-hidden border-t border-slate-200/90 bg-slate-50/80">
       {/* Top gradient */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/20 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer */}
@@ -78,7 +78,7 @@ export default function Footer() {
               )}
             </a>
 
-            <p className="text-sm text-[#64748B] leading-relaxed mb-6 max-w-xs">
+            <p className="text-sm text-slate-600 leading-relaxed mb-6 max-w-xs">
               {t('footer.desc')}
             </p>
 
@@ -89,8 +89,8 @@ export default function Footer() {
                 { icon: Phone, text: '+49 179 492 4556' },
                 { icon: MapPin, text: t('footer.contact.city') },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-2.5 text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors">
-                  <Icon className="w-4 h-4 text-[#4F8EF7] flex-shrink-0" />
+                <div key={text} className="flex items-center gap-2.5 text-sm text-slate-600 hover:text-slate-900 transition-colors">
+                  <Icon className="w-4 h-4 text-purple-600 flex-shrink-0" />
                   {text}
                 </div>
               ))}
@@ -103,7 +103,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-9 h-9 rounded-lg border border-white/[0.06] bg-white/[0.02] flex items-center justify-center text-[#64748B] hover:text-white hover:border-[#4F8EF7]/40 hover:bg-[#4F8EF7]/10 transition-all duration-200"
+                  className="w-9 h-9 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:text-purple-600 hover:border-purple-300 hover:bg-purple-50 transition-all shadow-2xs cursor-pointer"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -113,13 +113,13 @@ export default function Footer() {
 
           {/* Links columns */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.headers.services')}</h4>
+            <h4 className="text-sm font-bold text-slate-900 mb-4">{t('footer.headers.services')}</h4>
             <ul className="space-y-3">
               {links.services.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -129,13 +129,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.headers.company')}</h4>
+            <h4 className="text-sm font-bold text-slate-900 mb-4">{t('footer.headers.company')}</h4>
             <ul className="space-y-3">
               {links.company.map((link) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -146,7 +146,7 @@ export default function Footer() {
 
           {/* Sectors column — GEO & internal linking */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">
+            <h4 className="text-sm font-bold text-slate-900 mb-4">
               {language === 'tr' ? 'Sektörler' : language === 'de' ? 'Branchen' : 'Industries'}
             </h4>
             <ul className="space-y-3">
@@ -154,7 +154,7 @@ export default function Footer() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -164,13 +164,13 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.headers.legal')}</h4>
+            <h4 className="text-sm font-bold text-slate-900 mb-4">{t('footer.headers.legal')}</h4>
             <ul className="space-y-3">
               {links.legal.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     {link.label}
                   </a>
@@ -181,22 +181,21 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#475569]">
+        <div className="py-6 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-slate-500">
             © {new Date().getFullYear()} StarWebFlow. {t('footer.rights')}
           </p>
           <div className="flex items-center gap-4">
             {/* AI Accessible badge */}
             <div
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-              style={{ background: 'rgba(79,142,247,0.08)', border: '1px solid rgba(79,142,247,0.2)' }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 border border-purple-200"
               title="This page is optimized for AI search engines (ChatGPT, Claude, Gemini, Perplexity)"
             >
-              <Shield className="w-3 h-3 text-[#4F8EF7]" aria-hidden="true" />
-              <span className="text-[9px] font-bold text-[#4F8EF7] tracking-widest uppercase">AI-Accessible</span>
+              <Shield className="w-3 h-3 text-purple-600" aria-hidden="true" />
+              <span className="text-[9px] font-bold text-purple-700 tracking-widest uppercase">AI-Accessible</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-[#475569]">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               {t('footer.status')}
             </div>
           </div>

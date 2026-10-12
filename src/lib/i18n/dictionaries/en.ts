@@ -39,24 +39,24 @@ export const en = {
     title: 'What We Do',
     subtitle: 'Engineering Power + Measurable Business Impact: Hybrid Ecosystems Driving B2B Growth',
     web: {
-      title: 'Sub-Second Web Ecosystem (Next.js 14)',
-      desc: 'High-speed architecture built with Next.js 14 and Tailwind CSS. Loads in under 0.4 seconds, eliminating bounce rates and tripling your sales conversion rate.',
+      title: 'Sub-Second Modern Edge Web & Headless Architecture',
+      desc: 'Sub-second digital storefront loading in 0.38s via global Edge CDN and headless architecture. Eliminates bounce rates and scales your conversion rate by 3.6x.',
     },
     saas: {
-      title: 'Custom SaaS & Cloud Architecture (Cloud-Native)',
-      desc: 'Scalable cloud software powered by PostgreSQL and Docker. Provides a custom client, proposal, and project management dashboard that eliminates Excel chaos and centralizes your operations.',
+      title: 'Custom B2B Portals & Cloud-Native SaaS',
+      desc: 'Scalable cloud infrastructure powered by PostgreSQL and Docker. Empowers clients with self-service dashboards and partner ordering hubs, completely removing Excel and phone bottlenecks.',
     },
     agents: {
-      title: 'Autonomous AI Agents (LLM & RAG Powered)',
-      desc: 'Intelligent digital sales representative integrated with GPT-4o & Gemini. Interacts with prospects 24/7, presents quotes, and books qualified appointments directly into your calendar.',
+      title: 'Model-Agnostic Autonomous AI & Voice Agents',
+      desc: 'Intelligent multi-model digital representatives (Claude, Llama, DeepSeek, GPT) deployed on-premise or cloud. Manages voice calls and chats 24/7, calculates custom proposals, and books confirmed meetings.',
     },
     automation: {
-      title: 'Cognitive Workflow Automation (n8n & API)',
-      desc: 'Intelligent data workflows connecting your systems via n8n, Webhooks, and APIs. Eliminates manual tasks like invoicing and lead capture, saving your team 15+ hours per week.',
+      title: 'Cognitive Workflow & ERP Integration (n8n & API)',
+      desc: 'Intelligent data workflows connecting your ERP, CRM, and tools via n8n and Webhooks. Eliminates manual invoicing, synchronizes data with zero errors, and saves 15+ hours weekly.',
     },
     marketing: {
-      title: 'Data-Driven Growth (Algorithmic Growth Marketing)',
-      desc: 'Targeted ad management powered by Meta Pixel and Google Ads CAPI. Reaches high-intent buyers without wasted ad spend, drastically lowering acquisition costs.',
+      title: 'Data-Driven Growth & GEO (Generative Engine Optimization)',
+      desc: 'Meta CAPI, Google Ads, and GEO positioning that makes your company the top recommended vendor on ChatGPT, Perplexity, and Claude. Delivers high-intent B2B inbound clients without wasted ad spend.',
     },
   },
   roi: {

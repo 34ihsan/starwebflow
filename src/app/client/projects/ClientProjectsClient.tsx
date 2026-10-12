@@ -211,25 +211,25 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-bold font-['Outfit'] text-white flex items-center gap-3">
-            <FolderKanban className="w-8 h-8 text-[#4F8EF7]" />
+          <h1 className="text-3xl font-black font-['Outfit'] text-slate-900 flex items-center gap-3">
+            <FolderKanban className="w-8 h-8 text-blue-600" />
             {dict.title}
           </h1>
-          <p className="text-slate-400 mt-2">{dict.subtitle}</p>
+          <p className="text-slate-600 mt-2 font-medium">{dict.subtitle}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-[#0A0A0F] border border-white/[0.05] p-4 rounded-2xl">
-        <div className="flex bg-[#131B2A] rounded-lg p-1 border border-white/[0.05] w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white border border-slate-200/90 p-4 rounded-2xl shadow-xs">
+        <div className="flex bg-slate-100 rounded-xl p-1 border border-slate-200 w-full sm:w-auto">
           {["ALL", "ACTIVE", "COMPLETED"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 sm:flex-none px-6 py-2 rounded-md text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-sm font-bold transition-all ${
                 activeTab === tab 
-                  ? "bg-[#4F8EF7] text-white shadow-[0_0_15px_rgba(79,142,247,0.3)]" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-blue-600 text-white shadow-xs" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white"
               }`}
             >
               {tab === "ALL" ? dict.all : tab === "ACTIVE" ? dict.active : dict.completed}
@@ -244,7 +244,7 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
             placeholder={dict.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#131B2A] border border-white/[0.05] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#4F8EF7] transition-colors"
+            className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition-colors shadow-2xs"
           />
         </div>
       </div>
@@ -252,12 +252,12 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
       {/* Projects Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {filteredProjects.length === 0 ? (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center bg-[#0A0A0F] border border-white/[0.05] rounded-2xl border-dashed">
-            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-              <FolderKanban className="w-8 h-8 text-slate-500" />
+          <div className="col-span-full py-20 flex flex-col items-center justify-center bg-white border-2 border-dashed border-slate-200 rounded-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+              <FolderKanban className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2 font-['Outfit']">{dict.notFound}</h3>
-            <p className="text-slate-400 text-center max-w-md">
+            <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Outfit']">{dict.notFound}</h3>
+            <p className="text-slate-600 text-center max-w-md text-sm">
               {dict.notFoundDesc}
             </p>
           </div>
@@ -266,56 +266,53 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
             <div 
               key={project.id} 
               onClick={() => handleOpenTasks(project)}
-              className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-lg hover:border-[#4F8EF7]/30 transition-all group cursor-pointer relative overflow-hidden"
+              className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs hover:shadow-md hover:border-blue-300 transition-all group cursor-pointer relative overflow-hidden"
             >
-              {/* Card Background Glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#4F8EF7]/5 rounded-full blur-3xl group-hover:bg-[#4F8EF7]/10 transition-colors" />
-              
               <div className="relative z-10">
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-2 font-['Outfit'] group-hover:text-[#4F8EF7] transition-colors">{project.title}</h3>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2 font-['Outfit'] group-hover:text-blue-600 transition-colors">{project.title}</h3>
                     <div className="flex items-center gap-3">
                       {getStatusBadge(project.status)}
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
                         <Clock className="w-3 h-3" />
                         {dict.lastUpdate} {new Date(project.updatedAt).toLocaleDateString(currencyLocale)}
                       </span>
                     </div>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-[#131B2A] border border-white/[0.05] flex items-center justify-center group-hover:bg-[#4F8EF7] transition-colors shadow-lg">
-                    <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white" />
                   </div>
                 </div>
                 
-                <div className="space-y-3 bg-[#131B2A]/50 p-4 rounded-xl border border-white/[0.02]">
+                <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                   <div className="flex justify-between text-sm items-end">
                     <div>
-                      <span className="text-slate-400 block text-xs mb-1">{dict.generalProgress}</span>
-                      <span className="text-white font-bold text-lg font-['Outfit']">%{project.progress || 0}</span>
+                      <span className="text-slate-500 block text-xs mb-1 font-medium">{dict.generalProgress}</span>
+                      <span className="text-slate-900 font-black text-lg font-['Outfit']">%{project.progress || 0}</span>
                     </div>
-                    <span className="text-xs text-slate-500">{dict.target}</span>
+                    <span className="text-xs text-slate-500 font-medium">{dict.target}</span>
                   </div>
-                  <div className="w-full h-3 bg-[#05050A] rounded-full overflow-hidden border border-white/[0.05]">
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-[#4F8EF7] to-[#06B6D4] rounded-full relative"
+                      className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full relative"
                       style={{ width: `${project.progress || 0}%` }}
                     >
-                      <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" />
+                      <div className="absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite]" />
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center gap-4 border-t border-white/[0.05] pt-4">
+                <div className="mt-6 flex items-center gap-4 border-t border-slate-100 pt-4 font-semibold text-xs">
                   <div 
                     onClick={(e) => { e.stopPropagation(); handleOpenTasks(project); }}
-                    className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors cursor-pointer"
                   >
-                    <CheckSquare className="w-4 h-4 text-emerald-400" />
+                    <CheckSquare className="w-4 h-4 text-emerald-600" />
                     {dict.inspectTasks}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
-                    <FileText className="w-4 h-4 text-purple-400" />
+                  <div className="flex items-center gap-2 text-slate-600 hover:text-purple-600 transition-colors">
+                    <FileText className="w-4 h-4 text-purple-600" />
                     {dict.filesPresentations}
                   </div>
                 </div>
@@ -331,24 +328,24 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
           {/* Backdrop */}
           <div 
             onClick={handleCloseTasks}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-300"
           />
           
           <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-4xl bg-[#07070C] border-l border-white/[0.08] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="w-screen max-w-4xl bg-white border-l border-slate-200 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 text-slate-900">
               
               {/* Header */}
-              <div className="p-6 border-b border-white/[0.05] flex justify-between items-center bg-[#0A0A10]">
+              <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <div>
-                  <h2 className="text-xl font-bold text-white font-['Outfit'] flex items-center gap-2">
-                    <FolderKanban className="w-5 h-5 text-[#4F8EF7]" />
+                  <h2 className="text-xl font-bold text-slate-900 font-['Outfit'] flex items-center gap-2">
+                    <FolderKanban className="w-5 h-5 text-blue-600" />
                     {selectedProject.title} — {dict.taskTracking}
                   </h2>
-                  <p className="text-xs text-slate-400 mt-1">{dict.taskTrackingSubtitle}</p>
+                  <p className="text-xs text-slate-500 mt-1">{dict.taskTrackingSubtitle}</p>
                 </div>
                 <button 
                   onClick={handleCloseTasks}
-                  className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all"
+                  className="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 transition-all shadow-2xs"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -358,48 +355,48 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {isTasksLoading ? (
                   <div className="h-64 flex flex-col items-center justify-center gap-3">
-                    <Loader2 className="w-8 h-8 text-[#4F8EF7] animate-spin" />
-                    <span className="text-sm text-slate-400 font-medium">{dict.loadingTasks}</span>
+                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                    <span className="text-sm text-slate-600 font-medium">{dict.loadingTasks}</span>
                   </div>
                 ) : tasksError ? (
-                  <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-4 rounded-xl flex items-center gap-3">
+                  <div className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-xl flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                     <span className="text-sm">{tasksError}</span>
                   </div>
                 ) : projectTasks.length === 0 ? (
-                  <div className="py-20 flex flex-col items-center justify-center border border-dashed border-white/[0.05] rounded-2xl bg-white/[0.01]">
-                    <CheckCircle2 className="w-12 h-12 text-slate-600 mb-3" />
-                    <h4 className="text-white font-bold mb-1">{dict.noTasksTitle}</h4>
-                    <p className="text-slate-400 text-sm max-w-xs text-center">{dict.noTasksDesc}</p>
+                  <div className="py-20 flex flex-col items-center justify-center border border-dashed border-slate-200 rounded-2xl bg-slate-50">
+                    <CheckCircle2 className="w-12 h-12 text-slate-400 mb-3" />
+                    <h4 className="text-slate-900 font-bold mb-1">{dict.noTasksTitle}</h4>
+                    <p className="text-slate-600 text-sm max-w-xs text-center">{dict.noTasksDesc}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                     
                     {/* Column 1: Yapılacak & Devam Edenler */}
-                    <div className="border border-white/[0.05] bg-white/[0.01] rounded-2xl overflow-hidden">
-                      <div className="border-t-4 border-t-[#4F8EF7] p-4 bg-[#0A0A10] border-b border-white/[0.05] flex justify-between items-center">
-                        <span className="font-semibold text-white text-sm">{dict.devStage}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/5 text-slate-400">
+                    <div className="border border-slate-200 bg-slate-50/50 rounded-2xl overflow-hidden shadow-xs">
+                      <div className="border-t-4 border-t-blue-600 p-4 bg-white border-b border-slate-200 flex justify-between items-center">
+                        <span className="font-bold text-slate-900 text-sm">{dict.devStage}</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                           {projectTasks.filter(t => ['todo', 'doing'].includes(t.status)).length}
                         </span>
                       </div>
                       <div className="p-3 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                         {projectTasks.filter(t => ['todo', 'doing'].includes(t.status)).map(task => (
-                          <div key={task.id} className="bg-[#0A0A10] border border-white/[0.04] rounded-xl p-4 space-y-3 relative overflow-hidden">
-                            <h4 className="font-semibold text-white text-sm leading-snug">{task.title}</h4>
+                          <div key={task.id} className="bg-white border border-slate-200 rounded-xl p-4 space-y-3 relative overflow-hidden shadow-2xs">
+                            <h4 className="font-bold text-slate-900 text-sm leading-snug">{task.title}</h4>
                             {task.description && (
-                              <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{task.description}</p>
+                              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{task.description}</p>
                             )}
-                            <div className="flex justify-between items-center pt-2 border-t border-white/[0.02]">
+                            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
                               <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${
                                 task.status === 'doing'
-                                  ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-                                  : 'text-slate-400 bg-slate-500/10 border-slate-500/20'
+                                  ? 'text-amber-700 bg-amber-50 border-amber-200'
+                                  : 'text-slate-700 bg-slate-100 border-slate-200'
                               }`}>
                                 {task.status === 'doing' ? dict.statusDoing : dict.statusTodo}
                               </span>
                               {task.dueDate && (
-                                <span className="text-[9px] text-slate-500 flex items-center gap-1">
+                                <span className="text-[9px] text-slate-500 flex items-center gap-1 font-medium">
                                   <Calendar className="w-2.5 h-2.5" />
                                   {new Date(task.dueDate).toLocaleDateString(currencyLocale, { day: '2-digit', month: 'short' })}
                                 </span>
@@ -414,25 +411,24 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
                     </div>
 
                     {/* Column 2: Onay Bekleyenler (Review) */}
-                    <div className="border border-[#8B5CF6]/20 bg-[#8B5CF6]/5 rounded-2xl overflow-hidden shadow-[0_0_20px_rgba(139,92,246,0.05)]">
-                      <div className="border-t-4 border-t-[#8B5CF6] p-4 bg-[#0A0A10] border-b border-white/[0.05] flex justify-between items-center">
-                        <span className="font-semibold text-purple-300 text-sm">{dict.awaitingApproval}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300">
+                    <div className="border border-purple-200 bg-purple-50/30 rounded-2xl overflow-hidden shadow-xs">
+                      <div className="border-t-4 border-t-purple-600 p-4 bg-white border-b border-purple-100 flex justify-between items-center">
+                        <span className="font-bold text-purple-900 text-sm">{dict.awaitingApproval}</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
                           {projectTasks.filter(t => t.status === 'review').length}
                         </span>
                       </div>
                       <div className="p-3 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                         {projectTasks.filter(t => t.status === 'review').map(task => (
-                          <div key={task.id} className="bg-[#0A0A10] border border-[#8B5CF6]/30 rounded-xl p-4 space-y-3 shadow-lg relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-[#8B5CF6]/5 to-transparent" />
+                          <div key={task.id} className="bg-white border border-purple-200 rounded-xl p-4 space-y-3 shadow-xs relative overflow-hidden group">
                             <div className="relative z-10 space-y-3">
-                              <h4 className="font-semibold text-white text-sm leading-snug">{task.title}</h4>
+                              <h4 className="font-bold text-slate-900 text-sm leading-snug">{task.title}</h4>
                               {task.description && (
-                                <p className="text-xs text-slate-400 line-clamp-3 leading-relaxed">{task.description}</p>
+                                <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">{task.description}</p>
                               )}
                               
-                              <div className="flex justify-between items-center pt-2 border-t border-white/[0.02] text-[10px] text-slate-500">
-                                <span className="text-purple-400 font-semibold bg-purple-500/10 px-2 py-0.5 rounded">
+                              <div className="flex justify-between items-center pt-2 border-t border-slate-100 text-[10px] text-slate-500 font-medium">
+                                <span className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
                                   {dict.underReview}
                                 </span>
                                 {task.dueDate && (
@@ -447,7 +443,7 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
                                 <button
                                   onClick={() => handleClientAction(task.id, 'todo')}
                                   disabled={isClientActionLoading === task.id}
-                                  className="flex items-center justify-center gap-1 bg-transparent hover:bg-rose-500/10 border border-rose-500/20 text-rose-400 py-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
+                                  className="flex items-center justify-center gap-1 bg-white hover:bg-rose-50 border border-rose-200 text-rose-700 py-2 rounded-lg text-xs font-bold transition-all active:scale-[0.98] disabled:opacity-50 shadow-2xs"
                                 >
                                   {isClientActionLoading === task.id ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -461,7 +457,7 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
                                 <button
                                   onClick={() => handleClientAction(task.id, 'done')}
                                   disabled={isClientActionLoading === task.id}
-                                  className="flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-[0_0_10px_rgba(16,185,129,0.3)] active:scale-[0.98] disabled:opacity-50"
+                                  className="flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-xs font-bold transition-all shadow-xs active:scale-[0.98] disabled:opacity-50"
                                 >
                                   {isClientActionLoading === task.id ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -483,19 +479,19 @@ export default function ClientProjectsClient({ initialProjects }: { initialProje
                     </div>
 
                     {/* Column 3: Tamamlananlar */}
-                    <div className="border border-white/[0.05] bg-white/[0.01] rounded-2xl overflow-hidden">
-                      <div className="border-t-4 border-t-emerald-500 p-4 bg-[#0A0A10] border-b border-white/[0.05] flex justify-between items-center">
-                        <span className="font-semibold text-white text-sm">{dict.completedColumn}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/5 text-slate-400">
+                    <div className="border border-slate-200 bg-slate-50/50 rounded-2xl overflow-hidden shadow-xs">
+                      <div className="border-t-4 border-t-emerald-600 p-4 bg-white border-b border-slate-200 flex justify-between items-center">
+                        <span className="font-bold text-slate-900 text-sm">{dict.completedColumn}</span>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
                           {projectTasks.filter(t => t.status === 'done').length}
                         </span>
                       </div>
                       <div className="p-3 space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                         {projectTasks.filter(t => t.status === 'done').map(task => (
-                          <div key={task.id} className="bg-[#0A0A10]/60 border border-white/[0.03] rounded-xl p-4 space-y-2 relative opacity-75 hover:opacity-100 transition-opacity">
-                            <h4 className="font-semibold text-slate-300 text-sm leading-snug line-through">{task.title}</h4>
-                            <div className="flex justify-between items-center pt-2 border-t border-white/[0.02]">
-                              <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                          <div key={task.id} className="bg-white border border-slate-200 rounded-xl p-4 space-y-2 relative shadow-2xs">
+                            <h4 className="font-semibold text-slate-500 text-sm leading-snug line-through">{task.title}</h4>
+                            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                              <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                                 <Check className="w-2.5 h-2.5" />
                                 {dict.approve}
                               </span>

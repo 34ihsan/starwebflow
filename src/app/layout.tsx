@@ -13,6 +13,7 @@ import AnalyticsTracker from '@/components/analytics/AnalyticsTracker'
 import { prisma } from '@/lib/prisma'
 import { SettingsProvider } from '@/lib/settings/SettingsContext'
 import { RecaptchaProvider } from '@/components/ui/RecaptchaProvider'
+import { ThemeProvider, Theme } from '@/lib/theme/ThemeContext'
 
 export const metadata: Metadata = {
   title: 'StarWebFlow — Premium AI Otomasyon & Web Geliştirme Ekosistemi',
@@ -103,14 +104,22 @@ export default async function RootLayout({
     ? rawRegion
     : (initialLanguage === 'de' ? 'DE_DE' : initialLanguage === 'en' ? 'EU_EN' : 'DE_TR');
 
+  const initialTheme: Theme = 'light';
+
   return (
-    <html lang={initialLanguage} className="dark" suppressHydrationWarning>
+    <html lang={initialLanguage} className="light" data-theme="light" style={{ colorScheme: 'light' }} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
+        />
+        {/* Enforce Permanent Light Mode Initialization Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var root=document.documentElement;root.classList.remove('dark');root.classList.add('light');root.setAttribute('data-theme','light');root.style.colorScheme='light';localStorage.setItem('starwebflow-theme','light');}catch(e){}})()`,
+          }}
         />
         {/* Preload critical assets */}
         <link rel="preload" as="image" href="/starwebflow_banner_1.png" />
@@ -123,14 +132,15 @@ export default async function RootLayout({
         <SchemaMarkup />
         <TrackingScripts {...trackingCodes} />
       </head>
-      <body className="bg-[#0A0A0F] text-white antialiased overflow-x-hidden" suppressHydrationWarning>
-        <SettingsProvider initialSettings={dbSettings}>
-          <LanguageProvider initialLanguage={initialLanguage}>
-            <RegionProvider initialRegion={initialRegion}>
-              <RecaptchaProvider>
-                <Suspense fallback={null}>
-                  <AnalyticsTracker />
-                </Suspense>
+      <body className="bg-[#FAFBFD] text-slate-900 antialiased overflow-x-hidden selection:bg-blue-600/10 selection:text-blue-700" suppressHydrationWarning>
+        <ThemeProvider defaultTheme="light">
+          <SettingsProvider initialSettings={dbSettings}>
+            <LanguageProvider initialLanguage={initialLanguage}>
+              <RegionProvider initialRegion={initialRegion}>
+                <RecaptchaProvider>
+                  <Suspense fallback={null}>
+                    <AnalyticsTracker />
+                  </Suspense>
               
               {/*
                 ════════════════════════════════════════════════════════════
@@ -190,7 +200,8 @@ export default async function RootLayout({
           </RegionProvider>
         </LanguageProvider>
       </SettingsProvider>
-      </body>
+    </ThemeProvider>
+  </body>
     </html>
   )
 }

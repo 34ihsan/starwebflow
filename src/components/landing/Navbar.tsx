@@ -46,7 +46,7 @@ export default function Navbar() {
       desc: language === 'de' ? 'Rund-um-die-Uhr Kundenbetreuung, automatische Angebotserstellung und Terminbuchung.' : language === 'en' ? '24/7 client inquiries, automated proposals, and direct calendar appointments.' : '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
       href: '/hizmetler/ai-agents',
       color: '#8B5CF6',
-      badge: 'GPT-4o / RAG',
+      badge: 'Multi-LLM & RAG',
     },
     {
       icon: Cog,
@@ -114,9 +114,9 @@ export default function Navbar() {
     <>
       <RegionBanner />
       <header
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'bg-[#0A0A0F]/85 backdrop-blur-2xl border-b border-white/[0.08] shadow-[0_4px_30px_rgba(0,0,0,0.6)]'
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          scrolled || servicesOpen
+            ? 'bg-white/95 dark:bg-[#0A0A0F]/95 backdrop-blur-2xl border-b border-slate-200/90 dark:border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.6)]'
             : 'bg-transparent'
         }`}
         style={{ animation: 'slideDown 0.5s ease both' }}
@@ -140,11 +140,16 @@ export default function Navbar() {
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center gap-1">
               {/* Hizmetler mega-menu */}
-              <div className="relative" ref={dropdownRef}>
+              <div 
+                className="relative" 
+                ref={dropdownRef}
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
                 <button
                   onClick={() => setServicesOpen(o => !o)}
                   className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer ${
-                    servicesOpen ? 'text-white bg-white/5' : 'text-[#94A3B8] hover:text-white hover:bg-white/5'
+                    servicesOpen ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-white/5' : 'text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-white/5'
                   }`}
                 >
                   {t('navbar.services')}
@@ -154,33 +159,31 @@ export default function Navbar() {
                 {/* Dropdown */}
                 {servicesOpen && (
                   <div
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[620px] rounded-3xl border border-white/[0.1] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(79,142,247,0.15)] font-sans"
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[620px] rounded-3xl border border-slate-200/90 bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.18)] font-sans overflow-hidden backdrop-blur-2xl"
                     style={{
-                      background: 'rgba(10, 10, 18, 0.96)',
-                      backdropFilter: 'blur(24px)',
                       animation: 'fadeInUp 0.2s ease both',
                     }}
                   >
                     {/* Top Accent Line */}
-                    <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#4F8EF7] via-[#8B5CF6] to-[#06B6D4]" />
+                    <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500" />
 
                     {/* Dropdown Header */}
-                    <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.01]">
+                    <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#4F8EF7] block mb-0.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 block mb-0.5">
                           {t('navbar.portfolioTitle')}
                         </span>
-                        <h4 className="text-sm font-bold text-white leading-none">
+                        <h4 className="text-sm font-bold text-slate-900 leading-none">
                           {language === 'de' ? 'Ingenieurskunst + Messbarer Geschäftserfolg' : language === 'en' ? 'Engineering Power + Concrete Business ROI' : 'Mühendislik Gücü + Somut İşletme Kazancı'}
                         </h4>
                       </div>
-                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-xs">
                         ● {language === 'de' ? 'Systeme aktiv' : language === 'en' ? 'Systems Active' : 'Sistemler Aktif'}
                       </span>
                     </div>
 
                     {/* Services Grid (2 Columns) */}
-                    <div className="p-3 grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                    <div className="p-3.5 grid grid-cols-1 md:grid-cols-2 gap-2">
                       {services.map((service) => {
                         const Icon = service.icon
                         return (
@@ -188,29 +191,29 @@ export default function Navbar() {
                             key={service.href}
                             href={service.href}
                             onClick={() => setServicesOpen(false)}
-                            className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-white/[0.04] border border-transparent hover:border-white/[0.08] transition-all duration-200 group"
+                            className="flex items-start gap-3.5 p-3 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-200/90 transition-all duration-200 group"
                           >
                             <div
-                              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 mt-0.5"
+                              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 mt-0.5 shadow-xs"
                               style={{
                                 background: `${service.color}15`,
-                                border: `1px solid ${service.color}30`,
+                                border: `1px solid ${service.color}35`,
                               }}
                             >
                               <Icon className="w-5 h-5" style={{ color: service.color }} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-bold text-white group-hover:text-[#4F8EF7] transition-colors truncate">
+                                <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                                   {service.label}
                                 </span>
                                 <span
-                                  className="text-[9px] font-bold px-1.5 py-0.5 rounded text-slate-300 bg-white/[0.05] border border-white/[0.08] flex-shrink-0"
+                                  className="text-[9px] font-bold px-1.5 py-0.5 rounded text-slate-600 bg-slate-100 border border-slate-200 flex-shrink-0"
                                 >
                                   {service.badge}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-[#94A3B8] leading-tight line-clamp-2">
+                              <p className="text-[11px] text-slate-600 leading-tight line-clamp-2 font-normal">
                                 {service.desc}
                               </p>
                             </div>
@@ -220,15 +223,15 @@ export default function Navbar() {
                     </div>
 
                     {/* Dropdown Footer Banner */}
-                    <div className="px-6 py-3.5 border-t border-white/[0.06] bg-[#07070F] flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
-                        <Zap className="w-3.5 h-3.5 text-[#F59E0B]" />
+                    <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                        <Zap className="w-3.5 h-3.5 text-amber-500" />
                         <span>{language === 'de' ? 'Nicht sicher, welche Lösung Sie brauchen?' : language === 'en' ? 'Not sure which solution fits your needs?' : 'Hangi çözüme ihtiyacınız olduğundan emin değil misiniz?'}</span>
                       </div>
                       <Link
                         href="/#services"
                         onClick={() => setServicesOpen(false)}
-                        className="text-xs font-bold text-[#4F8EF7] hover:text-white transition-colors flex items-center gap-1"
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
                       >
                         {t('navbar.allServices')}
                       </Link>
@@ -242,7 +245,7 @@ export default function Navbar() {
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className="px-4 py-2 text-sm text-[#94A3B8] hover:text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                    className="px-4 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white font-medium rounded-lg hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all duration-200 cursor-pointer"
                   >
                     {link.label}
                   </button>
@@ -250,7 +253,7 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="px-4 py-2 text-sm text-[#94A3B8] hover:text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                    className="px-4 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white font-medium rounded-lg hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all duration-200 cursor-pointer"
                   >
                     {link.label}
                   </Link>
@@ -259,19 +262,19 @@ export default function Navbar() {
             </nav>
 
             {/* Desktop CTA */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2.5">
               {/* Dil Seçici Dropdown */}
               <div className="relative" ref={langDropdownRef}>
                 <button
                   onClick={() => setLangOpen(!langOpen)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#94A3B8] hover:text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/[0.05]"
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer border border-transparent hover:border-slate-200"
                 >
-                  <Globe className="w-4 h-4 text-blue-400" />
+                  <Globe className="w-4 h-4 text-blue-500" />
                   <span className="uppercase">{language}</span>
                   <ChevronDown className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langOpen && (
-                  <div className="absolute right-0 mt-2 w-28 bg-[#0C0C16] border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="absolute right-0 mt-2 w-28 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xl z-50 animate-in fade-in slide-in-from-top-1 duration-150">
                     {(['tr', 'en', 'de'] as const).map((lang) => (
                       <button
                         key={lang}
@@ -279,8 +282,8 @@ export default function Navbar() {
                           setLanguage(lang);
                           setLangOpen(false);
                         }}
-                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-white/5 transition-colors uppercase ${
-                          language === lang ? 'text-blue-400 bg-white/[0.02]' : 'text-[#94A3B8]'
+                        className={`w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-slate-100 transition-colors uppercase ${
+                          language === lang ? 'text-blue-600 bg-blue-50/50' : 'text-slate-700'
                         }`}
                       >
                         {lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'Deutsch'}
@@ -290,7 +293,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/auth/login" className="px-4 py-2 text-sm text-[#94A3B8] hover:text-white font-medium rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer flex items-center gap-2">
+              <Link href="/auth/login" className="px-3.5 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer flex items-center gap-2">
                 <LogIn className="w-4 h-4" />
                 {t('navbar.login')}
               </Link>
@@ -305,13 +308,15 @@ export default function Navbar() {
             </div>
 
             {/* Mobile toggle */}
-            <button
-              className="md:hidden p-2 rounded-lg text-[#94A3B8] hover:text-white hover:bg-white/5 transition-all"
-              onClick={() => setMobileOpen((o) => !o)}
-              aria-label="Menü"
-            >
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            <div className="md:hidden flex items-center gap-2">
+              <button
+                className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all"
+                onClick={() => setMobileOpen((o) => !o)}
+                aria-label="Menü"
+              >
+                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -321,11 +326,11 @@ export default function Navbar() {
             mobileOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="px-4 pb-4 pt-2 space-y-1 bg-[#0A0A0F]/95 backdrop-blur-xl border-b border-white/[0.06]">
+          <div className="px-4 pb-4 pt-2 space-y-1 bg-white backdrop-blur-2xl border-b border-slate-200 shadow-xl">
             {/* Mobile Services */}
             <button
               onClick={() => setMobileServicesOpen(o => !o)}
-              className="w-full flex items-center justify-between px-4 py-3 text-sm text-[#94A3B8] hover:text-white font-medium rounded-xl hover:bg-white/5 transition-all duration-200"
+              className="w-full flex items-center justify-between px-4 py-3 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-xl hover:bg-slate-100/80 transition-all duration-200"
             >
               {t('navbar.services')}
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} />
@@ -340,10 +345,10 @@ export default function Navbar() {
                       key={service.href}
                       href={service.href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/5 transition-all"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100/80 transition-all"
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" style={{ color: service.color }} />
-                      <span className="text-sm text-[#94A3B8]">{service.label}</span>
+                      <span className="text-sm font-medium text-slate-700">{service.label}</span>
                     </Link>
                   )
                 })}
@@ -355,7 +360,7 @@ export default function Navbar() {
                 <button
                   key={link.href}
                   onClick={() => handleNavClick(link.href)}
-                  className="w-full text-left px-4 py-3 text-sm text-[#94A3B8] hover:text-white font-medium rounded-xl hover:bg-white/5 transition-all duration-200"
+                  className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-xl hover:bg-slate-100/80 transition-all duration-200"
                 >
                   {link.label}
                 </button>
@@ -364,7 +369,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block w-full text-left px-4 py-3 text-sm text-[#94A3B8] hover:text-white font-medium rounded-xl hover:bg-white/5 transition-all duration-200"
+                  className="block w-full text-left px-4 py-3 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-xl hover:bg-slate-100/80 transition-all duration-200"
                 >
                   {link.label}
                 </Link>
@@ -372,7 +377,7 @@ export default function Navbar() {
             ))}
 
             {/* Mobile Language Switcher */}
-            <div className="flex items-center justify-around py-3 border-t border-b border-white/[0.05] my-2">
+            <div className="flex items-center justify-around py-3 border-t border-b border-slate-200 my-2">
               {(['tr', 'en', 'de'] as const).map((lang) => (
                 <button
                   key={lang}
@@ -381,8 +386,8 @@ export default function Navbar() {
                   }}
                   className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${
                     language === lang 
-                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.15)]' 
-                      : 'text-[#64748B] hover:text-white'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs' 
+                      : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -392,14 +397,14 @@ export default function Navbar() {
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
-              <Link href="/auth/login" className="w-full text-center px-4 py-3 text-sm text-[#94A3B8] hover:text-white font-medium rounded-xl hover:bg-white/5 border border-white/5 transition-all duration-200 flex items-center justify-center gap-2">
+              <Link href="/auth/login" className="w-full text-center px-4 py-3 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-xl hover:bg-slate-100/80 border border-slate-200 transition-all duration-200 flex items-center justify-center gap-2">
                 <LogIn className="w-4 h-4" />
                 {t('navbar.login')}
               </Link>
               <Button
                 variant="primary"
                 size="md"
-                className="w-full"
+                className="w-full font-bold"
                 onClick={() => window.location.href = '/auth/register'}
               >
                 <UserPlus className="w-4 h-4" />

@@ -39,24 +39,24 @@ export const tr = {
     title: 'Neler Yapıyoruz?',
     subtitle: 'Mühendislik Gücü + Somut İşletme Kazancı: B2B Markanızı Zirveye Taşıyan Hibrit Ekosistemler',
     web: {
-      title: 'Sub-Second Web Ekosistemi (Next.js 14)',
-      desc: 'Next.js 14 ve Tailwind CSS ile milisaniyeler içinde yüklenen yüksek hızlı mimari. Sitenizin 0.4 saniyede açılmasını sağlayarak ziyaretçilerin kaçmasını önler ve satış dönüşümünüzü 3 katına çıkarır.',
+      title: 'Sub-Second Modern Edge Web & Headless Mimari',
+      desc: 'Milisaniyeler içinde (0.38s) yüklenen, global Edge CDN ve headless mimariyle güçlendirilmiş dijital vitrin. Ziyaretçi kaybını sıfırlayarak satış dönüşüm oranınızı 3.6 katına çıkarır.',
     },
     saas: {
-      title: 'Özel SaaS & Bulut Mimari (Cloud-Native)',
-      desc: 'PostgreSQL ve Docker tabanlı, sınırsız ölçeklenebilir özel yazılım altyapısı. Şirketinize özel müşteri, teklif ve proje yönetim paneli sunarak Excel kalabalığını sıfırlar ve verilerinizi tek ekranda toplar.',
+      title: 'Özel B2B Portalları & Cloud-Native SaaS',
+      desc: 'PostgreSQL ve Docker tabanlı, sınırsız ölçeklenebilir özel yazılım altyapısı. Müşterilerinize self-servis portal, bayilerinize sipariş paneli sunarak Excel ve telefon karmaşasını tamamen ortadan kaldırır.',
     },
     agents: {
-      title: 'Otonom AI Ajanları (LLM & RAG Altyapılı)',
-      desc: 'GPT-4o ve Gemini entegrasyonlu, veritabanınızla eşzamanlı çalışan akıllı dijital temsilci. Gece 03:00\'te bile müşterilerinize anında yanıt verir, fiyat sunar ve onaylı randevuyu takviminize işler.',
+      title: 'Model-Agnostik Otonom AI & Sesli Ajanlar',
+      desc: 'Tek bir modele bağlı kalmayan (Claude, Llama, DeepSeek, GPT serisi), kurum içi sunucularda (On-Premise) veya bulutta çalışan akıllı temsilciler. 7/24 sesli ve yazılı olarak müşteri karşılar, anında teklif iletir ve onaylı randevuları takvime bağlar.',
     },
     automation: {
-      title: 'Kognitif İş Akışı Otomasyonu (n8n & API)',
-      desc: 'n8n, Webhook ve API mimarisiyle sistemleri konuşturan akıllı veri senaryoları. Fatura kesme, lead kaydetme ve mail atma gibi angaryaları sıfırlayarak ekibinize haftalık 15+ saat işgücü kazandırır.',
+      title: 'Kognitif İş Akışı & ERP Entegrasyonu (n8n & API)',
+      desc: 'n8n, Webhook ve kurumsal ERP/CRM sistemlerinizi konuşturan otonom iş akışları. Fatura kesme, sipariş onaylama ve operasyonel veri senkronizasyonunu sıfır insan hatasıyla otomatikleştirir, haftalık 15+ saat mesai kazandırır.',
     },
     marketing: {
-      title: 'Veri Odaklı Büyüme (Algoritmik Growth Marketing)',
-      desc: 'Meta Pixel, Google Ads CAPI ve dönüşüm tetikleyicili reklam yönetimi. Boşa bütçe harcamadan nokta atışı hedef kitleye ulaşır, reklam maliyetlerinizi düşürüp doğrudan müşteri akışı sağlar.',
+      title: 'Veri Odaklı Büyüme & GEO (AI Arama Motoru Optimizasyonu)',
+      desc: 'Meta CAPI, Google Ads ve ChatGPT/Perplexity/Claude gibi yapay zeka arama motorlarında markanızı 1. sıraya taşıyan GEO optimizasyonu. Boşa bütçe harcamadan yüksek bütçeli B2B müşterileri doğrudan içeri çeker.',
     },
   },
   roi: {

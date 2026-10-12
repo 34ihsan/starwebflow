@@ -79,25 +79,25 @@ export default async function BlogPostPage({ params }: Props) {
     h2: ({node, children, ...props}: any) => {
       const text = String(children);
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      return <h2 id={id} className="text-2xl md:text-3xl font-bold mt-12 mb-6 text-slate-100 font-['Outfit']" {...props}>{children}</h2>
+      return <h2 id={id} className="text-2xl md:text-3xl font-extrabold mt-12 mb-6 text-slate-900 font-['Outfit']" {...props}>{children}</h2>
     },
     h3: ({node, children, ...props}: any) => {
       const text = String(children);
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      return <h3 id={id} className="text-xl md:text-2xl font-bold mt-8 mb-4 text-slate-200" {...props}>{children}</h3>
+      return <h3 id={id} className="text-xl md:text-2xl font-bold mt-8 mb-4 text-slate-800" {...props}>{children}</h3>
     },
-    p: ({node, children, ...props}: any) => <p className="text-slate-300 leading-relaxed mb-6 text-lg" {...props}>{children}</p>,
-    ul: ({node, children, ...props}: any) => <ul className="list-disc pl-6 mb-6 text-slate-300 space-y-2 text-lg" {...props}>{children}</ul>,
-    ol: ({node, children, ...props}: any) => <ol className="list-decimal pl-6 mb-6 text-slate-300 space-y-2 text-lg" {...props}>{children}</ol>,
+    p: ({node, children, ...props}: any) => <p className="text-slate-700 leading-relaxed mb-6 text-lg" {...props}>{children}</p>,
+    ul: ({node, children, ...props}: any) => <ul className="list-disc pl-6 mb-6 text-slate-700 space-y-2 text-lg" {...props}>{children}</ul>,
+    ol: ({node, children, ...props}: any) => <ol className="list-decimal pl-6 mb-6 text-slate-700 space-y-2 text-lg" {...props}>{children}</ol>,
     li: ({node, children, ...props}: any) => <li {...props}>{children}</li>,
-    a: ({node, children, href, ...props}: any) => <a href={href} className="text-blue-400 hover:text-blue-300 underline underline-offset-4" {...props}>{children}</a>,
-    blockquote: ({node, children, ...props}: any) => <blockquote className="border-l-4 border-blue-500 pl-6 italic text-slate-400 my-8 py-2 bg-white/[0.02] rounded-r-lg" {...props}>{children}</blockquote>,
+    a: ({node, children, href, ...props}: any) => <a href={href} className="text-blue-600 hover:text-blue-700 underline underline-offset-4 font-semibold" {...props}>{children}</a>,
+    blockquote: ({node, children, ...props}: any) => <blockquote className="border-l-4 border-blue-600 pl-6 italic text-slate-600 my-8 py-2 bg-slate-50 rounded-r-lg" {...props}>{children}</blockquote>,
   };
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-[#05050A] text-white pt-32 pb-24 font-sans selection:bg-blue-500/30">
+      <div className="min-h-screen bg-[#FAFBFD] text-slate-900 pt-32 pb-24 font-sans selection:bg-blue-600/10 selection:text-blue-700">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }}
@@ -105,7 +105,7 @@ export default async function BlogPostPage({ params }: Props) {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <Link href="/blog" className="inline-flex items-center text-slate-400 hover:text-white transition-colors mb-8 group">
+          <Link href="/blog" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors mb-8 group font-semibold text-sm">
             <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" /> Bloga Dön
           </Link>
 
@@ -114,18 +114,18 @@ export default async function BlogPostPage({ params }: Props) {
             {post.keywords && post.keywords.length > 0 && (
               <div className="flex flex-wrap justify-center gap-2 mb-6">
                 {post.keywords.map(kw => (
-                  <span key={kw} className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
+                  <span key={kw} className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-200">
                     {kw}
                   </span>
                 ))}
               </div>
             )}
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 font-['Outfit'] leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 font-['Outfit'] leading-tight text-slate-900">
               {post.title}
             </h1>
             
-            <div className="flex items-center justify-center gap-6 text-sm text-slate-400">
+            <div className="flex items-center justify-center gap-6 text-sm text-slate-500 font-medium">
               <span className="flex items-center gap-2">
                 <CalendarDays className="w-4 h-4" />
                 {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
@@ -138,13 +138,12 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
 
           {post.coverImage && (
-            <div className="max-w-5xl mx-auto aspect-[21/9] rounded-3xl overflow-hidden mb-16 border border-white/[0.05] shadow-2xl relative">
+            <div className="max-w-5xl mx-auto aspect-[21/9] rounded-3xl overflow-hidden mb-16 border border-slate-200/90 shadow-lg relative">
               <img 
                 src={post.coverImage} 
                 alt={post.title} 
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#05050A] via-transparent to-transparent opacity-80"></div>
             </div>
           )}
 
@@ -157,26 +156,25 @@ export default async function BlogPostPage({ params }: Props) {
               </ReactMarkdown>
 
               {/* CTA & SHARE */}
-              <div className="mt-16 pt-12 border-t border-white/[0.05]">
-                <div className="bg-gradient-to-br from-blue-900/40 to-violet-900/40 border border-blue-500/20 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-                  <h3 className="text-2xl font-bold mb-4 font-['Outfit']">İşletmenizi Dijitalde Büyütmeye Hazır Mısınız?</h3>
-                  <p className="text-slate-300 mb-8 max-w-xl mx-auto">
+              <div className="mt-16 pt-12 border-t border-slate-200">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-sm">
+                  <h3 className="text-2xl font-bold mb-4 font-['Outfit'] text-slate-900">İşletmenizi Dijitalde Büyütmeye Hazır Mısınız?</h3>
+                  <p className="text-slate-600 mb-8 max-w-xl mx-auto leading-relaxed">
                     Ücretsiz dijital varlık analiziniz için bizimle iletişime geçin. Rakiplerinizin önüne geçecek stratejiyi birlikte kuralım.
                   </p>
-                  <Link href="/contact" className="inline-flex items-center px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all hover:scale-105 shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+                  <Link href="/contact" className="inline-flex items-center px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all hover:scale-105 shadow-md shadow-blue-600/20">
                     Ücretsiz Analiz İsteyin <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </div>
 
                 {/* SHARE BUTTONS */}
-                <div className="flex items-center justify-between mt-12 py-6 border-y border-white/[0.05]">
-                  <span className="text-slate-400 font-medium">Bu yazıyı paylaşın:</span>
+                <div className="flex items-center justify-between mt-12 py-6 border-y border-slate-200">
+                  <span className="text-slate-600 font-semibold text-sm">Bu yazıyı paylaşın:</span>
                   <div className="flex gap-3">
-                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=https://starwebflow.com/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-[#1DA1F2] hover:text-white flex items-center justify-center transition-colors text-slate-400">
+                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=https://starwebflow.com/blog/${post.slug}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-100 hover:bg-[#1DA1F2] hover:text-white flex items-center justify-center transition-colors text-slate-600">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
                     </a>
-                    <a href={`https://www.linkedin.com/shareArticle?mini=true&url=https://starwebflow.com/blog/${post.slug}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/[0.05] hover:bg-[#0A66C2] hover:text-white flex items-center justify-center transition-colors text-slate-400">
+                    <a href={`https://www.linkedin.com/shareArticle?mini=true&url=https://starwebflow.com/blog/${post.slug}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-100 hover:bg-[#0A66C2] hover:text-white flex items-center justify-center transition-colors text-slate-600">
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                     </a>
                   </div>
@@ -188,14 +186,14 @@ export default async function BlogPostPage({ params }: Props) {
             {/* SIDEBAR TOC */}
             {toc.length > 0 && (
               <aside className="hidden lg:block w-72 shrink-0">
-                <div className="sticky top-32 p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                  <h4 className="font-bold text-lg mb-4 text-slate-200">İçindekiler</h4>
+                <div className="sticky top-32 p-6 rounded-2xl bg-white border border-slate-200/90 shadow-sm">
+                  <h4 className="font-bold text-lg mb-4 text-slate-900">İçindekiler</h4>
                   <nav className="space-y-2">
                     {toc.map((item, idx) => (
                       <a 
                         key={idx} 
                         href={`#${item.id}`}
-                        className={`block text-sm transition-colors hover:text-blue-400 ${item.level === 2 ? 'text-slate-300 font-medium' : 'text-slate-500 pl-4'}`}
+                        className={`block text-sm transition-colors hover:text-blue-600 ${item.level === 2 ? 'text-slate-800 font-semibold' : 'text-slate-600 pl-4'}`}
                       >
                         {item.text}
                       </a>

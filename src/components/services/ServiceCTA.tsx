@@ -114,10 +114,10 @@ export default function ServiceCTA({
           </div>
 
           {/* Headline */}
-          <h2 className="heading-lg text-white text-center mb-4">
+          <h2 className="heading-lg text-slate-900 text-center mb-4 font-bold tracking-tight">
             {displayHeadline}
           </h2>
-          <p className="text-[#94A3B8] text-center text-lg mb-10 max-w-2xl mx-auto">
+          <p className="text-slate-600 text-center text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
             {displaySubheadline}
           </p>
 
@@ -127,7 +127,7 @@ export default function ServiceCTA({
               <Button
                 variant="primary"
                 size="lg"
-                className="group w-full sm:w-auto"
+                className="group w-full sm:w-auto font-semibold shadow-md cursor-pointer"
                 style={{ background: accentColor, borderColor: accentColor }}
               >
                 <Calendar className="w-5 h-5" />
@@ -136,7 +136,7 @@ export default function ServiceCTA({
               </Button>
             </Link>
             <Link href="/auth/register">
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              <Button variant="secondary" size="lg" className="w-full sm:w-auto font-semibold bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 cursor-pointer">
                 <Zap className="w-5 h-5" />
                 {displaySecondaryLabel}
               </Button>
@@ -146,13 +146,13 @@ export default function ServiceCTA({
           {/* Trust signals row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { icon: Shield, text: displayGuaranteeText, color: '#10B981' },
+              { icon: Shield, text: displayGuaranteeText, color: '#059669' },
               { icon: Clock, text: c.firstResponse, color: accentColor },
-              { icon: Star, text: c.stats, color: '#F59E0B' },
+              { icon: Star, text: c.stats, color: '#D97706' },
             ].map(({ icon: Icon, text, color }, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-4 rounded-xl border border-white/[0.05] bg-white/[0.02]"
+                className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-2xs"
               >
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -160,7 +160,7 @@ export default function ServiceCTA({
                 >
                   <Icon className="w-4 h-4" style={{ color }} />
                 </div>
-                <span className="text-xs text-[#94A3B8] leading-relaxed">{text}</span>
+                <span className="text-xs text-slate-700 font-medium leading-relaxed">{text}</span>
               </div>
             ))}
           </div>

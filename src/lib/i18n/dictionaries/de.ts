@@ -39,24 +39,24 @@ export const de = {
     title: 'Was wir tun',
     subtitle: 'Ingenieurskunst + Messbarer Geschäftserfolg: Hybrid-Ökosysteme für maximale B2B-Skalierung',
     web: {
-      title: 'Sub-Second Web-Ökosystem (Next.js 14)',
-      desc: 'Hochgeschwindigkeitsarchitektur mit Next.js 14 und Tailwind CSS. Lädt in unter 0,4 Sekunden, verhindert Absprünge und verdreifacht Ihre Conversion-Rate.',
+      title: 'Sub-Second Modern Edge Web & Headless-Architektur',
+      desc: 'Ultraschnelle digitale Präsenz mit Ladezeiten unter 0,38s durch globales Edge CDN und Headless-Architektur. Verhindert Absprünge und steigert die Conversion-Rate um das 3,6-Fache.',
     },
     saas: {
-      title: 'Maßgeschneiderte SaaS & Cloud-Architektur',
-      desc: 'Skalierbare Cloud-Software auf PostgreSQL- und Docker-Basis. Bündelt Ihre Kunden-, Angebot- und Projektverwaltung auf einem Dashboard und eliminiert Excel-Chaos.',
+      title: 'Maßgeschneiderte B2B-Portale & Cloud-Native SaaS',
+      desc: 'Skalierbare Cloud-Software auf PostgreSQL- und Docker-Basis. Bietet Kunden ein Self-Service-Portal und Partnern eine Bestellplattform – schluss mit unübersichtlichen Excel-Listen.',
     },
     agents: {
-      title: 'Autonome KI-Agenten (LLM & RAG-basiert)',
-      desc: 'Intelligenter digitaler Assistent mit GPT-4o & Gemini. Beantwortet Kundenfragen rund um die Uhr, erstellt Angebote und bucht Termine direkt in Ihren Kalender.',
+      title: 'Modell-Agnostische Autonome KI & Sprach-Agenten',
+      desc: 'Unabhängige Multi-Modell-Architektur (Claude, Llama, DeepSeek, GPT) für On-Premise oder Cloud. Führt 24/7 Telefon- und Chat-Gespräche, erstellt Angebote und bucht qualifizierte Termine.',
     },
     automation: {
-      title: 'Kognitive Prozessautomatisierung (n8n & API)',
-      desc: 'Intelligente Workflows powered by n8n und APIs. Automatisiert manuelle Aufgaben wie Rechnungserstellung und Lead-Erfassung und spart Ihrem Team 15+ Stunden pro Woche.',
+      title: 'Kognitive Prozessautomatisierung & ERP (n8n & API)',
+      desc: 'Intelligente Workflows via n8n und APIs, die ERP, CRM und Buchhaltung nahtlos synchronisieren. Eliminiert manuelle Dateneingaben mit 0 Fehlern und spart wöchentlich 15+ Stunden.',
     },
     marketing: {
-      title: 'Datengesteuertes Wachstum (Algorithmic Marketing)',
-      desc: 'Zielgerichtetes Anzeigennagement mit Meta Pixel & Google CAPI. Minimiert Streuverluste, senkt Ihre Kundenakquisitionskosten und sichert qualifizierte Leads.',
+      title: 'Datengesteuertes Wachstum & GEO (KI-Suchmaschinenoptimierung)',
+      desc: 'Meta CAPI, Google Ads und GEO-Positionierung, die Ihr Unternehmen auf ChatGPT, Perplexity und Claude zur empfohlenen Nr. 1 macht. Bringt qualifizierte B2B-Leads ohne Budgetverschwendung.',
     },
   },
   roi: {

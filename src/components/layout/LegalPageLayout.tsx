@@ -86,29 +86,25 @@ export default function LegalPageLayout({
   }
 
   return (
-    <main className="min-h-screen bg-[#0A0A0F] text-white">
+    <main className="min-h-screen bg-[#FAFBFD] text-slate-900">
       <Navbar />
 
       {/* Header Banner */}
-      <div className="relative pt-28 pb-12 overflow-hidden border-b border-white/[0.04] bg-[#0C0C14]">
-        {/* Glow grid background */}
-        <div className="absolute inset-0 mesh-bg opacity-20 pointer-events-none" />
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[#4F8EF7]/10 blur-3xl pointer-events-none" />
-        
+      <div className="relative pt-28 pb-12 overflow-hidden border-b border-slate-200 bg-white">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-3">
               <Link 
                 href="/" 
-                className="inline-flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#94A3B8] transition-colors mb-2 group"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors mb-2 group font-semibold"
               >
                 <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                 {dict.backToHome}
               </Link>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-['Outfit'] text-white">
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-['Outfit'] text-slate-900">
                 {lang === 'TR' ? title : lang === 'EN' ? (englishTitle || title) : (germanTitle || title)}
               </h1>
-              <p className="text-sm text-[#94A3B8] max-w-xl">
+              <p className="text-sm text-slate-600 max-w-xl font-normal">
                 {lang === 'TR' ? subtitle : lang === 'EN' ? (englishSubtitle || subtitle) : (germanSubtitle || subtitle)}
               </p>
             </div>
@@ -116,14 +112,14 @@ export default function LegalPageLayout({
             {/* Language & Print controls */}
             <div className="flex items-center gap-3">
               {/* Language Switcher */}
-              <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/[0.06] text-xs">
-                <Globe className="w-3.5 h-3.5 text-[#64748B] ml-1.5" />
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                <Globe className="w-3.5 h-3.5 text-slate-500 ml-1.5" />
                 <button
                   onClick={() => setLang('TR')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                     lang === 'TR'
-                      ? 'bg-[#4F8EF7]/20 text-[#4F8EF7] border border-[#4F8EF7]/30'
-                      : 'text-[#64748B] hover:text-[#94A3B8] border border-transparent'
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 border border-transparent'
                   }`}
                 >
                   Türkçe
@@ -132,8 +128,8 @@ export default function LegalPageLayout({
                   onClick={() => setLang('EN')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                     lang === 'EN'
-                      ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30'
-                      : 'text-[#64748B] hover:text-[#94A3B8] border border-transparent'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 border border-transparent'
                   }`}
                 >
                   English
@@ -142,8 +138,8 @@ export default function LegalPageLayout({
                   onClick={() => setLang('DE')}
                   className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                     lang === 'DE'
-                      ? 'bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30'
-                      : 'text-[#64748B] hover:text-[#94A3B8] border border-transparent'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900 border border-transparent'
                   }`}
                 >
                   Deutsch
@@ -153,7 +149,7 @@ export default function LegalPageLayout({
               {/* Print Button */}
               <button
                 onClick={handlePrint}
-                className="p-2.5 rounded-xl border border-white/[0.08] bg-white/[0.02] text-[#64748B] hover:text-white hover:border-white/20 transition-all"
+                className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300 shadow-sm transition-all"
                 title={dict.printTitle}
               >
                 <Printer className="w-4 h-4" />
@@ -162,9 +158,9 @@ export default function LegalPageLayout({
           </div>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-4 mt-6 text-xs text-[#64748B] pt-4 border-t border-white/[0.04]">
+          <div className="flex flex-wrap items-center gap-4 mt-6 text-xs text-slate-500 pt-4 border-t border-slate-100 font-medium">
             <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-[#10B981]" />
+              <Shield className="w-3.5 h-3.5 text-emerald-600" />
               {dict.complianceText}
             </span>
             <span>•</span>
@@ -178,7 +174,7 @@ export default function LegalPageLayout({
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           {/* Left Navigation Sidebar */}
           <aside className="lg:col-span-3 sticky top-28 hidden lg:block space-y-4">
-            <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest pl-3 mb-2">{dict.documentContent}</div>
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-3 mb-2">{dict.documentContent}</div>
             <nav className="space-y-1">
               {sections.map(s => (
                 <button
@@ -197,9 +193,9 @@ export default function LegalPageLayout({
                       })
                     }
                   }}
-                  className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-[#64748B] hover:text-white hover:bg-white/[0.02] border border-transparent hover:border-white/[0.04] transition-all flex items-center gap-2"
+                  className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent transition-all flex items-center gap-2"
                 >
-                  <FileText className="w-3.5 h-3.5 text-[#4F8EF7]/60" />
+                  <FileText className="w-3.5 h-3.5 text-blue-600" />
                   <span className="truncate">{lang === 'TR' ? s.title : lang === 'EN' ? (s.englishTitle || s.title) : (s.germanTitle || s.title)}</span>
                 </button>
               ))}
@@ -208,21 +204,21 @@ export default function LegalPageLayout({
 
           {/* Right Main Document Content */}
           <article className="lg:col-span-9 space-y-6">
-            <GlowCard glowColor="purple" className="p-6 sm:p-8 md:p-10">
-              <div className="prose prose-invert max-w-none prose-sm sm:prose-base space-y-8 leading-relaxed">
+            <div className="p-6 sm:p-8 md:p-10 bg-white rounded-2xl border border-slate-200/90 shadow-sm">
+              <div className="max-w-none space-y-8 leading-relaxed">
                 {sections.map(s => (
-                  <div key={s.id} id={s.id} className="scroll-mt-32 border-b border-white/[0.04] pb-8 last:border-b-0 last:pb-0">
-                    <h2 className="text-lg sm:text-xl font-bold font-['Outfit'] text-white mb-4 flex items-center gap-2">
-                      <span className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#4F8EF7] to-[#8B5CF6]" />
+                  <div key={s.id} id={s.id} className="scroll-mt-32 border-b border-slate-100 pb-8 last:border-b-0 last:pb-0">
+                    <h2 className="text-lg sm:text-xl font-bold font-['Outfit'] text-slate-900 mb-4 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded-full bg-blue-600" />
                       {lang === 'TR' ? s.title : lang === 'EN' ? (s.englishTitle || s.title) : (s.germanTitle || s.title)}
                     </h2>
-                    <div className="text-xs sm:text-sm text-[#94A3B8] space-y-4 font-normal">
+                    <div className="text-xs sm:text-sm text-slate-600 space-y-4 font-normal leading-relaxed">
                       {lang === 'TR' ? s.content : lang === 'EN' ? (s.englishContent || s.content) : (s.germanContent || s.content)}
                     </div>
                   </div>
                 ))}
               </div>
-            </GlowCard>
+            </div>
           </article>
         </div>
       </div>

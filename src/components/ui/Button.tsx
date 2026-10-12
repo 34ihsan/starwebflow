@@ -11,27 +11,27 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
     const base =
-      'relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[#4F8EF7]/50 focus:ring-offset-2 focus:ring-offset-[#0A0A0F] disabled:opacity-50 disabled:cursor-not-allowed'
+      'relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed'
 
     const variants = {
       primary: `
-        bg-[#4F8EF7] text-white border border-[#4F8EF7]
-        hover:bg-[#3B7DE8] hover:shadow-[0_0_25px_rgba(79,142,247,0.5),0_0_50px_rgba(79,142,247,0.2)]
+        bg-purple-600 text-white border border-purple-600
+        hover:bg-purple-700 hover:shadow-[0_4px_20px_rgba(147,51,234,0.35)]
         hover:-translate-y-0.5 active:translate-y-0
       `,
       secondary: `
-        bg-transparent text-white border border-white/20
-        hover:border-[#4F8EF7]/50 hover:bg-[#4F8EF7]/10
-        hover:-translate-y-0.5 active:translate-y-0
+        bg-white text-slate-800 border border-slate-300
+        hover:border-purple-400 hover:bg-purple-50/60 hover:text-purple-700
+        hover:-translate-y-0.5 active:translate-y-0 shadow-2xs
       `,
       ghost: `
-        bg-transparent text-[#94A3B8] border border-transparent
-        hover:text-white hover:bg-white/5
+        bg-transparent text-slate-700 border border-transparent
+        hover:text-slate-900 hover:bg-slate-100
       `,
       outline: `
-        bg-transparent text-[#4F8EF7] border border-[#4F8EF7]/40
-        hover:bg-[#4F8EF7]/10 hover:border-[#4F8EF7]
-        hover:shadow-[0_0_20px_rgba(79,142,247,0.2)]
+        bg-white text-purple-600 border border-purple-300
+        hover:bg-purple-50 hover:border-purple-500
+        hover:shadow-sm
         hover:-translate-y-0.5 active:translate-y-0
       `,
     }

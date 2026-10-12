@@ -169,25 +169,22 @@ export default function LeadFormModal({
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Backdrop with Click to Close */}
       <div 
-        className="fixed inset-0 bg-[#0A0A0F]/85 backdrop-blur-md transition-opacity" 
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-md transition-opacity" 
         onClick={onClose} 
       />
 
       {/* Modal Container */}
       <div
-        className="relative w-full max-w-xl rounded-2xl border border-white/10 bg-[#12121F]/95 p-5 sm:p-7 shadow-2xl backdrop-blur-xl my-auto z-10 overflow-hidden transition-all"
+        className="relative w-full max-w-xl rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-2xl backdrop-blur-xl my-auto z-10 overflow-hidden transition-all"
         style={{ animation: 'scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both' }}
       >
         {/* Glow Effects */}
-        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#4F8EF7]/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-[#8B5CF6]/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-purple-100/50 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-indigo-100/50 blur-3xl pointer-events-none" />
 
         {/* Top Glow Highlight Line */}
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-0.5 rounded-t-2xl"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(79,142,247,0.6) 50%, transparent 100%)',
-          }}
+          className="pointer-events-none absolute inset-x-0 top-0 h-1 rounded-t-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600"
         />
 
         {/* Close Button */}
@@ -195,7 +192,7 @@ export default function LeadFormModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-xl bg-white/5 border border-white/10 text-[#94A3B8] hover:text-white hover:bg-white/10 transition-colors z-20"
+            className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 transition-colors z-20 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -203,13 +200,13 @@ export default function LeadFormModal({
 
         {/* Compact Header */}
         <div className="text-center mb-5 relative">
-          <div className="inline-flex w-10 h-10 rounded-xl bg-gradient-to-br from-[#4F8EF7] to-[#8B5CF6] items-center justify-center shadow-[0_0_20px_rgba(79,142,247,0.3)] mb-3">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="inline-flex w-10 h-10 rounded-xl bg-purple-100 items-center justify-center shadow-xs mb-3">
+            <Sparkles className="w-5 h-5 text-purple-600" />
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-white font-['Outfit'] tracking-tight mb-1.5">
+          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-['Outfit'] tracking-tight mb-1.5">
             {displayTitle}
           </h3>
-          <p className="text-xs sm:text-sm text-[#94A3B8] leading-relaxed max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
             {displaySubtitle}
           </p>
         </div>
@@ -217,7 +214,7 @@ export default function LeadFormModal({
         {/* Form with 2-column grid layout for ergonomic screen fit */}
         <form onSubmit={handleSubmit} className="space-y-3.5 relative">
           {error && (
-            <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold text-center">
+            <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold text-center">
               {error}
             </div>
           )}
@@ -225,11 +222,11 @@ export default function LeadFormModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Full Name */}
             <div>
-              <label className="block text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 {c.labelName}
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[#475569]">
+                <span className="absolute left-3 top-3 text-slate-400">
                   <User className="w-4 h-4" />
                 </span>
                 <input
@@ -238,18 +235,18 @@ export default function LeadFormModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={c.placeholderName}
-                  className="w-full bg-[#0A0A0F]/70 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/60 focus:ring-1 focus:ring-[#4F8EF7]/60 transition-all"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 {c.labelEmail}
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[#475569]">
+                <span className="absolute left-3 top-3 text-slate-400">
                   <Mail className="w-4 h-4" />
                 </span>
                 <input
@@ -258,7 +255,7 @@ export default function LeadFormModal({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={c.placeholderEmail}
-                  className="w-full bg-[#0A0A0F]/70 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/60 focus:ring-1 focus:ring-[#4F8EF7]/60 transition-all"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
                 />
               </div>
             </div>
@@ -267,11 +264,11 @@ export default function LeadFormModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Phone */}
             <div>
-              <label className="block text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
-                {c.labelPhone} <span className="text-[#475569] text-[9px] normal-case">{c.optional}</span>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                {c.labelPhone} <span className="text-slate-400 text-[9px] normal-case">{c.optional}</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[#475569]">
+                <span className="absolute left-3 top-3 text-slate-400">
                   <Phone className="w-4 h-4" />
                 </span>
                 <input
@@ -279,18 +276,18 @@ export default function LeadFormModal({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder={c.placeholderPhone}
-                  className="w-full bg-[#0A0A0F]/70 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/60 focus:ring-1 focus:ring-[#4F8EF7]/60 transition-all"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Company Name */}
             <div>
-              <label className="block text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider mb-1.5">
-                {c.labelCompany} <span className="text-[#475569] text-[9px] normal-case">{c.optional}</span>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                {c.labelCompany} <span className="text-slate-400 text-[9px] normal-case">{c.optional}</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-[#475569]">
+                <span className="absolute left-3 top-3 text-slate-400">
                   <Building2 className="w-4 h-4" />
                 </span>
                 <input
@@ -298,7 +295,7 @@ export default function LeadFormModal({
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder={c.placeholderCompany}
-                  className="w-full bg-[#0A0A0F]/70 border border-white/10 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-white placeholder-[#475569] focus:outline-none focus:border-[#4F8EF7]/60 focus:ring-1 focus:ring-[#4F8EF7]/60 transition-all"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition-all shadow-2xs"
                 />
               </div>
             </div>
@@ -310,7 +307,7 @@ export default function LeadFormModal({
             variant="primary"
             size="lg"
             disabled={loading}
-            className="w-full mt-4 h-12 shadow-[0_0_20px_rgba(79,142,247,0.2)] text-sm font-bold"
+            className="w-full mt-4 h-12 shadow-md text-sm font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white cursor-pointer"
           >
             {loading ? (
               <>
@@ -326,8 +323,8 @@ export default function LeadFormModal({
           </Button>
 
           {/* Security note */}
-          <div className="flex items-center gap-1.5 justify-center text-[10px] text-[#64748B] pt-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+          <div className="flex items-center gap-1.5 justify-center text-[10px] text-slate-500 pt-2 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             {c.securityNote}
           </div>
         </form>

@@ -28,7 +28,7 @@ import EuropeTurksTrustSection from '@/components/landing/EuropeTurksTrustSectio
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#0A0A0F]">
+    <main className="min-h-screen bg-white text-slate-900">
       <Navbar />
       <div id="hero"><HeroSection /></div>
       <div id="trust"><TrustBar /></div>
@@ -48,8 +48,8 @@ export default function LandingPage() {
       <div id="process"><ProcessSection /></div>
       <div id="simulation"><SpecBuilderSimulation /></div>
       <div id="cta"><CTABanner /></div>
-      <div id="quote" className="py-24 bg-[#0A0A0F] border-t border-white/5 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#8B5CF6]/5 to-transparent pointer-events-none" />
+      <div id="quote" className="py-24 bg-slate-50/70 border-t border-slate-200/80 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-100/30 to-transparent pointer-events-none" />
         <div className="container mx-auto px-4 relative z-10">
           <QuickQuoteForm />
         </div>

@@ -73,10 +73,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#05050A] flex flex-col relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#FAFBFD] flex flex-col relative overflow-hidden font-sans">
       {/* Background Effects */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#8B5CF6]/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#4F8EF7]/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-100/50 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-indigo-100/50 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Header */}
       <header className="absolute top-0 inset-x-0 h-20 flex items-center px-8 z-50">
@@ -89,126 +89,124 @@ export default function LoginPage() {
                   : settings?.preferences?.branding?.logoUrl
               } 
               alt="Logo" 
-              className="h-10 object-contain bg-white rounded-lg p-1" 
+              className="h-10 object-contain bg-white rounded-lg p-1 border border-slate-200" 
             />
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-xs">
               <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
           )}
-          <span className="font-black text-xl tracking-tight text-white font-['Outfit']">
+          <span className="font-black text-xl tracking-tight text-slate-900 font-['Outfit']">
             {settings?.companyName ? (
               <>{settings.companyName}</>
             ) : (
-              <>Star<span className="text-[#8B5CF6]">WebFlow</span></>
+              <>Star<span className="text-blue-600">WebFlow</span></>
             )}
           </span>
         </Link>
       </header>
 
       {/* Main Form */}
-      <main className="flex-1 flex items-center justify-center p-4 z-10">
+      <main className="flex-1 flex items-center justify-center p-4 z-10 pt-20 pb-10">
         <div className="w-full max-w-md">
-          <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl p-8 relative overflow-hidden">
             {/* Top Glow */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6]" />
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
             
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-white mb-2 font-['Outfit']">Sisteme Giriş Yapın</h1>
-              <p className="text-[#94A3B8] text-sm">StarWebFlow portalına hoş geldiniz.</p>
+              <h1 className="text-2xl font-black text-slate-900 mb-2 font-['Outfit']">Sisteme Giriş Yapın</h1>
+              <p className="text-slate-600 text-sm font-medium">StarWebFlow portalına hoş geldiniz.</p>
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm flex items-center gap-2">
+              <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm flex items-center gap-2">
                 <span className="shrink-0">⚠️</span>
                 <span>{error}</span>
               </div>
             )}
 
-              <div className="flex bg-[#12121F] rounded-lg p-1 mb-6 border border-white/5">
-                <button
-                  type="button"
-                  onClick={() => setLoginMode('password')}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${loginMode === 'password' ? 'bg-[#8B5CF6] text-white shadow-lg' : 'text-[#94A3B8] hover:text-white'}`}
-                >
-                  Şifre ile
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLoginMode('magic')}
-                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${loginMode === 'magic' ? 'bg-[#8B5CF6] text-white shadow-lg' : 'text-[#94A3B8] hover:text-white'}`}
-                >
-                  Sihirli Bağlantı
-                </button>
-              </div>
+            <div className="flex bg-slate-100 rounded-xl p-1 mb-6 border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setLoginMode('password')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${loginMode === 'password' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Şifre ile
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginMode('magic')}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${loginMode === 'magic' ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Sihirli Bağlantı
+              </button>
+            </div>
 
-              {magicLinkSent ? (
-                <div className="text-center py-6 bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 rounded-xl">
-                  <div className="w-12 h-12 bg-[#8B5CF6]/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Mail className="w-6 h-6 text-[#8B5CF6]" />
-                  </div>
-                  <h3 className="text-white font-medium mb-1">E-posta Gönderildi!</h3>
-                  <p className="text-sm text-[#94A3B8]">Gelen kutunuzu kontrol edin. Gönderdiğimiz sihirli bağlantıya tıklayarak şifresiz giriş yapabilirsiniz.</p>
-                  <button type="button" onClick={() => setMagicLinkSent(false)} className="mt-4 text-xs text-[#8B5CF6] hover:underline">Tekrar gönder</button>
+            {magicLinkSent ? (
+              <div className="text-center py-6 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Mail className="w-6 h-6 text-blue-600" />
                 </div>
-              ) : (
-                <form onSubmit={handleLogin} className="space-y-5">
+                <h3 className="text-slate-900 font-bold mb-1">E-posta Gönderildi!</h3>
+                <p className="text-sm text-slate-600 px-4">Gelen kutunuzu kontrol edin. Gönderdiğimiz sihirli bağlantıya tıklayarak şifresiz giriş yapabilirsiniz.</p>
+                <button type="button" onClick={() => setMagicLinkSent(false)} className="mt-4 text-xs font-semibold text-blue-600 hover:underline">Tekrar gönder</button>
+              </div>
+            ) : (
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">E-posta Adresi</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                      placeholder="ornek@sirket.com"
+                    />
+                  </div>
+                </div>
+
+                {loginMode === 'password' && (
                   <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-posta Adresi</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Şifre</label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
-                        type="email" 
+                        type="password" 
                         required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
-                        placeholder="ornek@sirket.com"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                        placeholder="••••••••"
                       />
                     </div>
-                  </div>
-
-                  {loginMode === 'password' && (
-                    <div>
-                      <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Şifre</label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
-                        <input 
-                          type="password" 
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
-                          placeholder="••••••••"
-                        />
-                      </div>
-                      <div className="flex justify-end mt-2">
-                        <Link href="/auth/forgot-password" className="text-xs text-[#8B5CF6] hover:text-[#4F8EF7] transition-colors">Şifremi Unuttum</Link>
-                      </div>
+                    <div className="flex justify-end mt-2">
+                      <Link href="/auth/forgot-password" className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">Şifremi Unuttum</Link>
                     </div>
+                  </div>
+                )}
+
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  className="w-full justify-center group font-bold shadow-md shadow-blue-500/10"
+                  disabled={loading}
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                    <>
+                      {loginMode === 'magic' ? 'Sihirli Bağlantı Gönder' : 'Giriş Yap'}
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
+                    </>
                   )}
+                </Button>
+              </form>
+            )}
 
-                  <Button 
-                    variant="primary" 
-                    size="lg" 
-                    className="w-full justify-center group"
-                    disabled={loading}
-                  >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                      <>
-                        {loginMode === 'magic' ? 'Sihirli Bağlantı Gönder' : 'Giriş Yap'}
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-
-                  
-                </form>
-              )}
-
-            <div className="mt-8 text-center text-sm text-[#64748B]">
+            <div className="mt-8 text-center text-sm text-slate-500 font-medium">
               Henüz müşterimiz değil misiniz?{' '}
-              <Link href="/auth/register" className="text-white hover:text-[#8B5CF6] transition-colors font-medium">
+              <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 transition-colors font-bold">
                 Müşteri Olun
               </Link>
             </div>

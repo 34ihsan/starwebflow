@@ -137,12 +137,12 @@ export default function QuickQuoteForm() {
 
   if (isSuccess) {
     return (
-      <div className="bg-[#131B2A] border border-[#8B5CF6]/30 rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto">
-        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6 mx-auto">
-          <CheckCircle2 className="w-10 h-10 text-green-400" />
+      <div className="bg-white border border-emerald-200 rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto shadow-xl">
+        <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-emerald-600" />
         </div>
-        <h3 className="text-3xl font-bold text-white mb-4">{tLocal.successTitle}</h3>
-        <p className="text-slate-400 text-lg">
+        <h3 className="text-3xl font-bold text-slate-900 mb-4">{tLocal.successTitle}</h3>
+        <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
           {tLocal.successDesc(activeIndustry, activeService)}
         </p>
       </div>
@@ -150,24 +150,25 @@ export default function QuickQuoteForm() {
   }
 
   return (
-    <div className="bg-[#0A0A0F] border border-white/5 rounded-3xl p-6 md:p-12 max-w-5xl mx-auto relative overflow-hidden shadow-2xl">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 md:p-12 max-w-5xl mx-auto relative overflow-hidden shadow-xl">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#8B5CF6]/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-purple-100/60 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-100/50 blur-[100px] rounded-full pointer-events-none" />
       
       <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
         <div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-['Outfit']">
-            {tLocal.title} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9]">{tLocal.titleGradient}</span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4 font-['Outfit'] tracking-tight">
+            {tLocal.title} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">{tLocal.titleGradient}</span>
           </h2>
-          <p className="text-slate-400 mb-8 text-lg">
+          <p className="text-slate-600 mb-8 text-lg leading-relaxed">
             {tLocal.desc}
           </p>
 
           <ul className="space-y-4">
             {tLocal.features.map((item, i) => (
-              <li key={i} className="flex items-center gap-3 text-slate-300">
-                <div className="w-6 h-6 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#8B5CF6]" />
+              <li key={i} className="flex items-center gap-3 text-slate-700 font-medium">
+                <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-purple-600" />
                 </div>
                 {item}
               </li>
@@ -175,47 +176,47 @@ export default function QuickQuoteForm() {
           </ul>
         </div>
 
-        <div className="bg-[#131B2A] rounded-2xl p-6 md:p-8 border border-white/5 shadow-xl">
+        <div className="bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-200/90 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">{tLocal.nameLabel}</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">{tLocal.nameLabel}</label>
               <input 
                 suppressHydrationWarning
                 type="text" 
                 required
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
-                className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                 placeholder={tLocal.namePlaceholder}
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">{tLocal.emailLabel}</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">{tLocal.emailLabel}</label>
               <input 
                 suppressHydrationWarning
                 type="email" 
                 required
                 value={formData.email}
                 onChange={e => setFormData({...formData, email: e.target.value})}
-                className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                 placeholder={tLocal.emailPlaceholder}
               />
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">{tLocal.serviceLabel}</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">{tLocal.serviceLabel}</label>
                 <div className="flex flex-wrap gap-2">
                   {servicesList.map(service => (
                     <button
                       key={service}
                       type="button"
                       onClick={() => setFormData({...formData, serviceType: service})}
-                      className={`px-3.5 py-2 text-sm rounded-xl transition-all border ${
+                      className={`px-3.5 py-2 text-sm rounded-xl transition-all border font-medium ${
                         activeService === service 
-                          ? 'bg-[#8B5CF6]/20 border-[#8B5CF6] text-[#8B5CF6]' 
-                          : 'bg-[#0A0A0F] border-white/5 text-slate-400 hover:border-white/10'
+                          ? 'bg-purple-600 border-purple-600 text-white shadow-sm' 
+                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/70'
                       }`}
                     >
                       {service}
@@ -225,14 +226,14 @@ export default function QuickQuoteForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">{tLocal.industryLabel}</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">{tLocal.industryLabel}</label>
                 <select 
                   value={activeIndustry}
                   onChange={e => setFormData({...formData, industry: e.target.value})}
-                  className="w-full bg-[#0A0A0F] border border-white/10 rounded-xl px-4 py-3.5 text-white focus:border-[#8B5CF6] focus:outline-none transition-colors appearance-none"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3.5 text-slate-900 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all appearance-none shadow-2xs cursor-pointer"
                 >
                   {industriesList.map(ind => (
-                    <option key={ind} value={ind}>{ind}</option>
+                    <option key={ind} value={ind} className="text-slate-900 bg-white">{ind}</option>
                   ))}
                 </select>
                 {activeIndustry === otherValue && (
@@ -243,7 +244,7 @@ export default function QuickQuoteForm() {
                       required
                       value={formData.customIndustry}
                       onChange={e => setFormData({...formData, customIndustry: e.target.value})}
-                      className="w-full bg-[#0A0A0F] border border-[#8B5CF6]/50 rounded-xl px-4 py-3.5 text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                      className="w-full bg-white border border-purple-400 rounded-xl px-4 py-3.5 text-slate-900 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                       placeholder={tLocal.otherIndustryPlaceholder}
                     />
                   </div>
@@ -254,7 +255,7 @@ export default function QuickQuoteForm() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full mt-2 bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] text-white font-medium py-4 px-6 rounded-xl hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
+              className="w-full mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group disabled:opacity-70 cursor-pointer"
             >
               {isSubmitting ? tLocal.submittingBtn : tLocal.submitBtn}
               {!isSubmitting && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}

@@ -3,9 +3,11 @@
 import { useState, useRef, useEffect } from 'react'
 import GlowCard from '@/components/ui/GlowCard'
 import Button from '@/components/ui/Button'
-import { Calculator, ArrowRight, TrendingUp, Clock, DollarSign } from 'lucide-react'
+import { 
+  Calculator, ArrowRight, TrendingUp, Clock, DollarSign, 
+  ShieldCheck, Zap, Bot, CheckCircle2, Moon, Lock, Server
+} from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
-
 import { CURRENCIES as currencies } from '@/lib/utils'
 
 export default function ROICalculatorSection() {
@@ -53,94 +55,146 @@ export default function ROICalculatorSection() {
     if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
-  return (
-    <section id="roi-calculator" className="section relative overflow-hidden">
-      <div className="absolute inset-0 mesh-bg opacity-30 pointer-events-none" />
+  const clientGains = [
+    {
+      icon: TrendingUp,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50 border-emerald-200',
+      title: language === 'tr' ? '%60+ Operasyonel Maliyet Tasarrufu' : language === 'de' ? '60%+ Operative Ersparnis' : '60%+ Cost Reduction',
+      desc: language === 'tr'
+        ? 'Rutin veri girişleri, manuel faturalandırma ve evrak kontrolü otonom hale gelir; insan hatası sıfırlanır.'
+        : language === 'de'
+        ? 'Manuelle Dateneingaben, Rechnungsstellung und Dokumentenprüfung laufen vollautomatisch ohne Fehler.'
+        : 'Repetitive data entry, invoicing, and back-office chores run autonomously with zero manual errors.'
+    },
+    {
+      icon: Moon,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50 border-purple-200',
+      title: language === 'tr' ? '0 Kaçan Gece Talebi (7/24 Satış)' : language === 'de' ? 'Null verpasste Nacht-Leads' : 'Zero Missed Night Inquiries',
+      desc: language === 'tr'
+        ? 'Gece 03:00\'te veya hafta sonu gelen potansiyel müşteriler anında sesli ve yazılı karşılanır, randevu alınır.'
+        : language === 'de'
+        ? 'Anfragen um 03:00 Uhr oder am Wochenende werden sofort per Chat & Sprache qualifiziert und gebucht.'
+        : 'Inquiries arriving at 3:00 AM or weekends receive instant voice & text quotes, securing high-intent deals.'
+    },
+    {
+      icon: Zap,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 border-blue-200',
+      title: language === 'tr' ? '3.6x Satış Dönüşüm Çarpanı' : language === 'de' ? '3,6x Conversion-Multiplikator' : '3.6x Sales Conversion Boost',
+      desc: language === 'tr'
+        ? '0.38s sub-second açılış hızı ve kişiselleştirilmiş teklif funnelları ile siteniz pasif vitrinden aktif ciro makinesine dönüşür.'
+        : language === 'de'
+        ? '0,38s Ladezeit und personalisierte Angebots-Funnels verwandeln Besucher in zahlende Vertragskunden.'
+        : 'Sub-second 0.38s speed and dynamic offer funnels transform passive visitors into paying contract clients.'
+    },
+    {
+      icon: Server,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 border-amber-200',
+      title: language === 'tr' ? 'Sıfır Vendor Lock-in & Veri Egemenliği' : language === 'de' ? 'Kein Vendor Lock-in & DSGVO' : 'Zero Vendor Lock-in & Sovereignty',
+      desc: language === 'tr'
+        ? 'Tek bir modele bağlı değilsiniz (Claude, Llama, GPT); kurum içi On-Premise veya bağımsız bulutta verileriniz tamamen güvende.'
+        : language === 'de'
+        ? 'Keine Bindung an einen Anbieter (Claude, Llama, GPT). Vollständige Datensouveränität on-premise oder cloud.'
+        : 'No single-vendor dependency (Claude, Llama, GPT). Full enterprise data sovereignty on-premise or cloud.'
+    }
+  ]
 
-      <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  return (
+    <section id="roi-calculator" className="py-24 relative overflow-hidden bg-white border-t border-slate-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10" ref={sectionRef}>
+        
+        {/* Top Split: Narrative + Calculator */}
         <div className={`grid lg:grid-cols-2 gap-12 lg:gap-20 items-center transition-all duration-1000 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           
-          {/* Content */}
+          {/* Content Left */}
           <div>
-            <span className="tag-badge mb-4">
-              {language === 'tr' ? 'ROI Hesaplayıcı' : language === 'de' ? 'ROI-Rechner' : 'ROI Calculator'}
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 uppercase tracking-widest mb-4 shadow-2xs">
+              {language === 'tr' ? 'Somut ROI & Değer Mimarisi' : language === 'de' ? 'Messbarer ROI & Mehrwert' : 'Measurable ROI & Value'}
             </span>
-            <h2 className="heading-lg text-white mt-4 mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mt-2 mb-6 tracking-tight font-['Outfit']">
               {language === 'tr' ? (
-                <>Hareketsizliğin Bedelini <br /><span className="gradient-text">Hesaplayın</span></>
+                <>Hareketsizliğin Bedelini <br /><span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">Hesaplayın</span></>
               ) : language === 'de' ? (
-                <>Berechnen Sie die Kosten der <br /><span className="gradient-text">Untätigkeit</span></>
+                <>Berechnen Sie die Kosten der <br /><span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">Untätigkeit</span></>
               ) : (
-                <>Calculate the Cost of <br /><span className="gradient-text">Inaction</span></>
+                <>Calculate the Cost of <br /><span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">Inaction</span></>
               )}
             </h2>
-            <p className="text-[#94A3B8] text-lg leading-relaxed mb-8">
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 font-normal">
               {language === 'tr'
-                ? "Müşterileriniz web sitenizi terk mi ediyor? Excel dosyalarınızda kaybolan lead'leriniz için bir mezarlık mı kurdunuz? Her geçen gün manuel süreçler, rakiplerinizin AI kullanarak sizden 10 kat daha hızlı büyümesine neden oluyor."
+                ? "Müşterileriniz yavaş web sitenizi terk mi ediyor? Excel tablolarında kaybolan talepler yüzünden satış kaçırıyor musunuz? Model-agnostik yapay zeka ve otonom iş akışlarıyla operasyonunuzu maliyet merkezinden ciro jeneratörüne dönüştürün."
                 : language === 'de'
-                ? "Verlassen Ihre Kunden Ihre Website? Haben Sie einen Friedhof für in Excel-Dateien verlorene Leads angelegt? Jeden Tag führen manuelle Prozesse dazu, dass Ihre Konkurrenten mithilfe von KI 10-mal schneller wachsen als Sie."
-                : "Are your customers leaving your website? Have you built a graveyard for leads lost in Excel sheets? Every day, manual processes cause your competitors to grow 10x faster than you using AI."}
+                ? "Verlassen Kunden Ihre langsame Website? Gehen wertvolle Leads in Excel-Tabellen verloren? Verwandeln Sie Ihren Betrieb mit modell-agnostischer KI und Automatisierung vom Kostenfaktor in einen Umsatztreiber."
+                : "Are prospects leaving your slow site? Are valuable leads lost in spreadsheet silos? Turn your operations from a cost sink into a revenue engine with model-agnostic AI and autonomous workflows."}
             </p>
             
             <ul className="space-y-4 mb-10">
               <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#ef4444]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-rose-600" />
                 </div>
-                <p className="text-[#E2E8F0]">
-                  <strong className="text-white">
-                    {language === 'tr' ? 'Problem:' : language === 'de' ? 'Problem:' : 'Problem:'}
+                <p className="text-slate-700 font-medium text-sm sm:text-base">
+                  <strong className="text-slate-900 font-bold">
+                    {language === 'tr' ? 'Eski Yöntemlerin Bedeli:' : language === 'de' ? 'Das Problem:' : 'The Cost of Inaction:'}
                   </strong>{' '}
                   {language === 'tr'
-                    ? 'Manuel işlere harcanan binlerce boşa giden saat.'
+                    ? 'Mesaiye harcanan yüzlerce saat, gece kaçan cevapsız müşteriler ve hantal Excel tabloları.'
                     : language === 'de'
-                    ? 'Tausende verschwendete Stunden für manuelle Arbeit.'
-                    : 'Thousands of wasted hours spent on manual work.'}
+                    ? 'Hunderte manuelle Überstunden, verpasste Nachtanfragen und schwerfällige Tabellen.'
+                    : 'Hundreds of wasted manual hours, uncaptured night leads, and chaotic spreadsheet silos.'}
                 </p>
               </li>
               <li className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[#10B981]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-2 h-2 rounded-full bg-[#10B981]" />
+                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-600" />
                 </div>
-                <p className="text-[#E2E8F0]">
-                  <strong className="text-white">
-                    {language === 'tr' ? 'Çözüm:' : language === 'de' ? 'Lösung:' : 'Solution:'}
+                <p className="text-slate-700 font-medium text-sm sm:text-base">
+                  <strong className="text-slate-900 font-bold">
+                    {language === 'tr' ? 'StarWebFlow Çözümü:' : language === 'de' ? 'Die StarWebFlow Lösung:' : 'The StarWebFlow Solution:'}
                   </strong>{' '}
                   {language === 'tr'
-                    ? 'Verimlilik makinesi kurarak %80 zaman tasarrufu ve %40 lead artışı.'
+                    ? 'Verimlilik makinesiyle %80 operasyonel tasarruf, 7/24 sesli/yazılı AI karşılama ve 3.6x ciro artışı.'
                     : language === 'de'
-                    ? 'Aufbau einer Effizienzmaschine mit 80 % Zeitersparnis und 40 % Lead-Wachstum.'
-                    : 'Building an efficiency machine with 80% time savings and 40% lead growth.'}
+                    ? '80% operative Ersparnis, 24/7 KI-Betreuung per Chat/Sprache und 3,6x mehr Umsatz.'
+                    : '80% operational savings, 24/7 omnichannel voice/chat reception, and a 3.6x revenue multiplier.'}
                 </p>
               </li>
             </ul>
 
-            <Button variant="primary" size="lg" className="group" onClick={() => handleScroll('#contact')}>
-              {language === 'tr' ? 'Kaybetmeyi Durdurun' : language === 'de' ? 'Aufhören zu verlieren' : 'Stop Losing'}
+            <Button variant="primary" size="lg" className="group shadow-md shadow-blue-600/20" onClick={() => handleScroll('#contact')}>
+              {language === 'tr' ? 'Ücretsiz ROI Analizi Başlat' : language === 'de' ? 'Kostenlose ROI-Analyse' : 'Start Free ROI Audit'}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
 
-          {/* Calculator Card */}
-          <GlowCard glowColor="purple" className="p-8">
+          {/* Calculator Card Right */}
+          <GlowCard glowColor="purple" className="p-8 bg-white border border-slate-200 shadow-xl rounded-2xl">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 flex items-center justify-center">
-                <Calculator className="w-5 h-5 text-[#8B5CF6]" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center shadow-2xs">
+                <Calculator className="w-5 h-5 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold text-white font-['Outfit']">
-                {language === 'tr' ? 'Kayıp Analizi' : language === 'de' ? 'Verlustanalyse' : 'Loss Analysis'}
-              </h3>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 font-['Outfit']">
+                  {language === 'tr' ? 'Operasyonel Tasarruf Simülatörü' : language === 'de' ? 'Ersparnis-Simulator' : 'Savings Simulator'}
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  {language === 'tr' ? 'Ekibinizin haftalık angarya yükünü girin' : 'Input weekly manual hours'}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-8">
               {/* Slider 1 */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-[#E2E8F0] flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#94A3B8]" />{' '}
-                    {language === 'tr' ? 'Haftalık Manuel Saat' : language === 'de' ? 'Wöchentliche manuelle Stunden' : 'Weekly Manual Hours'}
+                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-500" />{' '}
+                    {language === 'tr' ? 'Haftalık Manuel İş Gücü' : language === 'de' ? 'Wöchentliche manuelle Stunden' : 'Weekly Manual Hours'}
                   </label>
-                  <span className="text-white font-bold">
+                  <span className="text-slate-900 font-bold font-mono">
                     {hours} {language === 'tr' ? 'Saat' : language === 'de' ? 'Std.' : 'Hours'}
                   </span>
                 </div>
@@ -151,25 +205,25 @@ export default function ROICalculatorSection() {
                   step="10"
                   value={hours}
                   onChange={(e) => setHours(Number(e.target.value))}
-                  className="w-full h-2 bg-[#1A1A2E] rounded-lg appearance-none cursor-pointer accent-[#8B5CF6]"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                 />
               </div>
 
               {/* Currency Selector */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1A2E]/50 border border-white/[0.04]">
-                <span className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                   {t('roi.currency')}
                 </span>
-                <div className="flex gap-1 bg-[#1A1A2E] p-1 rounded-lg">
+                <div className="flex gap-1 bg-slate-200/70 p-1 rounded-lg">
                   {currencies.map((c) => (
                     <button
                       key={c.code}
                       type="button"
                       onClick={() => setCurrencyCode(c.code)}
-                      className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                      className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
                         currencyCode === c.code
-                          ? 'bg-[#8B5CF6] text-white shadow-sm'
-                          : 'text-[#94A3B8] hover:text-white'
+                          ? 'bg-purple-600 text-white shadow-xs'
+                          : 'text-slate-700 hover:text-slate-900'
                       }`}
                     >
                       {c.symbol} {c.code}
@@ -181,11 +235,11 @@ export default function ROICalculatorSection() {
               {/* Slider 2 */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="text-sm font-medium text-[#E2E8F0] flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-[#94A3B8]" />{' '}
+                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-slate-500" />{' '}
                     {t('roi.hourlyWage')} ({symbol})
                   </label>
-                  <span className="text-white font-bold">{symbol}{hourlyRate}</span>
+                  <span className="text-slate-900 font-bold font-mono">{symbol}{hourlyRate}</span>
                 </div>
                 <input
                   type="range"
@@ -194,40 +248,87 @@ export default function ROICalculatorSection() {
                   step="1"
                   value={hourlyRate}
                   onChange={(e) => setHourlyRate(Number(e.target.value))}
-                  className="w-full h-2 bg-[#1A1A2E] rounded-lg appearance-none cursor-pointer accent-[#4F8EF7]"
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
               </div>
 
-              <div className="pt-6 border-t border-white/[0.06] space-y-4">
+              <div className="pt-6 border-t border-slate-200 space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#94A3B8]">
-                    {language === 'tr' ? 'Mevcut Aylık Maliyetiniz' : language === 'de' ? 'Ihre aktuellen monatlichen Kosten' : 'Your Current Monthly Cost'}
+                  <span className="text-slate-600 font-medium text-sm">
+                    {language === 'tr' ? 'Mevcut Boşa Giden Aylık Maliyet:' : language === 'de' ? 'Aktuelle monatliche Kosten:' : 'Current Monthly Burn:'}
                   </span>
-                  <span className="text-xl text-white font-semibold">{symbol}{monthlyCost.toLocaleString('tr-TR')}</span>
+                  <span className="text-lg text-slate-900 font-bold font-mono">{symbol}{monthlyCost.toLocaleString('tr-TR')}</span>
                 </div>
                 
-                <div className="flex justify-between items-center p-4 rounded-xl bg-gradient-to-r from-[#10B981]/10 to-transparent border border-[#10B981]/20">
+                <div className="flex justify-between items-center p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-[#10B981]" />
-                    <span className="font-semibold text-[#10B981]">
-                      {language === 'tr' ? 'Tahmini Aylık Tasarruf' : language === 'de' ? 'Geschätzte monatliche Ersparnisse' : 'Estimated Monthly Savings'}
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                    <span className="font-bold text-emerald-800 text-sm">
+                      {language === 'tr' ? 'Tahmini Aylık Net Tasarruf:' : language === 'de' ? 'Geschätzte Ersparnis/Monat:' : 'Estimated Monthly Savings:'}
                     </span>
                   </div>
-                  <span className="text-2xl font-black text-[#10B981] font-['Outfit']">
+                  <span className="text-2xl font-black text-emerald-700 font-mono">
                     {symbol}{aiSavings.toLocaleString('tr-TR')}
                   </span>
                 </div>
-                <p className="text-xs text-center text-[#64748B] mt-2">
+                <p className="text-xs text-center text-slate-500 font-medium mt-2">
                   {language === 'tr'
-                    ? 'Bu parayı çöpe atmak yerine, sistemimize yatırıp 3 ayda geri almayı ister misiniz?'
+                    ? 'Bu maliyet kaybını durdurup 3 ay içinde kendi kendini amorti eden otonom sisteme geçin.'
                     : language === 'de'
-                    ? 'Möchten Sie dieses Geld lieber in unser System investieren und in 3 Monaten zurückerhalten, anstatt es wegzuwerfen?'
-                    : 'Would you like to invest this money into our system and get it back in 3 months instead of throwing it away?'}
+                    ? 'Stoppen Sie diese Verluste und investieren Sie in ein System, das sich in 3 Monaten amortisiert.'
+                    : 'Stop burning capital and invest in an autonomous system that pays for itself in under 3 months.'}
                 </p>
               </div>
             </div>
           </GlowCard>
         </div>
+
+        {/* Bottom Concrete Client Gains 4-Column Grid */}
+        <div className="mt-16 pt-12 border-t border-slate-200">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 font-['Outfit']">
+              {language === 'tr'
+                ? 'İşletmenizin Elde Edeceği 4 Kesin Kazanım'
+                : language === 'de'
+                ? '4 garantierte Vorteile für Ihr Unternehmen'
+                : '4 Guaranteed Advantages for Your Business'}
+            </h3>
+            <p className="text-sm text-slate-600 mt-2 font-medium">
+              {language === 'tr'
+                ? 'Sadece yazılım değil; doğrudan bilançonuzu ve müşteri memnuniyetinizi büyüten mühendislik.'
+                : 'Engineered directly to transform your balance sheet and customer satisfaction.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {clientGains.map((gain, i) => {
+              const Icon = gain.icon
+              return (
+                <div
+                  key={i}
+                  className="bg-slate-50/70 border border-slate-200 rounded-2xl p-5 hover:bg-white hover:shadow-lg transition-all duration-300 flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className={`w-10 h-10 rounded-xl ${gain.bg} flex items-center justify-center mb-4 transition-transform group-hover:scale-110`}>
+                      <Icon className={`w-5 h-5 ${gain.color}`} />
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-base mb-2 font-['Outfit'] leading-snug">
+                      {gain.title}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                      {gain.desc}
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{language === 'tr' ? 'Ölçülebilir & Garanti' : 'Measurable SLA'}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
       </div>
     </section>
   )

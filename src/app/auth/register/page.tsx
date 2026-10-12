@@ -50,10 +50,10 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#05050A] flex flex-col relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#FAFBFD] flex flex-col relative overflow-hidden font-sans">
       {/* Background Effects */}
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#4F8EF7]/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#8B5CF6]/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-100/50 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-100/50 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Header */}
       <header className="absolute top-0 inset-x-0 h-20 flex items-center px-8 z-50">
@@ -66,18 +66,18 @@ export default function RegisterPage() {
                   : settings?.preferences?.branding?.logoUrl
               } 
               alt="Logo" 
-              className="h-10 object-contain bg-white rounded-lg p-1" 
+              className="h-10 object-contain bg-white rounded-lg p-1 border border-slate-200" 
             />
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-xs">
               <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
           )}
-          <span className="font-black text-xl tracking-tight text-white font-['Outfit']">
+          <span className="font-black text-xl tracking-tight text-slate-900 font-['Outfit']">
             {settings?.companyName ? (
               <>{settings.companyName}</>
             ) : (
-              <>Star<span className="text-[#8B5CF6]">WebFlow</span></>
+              <>Star<span className="text-blue-600">WebFlow</span></>
             )}
           </span>
         </Link>
@@ -86,28 +86,28 @@ export default function RegisterPage() {
       {/* Main Form */}
       <main className="flex-1 flex items-center justify-center p-4 z-10 pt-20 pb-10">
         <div className="w-full max-w-md">
-          <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl p-8 relative overflow-hidden">
             {/* Top Glow */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7]" />
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
             
             {registered ? (
               <div className="text-center space-y-6 py-4 animate-in fade-in duration-300">
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white mb-2 font-['Outfit']">Kayıt Başarılı!</h1>
-                  <p className="text-[#94A3B8] text-sm leading-relaxed">
-                    Hesabınızı aktifleştirmek için <strong>{email}</strong> adresine bir doğrulama e-postası gönderdik.
+                  <h1 className="text-2xl font-black text-slate-900 mb-2 font-['Outfit']">Kayıt Başarılı!</h1>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Hesabınızı aktifleştirmek için <strong className="text-slate-900">{email}</strong> adresine bir doğrulama e-postası gönderdik.
                   </p>
-                  <p className="text-[#64748B] text-xs mt-2">
+                  <p className="text-slate-500 text-xs mt-2">
                     Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin.
                   </p>
                 </div>
 
                 <div className="pt-4">
                   <Link href="/auth/login">
-                    <Button variant="primary" className="w-full justify-center">
+                    <Button variant="primary" className="w-full justify-center font-bold">
                       Giriş Yap Sayfasına Git
                     </Button>
                   </Link>
@@ -116,8 +116,8 @@ export default function RegisterPage() {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold text-white mb-2 font-['Outfit']">Müşteri Hesabı Oluşturun</h1>
-                  <p className="text-[#94A3B8] text-sm">Projelerinizi ve sözleşmelerinizi takip etmek için hesap açın.</p>
+                  <h1 className="text-2xl font-black text-slate-900 mb-2 font-['Outfit']">Müşteri Hesabı Oluşturun</h1>
+                  <p className="text-slate-600 text-sm font-medium">Projelerinizi ve sözleşmelerinizi takip etmek için hesap açın.</p>
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-5">
@@ -136,45 +136,45 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Ad Soyad</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Ad Soyad</label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="text" 
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
                         placeholder="Adınız Soyadınız"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-posta Adresi</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">E-posta Adresi</label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="email" 
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
                         placeholder="ornek@sirket.com"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">Şifre</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Şifre</label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="password" 
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
                         placeholder="••••••••"
                       />
                     </div>
@@ -184,22 +184,22 @@ export default function RegisterPage() {
                     <Button 
                       variant="primary" 
                       size="lg" 
-                      className="w-full justify-center group"
+                      className="w-full justify-center group font-bold shadow-md shadow-blue-500/10"
                       disabled={loading}
                     >
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                         <>
                           Kayıt Ol
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                         </>
                       )}
                     </Button>
                   </div>
                 </form>
 
-                <div className="mt-8 text-center text-sm text-[#64748B]">
+                <div className="mt-8 text-center text-sm text-slate-500 font-medium">
                   Zaten bir hesabınız var mı?{' '}
-                  <Link href="/auth/login" className="text-white hover:text-[#8B5CF6] transition-colors font-medium">
+                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 transition-colors font-bold">
                     Giriş Yapın
                   </Link>
                 </div>

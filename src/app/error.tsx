@@ -16,17 +16,17 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center min-h-[70vh] p-4 w-full">
-      <div className="bg-[#0A0A0F] border border-white/10 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-[70vh] p-4 w-full bg-[#FAFBFD]">
+      <div className="bg-white border border-slate-200/90 p-8 rounded-3xl max-w-md w-full text-center shadow-xl relative overflow-hidden">
         {/* Background Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-red-500/20 blur-[60px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-rose-100/60 blur-[60px] rounded-full pointer-events-none" />
 
-        <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-red-500/20 text-red-400">
+        <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-rose-200 text-rose-600">
           <AlertTriangle className="w-8 h-8" />
         </div>
         
-        <h2 className="text-xl font-bold text-white mb-3">Bir Şeyler Ters Gitti</h2>
-        <p className="text-[#94A3B8] text-sm mb-8">
+        <h2 className="text-xl font-black text-slate-900 mb-3 font-['Outfit']">Bir Şeyler Ters Gitti</h2>
+        <p className="text-slate-600 text-sm mb-8 leading-relaxed">
           Bu sayfayı yüklerken beklenmeyen bir hata oluştu. Sorun geçici olabilir, 
           lütfen tekrar deneyin.
         </p>
@@ -34,14 +34,14 @@ export default function ErrorBoundary({
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => reset()}
-            className="flex-1 px-5 py-3 rounded-xl bg-gradient-to-r from-[#4F8EF7] to-purple-600 text-white hover:opacity-90 transition-opacity font-medium text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(79,142,247,0.3)]"
+            className="flex-1 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
           >
             <RefreshCcw className="w-4 h-4" />
             Tekrar Dene
           </button>
           <Link
-            href="/admin"
-            className="flex-1 px-5 py-3 rounded-xl border border-white/10 text-white hover:bg-white/5 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+            href="/"
+            className="flex-1 px-5 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
           >
             <Home className="w-4 h-4" />
             Ana Sayfa
@@ -49,8 +49,8 @@ export default function ErrorBoundary({
         </div>
 
         {process.env.NODE_ENV !== 'production' && (
-          <div className="mt-6 text-left bg-black/50 p-4 rounded-xl border border-white/5 overflow-auto max-h-40">
-            <p className="text-xs text-red-400 font-mono break-words">{error.message}</p>
+          <div className="mt-6 text-left bg-slate-50 p-4 rounded-xl border border-slate-200 overflow-auto max-h-40">
+            <p className="text-xs text-rose-600 font-mono break-words">{error.message}</p>
           </div>
         )}
       </div>

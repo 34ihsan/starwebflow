@@ -172,8 +172,8 @@ export default function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="section relative overflow-hidden">
-      <div className="absolute inset-0 mesh-bg pointer-events-none" />
+    <section id="pricing" className="section relative overflow-hidden bg-[#FAFBFD]">
+      <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
 
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -181,16 +181,16 @@ export default function PricingSection() {
           <span className="tag-badge mb-4">
             {language === 'tr' ? 'Fiyatlandırma' : language === 'de' ? 'Preise' : 'Pricing'}
           </span>
-          <h2 className="heading-lg text-white mt-4 mb-4">
+          <h2 className="heading-lg text-slate-900 mt-4 mb-4">
             {language === 'tr' ? (
-              <>AI Agent Hizmet <span className="gradient-text">Paketleri</span></>
+              <><span className="text-slate-900 font-extrabold">AI Agent Hizmet</span> <span className="text-blue-600 font-extrabold">Paketleri</span></>
             ) : language === 'de' ? (
-              <>KI-Agenten Service-<span className="gradient-text">Pakete</span></>
+              <><span className="text-slate-900 font-extrabold">KI-Agenten Service-</span><span className="text-blue-600 font-extrabold">Pakete</span></>
             ) : (
-              <>AI Agent Service <span className="gradient-text">Packages</span></>
+              <><span className="text-slate-900 font-extrabold">AI Agent Service </span><span className="text-blue-600 font-extrabold">Packages</span></>
             )}
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto mb-8">
+          <p className="text-slate-600 text-lg max-w-xl mx-auto mb-8 font-normal">
             {t('pricing.subtitle')}
           </p>
         </div>
@@ -204,19 +204,19 @@ export default function PricingSection() {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl border transition-all duration-700 ${
+                className={`relative rounded-2xl border transition-all duration-700 hover:-translate-y-1.5 ${
                   visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
                 } ${
                   isPopular
-                    ? 'border-[#4F8EF7]/40 bg-gradient-to-b from-[#4F8EF7]/10 to-[#8B5CF6]/5 shadow-[0_0_40px_rgba(79,142,247,0.15)]'
-                    : 'border-white/[0.06] bg-[#0F0F1A]/80'
+                    ? 'border-blue-500 bg-white shadow-[0_12px_40px_-8px_rgba(37,99,235,0.18)] ring-2 ring-blue-500/20'
+                    : 'border-slate-200/90 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05),0_8px_24px_-6px_rgba(0,0,0,0.03)] hover:shadow-lg'
                 }`}
                 style={{ transitionDelay: `${i * 120}ms` }}
               >
                 {/* Popular badge */}
                 {isPopular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md whitespace-nowrap">
                       {plan.badge}
                     </span>
                   </div>
@@ -227,29 +227,29 @@ export default function PricingSection() {
                     {/* Icon & Name */}
                     <div className="flex items-center gap-3 mb-6">
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ background: `${plan.color}15`, border: `1px solid ${plan.color}30` }}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs"
+                        style={{ background: `${plan.color}15`, border: `1px solid ${plan.color}35` }}
                       >
                         <Icon className="w-5 h-5" style={{ color: plan.color }} />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white text-lg font-['Outfit']">{plan.name}</h3>
+                        <h3 className="font-bold text-slate-900 text-lg font-['Outfit']">{plan.name}</h3>
                       </div>
                     </div>
 
                     {/* Price text (Curiosity / ROI based) */}
                     <div className="mb-6">
-                      <div className="text-xl font-bold font-['Outfit'] text-white leading-snug">
+                      <div className="text-xl font-bold font-['Outfit'] text-slate-900 leading-snug">
                         {plan.priceText}
                       </div>
-                      <p className="text-xs text-[#10B981] mt-1.5 font-medium flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                      <p className="text-xs text-emerald-700 mt-1.5 font-bold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
                         {plan.priceSubText}
                       </p>
                     </div>
 
                     {/* Description */}
-                    <p className="text-sm text-[#64748B] mb-6 leading-relaxed">
+                    <p className="text-sm text-slate-600 mb-6 leading-relaxed font-normal">
                       {plan.description}
                     </p>
                   </div>
@@ -259,7 +259,7 @@ export default function PricingSection() {
                     <Button
                       variant={plan.ctaVariant}
                       size="md"
-                      className="w-full mb-6"
+                      className="w-full mb-6 font-bold shadow-xs"
                       onClick={handleScroll}
                       id={`pricing-cta-${plan.id}`}
                     >
@@ -268,13 +268,13 @@ export default function PricingSection() {
                     </Button>
 
                     {/* Divider */}
-                    <div className="h-px bg-white/[0.06] mb-6" />
+                    <div className="h-px bg-slate-200/80 mb-6" />
 
                     {/* Features */}
                     <ul className="space-y-3">
                       {plan.features.map((feature) => (
-                        <li key={feature} className="flex items-start gap-3 text-sm text-[#94A3B8]">
-                          <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: plan.color }} />
+                        <li key={feature} className="flex items-start gap-3 text-sm text-slate-700 font-medium">
+                          <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-blue-600" />
                           {feature}
                         </li>
                       ))}
@@ -288,25 +288,25 @@ export default function PricingSection() {
 
         {/* Bottom note */}
         <div className={`mt-12 text-center transition-all duration-700 delay-500 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-          <p className="text-[#475569] text-sm">
+          <p className="text-slate-600 text-sm font-medium">
             {language === 'tr' ? (
               <>
                 Tüm çözümlerimizde şeffaf süreç, esnek SLA ve 30 gün önceden bildirim esası uygulanır.{' '}
-                <span className="text-[#4F8EF7] cursor-pointer hover:underline" onClick={handleScroll}>
+                <span className="text-blue-600 font-semibold cursor-pointer hover:underline" onClick={handleScroll}>
                   Sözleşme şartlarını incele
                 </span>
               </>
             ) : language === 'de' ? (
               <>
                 Transparenter Prozess, flexible SLA und 30 Tage Kündigungsfrist gelten für alle unsere Lösungen.{' '}
-                <span className="text-[#4F8EF7] cursor-pointer hover:underline" onClick={handleScroll}>
+                <span className="text-blue-600 font-semibold cursor-pointer hover:underline" onClick={handleScroll}>
                   Vertragsbedingungen prüfen
                 </span>
               </>
             ) : (
               <>
                 Transparent process, flexible SLA, and 30-day notice apply to all our solutions.{' '}
-                <span className="text-[#4F8EF7] cursor-pointer hover:underline" onClick={handleScroll}>
+                <span className="text-blue-600 font-semibold cursor-pointer hover:underline" onClick={handleScroll}>
                   Review contract terms
                 </span>
               </>

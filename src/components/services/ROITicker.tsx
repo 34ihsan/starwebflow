@@ -65,9 +65,9 @@ export default function ROITicker({
   return (
     <div ref={ref} className="text-center">
       <div
-        className="text-4xl md:text-5xl font-black font-['Outfit'] mb-1"
+        className="text-4xl md:text-5xl font-black font-['Outfit'] mb-1 tracking-tight"
         style={{
-          background: `linear-gradient(135deg, ${accentColor} 0%, white 100%)`,
+          background: `linear-gradient(135deg, ${accentColor} 0%, #0F172A 100%)`,
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
@@ -75,8 +75,8 @@ export default function ROITicker({
       >
         {prefix}{formattedCount}{suffix}
       </div>
-      <div className="text-sm text-[#94A3B8] font-medium">{label}</div>
-      {sublabel && <div className="text-xs text-[#475569] mt-0.5">{sublabel}</div>}
+      <div className="text-sm text-slate-800 font-semibold">{label}</div>
+      {sublabel && <div className="text-xs text-slate-500 font-medium mt-0.5">{sublabel}</div>}
     </div>
   )
 }

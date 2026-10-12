@@ -102,24 +102,24 @@ export default function SpecBuilderSimulation() {
   }
 
   return (
-    <section id="spec-builder" className="section relative overflow-hidden bg-[#05050A]">
-      <div className="absolute inset-0 mesh-bg opacity-20 pointer-events-none" />
+    <section id="spec-builder" className="section relative overflow-hidden bg-white py-24">
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
       
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`text-center mb-16 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 mb-6 shadow-[0_0_30px_rgba(139,92,246,0.15)]">
-            <Terminal className="w-8 h-8 text-[#8B5CF6]" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-50 border border-purple-200 mb-6 shadow-2xs">
+            <Terminal className="w-7 h-7 text-purple-600" />
           </div>
-          <h2 className="heading-lg text-white mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight font-['Outfit']">
             {language === 'tr' ? (
-              <>Projenizi 10 Saniyede <span className="text-[#8B5CF6]">Dokümante Edin</span></>
+              <>Projenizi 10 Saniyede <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">Dokümante Edin</span></>
             ) : language === 'de' ? (
-              <>Dokumentieren Sie Ihr Projekt in <span className="text-[#8B5CF6]">10 Sekunden</span></>
+              <>Dokumentieren Sie Ihr Projekt in <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">10 Sekunden</span></>
             ) : (
-              <>Document Your Project in <span className="text-[#8B5CF6]">10 Seconds</span></>
+              <>Document Your Project in <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">10 Seconds</span></>
             )}
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
             {language === 'tr'
               ? 'Profesyonel bir yazılım süreci, profesyonel bir dokümanla başlar. Fikrinizi yazın, AI destekli Spec-Builder sizin için anında Lastenheft (Gereksinim Belgesi) taslağını oluştursun.'
               : language === 'de'
@@ -129,21 +129,21 @@ export default function SpecBuilderSimulation() {
         </div>
 
         <div className={`max-w-4xl mx-auto transition-all duration-1000 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <GlowCard glowColor="purple" className="p-1 lg:p-1 bg-white/[0.02]">
-            <div className="bg-[#0A0A0F] rounded-[1.2rem] border border-white/[0.05] overflow-hidden">
+          <GlowCard glowColor="purple" className="p-1 lg:p-1 bg-white border border-slate-200 shadow-xl rounded-2xl">
+            <div className="bg-white rounded-[1.2rem] border border-slate-200 overflow-hidden">
               
               {/* Window Header */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-white/[0.02] border-b border-white/[0.05]">
-                <div className="w-3 h-3 rounded-full bg-[#ef4444]/80" />
-                <div className="w-3 h-3 rounded-full bg-[#f59e0b]/80" />
-                <div className="w-3 h-3 rounded-full bg-[#10B981]/80" />
-                <span className="ml-4 text-xs font-mono text-[#64748B]">starwebflow/spec-builder.exe</span>
+              <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200">
+                <div className="w-3 h-3 rounded-full bg-rose-500" />
+                <div className="w-3 h-3 rounded-full bg-amber-500" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <span className="ml-4 text-xs font-mono font-medium text-slate-500">starwebflow/spec-builder.exe</span>
               </div>
 
               <div className="p-6 md:p-8">
                 {/* Input Area */}
                 <div className="mb-8">
-                  <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+                  <label className="block text-sm font-bold text-slate-700 mb-2">
                     {language === 'tr' ? 'Proje Fikrinizi Kısaca Özetleyin' : language === 'de' ? 'Beschreiben Sie kurz Ihre Projektidee' : 'Briefly Summarize Your Project Idea'}
                   </label>
                   <div className="relative">
@@ -155,13 +155,13 @@ export default function SpecBuilderSimulation() {
                         : language === 'de'
                         ? "z. B. Ich möchte eine E-Commerce-Plattform der nächsten Generation aufbauen. Sie soll auf einem Abonnementmodell basieren und KI-gestützte Produktempfehlungen bieten..."
                         : "e.g. I want to build a next-gen e-commerce platform. It will run on a subscription model and offer AI-powered product recommendations..."}
-                      className="w-full bg-[#1A1A2E] border border-white/[0.1] rounded-xl p-4 text-white placeholder-[#475569] focus:outline-none focus:border-[#8B5CF6] transition-colors resize-none h-28"
+                      className="w-full bg-slate-50/50 border border-slate-300 rounded-xl p-4 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white transition-all resize-none h-28 shadow-2xs"
                     />
                     <Button 
                       variant="primary" 
                       onClick={handleSimulate}
                       disabled={isAnalyzing || !projectIdea.trim()}
-                      className="absolute bottom-4 right-4 group disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="absolute bottom-4 right-4 group disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
                     >
                       {isAnalyzing ? (
                         <span className="flex items-center gap-2">
@@ -180,15 +180,15 @@ export default function SpecBuilderSimulation() {
 
                 {/* Loading State & Terminal */}
                 {isAnalyzing && (
-                  <div className="rounded-xl bg-black border border-white/[0.1] p-4 font-mono text-sm">
-                    <div className="flex justify-between items-center mb-4 text-[#64748B] text-xs">
+                  <div className="rounded-xl bg-slate-900 border border-slate-800 p-4 font-mono text-sm text-emerald-400 shadow-inner">
+                    <div className="flex justify-between items-center mb-4 text-slate-400 text-xs">
                       <span>TERMINAL_OUTPUT</span>
                       <span>%{progress}</span>
                     </div>
-                    <div className="w-full bg-white/[0.05] h-1 rounded-full mb-4 overflow-hidden">
-                      <div className="h-full bg-[#8B5CF6] transition-all duration-500" style={{ width: `${progress}%` }} />
+                    <div className="w-full bg-slate-800 h-1 rounded-full mb-4 overflow-hidden">
+                      <div className="h-full bg-purple-500 transition-all duration-500" style={{ width: `${progress}%` }} />
                     </div>
-                    <div className="space-y-1 text-[#10B981]">
+                    <div className="space-y-1">
                       {terminalLogs.map((log, i) => (
                         <div key={i} className="animate-fade-in">&gt; {log}</div>
                       ))}
@@ -199,23 +199,23 @@ export default function SpecBuilderSimulation() {
 
                 {/* Result State */}
                 {showResult && (
-                  <div className="animate-fade-in-up border-t border-white/[0.06] pt-8">
+                  <div className="animate-fade-in-up border-t border-slate-200 pt-8">
                     <div className="flex items-center gap-3 mb-6">
-                      <FileText className="w-6 h-6 text-[#10B981]" />
-                      <h3 className="text-xl font-bold text-white font-['Outfit']">
+                      <FileText className="w-6 h-6 text-emerald-600" />
+                      <h3 className="text-xl font-bold text-slate-900 font-['Outfit']">
                         {language === 'tr' ? 'Lastenheft Ön İzlemesi' : language === 'de' ? 'Lastenheft-Vorschau' : 'Lastenheft Preview'}
                       </h3>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-4">
-                      <div className="bg-[#1A1A2E]/50 rounded-xl p-5 border border-white/[0.05]">
-                        <div className="flex items-center gap-2 mb-3 text-[#4F8EF7]">
+                      <div className="bg-slate-50/70 rounded-xl p-5 border border-slate-200 shadow-2xs">
+                        <div className="flex items-center gap-2 mb-3 text-blue-600">
                           <CheckCircle2 className="w-4 h-4" />
-                          <h4 className="font-semibold text-sm">
+                          <h4 className="font-bold text-sm">
                             {language === 'tr' ? 'Proje Kapsamı' : language === 'de' ? 'Projektumfang' : 'Project Scope'}
                           </h4>
                         </div>
-                        <p className="text-xs text-[#94A3B8] leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">
                           {language === 'tr'
                             ? 'Core özellikler belirlendi. Ölçeklenebilir MVP yapısı ve PWA uyumluluğu eklendi.'
                             : language === 'de'
@@ -224,14 +224,14 @@ export default function SpecBuilderSimulation() {
                         </p>
                       </div>
 
-                      <div className="bg-[#1A1A2E]/50 rounded-xl p-5 border border-white/[0.05]">
-                        <div className="flex items-center gap-2 mb-3 text-[#8B5CF6]">
+                      <div className="bg-slate-50/70 rounded-xl p-5 border border-slate-200 shadow-2xs">
+                        <div className="flex items-center gap-2 mb-3 text-purple-600">
                           <Server className="w-4 h-4" />
-                          <h4 className="font-semibold text-sm">
+                          <h4 className="font-bold text-sm">
                             {language === 'tr' ? 'Teknik Gereksinimler' : language === 'de' ? 'Technische Anforderungen' : 'Technical Requirements'}
                           </h4>
                         </div>
-                        <p className="text-xs text-[#94A3B8] leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">
                           {language === 'tr'
                             ? 'Frontend: Next.js + React. Backend: Node.js/PostgreSQL. AI Integration via OpenAI API.'
                             : language === 'de'
@@ -240,14 +240,14 @@ export default function SpecBuilderSimulation() {
                         </p>
                       </div>
 
-                      <div className="bg-[#1A1A2E]/50 rounded-xl p-5 border border-white/[0.05]">
-                        <div className="flex items-center gap-2 mb-3 text-[#10B981]">
+                      <div className="bg-slate-50/70 rounded-xl p-5 border border-slate-200 shadow-2xs">
+                        <div className="flex items-center gap-2 mb-3 text-emerald-600">
                           <Lock className="w-4 h-4" />
-                          <h4 className="font-semibold text-sm">
+                          <h4 className="font-bold text-sm">
                             {language === 'tr' ? 'Güvenlik Standartları' : language === 'de' ? 'Sicherheitsstandards' : 'Security Standards'}
                           </h4>
                         </div>
-                        <p className="text-xs text-[#94A3B8] leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">
                           {language === 'tr'
                             ? 'Bank-Grade Security: AES-256 şifreleme, GDPR/DSGVO tam uyumluluk, EU sunucu lokasyonu.'
                             : language === 'de'
@@ -256,14 +256,14 @@ export default function SpecBuilderSimulation() {
                         </p>
                       </div>
 
-                      <div className="bg-[#1A1A2E]/50 rounded-xl p-5 border border-white/[0.05]">
-                        <div className="flex items-center gap-2 mb-3 text-[#FBBF24]">
+                      <div className="bg-slate-50/70 rounded-xl p-5 border border-slate-200 shadow-2xs">
+                        <div className="flex items-center gap-2 mb-3 text-amber-600">
                           <Calendar className="w-4 h-4" />
-                          <h4 className="font-semibold text-sm">
+                          <h4 className="font-bold text-sm">
                             {language === 'tr' ? 'Teslimat Takvimi' : language === 'de' ? 'Lieferplan' : 'Delivery Timeline'}
                           </h4>
                         </div>
-                        <p className="text-xs text-[#94A3B8] leading-relaxed">
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">
                           {language === 'tr'
                             ? '4 Haftalık Sprint: Strateji, UI/UX Onayı, Geliştirme, QA Testleri ve Lansman.'
                             : language === 'de'
@@ -273,8 +273,8 @@ export default function SpecBuilderSimulation() {
                       </div>
                     </div>
 
-                    <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#8B5CF6]/10 to-transparent border border-[#8B5CF6]/20 flex flex-col sm:flex-row gap-4 items-center justify-between">
-                      <span className="text-sm text-[#E2E8F0] text-center sm:text-left">
+                    <div className="mt-6 p-4 rounded-xl bg-purple-50/80 border border-purple-200 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                      <span className="text-sm text-slate-800 font-medium text-center sm:text-left">
                         {isDownloaded 
                           ? (language === 'tr' ? 'Gereksinim belgeniz (Lastenheft) başarıyla oluşturuldu ve indirildi!' : language === 'de' ? 'Ihr Lastenheft wurde erfolgreich erstellt und heruntergeladen!' : 'Your requirements specification (Lastenheft) was successfully generated and downloaded!')
                           : (language === 'tr' ? 'Projeniz için hazırlanan detaylı Lastenheft PDF raporunu indirin.' : language === 'de' ? 'Laden Sie den detaillierten Lastenheft-PDF-Bericht für Ihr Projekt herunter.' : 'Download the detailed Lastenheft PDF report prepared for your project.')}
@@ -284,7 +284,7 @@ export default function SpecBuilderSimulation() {
                           <a 
                             href={`/api/v1/pdf/lastenheft?name=${encodeURIComponent(leadData.name)}&email=${encodeURIComponent(leadData.email)}&idea=${encodeURIComponent(projectIdea)}`}
                             download
-                            className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 hover:bg-[#10B981]/25 transition-all"
+                            className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200 transition-all shadow-2xs"
                           >
                             {language === 'tr' ? 'Tekrar İndir' : language === 'de' ? 'Erneut herunterladen' : 'Download Again'}
                           </a>
@@ -292,7 +292,7 @@ export default function SpecBuilderSimulation() {
                           <Button 
                             variant="primary" 
                             size="sm" 
-                            className="text-xs"
+                            className="text-xs shadow-md shadow-blue-600/20"
                             onClick={() => setIsModalOpen(true)}
                           >
                             {language === 'tr' ? 'Lastenheft PDF İndir' : language === 'de' ? 'Lastenheft PDF herunterladen' : 'Download Lastenheft PDF'}
@@ -301,7 +301,7 @@ export default function SpecBuilderSimulation() {
                         <Button 
                           variant="secondary" 
                           size="sm" 
-                          className="text-xs"
+                          className="text-xs border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
                           onClick={() => {
                             const el = document.querySelector('#contact')
                             if (el) el.scrollIntoView({ behavior: 'smooth' })

@@ -558,27 +558,27 @@ function AgentTestLab() {
   }, [messages, typedText, typing])
 
   return (
-    <div className="rounded-2xl border border-white/[0.06] bg-[#12121F]/80 backdrop-blur-sm overflow-hidden flex flex-col h-[500px]">
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-lg overflow-hidden flex flex-col h-[500px]">
       {/* Header */}
-      <div className="border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between bg-slate-50/70">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#8B5CF6]/15 flex items-center justify-center">
-            <Bot className="w-4 h-4 text-[#8B5CF6]" />
+          <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+            <Bot className="w-4 h-4 text-purple-600" />
           </div>
           <div>
-            <div className="text-sm font-semibold text-white">Agent Test Lab</div>
-            <div className="text-xs text-[#64748B]">{selectedSector ? `Status: Active (${c.sectors.find(s=>s.id===selectedSector)?.persona})` : 'Status: Awaiting Sector'}</div>
+            <div className="text-sm font-bold text-slate-900">Agent Test Lab</div>
+            <div className="text-xs text-slate-500 font-medium">{selectedSector ? `Status: Active (${c.sectors.find(s=>s.id===selectedSector)?.persona})` : 'Status: Awaiting Sector'}</div>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col p-6 overflow-hidden bg-white">
         {!selectedSector ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-xl">🧬</div>
+            <div className="w-12 h-12 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-xl">🧬</div>
             <div>
-              <h4 className="text-sm font-bold text-white mb-1">{language === 'tr' ? 'Bir Simülasyon Sektörü Seçin' : language === 'de' ? 'Wählen Sie eine Branche' : 'Select a Sector'}</h4>
-              <p className="text-xs text-[#64748B] max-w-xs leading-relaxed">
+              <h4 className="text-base font-bold text-slate-900 mb-1">{language === 'tr' ? 'Bir Simülasyon Sektörü Seçin' : language === 'de' ? 'Wählen Sie eine Branche' : 'Select a Sector'}</h4>
+              <p className="text-xs text-slate-600 max-w-xs leading-relaxed font-normal">
                 {language === 'tr' ? 'Ajanın o sektöre ait bilgi kartını yüklemek ve konuşmaya başlamak için tıklayın.' : language === 'de' ? 'Klicken Sie hier, um den KI-Agenten für diese Branche zu laden.' : 'Click to load the AI Agent persona for that sector.'}
               </p>
             </div>
@@ -587,10 +587,10 @@ function AgentTestLab() {
                 <button
                   key={s.id}
                   onClick={() => selectSector(s.id)}
-                  className="px-3 py-2.5 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/5 text-xs text-left text-white transition-all flex flex-col gap-0.5"
+                  className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:border-purple-400 hover:bg-purple-50/50 text-xs text-left text-slate-900 transition-all flex flex-col gap-0.5 shadow-2xs hover:shadow-xs"
                 >
-                  <span className="font-semibold">{s.label}</span>
-                  <span className="text-[10px] text-[#64748B]">Persona: {s.persona}</span>
+                  <span className="font-bold text-slate-900">{s.label}</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Persona: {s.persona}</span>
                 </button>
               ))}
             </div>
@@ -605,14 +605,14 @@ function AgentTestLab() {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[85%] px-3 py-2.5 rounded-xl text-sm leading-relaxed ${
+                    className={`max-w-[85%] px-3.5 py-2.5 rounded-xl text-sm leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-[#8B5CF6] text-white rounded-br-sm'
-                        : 'bg-white/[0.04] border border-white/[0.06] text-[#E2E8F0] rounded-bl-sm'
+                        ? 'bg-purple-600 text-white rounded-br-xs shadow-xs font-medium'
+                        : 'bg-slate-100 border border-slate-200 text-slate-900 rounded-bl-xs font-medium'
                     }`}
                   >
                     <p>{msg.text}</p>
-                    <span className="text-[9px] text-[#64748B] block text-right mt-1 font-medium">{msg.ts}</span>
+                    <span className={`text-[10px] block text-right mt-1 font-medium ${msg.role === 'user' ? 'text-purple-200' : 'text-slate-500'}`}>{msg.ts}</span>
                   </div>
                 </div>
               ))}
@@ -620,13 +620,13 @@ function AgentTestLab() {
               {/* Typing indicator */}
               {typing && (
                 <div className="flex justify-start">
-                  <div className="max-w-[85%] px-3 py-2.5 rounded-xl rounded-bl-sm bg-white/[0.06] border border-white/[0.06] text-sm text-[#E2E8F0] leading-relaxed">
+                  <div className="max-w-[85%] px-3.5 py-2.5 rounded-xl rounded-bl-xs bg-slate-100 border border-slate-200 text-sm text-slate-900 leading-relaxed">
                     {typedText || (
                       <div className="flex gap-1 py-1">
                         {[0,1,2].map(i => (
                           <div
                             key={i}
-                            className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]"
+                            className="w-1.5 h-1.5 rounded-full bg-purple-600"
                             style={{ animation: `float 1s ease-in-out infinite ${i * 0.2}s` }}
                           />
                         ))}
@@ -644,13 +644,12 @@ function AgentTestLab() {
                 onChange={e => setQuestion(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendMessage()}
                 placeholder={c.sim.placeholder}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-[#475569] outline-none focus:border-[#8B5CF6]/40 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-purple-600 focus:bg-white transition-colors"
               />
               <button
                 onClick={sendMessage}
                 disabled={!question.trim() || typing}
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
-                style={{ background: '#8B5CF6' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40 bg-purple-600 hover:bg-purple-700 text-white shadow-xs"
               >
                 {typing ? (
                   <Loader2 className="w-4 h-4 text-white animate-spin" />
@@ -773,7 +772,7 @@ export default function AIAgentsPage() {
       />
 
       {/* ─── ROI TICKERS ─── */}
-      <section className="py-16 border-y border-white/[0.04]">
+      <section className="py-16 border-y border-slate-200/80 bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <ROITicker value={60} suffix="%" label={c.tickers.t1} accentColor={ACCENT} />
@@ -785,15 +784,15 @@ export default function AIAgentsPage() {
       </section>
 
       {/* ─── SIMULATION ─── */}
-      <section id="simulation" className="section relative overflow-hidden">
-        <div className="absolute inset-0 mesh-bg pointer-events-none" />
+      <section id="simulation" className="section relative overflow-hidden bg-white">
+        <div className="absolute inset-0 bg-[radial-gradient(#E2E8F0_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{c.sim.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {c.sim.title} <span className="gradient-text">{c.sim.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{c.sim.title}</span> <span className="text-purple-600 font-extrabold">{c.sim.titleHighlight}</span>
             </h2>
-            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 text-lg max-w-2xl mx-auto font-normal">
               {c.sim.desc}
             </p>
           </div>
@@ -803,7 +802,7 @@ export default function AIAgentsPage() {
 
             {/* Right: Features */}
             <div className="space-y-4">
-              <div className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
+              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
                 {c.sim.featuresTitle}
               </div>
               {[
@@ -814,11 +813,11 @@ export default function AIAgentsPage() {
                 { icon: '🔒', title: c.sim.f5Title, desc: c.sim.f5Desc },
                 { icon: '🎭', title: c.sim.f6Title, desc: c.sim.f6Desc },
               ].map((f, i) => (
-                <div key={i} className="flex gap-4 p-4 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:border-white/10 transition-all">
+                <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-xs hover:border-purple-300 hover:shadow-sm transition-all">
                   <div className="text-2xl flex-shrink-0">{f.icon}</div>
                   <div>
-                    <div className="text-sm font-semibold text-white mb-0.5">{f.title}</div>
-                    <div className="text-xs text-[#64748B] leading-relaxed">{f.desc}</div>
+                    <div className="text-sm font-bold text-slate-900 mb-0.5">{f.title}</div>
+                    <div className="text-xs text-slate-600 leading-relaxed font-normal">{f.desc}</div>
                   </div>
                 </div>
               ))}
@@ -828,23 +827,23 @@ export default function AIAgentsPage() {
       </section>
 
       {/* ─── USE CASES ─── */}
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="tag-badge mb-4">{c.useCases.badge}</span>
-            <h2 className="heading-lg text-white mt-4 mb-4">
-              {c.useCases.title} <span className="gradient-text">{c.useCases.titleHighlight}</span>
+            <h2 className="heading-lg text-slate-900 mt-4 mb-4">
+              <span className="text-slate-900 font-extrabold">{c.useCases.title}</span> <span className="text-purple-600 font-extrabold">{c.useCases.titleHighlight}</span>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {useCases.map((uc, i) => (
-              <GlowCard key={i} glowColor="purple" className="p-6">
+              <GlowCard key={i} glowColor="purple" className="p-6 bg-white border border-slate-200/90 shadow-sm">
                 <div className="text-3xl mb-4">{uc.icon}</div>
-                <h3 className="text-base font-bold text-white mb-4">{uc.title}</h3>
+                <h3 className="text-base font-bold text-slate-900 mb-4">{uc.title}</h3>
                 <ul className="space-y-2">
                   {uc.results.map((r, j) => (
-                    <li key={j} className="flex items-center gap-2 text-sm text-[#94A3B8]">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: uc.color }} />
+                    <li key={j} className="flex items-center gap-2 text-sm text-slate-700 font-medium">
+                      <CheckCircle className="w-4 h-4 flex-shrink-0 text-purple-600" />
                       {r}
                     </li>
                   ))}
@@ -856,10 +855,10 @@ export default function AIAgentsPage() {
       </section>
 
       {/* ─── VALUE MATRIX ─── */}
-      <section className="section">
+      <section className="section bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {c.matrix.title}
             </h2>
           </div>
@@ -877,10 +876,10 @@ export default function AIAgentsPage() {
       </section>
 
       {/* ─── COMPARISON ─── */}
-      <section className="section">
+      <section className="section bg-slate-50/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="heading-lg text-white mb-4">
+            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
               {c.comp.title}
             </h2>
           </div>

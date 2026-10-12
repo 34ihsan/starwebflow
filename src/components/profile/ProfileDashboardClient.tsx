@@ -35,7 +35,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(initialProfile.twoFactorEnabled || false);
   const [preferences, setPreferences] = useState(initialProfile.preferences || {
     language: 'tr',
-    theme: 'dark',
+    theme: 'light',
     emailNotifications: true,
     apiKey: '',
     webhookUrl: ''
@@ -47,17 +47,12 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
-  // Apply theme to document
+  // Always enforce light theme on document
   useEffect(() => {
     const root = document.documentElement;
-    if (preferences.theme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    } else {
-      root.classList.remove('light');
-      root.classList.add('dark');
-    }
-  }, [preferences.theme]);
+    root.classList.remove('dark');
+    root.classList.add('light');
+  }, []);
 
   // Dictionary for basic translations to demonstrate it works
   const dict: Record<string, any> = {
@@ -226,30 +221,30 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 p-6 md:p-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <span className="bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3 font-['Outfit']">
+            <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               {t.title}
             </span>
           </h1>
-          <p className="text-slate-400 mt-2">
+          <p className="text-slate-600 mt-2 font-medium">
             {t.subtitle}
           </p>
         </div>
-        <div className="flex items-center gap-4 bg-[#0f172a] border border-white/5 rounded-2xl p-2 px-4 shadow-lg">
+        <div className="flex items-center gap-4 bg-white border border-slate-200/90 rounded-2xl p-2 px-4 shadow-xs">
           <div className="flex items-center gap-3">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full border border-white/10 object-cover" />
+              <img src={avatarUrl} alt="Avatar" className="w-10 h-10 rounded-full border border-slate-200 object-cover" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold shadow-xs">
                 {name.charAt(0)}
               </div>
             )}
             <div>
-              <p className="text-sm font-medium text-white">{name}</p>
-              <p className="text-xs text-slate-400">{initialProfile.role}</p>
+              <p className="text-sm font-bold text-slate-900">{name}</p>
+              <p className="text-xs text-slate-500 font-medium">{initialProfile.role}</p>
             </div>
           </div>
         </div>
@@ -261,37 +256,37 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
         <div className="md:col-span-3 space-y-2">
           <button
             onClick={() => setActiveTab('genel')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'genel' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'genel' ? 'bg-blue-50 text-blue-700 border border-blue-200 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent font-medium'}`}
           >
             <User className="w-5 h-5" />
-            <span className="font-medium">{t.general}</span>
+            <span>{t.general}</span>
           </button>
           
           <button
             onClick={() => setActiveTab('guvenlik')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'guvenlik' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'guvenlik' ? 'bg-purple-50 text-purple-700 border border-purple-200 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent font-medium'}`}
           >
             <ShieldCheck className="w-5 h-5" />
-            <span className="font-medium">{t.security}</span>
+            <span>{t.security}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('tercihler')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'tercihler' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'tercihler' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent font-medium'}`}
           >
             <Settings2 className="w-5 h-5" />
-            <span className="font-medium">{t.preferences}</span>
+            <span>{t.preferences}</span>
           </button>
 
           {isAdmin && (
             <>
-              <div className="h-px bg-white/10 my-4"></div>
+              <div className="h-px bg-slate-200 my-4"></div>
               <button
                 onClick={() => setActiveTab('gelismis')}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'gelismis' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === 'gelismis' ? 'bg-rose-50 text-rose-700 border border-rose-200 font-bold shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent font-medium'}`}
               >
                 <Terminal className="w-5 h-5" />
-                <span className="font-medium">{t.advanced}</span>
+                <span>{t.advanced}</span>
               </button>
             </>
           )}
@@ -302,45 +297,45 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
           
           {/* GENEL SEKME */}
           {activeTab === 'genel' && (
-            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 lg:p-8 animate-in slide-in-from-right-4 duration-300">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-8 shadow-xs animate-in slide-in-from-right-4 duration-300">
               <div className="flex items-center gap-3 mb-8">
-                <div className="p-3 bg-blue-500/10 rounded-xl">
-                  <User className="w-6 h-6 text-blue-400" />
+                <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                  <User className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Kişisel Bilgiler</h2>
-                  <p className="text-sm text-slate-400">Temel hesap bilgileriniz</p>
+                  <h2 className="text-xl font-bold text-slate-900 font-['Outfit']">Kişisel Bilgiler</h2>
+                  <p className="text-sm text-slate-600">Temel hesap bilgileriniz</p>
                 </div>
               </div>
 
               <form onSubmit={handleProfileUpdate} className="space-y-6">
                 
                 {/* Avatar Preview */}
-                <div className="flex items-center gap-6 pb-6 border-b border-white/5">
+                <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
                   <div 
                     className="relative group cursor-pointer" 
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {uploadingAvatar ? (
-                      <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center bg-[#1e293b]">
-                        <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                      <div className="w-20 h-20 rounded-full border border-slate-200 flex items-center justify-center bg-slate-50">
+                        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                       </div>
                     ) : avatarUrl ? (
-                       <img src={avatarUrl} alt="Avatar" className="w-20 h-20 rounded-full border border-white/10 object-cover" />
+                       <img src={avatarUrl} alt="Avatar" className="w-20 h-20 rounded-full border border-slate-200 object-cover" />
                     ) : (
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+                      <div className="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-xs">
                         {name.charAt(0)}
                       </div>
                     )}
                     {!uploadingAvatar && (
-                      <div className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <Upload className="w-6 h-6 text-white" />
                       </div>
                     )}
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-white">Profil Fotoğrafı</h3>
-                    <p className="text-xs text-slate-400 mt-1 mb-3">PNG, JPG 5MB'a kadar.</p>
+                    <h3 className="text-sm font-bold text-slate-900">Profil Fotoğrafı</h3>
+                    <p className="text-xs text-slate-500 mt-1 mb-3">PNG, JPG 5MB'a kadar.</p>
                     <input 
                       type="file"
                       ref={fileInputRef}
@@ -353,7 +348,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadingAvatar}
-                        className="bg-[#1e293b] border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white hover:bg-white/5 transition-colors"
+                        className="bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
                       >
                         {uploadingAvatar ? 'Yükleniyor...' : 'Yeni Fotoğraf Seç'}
                       </button>
@@ -363,7 +358,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                           onClick={() => {
                             setAvatarUrl('');
                           }}
-                          className="text-xs text-rose-400 hover:text-rose-300 px-2 py-1.5"
+                          className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1.5"
                         >
                           Kaldır
                         </button>
@@ -373,51 +368,51 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                 </div>
 
                 {profileMessage && (
-                  <div className={`p-4 rounded-xl flex items-center gap-3 ${profileMessage.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
-                    {profileMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                    <p className="text-sm font-medium">{profileMessage.text}</p>
+                  <div className={`p-4 rounded-xl flex items-center gap-3 ${profileMessage.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'}`}>
+                    {profileMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-rose-600" />}
+                    <p className="text-sm font-semibold">{profileMessage.text}</p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Ad Soyad</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Ad Soyad</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      className="w-full bg-[#1e293b] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">E-posta Adresi</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">E-posta Adresi</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="w-full bg-[#1e293b] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm font-medium"
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Hesap Rolü (Salt Okunur)</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Hesap Rolü (Salt Okunur)</label>
                   <input
                     type="text"
                     value={initialProfile.role}
                     disabled
-                    className="w-full bg-[#0f172a] border border-white/5 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed opacity-70"
+                    className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-slate-500 cursor-not-allowed opacity-90 text-sm font-medium"
                   />
                 </div>
 
-                <div className="pt-4 border-t border-white/5 flex justify-end">
+                <div className="pt-4 border-t border-slate-100 flex justify-end">
                   <button
                     type="submit"
                     disabled={profileLoading}
-                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-6 py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-3 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
                   >
                     {profileLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Değişiklikleri Kaydet'}
                   </button>
@@ -433,56 +428,56 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
               {/* Şifre Kartı */}
               <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 lg:p-8">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="p-3 bg-purple-500/10 rounded-xl">
-                    <Lock className="w-6 h-6 text-purple-400" />
+                  <div className="p-3 bg-purple-50 rounded-xl border border-purple-200">
+                    <Lock className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-white">Şifre Değiştir</h2>
-                    <p className="text-sm text-slate-400">Hesabınıza erişimi koruyun</p>
+                    <h2 className="text-xl font-bold text-slate-900 font-['Outfit']">Şifre Değiştir</h2>
+                    <p className="text-sm text-slate-600">Hesabınıza erişimi koruyun</p>
                   </div>
                 </div>
 
                 <form onSubmit={handlePasswordChange} className="space-y-6">
                   {passwordMessage && (
-                    <div className={`p-4 rounded-xl flex items-center gap-3 ${passwordMessage.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
-                      {passwordMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                      <p className="text-sm font-medium">{passwordMessage.text}</p>
+                    <div className={`p-4 rounded-xl flex items-center gap-3 ${passwordMessage.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'}`}>
+                      {passwordMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> : <AlertCircle className="w-5 h-5 text-rose-600" />}
+                      <p className="text-sm font-semibold">{passwordMessage.text}</p>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Mevcut Şifre</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Mevcut Şifre</label>
                     <input
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
-                      className="w-full bg-[#1e293b] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm font-medium"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Yeni Şifre</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Yeni Şifre</label>
                       <input
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
                         minLength={8}
-                        className="w-full bg-[#1e293b] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">Yeni Şifre (Tekrar)</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Yeni Şifre (Tekrar)</label>
                       <input
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         minLength={8}
-                        className="w-full bg-[#1e293b] border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm font-medium"
                       />
                     </div>
                   </div>
@@ -491,7 +486,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                     <button
                       type="submit"
                       disabled={passwordLoading}
-                      className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl px-6 py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl px-6 py-3 font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
                     >
                       {passwordLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Şifreyi Güncelle'}
                     </button>
@@ -500,22 +495,22 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
               </div>
 
               {/* 2FA Kartı */}
-              <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 lg:p-8">
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-8 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-emerald-500/10 rounded-xl">
-                      <ShieldAlert className="w-6 h-6 text-emerald-400" />
+                    <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                      <ShieldAlert className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">İki Adımlı Doğrulama (2FA)</h3>
-                      <p className="text-sm text-slate-400 mt-1">Hesabınızı ekstra güvenlik katmanıyla koruyun.</p>
+                      <h3 className="text-lg font-bold text-slate-900 font-['Outfit']">İki Adımlı Doğrulama (2FA)</h3>
+                      <p className="text-sm text-slate-600 mt-1">Hesabınızı ekstra güvenlik katmanıyla koruyun.</p>
                     </div>
                   </div>
                   <button 
                     onClick={() => {
                       toggle2FA();
                     }}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${twoFactorEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${twoFactorEnabled ? 'bg-emerald-600' : 'bg-slate-300'}`}
                   >
                     <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
@@ -523,31 +518,31 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
               </div>
 
               {/* Aktif Oturumlar Mock */}
-              <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 lg:p-8">
-                <h3 className="text-lg font-semibold text-white mb-6">Aktif Oturumlar</h3>
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-8 shadow-xs">
+                <h3 className="text-lg font-bold text-slate-900 font-['Outfit'] mb-6">Aktif Oturumlar</h3>
                 <div className="space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#1e293b] rounded-xl border border-white/5">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div className="flex items-center gap-4">
-                      <div className="p-2 bg-blue-500/10 rounded-lg">
-                        <MonitorSmartphone className="w-5 h-5 text-blue-400" />
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <MonitorSmartphone className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">Windows 11 • Chrome Browser</p>
-                        <p className="text-xs text-emerald-400 mt-1">Şu anki cihazınız (IP: 192.168.1.1)</p>
+                        <p className="text-sm font-bold text-slate-900">Windows 11 • Chrome Browser</p>
+                        <p className="text-xs text-emerald-600 mt-1 font-semibold">Şu anki cihazınız (IP: 192.168.1.1)</p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-[#1e293b] rounded-xl border border-white/5">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <div className="flex items-center gap-4">
-                      <div className="p-2 bg-slate-700 rounded-lg">
-                        <MonitorSmartphone className="w-5 h-5 text-slate-400" />
+                      <div className="p-2 bg-slate-200 rounded-lg">
+                        <MonitorSmartphone className="w-5 h-5 text-slate-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">MacBook Pro • Safari</p>
-                        <p className="text-xs text-slate-400 mt-1">Son görülme: 2 gün önce (IP: 85.123.45.67)</p>
+                        <p className="text-sm font-bold text-slate-900">MacBook Pro • Safari</p>
+                        <p className="text-xs text-slate-500 mt-1">Son görülme: 2 gün önce (IP: 85.123.45.67)</p>
                       </div>
                     </div>
-                    <button className="text-sm text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1 mt-4 md:mt-0">
+                    <button className="text-sm text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 mt-4 md:mt-0">
                       <LogOut className="w-4 h-4" /> Çıkış Yap
                     </button>
                   </div>
@@ -559,14 +554,14 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
 
           {/* TERCİHLER SEKME */}
           {activeTab === 'tercihler' && (
-            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 lg:p-8 animate-in slide-in-from-right-4 duration-300">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 lg:p-8 shadow-xs animate-in slide-in-from-right-4 duration-300">
               <div className="flex items-center gap-3 mb-8">
-                <div className="p-3 bg-emerald-500/10 rounded-xl">
-                  <Settings2 className="w-6 h-6 text-emerald-400" />
+                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                  <Settings2 className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Uygulama Tercihleri</h2>
-                  <p className="text-sm text-slate-400">Deneyiminizi özelleştirin</p>
+                  <h2 className="text-xl font-bold text-slate-900 font-['Outfit']">Uygulama Tercihleri</h2>
+                  <p className="text-sm text-slate-600">Deneyiminizi özelleştirin</p>
                 </div>
               </div>
 
@@ -574,8 +569,8 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                 
                 {/* Dil & Bölge */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-slate-400" /> Dil & Bölge
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-slate-500" /> Dil & Bölge
                   </h3>
                   <div className="grid grid-cols-3 gap-4">
                     {['tr', 'en', 'de'].map((lang) => (
@@ -584,7 +579,7 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                         onClick={() => {
                           autosavePreference('language', lang);
                         }}
-                        className={`p-4 rounded-xl border text-center transition-all ${preferences.language === lang ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-[#1e293b] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                        className={`p-4 rounded-xl border text-center transition-all font-semibold ${preferences.language === lang ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-2xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'}`}
                       >
                         {lang === 'tr' ? 'Türkçe' : lang === 'en' ? 'English' : 'Deutsch'}
                       </button>
@@ -592,41 +587,37 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                   </div>
                 </div>
 
-                {/* Tema */}
+                {/* Tema - Enforced Light Theme */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                    <Moon className="w-4 h-4 text-slate-400" /> Görünüm Teması
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Moon className="w-4 h-4 text-slate-500" /> Görünüm Teması
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {['dark', 'light', 'system'].map((theme) => (
-                      <button
-                        key={theme}
-                        onClick={() => {
-                          autosavePreference('theme', theme);
-                        }}
-                        className={`p-4 rounded-xl border text-center transition-all ${preferences.theme === theme ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-[#1e293b] border-white/5 text-slate-400 hover:bg-white/5 hover:text-white'}`}
-                      >
-                        <span className="capitalize">{theme === 'dark' ? 'Koyu' : theme === 'light' ? 'Açık' : 'Sistem'}</span>
-                      </button>
-                    ))}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">Ultra Minimalist Açık Tema</p>
+                      <p className="text-xs text-slate-600 mt-1">Platform tüm cihazlarda optimize edilmiş yüksek kontrastlı açık tema ile çalışmaktadır.</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold rounded-full">
+                      Aktif & Kilitli
+                    </span>
                   </div>
                 </div>
 
                 {/* Bildirimler */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-white flex items-center gap-2">
-                    <BellRing className="w-4 h-4 text-slate-400" /> E-posta Bildirimleri
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <BellRing className="w-4 h-4 text-slate-500" /> E-posta Bildirimleri
                   </h3>
-                  <div className="p-4 bg-[#1e293b] border border-white/5 rounded-xl flex items-center justify-between">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-white">Genel Bildirimler</p>
-                      <p className="text-xs text-slate-400 mt-1">Faturalar, sistem uyarıları ve özet raporları</p>
+                      <p className="text-sm font-bold text-slate-900">Genel Bildirimler</p>
+                      <p className="text-xs text-slate-600 mt-1">Faturalar, sistem uyarıları ve özet raporları</p>
                     </div>
                     <button 
                       onClick={() => {
                         autosavePreference('emailNotifications', !preferences.emailNotifications);
                       }}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.emailNotifications ? 'bg-blue-500' : 'bg-slate-700'}`}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${preferences.emailNotifications ? 'bg-blue-600' : 'bg-slate-300'}`}
                     >
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${preferences.emailNotifications ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
@@ -641,40 +632,40 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
           {isAdmin && activeTab === 'gelismis' && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               
-              <div className="bg-[#0f172a] border border-rose-500/20 rounded-2xl p-6 lg:p-8">
+              <div className="bg-white border border-rose-200 rounded-2xl p-6 lg:p-8 shadow-xs">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-rose-500/10 rounded-xl">
-                    <Key className="w-6 h-6 text-rose-400" />
+                  <div className="p-3 bg-rose-50 rounded-xl border border-rose-200">
+                    <Key className="w-6 h-6 text-rose-600" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-white">API Yönetimi</h2>
-                    <p className="text-sm text-slate-400">Harici sistemler için API anahtarları oluşturun.</p>
+                    <h2 className="text-xl font-bold text-slate-900 font-['Outfit']">API Yönetimi</h2>
+                    <p className="text-sm text-slate-600">Harici sistemler için API anahtarları oluşturun.</p>
                   </div>
                 </div>
                 
-                <div className="p-6 border border-white/5 rounded-xl bg-[#1e293b] text-center">
-                  <Terminal className="w-10 h-10 text-slate-500 mx-auto mb-3" />
-                  <h3 className="text-white font-medium mb-1">Geliştirici Araçları & API</h3>
-                  <p className="text-sm text-slate-400 mb-6 max-w-sm mx-auto">
+                <div className="p-6 border border-slate-200 rounded-xl bg-slate-50 text-center">
+                  <Terminal className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+                  <h3 className="text-slate-900 font-bold mb-1">Geliştirici Araçları & API</h3>
+                  <p className="text-sm text-slate-600 mb-6 max-w-sm mx-auto">
                     Kendi uygulamalarınızı StarWebflow ile entegre etmek için bir API anahtarı oluşturabilirsiniz.
                   </p>
                   
                   {preferences.apiKey ? (
-                    <div className="bg-[#0f172a] border border-white/10 rounded-lg p-4 mb-6 flex items-center justify-between">
+                    <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 flex items-center justify-between">
                       <div className="text-left overflow-hidden">
-                        <p className="text-xs text-slate-400 mb-1">API Anahtarınız</p>
-                        <p className="text-sm font-mono text-emerald-400 truncate">{preferences.apiKey}</p>
+                        <p className="text-xs text-slate-500 mb-1 font-medium">API Anahtarınız</p>
+                        <p className="text-sm font-mono text-emerald-700 font-bold truncate">{preferences.apiKey}</p>
                       </div>
                       <div className="flex gap-2">
                         <button 
                           onClick={() => copyToClipboard(preferences.apiKey!)}
-                          className="p-2 bg-white/5 hover:bg-white/10 rounded text-slate-300"
+                          className="p-2 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={generateApiKey}
-                          className="p-2 bg-white/5 hover:bg-white/10 rounded text-slate-300"
+                          className="p-2 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
                           title="Yenile"
                         >
                           <RefreshCw className="w-4 h-4" />
@@ -684,30 +675,30 @@ export default function ProfileDashboardClient({ initialProfile }: { initialProf
                   ) : (
                     <button 
                       onClick={generateApiKey}
-                      className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors mb-6"
+                      className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors mb-6 shadow-xs"
                     >
                       + Yeni Anahtar Üret
                     </button>
                   )}
 
-                  <div className="text-left mt-6 pt-6 border-t border-white/5">
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Webhook URL (Gelişmiş)</label>
+                  <div className="text-left mt-6 pt-6 border-t border-slate-200">
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Webhook URL (Gelişmiş)</label>
                     <div className="flex gap-3">
                       <input
                         type="url"
                         placeholder="https://siteniz.com/api/webhook"
                         value={preferences.webhookUrl || ''}
                         onChange={(e) => updatePreference('webhookUrl', e.target.value)}
-                        className="flex-1 bg-[#0f172a] border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-rose-500/50"
+                        className="flex-1 bg-white border border-slate-300 rounded-lg px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 font-medium"
                       />
                       <button 
                         onClick={() => saveSettings()}
-                        className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-xs"
                       >
                         Kaydet
                       </button>
                     </div>
-                    <p className="text-xs text-slate-500 mt-2">Belirttiğiniz adrese önemli olaylarda (lead oluşturma vb.) POST istekleri gönderilir.</p>
+                    <p className="text-xs text-slate-500 mt-2 font-medium">Belirttiğiniz adrese önemli olaylarda (lead oluşturma vb.) POST istekleri gönderilir.</p>
                   </div>
 
                 </div>

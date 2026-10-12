@@ -52,15 +52,12 @@ export default function ValueMatrix({
       className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
     >
       {displayTitle && (
-        <h3 className="heading-md text-white mb-6 text-center">{displayTitle}</h3>
+        <h3 className="heading-md text-slate-900 mb-6 text-center font-bold tracking-tight">{displayTitle}</h3>
       )}
 
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
         {/* Table header */}
-        <div
-          className="grid grid-cols-4 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#64748B]"
-          style={{ background: 'rgba(255,255,255,0.02)' }}
-        >
+        <div className="grid grid-cols-4 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-50 border-b border-slate-200">
           <div>{h.metric}</div>
           <div className="text-center">{h.before}</div>
           <div className="text-center">{h.after}</div>
@@ -71,21 +68,21 @@ export default function ValueMatrix({
         {rows.map((row, i) => (
           <div
             key={i}
-            className="grid grid-cols-4 px-6 py-4 border-t border-white/[0.04] items-center"
+            className="grid grid-cols-4 px-6 py-4 border-t border-slate-200 items-center"
             style={{
-              background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+              background: i % 2 === 0 ? '#FFFFFF' : '#F8FAFC',
               transitionDelay: `${i * 80}ms`,
             }}
           >
-            <div className="text-sm text-[#94A3B8] font-medium">{row.metric}</div>
-            <div className="text-center text-sm text-[#64748B] line-through">{row.before}</div>
-            <div className="text-center text-sm text-white font-semibold">{row.after}</div>
+            <div className="text-sm text-slate-800 font-semibold">{row.metric}</div>
+            <div className="text-center text-sm text-slate-400 line-through font-medium">{row.before}</div>
+            <div className="text-center text-sm text-slate-900 font-bold">{row.after}</div>
             <div className="text-center">
               <span
                 className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full"
                 style={{
-                  color: row.deltaPositive ? '#10B981' : '#EF4444',
-                  background: row.deltaPositive ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
+                  color: row.deltaPositive ? '#059669' : '#DC2626',
+                  background: row.deltaPositive ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
                 }}
               >
                 {row.deltaPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}

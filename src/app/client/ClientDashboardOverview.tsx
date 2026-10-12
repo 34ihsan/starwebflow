@@ -29,36 +29,33 @@ export default function ClientDashboardOverview({ initialData, initialActivities
 
   return (
     <div className="relative p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
-      {/* Mesh Background */}
-      <div className="absolute inset-0 mesh-bg opacity-40 pointer-events-none mix-blend-screen -z-10" />
-
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-4xl font-black font-['Outfit'] text-white tracking-tight">
-              <span className="gradient-text">{t('dashboard.overview.welcome')},</span>{' '}
-              <span className="text-white">{client?.name || 'Client'}</span>
+            <h1 className="text-4xl font-black font-['Outfit'] text-slate-900 tracking-tight">
+              <span className="text-blue-600">{t('dashboard.overview.welcome')},</span>{' '}
+              <span className="text-slate-900">{client?.name || 'Client'}</span>
             </h1>
           </div>
-          <p className="text-slate-400 font-medium">{t('dashboard.overview.subtitle')}</p>
+          <p className="text-slate-600 font-medium">{t('dashboard.overview.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Sparkline mini chart */}
-          <div className="hidden lg:flex items-end gap-0.5 h-8 px-3 py-2 glass rounded-xl">
+          <div className="hidden lg:flex items-end gap-0.5 h-8 px-3 py-2 bg-white border border-slate-200 rounded-xl shadow-xs">
             {[40, 65, 45, 80, 60, 90, 75].map((h, i) => (
               <div
                 key={i}
                 className="sparkline-bar w-2 rounded-sm"
                 style={{
                   height: `${h}%`,
-                  background: `linear-gradient(to top, #4F8EF7, #06B6D4)`,
+                  background: `linear-gradient(to top, #2563EB, #06B6D4)`,
                   opacity: 0.4 + i * 0.08,
                 }}
               />
             ))}
           </div>
-          <div className="px-5 py-2.5 glass border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)] text-emerald-400 text-sm font-bold rounded-xl flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 activity-dot" />
+          <div className="px-5 py-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-bold rounded-xl flex items-center gap-2 shadow-xs">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 activity-dot" />
             {language === 'tr' ? 'Sistem Aktif' : language === 'en' ? 'System Online' : 'System Aktiv'}
           </div>
         </div>
@@ -67,23 +64,23 @@ export default function ClientDashboardOverview({ initialData, initialActivities
       {/* Quick Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10">
         {[
-          { icon: Plus,         label: language === 'tr' ? 'Yeni Talep' : language === 'de' ? 'Neue Anfrage' : 'New Request', href: '/client/support', color: '#4F8EF7' },
-          { icon: MessageSquare, label: language === 'tr' ? 'Mesajlar'  : language === 'de' ? 'Nachrichten'  : 'Messages',    href: '/client/messages', color: '#8B5CF6' },
-          { icon: FileText,     label: language === 'tr' ? 'Faturalar'  : language === 'de' ? 'Rechnungen'   : 'Invoices',    href: '/client/invoices', color: '#06B6D4' },
-          { icon: LifeBuoy,     label: language === 'tr' ? 'Destek'     : language === 'de' ? 'Support'      : 'Support',     href: '/client/support',  color: '#10B981' },
+          { icon: Plus,         label: language === 'tr' ? 'Yeni Talep' : language === 'de' ? 'Neue Anfrage' : 'New Request', href: '/client/support', color: '#2563EB' },
+          { icon: MessageSquare, label: language === 'tr' ? 'Mesajlar'  : language === 'de' ? 'Nachrichten'  : 'Messages',    href: '/client/messages', color: '#7C3AED' },
+          { icon: FileText,     label: language === 'tr' ? 'Faturalar'  : language === 'de' ? 'Rechnungen'   : 'Invoices',    href: '/client/invoices', color: '#0284C7' },
+          { icon: LifeBuoy,     label: language === 'tr' ? 'Destek'     : language === 'de' ? 'Support'      : 'Support',     href: '/client/support',  color: '#059669' },
         ].map(({ icon: Icon, label, href, color }, i) => (
           <Link
             key={i}
             href={href}
-            className="dashboard-card flex items-center gap-3 px-4 py-3 group hover:no-underline"
+            className="flex items-center gap-3 px-4 py-3 bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:shadow-md transition-all group hover:no-underline"
           >
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-              style={{ background: `${color}15`, border: `1px solid ${color}25` }}
+              style={{ background: `${color}15`, border: `1px solid ${color}30` }}
             >
               <Icon className="w-4 h-4" style={{ color }} aria-hidden="true" />
             </div>
-            <span className="text-sm font-semibold text-[#94A3B8] group-hover:text-white transition-colors whitespace-nowrap truncate">
+            <span className="text-sm font-bold text-slate-700 group-hover:text-blue-600 transition-colors whitespace-nowrap truncate">
               {label}
             </span>
           </Link>
@@ -92,43 +89,40 @@ export default function ClientDashboardOverview({ initialData, initialActivities
 
       {/* Header Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass card-hover rounded-3xl p-6 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#4F8EF7]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all relative overflow-hidden group">
           <div className="flex items-center gap-4 mb-4 relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-[#4F8EF7]/10 flex items-center justify-center border border-[#4F8EF7]/20 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_15px_rgba(79,142,247,0.2)]">
-              <FolderKanban className="w-6 h-6 text-[#4F8EF7]" />
+            <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-200 group-hover:scale-110 transition-transform duration-500 shadow-xs">
+              <FolderKanban className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.overview.activeProjects')}</p>
-              <h3 className="text-3xl font-black text-white font-['Outfit'] mt-1 tracking-tight">{projects?.length || 0}</h3>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('dashboard.overview.activeProjects')}</p>
+              <h3 className="text-3xl font-black text-slate-900 font-['Outfit'] mt-1 tracking-tight">{projects?.length || 0}</h3>
             </div>
           </div>
         </motion.div>
         
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass card-hover rounded-3xl p-6 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all relative overflow-hidden group">
           <div className="flex items-center gap-4 mb-4 relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
-              <Clock className="w-6 h-6 text-orange-400" />
+            <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center border border-orange-200 group-hover:scale-110 transition-transform duration-500 shadow-xs">
+              <Clock className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.overview.pendingInvoices')}</p>
-              <h3 className="text-3xl font-black text-orange-400 font-['Outfit'] mt-1 tracking-tight">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('dashboard.overview.pendingInvoices')}</p>
+              <h3 className="text-3xl font-black text-orange-600 font-['Outfit'] mt-1 tracking-tight">
                 {recentInvoices?.filter((i: any) => i.status === 'PENDING').length || 0}
               </h3>
             </div>
           </div>
         </motion.div>
         
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass card-hover rounded-3xl p-6 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md transition-all relative overflow-hidden group">
           <div className="flex items-center gap-4 mb-4 relative z-10">
-            <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center border border-[#8B5CF6]/20 group-hover:scale-110 transition-transform duration-500 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
-              <Activity className="w-6 h-6 text-[#8B5CF6]" />
+            <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-200 group-hover:scale-110 transition-transform duration-500 shadow-xs">
+              <Activity className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{t('dashboard.overview.openTickets')}</p>
-              <h3 className="text-3xl font-black text-white font-['Outfit'] mt-1 tracking-tight">1</h3>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('dashboard.overview.openTickets')}</p>
+              <h3 className="text-3xl font-black text-slate-900 font-['Outfit'] mt-1 tracking-tight">1</h3>
             </div>
           </div>
         </motion.div>
@@ -138,21 +132,21 @@ export default function ClientDashboardOverview({ initialData, initialActivities
         {/* Left: Projects */}
         <div className="col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-white">
-              <div className="p-2 rounded-xl bg-[#4F8EF7]/10 border border-[#4F8EF7]/20">
-                <FolderKanban className="w-5 h-5 text-[#4F8EF7]" />
+            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-slate-900">
+              <div className="p-2 rounded-xl bg-blue-50 border border-blue-200">
+                <FolderKanban className="w-5 h-5 text-blue-600" />
               </div>
               {t('dashboard.overview.recentProjects')}
             </h2>
-            <button className="text-sm font-bold text-[#4F8EF7] hover:text-white transition-colors">
+            <button className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
               {language === 'tr' ? 'Tümünü Gör' : language === 'en' ? 'View All' : 'Alle anzeigen'}
             </button>
           </div>
           
           <div className="space-y-4">
             {projects?.length === 0 ? (
-              <div className="glass rounded-3xl p-8 text-center border-dashed border-2 border-white/10">
-                <p className="text-slate-400 font-medium">{t('dashboard.projects.empty')}</p>
+              <div className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-8 text-center">
+                <p className="text-slate-500 font-medium">{t('dashboard.projects.empty')}</p>
               </div>
             ) : (
               projects?.map((project: any, i: number) => (
@@ -161,12 +155,12 @@ export default function ClientDashboardOverview({ initialData, initialActivities
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 * i }}
                   key={project.id} 
-                  className="glass rounded-3xl p-6 card-hover group cursor-pointer"
+                  className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-xs hover:shadow-md group cursor-pointer transition-all"
                 >
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-2">{project.title}</h3>
-                      <span className="text-xs font-bold text-[#4F8EF7] bg-[#4F8EF7]/10 px-3 py-1.5 rounded-lg border border-[#4F8EF7]/20">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2">{project.title}</h3>
+                      <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
                         {project.status === 'PLANNING' 
                           ? (language === 'tr' ? 'Planlama' : language === 'en' ? 'Planning' : 'Planung') 
                           : project.status === 'IN_PROGRESS' 
@@ -174,24 +168,24 @@ export default function ClientDashboardOverview({ initialData, initialActivities
                             : (language === 'tr' ? 'Tamamlandı' : language === 'en' ? 'Completed' : 'Abgeschlossen')}
                       </span>
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[#4F8EF7] group-hover:shadow-[0_0_15px_rgba(79,142,247,0.5)] transition-all duration-300">
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-white" />
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                      <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-white" />
                     </div>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400 font-bold">{t('dashboard.overview.progress')}</span>
-                      <span className="text-white font-black">%{project.progress || 0}</span>
+                      <span className="text-slate-500 font-bold">{t('dashboard.overview.progress')}</span>
+                      <span className="text-slate-900 font-black">%{project.progress || 0}</span>
                     </div>
-                    <div className="w-full h-3 bg-[#0A0A0F] rounded-full overflow-hidden border border-white/5">
+                    <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${project.progress || 0}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-[#4F8EF7] to-[#06B6D4] rounded-full relative shadow-[0_0_15px_rgba(6,182,212,0.6)]"
+                        className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full relative"
                       >
-                        <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" />
+                        <div className="absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite]" />
                       </motion.div>
                     </div>
                   </div>
@@ -204,30 +198,30 @@ export default function ClientDashboardOverview({ initialData, initialActivities
         {/* Right: Contracts & Activity */}
         <div className="space-y-8">
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-white">
-              <div className="p-2 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20">
-                <FileText className="w-5 h-5 text-[#8B5CF6]" />
+            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-slate-900">
+              <div className="p-2 rounded-xl bg-purple-50 border border-purple-200">
+                <FileText className="w-5 h-5 text-purple-600" />
               </div>
               {t('dashboard.contracts.title')}
             </h2>
 
-            <div className="glass rounded-3xl overflow-hidden card-hover">
+            <div className="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs">
               {contracts?.length === 0 ? (
-                <div className="p-8 text-center text-sm font-medium text-slate-400">
+                <div className="p-8 text-center text-sm font-medium text-slate-500">
                   {language === 'tr' ? 'Bekleyen sözleşme yok.' : language === 'en' ? 'No pending contracts.' : 'Keine ausstehenden Verträge.'}
                 </div>
               ) : (
                 contracts?.map((contract: any, i: number) => (
-                  <div key={contract.id} className={`p-5 flex items-center justify-between hover:bg-white/[0.03] transition-colors ${i !== contracts.length - 1 ? 'border-b border-white/[0.05]' : ''}`}>
+                  <div key={contract.id} className={`p-5 flex items-center justify-between hover:bg-slate-50 transition-colors ${i !== contracts.length - 1 ? 'border-b border-slate-100' : ''}`}>
                     <div>
-                      <h4 className="text-sm font-bold text-white mb-1.5 truncate max-w-[150px]">{contract.title}</h4>
-                      <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md ${contract.status === 'İmza Bekliyor' ? 'bg-orange-500/10 text-orange-400 border border-orange-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                      <h4 className="text-sm font-bold text-slate-900 mb-1.5 truncate max-w-[150px]">{contract.title}</h4>
+                      <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md ${contract.status === 'İmza Bekliyor' ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`}>
                         {contract.status === 'İmza Bekliyor' 
                           ? (language === 'tr' ? 'İmza Bekliyor' : language === 'en' ? 'Awaiting Signature' : 'Unterschrift ausstehend')
                           : (language === 'tr' ? 'İmzalandı' : language === 'en' ? 'Signed' : 'Unterzeichnet')}
                       </span>
                     </div>
-                    <button className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-300 ${contract.action === 'İmzala' ? 'bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] hover:scale-105' : 'glass hover:text-white hover:border-white/20'}`}>
+                    <button className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-300 ${contract.action === 'İmzala' ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-xs hover:scale-105' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}>
                       {contract.action === 'İmzala' 
                         ? (language === 'tr' ? 'İmzala' : language === 'en' ? 'Sign' : 'Unterschreiben')
                         : (language === 'tr' ? 'Görüntüle' : language === 'en' ? 'View' : 'Ansehen')}
@@ -239,32 +233,32 @@ export default function ClientDashboardOverview({ initialData, initialActivities
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-white">
-              <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                <Activity className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-2xl font-bold font-['Outfit'] flex items-center gap-2 text-slate-900">
+              <div className="p-2 rounded-xl bg-emerald-50 border border-emerald-200">
+                <Activity className="w-5 h-5 text-emerald-600" />
               </div>
               {language === 'tr' ? 'Son Aktiviteler' : language === 'en' ? 'Recent Activities' : 'Letzte Aktivitäten'}
             </h2>
 
-            <div className="glass rounded-3xl p-3 card-hover">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-3 shadow-xs">
               <div className="relative">
                 {/* Timeline connector line */}
                 {RECENT_ACTIVITY.length > 1 && (
-                  <div className="absolute left-[22px] top-7 bottom-7 dashboard-timeline-connector" aria-hidden="true" />
+                  <div className="absolute left-[22px] top-7 bottom-7 border-l-2 border-slate-100" aria-hidden="true" />
                 )}
                 <div className="space-y-1">
                   {RECENT_ACTIVITY.length === 0 ? (
-                    <div className="p-5 text-center text-sm font-medium text-slate-400">
+                    <div className="p-5 text-center text-sm font-medium text-slate-500">
                       {language === 'tr' ? 'Henüz aktivite yok.' : 'No recent activity.'}
                     </div>
                   ) : (
                     RECENT_ACTIVITY.map((activity, idx) => (
-                      <div key={activity.id} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/[0.03] transition-colors group cursor-default relative z-10">
+                      <div key={activity.id} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors group cursor-default relative z-10">
                         <div className="mt-1 flex-shrink-0">
-                          <div className={`w-2.5 h-2.5 rounded-full bg-[#4F8EF7] shadow-[0_0_10px_rgba(79,142,247,0.5)] ring-4 ring-[#4F8EF7]/10 group-hover:ring-[#4F8EF7]/30 transition-all ${idx === 0 ? 'activity-dot' : ''}`} />
+                          <div className={`w-2.5 h-2.5 rounded-full bg-blue-600 ring-4 ring-blue-100 transition-all ${idx === 0 ? 'activity-dot' : ''}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-slate-200 font-bold truncate">{activity.title}</p>
+                          <p className="text-sm text-slate-900 font-bold truncate">{activity.title}</p>
                           <p className="text-xs font-medium text-slate-500 mt-0.5">{activity.time}</p>
                         </div>
                       </div>

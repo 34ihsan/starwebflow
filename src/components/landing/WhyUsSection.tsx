@@ -38,7 +38,7 @@ function StatCounter({ value, suffix, label, icon: Icon, color, isVisible }: {
       >
         {isVisible ? count : 0}{suffix}
       </div>
-      <p className="text-sm text-[#94A3B8] font-medium leading-tight max-w-24">{label}</p>
+      <p className="text-sm text-slate-600 font-semibold leading-tight max-w-24">{label}</p>
     </div>
   )
 }
@@ -50,11 +50,11 @@ export default function WhyUsSection() {
 
   const stats = [
     { value: 40, suffix: '%', label: t('whyUsExtra.stat1'), icon: TrendingUp, color: '#10B981' },
-    { value: 3,  suffix: 'x',  label: t('whyUsExtra.stat2'), icon: Users,       color: '#4F8EF7' },
-    { value: 48, suffix: language === 'tr' ? 'sa' : language === 'de' ? 'Std.' : 'hrs', label: t('whyUsExtra.stat3'), icon: Zap, color: '#8B5CF6' },
-    { value: 99, suffix: '%',  label: t('whyUsExtra.stat4'), icon: Shield,      color: '#06B6D4' },
-    { value: 24, suffix: '/7', label: language === 'tr' ? 'Kesintisiz Otonom Sistem' : language === 'de' ? 'Autonomer Betrieb' : 'Autonomous Runtime', icon: Zap, color: '#F59E0B' },
-    { value: 100, suffix: '%', label: language === 'tr' ? 'Özel Kodlama & KVKK' : language === 'de' ? 'Custom Code & DSGVO' : 'Custom Code & GDPR', icon: Shield, color: '#EC4899' },
+    { value: 3,  suffix: 'x',  label: t('whyUsExtra.stat2'), icon: Users,       color: '#2563EB' },
+    { value: 48, suffix: language === 'tr' ? 'sa' : language === 'de' ? 'Std.' : 'hrs', label: t('whyUsExtra.stat3'), icon: Zap, color: '#7C3AED' },
+    { value: 99, suffix: '%',  label: t('whyUsExtra.stat4'), icon: Shield,      color: '#0891B2' },
+    { value: 24, suffix: '/7', label: language === 'tr' ? 'Kesintisiz Otonom Sistem' : language === 'de' ? 'Autonomer Betrieb' : 'Autonomous Runtime', icon: Zap, color: '#D97706' },
+    { value: 100, suffix: '%', label: language === 'tr' ? 'Özel Kodlama & KVKK' : language === 'de' ? 'Custom Code & DSGVO' : 'Custom Code & GDPR', icon: Shield, color: '#DB2777' },
   ]
 
   useEffect(() => {
@@ -69,11 +69,11 @@ export default function WhyUsSection() {
   }, [])
 
   return (
-    <section id="why-us" className="section relative overflow-hidden">
+    <section id="why-us" className="section relative overflow-hidden bg-white">
       {/* Background */}
       <div className="absolute inset-0" aria-hidden="true">
-        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-[#4F8EF7]/5 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full bg-[#8B5CF6]/5 blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-blue-100/30 blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full bg-purple-100/30 blur-3xl" />
       </div>
 
       <div ref={sectionRef} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,31 +84,31 @@ export default function WhyUsSection() {
             <span className="tag-badge mb-4">
               {t('whyUsExtra.tag')}
             </span>
-            <h2 className="heading-lg text-white mt-4 mb-6">
+            <h2 className="heading-lg text-slate-900 mt-4 mb-6">
               {t('whyUsExtra.heading')}{' '}
-              <span className="block sm:inline gradient-text">{t('whyUsExtra.headingHighlight')}</span>
+              <span className="block sm:inline text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold">{t('whyUsExtra.headingHighlight')}</span>
             </h2>
 
             <blockquote className="relative mb-8">
-              <div className="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-[#4F8EF7] to-[#8B5CF6] rounded-full" />
-              <p className="pl-6 text-lg text-[#94A3B8] leading-relaxed italic">
+              <div className="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-blue-600 to-purple-600 rounded-full" />
+              <p className="pl-6 text-lg text-slate-600 leading-relaxed italic">
                 {language === 'tr' ? (
                   <>
                     "Geleneksel ajanslar size sadece hizmet satar; biz size bir{' '}
-                    <span className="text-white font-semibold not-italic">operasyonel güç</span> sunuyoruz. İnsan hatasını minimize eden, yapay zekayı bir çalışan gibi konumlandıran ve{' '}
-                    <span className="text-white font-semibold not-italic">veriyi nakde dönüştüren</span> bir ekosistem."
+                    <span className="text-slate-900 font-bold not-italic">operasyonel güç</span> sunuyoruz. İnsan hatasını minimize eden, yapay zekayı bir çalışan gibi konumlandıran ve{' '}
+                    <span className="text-slate-900 font-bold not-italic">veriyi nakde dönüştüren</span> bir ekosistem."
                   </>
                 ) : language === 'de' ? (
                   <>
                     "Klassische Agenturen verkaufen Ihnen nur eine Dienstleistung; wir bieten Ihnen eine{' '}
-                    <span className="text-white font-semibold not-italic">operative Stärke</span> an. Ein Ökosystem, das menschliche Fehler minimiert, KI wie einen Mitarbeiter positioniert und{' '}
-                    <span className="text-white font-semibold not-italic">Daten in Bargeld verwandelt</span>."
+                    <span className="text-slate-900 font-bold not-italic">operative Stärke</span> an. Ein Ökosystem, das menschliche Fehler minimiert, KI wie einen Mitarbeiter positioniert und{' '}
+                    <span className="text-slate-900 font-bold not-italic">Daten in Bargeld verwandelt</span>."
                   </>
                 ) : (
                   <>
                     "Traditional agencies only sell you a service; we offer you an{' '}
-                    <span className="text-white font-semibold not-italic">operational power</span>. An ecosystem that minimizes human error, positions AI like an employee, and{' '}
-                    <span className="text-white font-semibold not-italic">turns data into cash</span>."
+                    <span className="text-slate-900 font-bold not-italic">operational power</span>. An ecosystem that minimizes human error, positions AI like an employee, and{' '}
+                    <span className="text-slate-900 font-bold not-italic">turns data into cash</span>."
                   </>
                 )}
               </p>
@@ -125,12 +125,12 @@ export default function WhyUsSection() {
                   className={`flex gap-4 transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
                   style={{ transitionDelay: `${200 + i * 150}ms` }}
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#4F8EF7]/20 border border-[#4F8EF7]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <div className="w-2 h-2 rounded-full bg-[#4F8EF7]" />
+                  <div className="w-6 h-6 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-2 h-2 rounded-full bg-blue-600" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white mb-1">{item.title}</h4>
-                    <p className="text-sm text-[#94A3B8] leading-relaxed">{item.desc}</p>
+                    <h4 className="font-bold text-slate-900 mb-1">{item.title}</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed font-normal">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -141,11 +141,11 @@ export default function WhyUsSection() {
           <div
             className={`transition-all duration-700 delay-300 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
           >
-            <div className="relative rounded-3xl border border-white/[0.06] bg-[#0F0F1A]/80 backdrop-blur-sm overflow-hidden">
+            <div className="relative rounded-3xl border border-slate-200/90 bg-white shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06),0_12px_40px_-8px_rgba(0,0,0,0.04)] overflow-hidden">
               {/* Top glow */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-white/[0.06]">
+              <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-slate-100">
                 {stats.map((stat) => (
                   <StatCounter
                     key={stat.label}
@@ -156,8 +156,8 @@ export default function WhyUsSection() {
               </div>
 
               {/* Bottom label */}
-              <div className="px-6 py-4 border-t border-white/[0.06] text-center">
-                <p className="text-xs text-[#475569]">
+              <div className="px-6 py-4 border-t border-slate-100 text-center bg-slate-50/50">
+                <p className="text-xs text-slate-500 font-medium">
                   {t('whyUsExtra.statFooter')}
                 </p>
               </div>
@@ -171,7 +171,7 @@ export default function WhyUsSection() {
             {language === 'tr' ? 'GÜVENDİĞİMİZ VE KULLANDIĞIMIZ TEKNOLOJİ ALTYAPISI' : language === 'de' ? 'TECHNOLOGIE-STACK' : 'ENTERPRISE TECH STACK'}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-            {['Next.js 14', 'PostgreSQL', 'n8n Workflow', 'OpenAI GPT-4o', 'Meta CAPI', 'Cloudflare Enterprise'].map((tech) => (
+            {['Modern Edge Web', 'PostgreSQL / Prisma', 'n8n Workflow Mesh', 'Model-Agnostik Hibrit AI', 'On-Premise Kurumsal AI', 'Cloudflare Enterprise'].map((tech) => (
               <span key={tech} className="text-xs font-black tracking-wider text-[#94A3B8] font-['Outfit'] border border-white/5 px-3 py-1.5 rounded-lg bg-white/[0.02]">
                 {tech}
               </span>

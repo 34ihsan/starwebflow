@@ -240,7 +240,7 @@ export default function LeadCaptureModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
             onClick={handleClose}
           />
 
@@ -250,15 +250,15 @@ export default function LeadCaptureModal() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.92, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-xl bg-[#0A0A12] border border-white/[0.12] rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(79,142,247,0.2),0_32px_80px_rgba(0,0,0,0.8)] flex flex-col font-sans"
+            className="relative w-full max-w-xl bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-[0_25px_70px_rgba(15,23,42,0.2)] flex flex-col font-sans"
           >
-            {/* Top Neon Accent */}
-            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-[#4F8EF7] via-[#8B5CF6] to-[#06B6D4]" />
+            {/* Top Accent */}
+            <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600" />
 
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] rounded-full transition-all duration-200 z-20"
+              className="absolute top-4 right-4 p-2 text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-full transition-all duration-200 z-20 cursor-pointer"
               aria-label={tModal.closeAria}
             >
               <X className="w-5 h-5" />
@@ -269,20 +269,20 @@ export default function LeadCaptureModal() {
               {isSuccess ? (
                 /* Success View */
                 <div className="text-center py-8 flex flex-col items-center">
-                  <div className="w-20 h-20 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
-                    <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+                  <div className="w-20 h-20 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-600" />
                   </div>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest mb-3">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-widest mb-3">
                     {tModal.successBadge}
                   </span>
-                  <h3 className="text-2xl font-bold text-white mb-2 font-['Outfit']">{tModal.successTitle}</h3>
-                  <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed mb-6">
-                    <strong className="text-white">{formData.industry}</strong> • <strong className="text-[#4F8EF7]">{formData.serviceType}</strong>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-2 font-['Outfit']">{tModal.successTitle}</h3>
+                  <p className="text-slate-600 text-sm max-w-md mx-auto leading-relaxed mb-6">
+                    <strong className="text-slate-900">{formData.industry}</strong> • <strong className="text-purple-600">{formData.serviceType}</strong>
                     <br />
                     <span>{formData.email}</span>
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-white/[0.03] px-4 py-2 rounded-xl border border-white/[0.06]">
-                    <Shield className="w-3.5 h-3.5 text-[#10B981]" />
+                  <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+                    <Shield className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{tModal.legalSuccess}</span>
                   </div>
                 </div>
@@ -290,17 +290,17 @@ export default function LeadCaptureModal() {
                 <div>
                   {/* Header Badge */}
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/30 uppercase tracking-widest flex items-center gap-1.5">
-                      <Bot className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 uppercase tracking-widest flex items-center gap-1.5">
+                      <Bot className="w-3.5 h-3.5 text-purple-600" />
                       {tModal.badge}
                     </span>
-                    <span className="text-[10px] text-slate-500 ml-auto font-mono">{tModal.step} {step}/2</span>
+                    <span className="text-[10px] text-slate-500 ml-auto font-mono font-medium">{tModal.step} {step}/2</span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-1.5 font-['Outfit']">
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1.5 font-['Outfit']">
                     {tModal.title}
                   </h3>
-                  <p className="text-slate-400 text-xs sm:text-sm mb-6">
+                  <p className="text-slate-600 text-xs sm:text-sm mb-6 leading-relaxed">
                     {tModal.subtitle}
                   </p>
 
@@ -310,7 +310,7 @@ export default function LeadCaptureModal() {
                       <div className="space-y-5">
                         {/* Service Selection */}
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
                             {tModal.serviceLabel}
                           </label>
                           <div className="grid grid-cols-2 gap-2">
@@ -319,10 +319,10 @@ export default function LeadCaptureModal() {
                                 key={srv.id}
                                 type="button"
                                 onClick={() => setFormData({ ...formData, serviceType: srv.id })}
-                                className={`flex items-center gap-2 p-3 rounded-xl border text-left text-xs transition-all ${
+                                className={`flex items-center gap-2 p-3 rounded-xl border text-left text-xs transition-all cursor-pointer font-medium ${
                                   formData.serviceType === srv.id
-                                    ? 'bg-[#4F8EF7]/15 border-[#4F8EF7] text-white font-bold shadow-[0_0_15px_rgba(79,142,247,0.2)]'
-                                    : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.06]'
+                                    ? 'bg-purple-600 border-purple-600 text-white font-bold shadow-md'
+                                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/70'
                                 }`}
                               >
                                 <span className="text-base">{srv.icon}</span>
@@ -334,7 +334,7 @@ export default function LeadCaptureModal() {
 
                         {/* Target Region */}
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-wider">
+                          <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
                             {tModal.regionLabel}
                           </label>
                           <div className="grid grid-cols-3 gap-2">
@@ -343,10 +343,10 @@ export default function LeadCaptureModal() {
                                 key={reg.id}
                                 type="button"
                                 onClick={() => setFormData({ ...formData, targetRegion: reg.id })}
-                                className={`p-2.5 rounded-xl border text-center text-xs transition-all flex flex-col items-center gap-0.5 ${
+                                className={`p-2.5 rounded-xl border text-center text-xs transition-all flex flex-col items-center gap-0.5 cursor-pointer font-medium ${
                                   formData.targetRegion === reg.id
-                                    ? 'bg-[#8B5CF6]/15 border-[#8B5CF6] text-white font-bold'
-                                    : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
+                                    ? 'bg-purple-50 border-purple-400 text-purple-900 font-bold shadow-2xs'
+                                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/70'
                                 }`}
                               >
                                 <span className="font-semibold">{reg.label}</span>
@@ -358,16 +358,16 @@ export default function LeadCaptureModal() {
 
                         {/* Industry */}
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
+                          <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
                             {tModal.industryLabel}
                           </label>
                           <select
                             value={formData.industry}
                             onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                            className="w-full bg-[#121220] border border-white/[0.1] rounded-xl px-4 py-2.5 text-xs text-white focus:border-[#4F8EF7] focus:outline-none transition-colors"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs cursor-pointer"
                           >
                             {industriesList.map((ind) => (
-                              <option key={ind} value={ind}>{ind}</option>
+                              <option key={ind} value={ind} className="bg-white text-slate-900">{ind}</option>
                             ))}
                           </select>
                         </div>
@@ -375,7 +375,7 @@ export default function LeadCaptureModal() {
                         <button
                           type="button"
                           onClick={() => setStep(2)}
-                          className="w-full mt-2 bg-gradient-to-r from-[#4F8EF7] to-[#8B5CF6] text-white font-bold py-3.5 px-6 rounded-xl hover:shadow-[0_0_25px_rgba(79,142,247,0.4)] transition-all flex items-center justify-center gap-2 group text-sm"
+                          className="w-full mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group text-sm cursor-pointer"
                         >
                           <span>{tModal.nextButton}</span>
                           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -385,36 +385,36 @@ export default function LeadCaptureModal() {
                       /* STEP 2: Contact Info */
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-1">{tModal.nameLabel}</label>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">{tModal.nameLabel}</label>
                           <input
                             type="text"
                             required
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full bg-[#121220] border border-white/[0.1] rounded-xl px-4 py-3 text-sm text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                             placeholder={tModal.namePlaceholder}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-1">{tModal.emailLabel}</label>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">{tModal.emailLabel}</label>
                           <input
                             type="email"
                             required
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full bg-[#121220] border border-white/[0.1] rounded-xl px-4 py-3 text-sm text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                             placeholder={tModal.emailPlaceholder}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-slate-300 mb-1">{tModal.phoneLabel}</label>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">{tModal.phoneLabel}</label>
                           <input
                             type="tel"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full bg-[#121220] border border-white/[0.1] rounded-xl px-4 py-3 text-sm text-white focus:border-[#8B5CF6] focus:outline-none transition-colors"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all shadow-2xs"
                             placeholder={tModal.phonePlaceholder}
                           />
                         </div>
@@ -423,18 +423,18 @@ export default function LeadCaptureModal() {
                           <button
                             type="button"
                             onClick={() => setStep(1)}
-                            className="w-1/3 bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 font-semibold py-3.5 px-4 rounded-xl text-xs transition-colors border border-white/[0.08]"
+                            className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 px-4 rounded-xl text-xs transition-colors border border-slate-200 cursor-pointer"
                           >
                             {tModal.backButton}
                           </button>
                           <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-2/3 bg-gradient-to-r from-[#8B5CF6] to-[#6D28D9] text-white font-bold py-3.5 px-6 rounded-xl hover:shadow-[0_0_25px_rgba(139,92,246,0.4)] transition-all flex items-center justify-center gap-2 group disabled:opacity-70 text-sm"
+                            className="w-2/3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group disabled:opacity-70 text-sm cursor-pointer"
                           >
                             {isSubmitting ? (
                               <span className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 animate-spin text-[#06B6D4]" />
+                                <Zap className="w-4 h-4 animate-spin text-purple-200" />
                                 {tModal.submitting}
                               </span>
                             ) : (
@@ -447,8 +447,8 @@ export default function LeadCaptureModal() {
                         </div>
 
                         {/* Legal Trust Footer */}
-                        <div className="pt-2 border-t border-white/[0.06] flex items-center gap-2 text-[10px] text-slate-500 leading-normal">
-                          <Shield className="w-4 h-4 text-[#10B981] flex-shrink-0" />
+                        <div className="pt-2 border-t border-slate-200 flex items-center gap-2 text-[10px] text-slate-500 leading-normal">
+                          <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                           <span>{tModal.legalNote}</span>
                         </div>
                       </div>

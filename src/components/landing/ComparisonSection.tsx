@@ -30,17 +30,17 @@ export default function ComparisonSection() {
     }
   ]
   return (
-    <section className="py-24 bg-[#0A0A0F] relative overflow-hidden">
+    <section className="py-24 bg-white relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mb-6 shadow-2xs"
           >
-            <TrendingUp className="w-4 h-4 text-[#8B5CF6]" />
-            <span className="text-sm text-gray-400">
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-bold text-emerald-700">
               {language === 'tr' ? 'Karşılaştırma Analizi' : language === 'de' ? 'Vergleichsanalyse' : 'Comparison Analysis'}
             </span>
           </motion.div>
@@ -49,14 +49,14 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-white font-['Outfit']"
+            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-slate-900 font-['Outfit']"
           >
             {language === 'tr' ? (
-              <>Klasik Model vs <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#059669]">StarWebflow Modeli</span></>
+              <>Klasik Model vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebflow Modeli</span></>
             ) : language === 'de' ? (
-              <>Klassisches Modell vs <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#059669]">StarWebFlow Modell</span></>
+              <>Klassisches Modell vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebFlow Modell</span></>
             ) : (
-              <>Traditional Model vs <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#10B981] to-[#059669]">StarWebFlow Model</span></>
+              <>Traditional Model vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebFlow Model</span></>
             )}
           </motion.h2>
           <motion.p 
@@ -64,7 +64,7 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-lg text-gray-400"
+            className="text-lg text-slate-600 font-normal"
           >
             {language === 'tr' 
               ? 'Hızın ve verimliliğin ciroyu nasıl belirlediğini kendi gözlerinizle görün.' 
@@ -77,16 +77,15 @@ export default function ComparisonSection() {
         <div className="max-w-5xl mx-auto">
           {/* Header Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center">
-              <h3 className="text-xl font-bold text-red-400 flex items-center justify-center gap-2">
-                <TrendingDown className="w-5 h-5" />
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center shadow-2xs">
+              <h3 className="text-lg font-bold text-rose-700 flex items-center justify-center gap-2">
+                <TrendingDown className="w-5 h-5 text-rose-600" />
                 {language === 'tr' ? 'Geleneksel Ajans / Manuel Süreç' : language === 'de' ? 'Klassische Agentur / Manueller Prozess' : 'Traditional Agency / Manual Process'}
               </h3>
             </div>
-            <div className="bg-[#10B981]/10 border border-[#10B981]/20 rounded-2xl p-6 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#10B981]/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
-              <h3 className="text-xl font-bold text-[#10B981] flex items-center justify-center gap-2 relative z-10">
-                <TrendingUp className="w-5 h-5" />
+            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center relative overflow-hidden shadow-2xs">
+              <h3 className="text-lg font-bold text-emerald-800 flex items-center justify-center gap-2 relative z-10">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
                 {language === 'tr' ? 'StarWebflow AI Ekosistemi' : language === 'de' ? 'StarWebFlow KI-Ökosystem' : 'StarWebFlow AI Ecosystem'}
               </h3>
             </div>
@@ -104,27 +103,29 @@ export default function ComparisonSection() {
                 className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 relative"
               >
                 {/* Arrow indicator for desktop */}
-                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1A1A2E] border border-white/10 items-center justify-center z-10">
-                  <ArrowRight className="w-4 h-4 text-gray-500" />
+                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-slate-200 items-center justify-center z-10 shadow-sm">
+                  <ArrowRight className="w-4 h-4 text-slate-400" />
                 </div>
 
-                <div className="bg-white/5 border border-white/5 rounded-xl p-6 flex gap-4 opacity-70 hover:opacity-100 transition-opacity">
-                  <XCircle className="w-6 h-6 text-red-400 shrink-0 mt-1" />
-                  <p className="text-gray-300">{row.traditional}</p>
+                <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-5 flex gap-4 transition-colors">
+                  <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-slate-600 leading-relaxed font-normal">{row.traditional}</p>
                 </div>
                 
-                <div className="bg-gradient-to-br from-[#10B981]/5 to-transparent border border-[#10B981]/20 rounded-xl p-6 flex gap-4 hover:bg-[#10B981]/10 transition-colors shadow-[0_0_15px_rgba(16,185,129,0.05)]">
-                  <CheckCircle2 className="w-6 h-6 text-[#10B981] shrink-0 mt-1" />
-                  <p className="text-white font-medium">{row.starwebflow}</p>
+                <div className="bg-emerald-50/40 border border-emerald-200/90 rounded-xl p-5 flex gap-4 transition-colors shadow-2xs">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-slate-900 font-semibold leading-relaxed">{row.starwebflow}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
           <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/5 border border-white/10">
-              <span className="text-gray-400">Sonuç:</span>
-              <span className="text-xl font-bold text-white">10x Daha Hızlı Büyüme & %80 Daha Az İş Yükü</span>
+            <div className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{language === 'tr' ? 'Sonuç:' : language === 'de' ? 'Ergebnis:' : 'Result:'}</span>
+              <span className="text-lg font-bold text-slate-900">
+                {language === 'tr' ? '10x Daha Hızlı Büyüme & %80 Daha Az İş Yükü' : language === 'de' ? '10x schnelleres Wachstum & 80% weniger Workload' : '10x Faster Growth & 80% Less Workload'}
+              </span>
             </div>
           </div>
         </div>

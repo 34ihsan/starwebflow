@@ -47,10 +47,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#05050A] flex flex-col relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#FAFBFD] flex flex-col relative overflow-hidden font-sans">
       {/* Background Effects */}
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#4F8EF7]/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#8B5CF6]/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-100/50 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-100/50 blur-[120px] rounded-full pointer-events-none" />
 
       {/* Header */}
       <header className="absolute top-0 inset-x-0 h-20 flex items-center px-8 z-50">
@@ -63,18 +63,18 @@ export default function ForgotPasswordPage() {
                   : settings?.preferences?.branding?.logoUrl
               } 
               alt="Logo" 
-              className="h-10 object-contain bg-white rounded-lg p-1" 
+              className="h-10 object-contain bg-white rounded-lg p-1 border border-slate-200" 
             />
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-xs">
               <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
           )}
-          <span className="font-black text-xl tracking-tight text-white font-['Outfit']">
+          <span className="font-black text-xl tracking-tight text-slate-900 font-['Outfit']">
             {settings?.companyName ? (
               <>{settings.companyName}</>
             ) : (
-              <>Star<span className="text-[#8B5CF6]">WebFlow</span></>
+              <>Star<span className="text-blue-600">WebFlow</span></>
             )}
           </span>
         </Link>
@@ -83,25 +83,25 @@ export default function ForgotPasswordPage() {
       {/* Main Container */}
       <main className="flex-1 flex items-center justify-center p-4 z-10 pt-20 pb-10">
         <div className="w-full max-w-md">
-          <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl shadow-2xl p-8 relative overflow-hidden">
+          <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xl p-8 relative overflow-hidden">
             {/* Top Glow */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7]" />
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
 
             {requested ? (
               <div className="text-center space-y-6 py-4 animate-in fade-in duration-300">
-                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white mb-2 font-['Outfit']">E-posta Gönderildi!</h1>
-                  <p className="text-slate-350 text-sm leading-relaxed">
-                    Eğer e-posta adresi sistemimizde kayıtlı ise şifre sıfırlama talimatları <strong>{email}</strong> adresine gönderilecektir.
+                  <h1 className="text-2xl font-black text-slate-900 mb-2 font-['Outfit']">E-posta Gönderildi!</h1>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    Eğer e-posta adresi sistemimizde kayıtlı ise şifre sıfırlama talimatları <strong className="text-slate-900">{email}</strong> adresine gönderilecektir.
                   </p>
                 </div>
 
                 <div className="pt-4">
                   <Link href="/auth/login">
-                    <Button variant="primary" className="w-full justify-center">
+                    <Button variant="primary" className="w-full justify-center font-bold">
                       Giriş Yap Sayfasına Dön
                     </Button>
                   </Link>
@@ -110,23 +110,23 @@ export default function ForgotPasswordPage() {
             ) : (
               <>
                 <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold text-white mb-2 font-['Outfit']">Şifrenizi mi Unuttunuz?</h1>
-                  <p className="text-[#94A3B8] text-sm">
+                  <h1 className="text-2xl font-black text-slate-900 mb-2 font-['Outfit']">Şifrenizi mi Unuttunuz?</h1>
+                  <p className="text-slate-600 text-sm font-medium">
                     Kayıtlı e-posta adresinizi girin, size şifrenizi sıfırlamanız için bir bağlantı gönderelim.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-[#94A3B8] mb-1.5">E-posta Adresi</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">E-posta Adresi</label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="email" 
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-[#12121F] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] transition-all"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
                         placeholder="ornek@sirket.com"
                       />
                     </div>
@@ -136,21 +136,21 @@ export default function ForgotPasswordPage() {
                     <Button 
                       variant="primary" 
                       size="lg" 
-                      className="w-full justify-center group"
+                      className="w-full justify-center group font-bold shadow-md shadow-blue-500/10"
                       disabled={loading}
                     >
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                         <>
                           Bağlantı Gönder
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform ml-2" />
                         </>
                       )}
                     </Button>
                   </div>
                 </form>
 
-                <div className="mt-8 text-center text-sm text-[#64748B]">
-                  <Link href="/auth/login" className="text-slate-400 hover:text-white transition-colors">
+                <div className="mt-8 text-center text-sm text-slate-500 font-medium">
+                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 transition-colors font-bold">
                     Giriş Sayfasına Dön
                   </Link>
                 </div>

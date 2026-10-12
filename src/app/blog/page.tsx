@@ -19,14 +19,14 @@ export default async function BlogIndexPage() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-[#05050A] text-white pt-32 pb-16 font-sans">
+      <div className="min-h-screen bg-[#FAFBFD] text-slate-900 pt-32 pb-16 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-black mb-6 font-['Outfit'] bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-violet-400">
-            İçgörüler ve Yenilikler
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-6 font-['Outfit'] text-slate-900">
+            İçgörüler ve <span className="text-blue-600">Yenilikler</span>
           </h1>
-          <p className="text-lg text-slate-400">
+          <p className="text-lg text-slate-600">
             Dijital dünyadaki en son trendleri, stratejileri ve büyüme taktiklerini keşfedin.
           </p>
         </div>
@@ -38,7 +38,7 @@ export default async function BlogIndexPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="group flex flex-col bg-[#0A0A0F] border border-white/[0.05] rounded-2xl overflow-hidden hover:border-blue-500/30 transition-all hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]">
+              <Link key={post.id} href={`/blog/${post.slug}`} className="group flex flex-col bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md">
                 {post.coverImage ? (
                   <div className="aspect-[16/9] w-full overflow-hidden relative">
                     <img 
@@ -46,16 +46,15 @@ export default async function BlogIndexPage() {
                       alt={post.title} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0F] to-transparent opacity-60"></div>
                   </div>
                 ) : (
-                  <div className="aspect-[16/9] w-full bg-slate-800 flex items-center justify-center">
-                    <span className="text-slate-600">Görsel Yok</span>
+                  <div className="aspect-[16/9] w-full bg-slate-100 flex items-center justify-center">
+                    <span className="text-slate-400 font-medium">Görsel Yok</span>
                   </div>
                 )}
                 
                 <div className="p-6 flex-1 flex flex-col">
-                  <div className="flex items-center gap-4 text-xs text-slate-400 mb-4">
+                  <div className="flex items-center gap-4 text-xs text-slate-500 mb-4 font-medium">
                     <span className="flex items-center gap-1">
                       <CalendarDays className="w-3.5 h-3.5" />
                       {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
@@ -66,15 +65,15 @@ export default async function BlogIndexPage() {
                     </span>
                   </div>
                   
-                  <h2 className="text-xl font-bold text-slate-100 mb-3 group-hover:text-blue-400 transition-colors line-clamp-2">
+                  <h2 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                     {post.title}
                   </h2>
                   
-                  <p className="text-slate-400 text-sm mb-6 line-clamp-3">
+                  <p className="text-slate-600 text-sm mb-6 line-clamp-3 leading-relaxed">
                     {post.excerpt}
                   </p>
                   
-                  <div className="mt-auto flex items-center text-blue-400 font-medium text-sm group-hover:translate-x-1 transition-transform">
+                  <div className="mt-auto flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
                     Devamını Oku <ArrowRight className="ml-2 w-4 h-4" />
                   </div>
                 </div>
