@@ -7,6 +7,7 @@ import { getFlashModel } from '@/lib/ai/gemini-client';
 import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
 import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
+import { getMailboxReadiness } from '@/lib/campaign-readiness';
 
 export async function getEmailData(tenantId?: string) {
   try {
@@ -14,6 +15,7 @@ export async function getEmailData(tenantId?: string) {
     const campaigns = await prisma.emailCampaign.findMany({
       where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
+      include: { mailboxes: { select: { id: true } } },
     });
     
     const templates = await prisma.emailTemplate.findMany({
@@ -24,6 +26,7 @@ export async function getEmailData(tenantId?: string) {
     const mailboxes = await prisma.emailMailbox.findMany({
       where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
+      include: { campaigns: { select: { id: true, name: true, status: true } } },
     });
 
     return { success: true, data: { campaigns, templates, mailboxes } };
@@ -68,7 +71,8 @@ export async function createEmailCampaign(data: {
         } : undefined
       },
       include: {
-        templates: true
+        templates: true,
+        mailboxes: { select: { id: true } }
       }
     });
     safeRevalidatePath('/admin/email');
@@ -76,6 +80,76 @@ export async function createEmailCampaign(data: {
   } catch (error) {
     console.error('createEmailCampaign error:', error);
     return { success: false, error: 'Failed to create campaign' };
+  }
+}
+
+/**
+ * Kampanyanın mail havuzunu verilen listeyle birebir eşitler (ekle + çıkar).
+ * Engelli (ERROR / duraklatılmış / yetersiz ısınmış) kutular eklenmez.
+ */
+export async function setCampaignMailboxes(campaignId: string, mailboxIds: string[], tenantId?: string) {
+  try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+    const campaign = await prisma.emailCampaign.findFirst({
+      where: { id: campaignId, tenantId: effectiveTenantId },
+      include: { mailboxes: { select: { id: true } } },
+    });
+    if (!campaign) return { success: false, error: 'Kampanya bulunamadı' };
+
+    const candidates = await prisma.emailMailbox.findMany({
+      where: { id: { in: mailboxIds }, tenantId: effectiveTenantId },
+    });
+    const currentIds = new Set(campaign.mailboxes.map(m => m.id));
+    const skipped: string[] = [];
+    const finalIds: string[] = [];
+    for (const mb of candidates) {
+      // Zaten havuzdaki kutuları koru; yeni eklenenleri kontrol et
+      if (currentIds.has(mb.id) || getMailboxReadiness(mb).assignable) finalIds.push(mb.id);
+      else skipped.push(mb.email);
+    }
+
+    await prisma.emailCampaign.update({
+      where: { id: campaignId },
+      data: { mailboxes: { set: finalIds.map(id => ({ id })) } },
+    });
+    safeRevalidatePath('/admin/email');
+    return { success: true, data: { mailboxIds: finalIds, skipped } };
+  } catch (error) {
+    console.error('setCampaignMailboxes error:', error);
+    return { success: false, error: 'Kampanya mail havuzu güncellenemedi' };
+  }
+}
+
+/** Bir mail kutusunu birden fazla kampanyaya ekler/çıkarır (kutu kartından hızlı yönetim). */
+export async function setMailboxCampaigns(mailboxId: string, campaignIds: string[], tenantId?: string) {
+  try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+    const mailbox = await prisma.emailMailbox.findFirst({ where: { id: mailboxId, tenantId: effectiveTenantId } });
+    if (!mailbox) return { success: false, error: 'Mail kutusu bulunamadı' };
+
+    const current = await prisma.emailMailbox.findUnique({
+      where: { id: mailboxId },
+      include: { campaigns: { select: { id: true } } },
+    });
+    const hadIds = new Set((current?.campaigns || []).map(c => c.id));
+    const wantsNew = campaignIds.some(id => !hadIds.has(id));
+    if (wantsNew && !getMailboxReadiness(mailbox).assignable) {
+      return { success: false, error: 'Bu kutu henüz kampanyaya eklenebilir durumda değil (ısınma/itibar/duraklatma).' };
+    }
+
+    const valid = await prisma.emailCampaign.findMany({
+      where: { id: { in: campaignIds }, tenantId: effectiveTenantId },
+      select: { id: true },
+    });
+    await prisma.emailMailbox.update({
+      where: { id: mailboxId },
+      data: { campaigns: { set: valid.map(c => ({ id: c.id })) } },
+    });
+    safeRevalidatePath('/admin/email');
+    return { success: true, data: { campaignIds: valid.map(c => c.id) } };
+  } catch (error) {
+    console.error('setMailboxCampaigns error:', error);
+    return { success: false, error: 'Kutunun kampanya listesi güncellenemedi' };
   }
 }
 

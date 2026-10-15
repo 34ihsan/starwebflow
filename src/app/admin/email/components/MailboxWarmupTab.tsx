@@ -657,6 +657,19 @@ export default function MailboxWarmupTab({
                 </div>
               )}
 
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                <span className="text-[#64748B]">Kampanyalar:</span>
+                {(box.campaigns || []).length === 0 ? (
+                  <span className="text-[#64748B] italic">Atanmamış</span>
+                ) : (
+                  (box.campaigns || []).map((c: any) => (
+                    <span key={c.id} className="px-2 py-0.5 rounded-md bg-[#4F8EF7]/10 border border-[#4F8EF7]/20 text-[#4F8EF7] font-semibold">
+                      {c.name}
+                    </span>
+                  ))
+                )}
+              </div>
+
               {testResult && (
                 <div className={`p-2.5 rounded-xl text-xs font-medium border ${testResult.success ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
                   {testResult.text}

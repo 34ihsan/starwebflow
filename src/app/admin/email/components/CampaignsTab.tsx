@@ -1,17 +1,18 @@
 "use client";
 
 import React from 'react';
-import { Play, Pause, CheckCircle2, BarChart3, MoreHorizontal, SlidersHorizontal } from 'lucide-react';
+import { Play, Pause, CheckCircle2, BarChart3, MoreHorizontal, SlidersHorizontal, Mail } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface CampaignsTabProps {
   dbCampaigns: any[];
   setSelectedCampaignForRules: (camp: any) => void;
   setIsAutoResponderModalOpen: (open: boolean) => void;
+  onManageMailboxes?: (camp: any) => void;
 }
 
 
-export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules, setIsAutoResponderModalOpen }: CampaignsTabProps) {
+export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules, setIsAutoResponderModalOpen, onManageMailboxes }: CampaignsTabProps) {
   // Gerçek verilerle grafik verisi oluşturma
   // Son 7 günün istatistiklerini hesaplayalım
   const chartData = React.useMemo(() => {
@@ -121,7 +122,21 @@ export default function CampaignsTab({ dbCampaigns, setSelectedCampaignForRules,
                   </div>
                 </td>
                 <td className="py-5 px-6 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-end gap-2">
+                    {onManageMailboxes && (
+                      <button
+                        onClick={() => onManageMailboxes(camp)}
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold border flex items-center gap-1.5 transition-colors ${
+                          (camp.mailboxes?.length || 0) === 0
+                            ? 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/30 text-amber-400'
+                            : 'bg-[#4F8EF7]/10 hover:bg-[#4F8EF7]/20 border-[#4F8EF7]/20 text-[#4F8EF7]'
+                        }`}
+                        title="Bu kampanyanın göndereceği mail kutularını yönet"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        Mail Havuzu ({camp.mailboxes?.length || 0})
+                      </button>
+                    )}
                     <button 
                       onClick={() => { setSelectedCampaignForRules(camp); setIsAutoResponderModalOpen(true); }}
                       className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors border border-transparent hover:border-white/10" title="Otomatik Yanıt Kuralları"

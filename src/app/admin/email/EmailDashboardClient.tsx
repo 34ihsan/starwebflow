@@ -13,6 +13,7 @@ import {
 import { createEmailCampaign, createEmailMailbox, updateMailboxStatus, updateMailboxCredentials } from '@/app/actions/email';
 import ABTestingTab from './components/ABTestingTab';
 import CampaignsTab from './components/CampaignsTab';
+import CampaignMailboxModal from './components/CampaignMailboxModal';
 import DeliverabilityTab from './components/DeliverabilityTab';
 import QuarantineTab from './components/QuarantineTab';
 import MailboxWarmupTab from './components/MailboxWarmupTab';
@@ -205,6 +206,20 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
 
   const [dbCampaigns, setDbCampaigns] = useState<any[]>(initialData.campaigns || []);
   const [dbMailboxes, setDbMailboxes] = useState<any[]>(initialData.mailboxes || []);
+  const [poolCampaignId, setPoolCampaignId] = useState<string | null>(null);
+
+  const handlePoolSaved = (campaignId: string, mailboxIds: string[]) => {
+    const ids = new Set(mailboxIds);
+    setDbCampaigns(prev => prev.map(c => c.id === campaignId ? { ...c, mailboxes: mailboxIds.map(id => ({ id })) } : c));
+    setDbMailboxes(prev => prev.map(mb => {
+      const camps = (mb.campaigns || []).filter((c: any) => c.id !== campaignId);
+      if (ids.has(mb.id)) {
+        const camp = dbCampaigns.find(c => c.id === campaignId);
+        camps.push({ id: campaignId, name: camp?.name || '', status: camp?.status });
+      }
+      return { ...mb, campaigns: camps };
+    }));
+  };
   const [dbTemplates, setDbTemplates] = useState<any[]>(initialData.templates || []);
 
   useEffect(() => {
@@ -341,6 +356,16 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
             dbCampaigns={dbCampaigns}
             setSelectedCampaignForRules={setSelectedCampaignForRules}
             setIsAutoResponderModalOpen={setIsAutoResponderModalOpen}
+            onManageMailboxes={(camp: any) => setPoolCampaignId(camp.id)}
+          />
+        )}
+
+        {poolCampaignId && dbCampaigns.find(c => c.id === poolCampaignId) && (
+          <CampaignMailboxModal
+            campaign={dbCampaigns.find(c => c.id === poolCampaignId)}
+            dbMailboxes={dbMailboxes}
+            onClose={() => setPoolCampaignId(null)}
+            onSaved={handlePoolSaved}
           />
         )}
 
