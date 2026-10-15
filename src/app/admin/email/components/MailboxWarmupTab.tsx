@@ -4,9 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, 
   RefreshCw, Wrench, ShieldCheck, Globe, Zap, MessageSquare, Clock, ArrowUpRight, 
-  Check, X, Info, Send, Inbox, AlertTriangle, BarChart3
+  Check, X, Info, Send, Inbox, AlertTriangle, BarChart3, Trash2
 } from 'lucide-react';
-import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns, getWarmupActivity, getEmailData } from '@/app/actions/email';
+import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns, getWarmupActivity, getEmailData, deleteEmailMailbox } from '@/app/actions/email';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
 import { computeMailboxHealth } from '@/lib/warmup/health';
 
@@ -28,6 +28,10 @@ export default function MailboxWarmupTab({
   const [testingMailboxId, setTestingMailboxId] = useState<string | null>(null);
   const [verifyingDnsMailboxId, setVerifyingDnsMailboxId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; text: string }>>({});
+
+  // Delete confirmation state
+  const [deleteConfirmMailbox, setDeleteConfirmMailbox] = useState<any>(null);
+  const [isDeletingMailboxId, setIsDeletingMailboxId] = useState<string | null>(null);
 
   // Canlı Isınma Konuşmaları & Logları
   const [warmupThreads, setWarmupThreads] = useState<any[]>([]);
@@ -97,6 +101,23 @@ export default function MailboxWarmupTab({
     } finally {
       setIsTriggeringWarmup(false);
       setIsTriggeringForceWarmup(false);
+    }
+  };
+
+  const handleDeleteMailbox = async (mailboxId: string) => {
+    setIsDeletingMailboxId(mailboxId);
+    try {
+      const res = await deleteEmailMailbox(mailboxId);
+      if (res.success) {
+        setDbMailboxes(prev => prev.filter(m => m.id !== mailboxId));
+        setDeleteConfirmMailbox(null);
+      } else {
+        alert('Silme başarısız: ' + (res.error || 'Bilinmeyen hata'));
+      }
+    } catch (err: any) {
+      alert('Silme hatası: ' + err.message);
+    } finally {
+      setIsDeletingMailboxId(null);
     }
   };
 
@@ -697,6 +718,15 @@ export default function MailboxWarmupTab({
                   Isınma Başlat
                 </button>
               )}
+
+              {/* Delete button */}
+              <button
+                onClick={() => setDeleteConfirmMailbox(box)}
+                className="py-2 px-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-semibold text-red-400 transition-colors flex items-center justify-center"
+                title="Bu mail kutusunu kalıcı olarak sil"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         )})}
@@ -824,5 +854,69 @@ export default function MailboxWarmupTab({
         </div>
       </div>
     </div>
+
+    {/* ── DELETE CONFIRMATION MODAL ── */}
+    {deleteConfirmMailbox && (
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div className="bg-[#0A0A0F] border border-red-500/30 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          {/* Header */}
+          <div className="p-6 border-b border-white/5 flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+              <Trash2 className="w-6 h-6 text-red-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">Mail Kutusunu Sil</h3>
+              <p className="text-sm text-[#94A3B8] mt-1 leading-relaxed">
+                Bu işlem geri alınamaz. Tüm ısınma diyalogları ve kayıtları da silinecektir.
+              </p>
+            </div>
+          </div>
+
+          {/* Mailbox info */}
+          <div className="px-6 py-4">
+            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center font-bold text-white text-sm shrink-0">
+                {deleteConfirmMailbox.email[0].toUpperCase()}
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold">{deleteConfirmMailbox.email}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[10px] text-[#64748B]">
+                    {deleteConfirmMailbox.warmupDay || 1}. Gün · Gelen: {deleteConfirmMailbox.receivedToday || 0}
+                  </span>
+                  {(deleteConfirmMailbox.warmupDay || 1) <= 1 && (
+                    <span className="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">
+                      Yeni / 1. Gün
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="px-6 pb-6 flex gap-3">
+            <button
+              onClick={() => setDeleteConfirmMailbox(null)}
+              disabled={isDeletingMailboxId === deleteConfirmMailbox.id}
+              className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-semibold text-white transition-colors disabled:opacity-50"
+            >
+              Vazgeç
+            </button>
+            <button
+              onClick={() => handleDeleteMailbox(deleteConfirmMailbox.id)}
+              disabled={isDeletingMailboxId === deleteConfirmMailbox.id}
+              className="flex-1 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-sm font-bold text-red-400 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {isDeletingMailboxId === deleteConfirmMailbox.id ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Siliniyor...</>
+              ) : (
+                <><Trash2 className="w-4 h-4" /> Evet, Kalıcı Sil</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   );
 }
