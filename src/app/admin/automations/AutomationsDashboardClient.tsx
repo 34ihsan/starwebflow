@@ -9,7 +9,7 @@ import {
   Activity, ArrowDownRight, ArrowUpRight, Copy, Terminal, Eye, Pencil, Trash2, Info, Sparkles
 } from "lucide-react";
 
-import { createAutomationFlow, updateAutomationFlow, deleteAutomationFlow, generateFlowFromPrompt, triggerAutomationFlow, toggleAutomationStatus, seedTitanTemplates } from "@/app/actions/automation";
+import { createAutomationFlow, updateAutomationFlow, deleteAutomationFlow, generateFlowFromPrompt, triggerAutomationFlow, toggleAutomationStatus, seedTitanTemplates, createWebhookEndpoint } from "@/app/actions/automation";
 import ReactFlowBuilder from "./ReactFlowBuilder";
 
 const appConfigs: Record<string, { label: string, color: string, bg: string, icon: any, defaultLabel: string }> = {
@@ -122,7 +122,13 @@ const resolveNodeSummary = (node: any) => {
   return "Otomasyon sistemi özel akış adımı.";
 };
 
-export default function AutomationsDashboardClient({ initialData }: { initialData: { flows: any[], webhooks: any[], logs: any[] } }) {
+export default function AutomationsDashboardClient({ 
+  initialData, 
+  tenantId = 'default-tenant' 
+}: { 
+  initialData: { flows: any[], webhooks: any[], logs: any[] };
+  tenantId?: string;
+}) {
   const [activeTab, setActiveTab] = useState<"flows" | "templates" | "webhooks" | "logs" | "approvals">("flows");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingFlow, setEditingFlow] = useState<any>(null);
@@ -451,7 +457,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
         nodes: t.nodes
       }));
 
-      const res = await seedTitanTemplates('default-tenant', templatesToDeploy);
+      const res = await seedTitanTemplates(tenantId, templatesToDeploy);
       if (res.success && res.data) {
         setFlows(prev => [...res.data, ...prev]);
         alert(`✨ ${res.data.length} adet Titan Mode Otomasyonu canlı veritabanına başarıyla kuruldu!`);
@@ -1238,36 +1244,76 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
               <p className="text-[#94A3B8] text-sm mb-6">Dış sistemlerden veri almak için size özel oluşturulmuş benzersiz URL'ler.</p>
               
               <div className="space-y-4">
-                <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-[#4F8EF7]/20 text-[#4F8EF7] text-xs font-bold px-2 py-0.5 rounded border border-[#4F8EF7]/30">POST</span>
-                      <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/payments/stripe-events</span>
-                    </div>
-                    <p className="text-xs text-[#64748B]">Bağlı Akış: "Dış Sistem Entegrasyonu (Webhook Listener)" • Son Tetiklenme: 10 dk önce</p>
+                {webhooks.length === 0 ? (
+                  <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 text-center">
+                    <p className="text-sm text-[#94A3B8] mb-3">Henüz kayıtlı webhook bulunmuyor.</p>
+                    <button 
+                      onClick={async () => {
+                        const res = await createWebhookEndpoint({
+                          tenantId,
+                          name: 'Genel Inbound Webhook',
+                          method: 'POST'
+                        });
+                        if (res.success && res.data) {
+                          setWebhooks(prev => [res.data, ...prev]);
+                        }
+                      }}
+                      className="px-4 py-2 rounded-lg bg-[#4F8EF7]/20 hover:bg-[#4F8EF7]/30 text-[#4F8EF7] text-xs font-bold border border-[#4F8EF7]/30 transition-all inline-flex items-center gap-2"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> İlk Webhook Uç Noktasını Aç
+                    </button>
                   </div>
-                  <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
-                    URL Kopyala
-                  </button>
-                </div>
-
-                <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-[#10B981]/20 text-[#10B981] text-xs font-bold px-2 py-0.5 rounded border border-[#10B981]/30">POST</span>
-                      <span className="text-white font-mono text-sm">https://api.starwebflow.com/wh/v1/leads/external-form</span>
-                    </div>
-                    <p className="text-xs text-[#64748B]">Bağlı Akış: Yok (Boşta) • Son Tetiklenme: Hiç</p>
-                  </div>
-                  <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors">
-                    URL Kopyala
-                  </button>
-                </div>
+                ) : (
+                  webhooks.map((wh) => {
+                    const fullUrl = wh.url.startsWith('http') 
+                      ? wh.url 
+                      : (typeof window !== 'undefined' ? window.location.origin : 'https://www.starwebflow.com') + wh.url;
+                    return (
+                      <div key={wh.id} className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <span className="bg-[#4F8EF7]/20 text-[#4F8EF7] text-xs font-bold px-2 py-0.5 rounded border border-[#4F8EF7]/30">{wh.method || 'POST'}</span>
+                            <span className="text-white font-mono text-xs truncate max-w-md">{fullUrl}</span>
+                          </div>
+                          <p className="text-xs text-[#64748B]">
+                            {wh.name} • Son İstek: {wh.lastHitAt ? new Date(wh.lastHitAt).toLocaleTimeString('tr-TR') : 'Henüz tetiklenmedi'}
+                          </p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            if (navigator.clipboard) {
+                              navigator.clipboard.writeText(fullUrl);
+                              alert('Webhook URL kopyalandı:\n' + fullUrl);
+                            }
+                          }}
+                          className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white text-xs font-medium border border-white/10 transition-colors shrink-0"
+                        >
+                          URL Kopyala
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
             
             <div className="mt-8 border-t border-white/5 pt-4">
-              <button className="flex items-center gap-2 text-[#4F8EF7] text-sm font-medium hover:text-white transition-colors">
+              <button 
+                onClick={async () => {
+                  const name = prompt('Webhook için bir isim girin:', `Form & Lead Webhook ${webhooks.length + 1}`);
+                  if (!name) return;
+                  const res = await createWebhookEndpoint({
+                    tenantId,
+                    name,
+                    method: 'POST'
+                  });
+                  if (res.success && res.data) {
+                    setWebhooks(prev => [res.data, ...prev]);
+                    alert('Yeni Webhook Endpoint oluşturuldu!');
+                  }
+                }}
+                className="flex items-center gap-2 text-[#4F8EF7] text-sm font-medium hover:text-white transition-colors"
+              >
                 <Plus className="w-4 h-4" /> Yeni Endpoint Oluştur
               </button>
             </div>
@@ -1842,7 +1888,7 @@ export default function AutomationsDashboardClient({ initialData }: { initialDat
                       });
 
                       const aiFlow = {
-                        tenantId: 'default-tenant',
+                        tenantId,
                         name: flowName,
                         description: promptText,
                         status: "ACTIVE",

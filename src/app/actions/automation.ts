@@ -5,21 +5,23 @@ import { safeRevalidatePath } from '@/lib/utils/cache';
 import { generateObject } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { z } from 'zod';
+import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 
-export async function getAutomations(tenantId: string) {
+export async function getAutomations(tenantId?: string) {
   try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
     const flows = await prisma.automationFlow.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
     });
     
     const webhooks = await prisma.webhookEndpoint.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
     });
 
     const logs = await prisma.automationLog.findMany({
-      where: { tenantId },
+      where: { tenantId: effectiveTenantId },
       orderBy: { createdAt: 'desc' },
       take: 50,
     });
@@ -32,14 +34,15 @@ export async function getAutomations(tenantId: string) {
 }
 
 export async function createAutomationFlow(data: {
-  tenantId: string;
+  tenantId?: string;
   name: string;
   nodes: any;
 }) {
   try {
+    const effectiveTenantId = await resolveTenantId(data.tenantId || (await getTenantIdOrLegacy()));
     const flow = await prisma.automationFlow.create({
       data: {
-        tenant: { connect: { id: data.tenantId } },
+        tenant: { connect: { id: effectiveTenantId } },
         name: data.name,
         nodes: data.nodes,
         status: 'ACTIVE',
@@ -54,20 +57,26 @@ export async function createAutomationFlow(data: {
 }
 
 export async function createWebhookEndpoint(data: {
-  tenantId: string;
+  tenantId?: string;
   name?: string;
-  url: string;
-  method: string;
+  url?: string;
+  method?: string;
   flowId?: string;
 }) {
   try {
+    const effectiveTenantId = await resolveTenantId(data.tenantId || (await getTenantIdOrLegacy()));
+    const slug = data.url || `wh_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const fullUrl = slug.startsWith('http') || slug.startsWith('/') 
+      ? slug 
+      : `/api/v1/automations/webhook/${slug}`;
+
     const webhook = await prisma.webhookEndpoint.create({
       data: {
-        tenant: { connect: { id: data.tenantId } },
+        tenant: { connect: { id: effectiveTenantId } },
         name: data.name || `Webhook ${new Date().toLocaleDateString('tr-TR')}`,
-        url: data.url,
-        method: data.method,
-        flowId: data.flowId,
+        url: fullUrl,
+        method: data.method || 'POST',
+        flowId: data.flowId || null,
       }
     });
     safeRevalidatePath('/admin/automations');
@@ -167,11 +176,11 @@ export async function toggleAutomationStatus(id: string, currentStatus: string) 
   }
 }
 
-export async function seedTitanTemplates(tenantId: string, templates: { name: string; nodes: any }[]) {
+export async function seedTitanTemplates(tenantId?: string, templates: { name: string; nodes: any }[] = []) {
   try {
-    // Check existing default tenant or connect/ensure tenant
-    let targetTenantId = tenantId;
-    const tenantExists = await prisma.tenant.findUnique({ where: { id: tenantId } });
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+    let targetTenantId = effectiveTenantId;
+    const tenantExists = await prisma.tenant.findUnique({ where: { id: effectiveTenantId } });
 
     if (!tenantExists) {
       const firstTenant = await prisma.tenant.findFirst();
@@ -179,7 +188,7 @@ export async function seedTitanTemplates(tenantId: string, templates: { name: st
         targetTenantId = firstTenant.id;
       } else {
         const createdTenant = await prisma.tenant.create({
-          data: { id: tenantId, name: 'Starwebflow Default Tenant', slug: 'default-tenant' }
+          data: { id: effectiveTenantId, name: 'Starwebflow Workspace', slug: 'default-tenant' }
         });
         targetTenantId = createdTenant.id;
       }
