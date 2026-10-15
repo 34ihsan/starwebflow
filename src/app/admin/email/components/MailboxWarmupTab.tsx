@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, 
   RefreshCw, Wrench, ShieldCheck, Globe, Zap, MessageSquare, Clock, ArrowUpRight, 
-  Check, X, Info, Send, Inbox, AlertTriangle
+  Check, X, Info, Send, Inbox, AlertTriangle, BarChart3
 } from 'lucide-react';
 import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns, getWarmupActivity, getEmailData } from '@/app/actions/email';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
@@ -62,7 +62,6 @@ export default function MailboxWarmupTab({
         setDbMailboxes(res.data.mailboxes);
       }
       await loadWarmupActivity();
-      await loadPlacement();
     } catch (err) {
       console.error('Refresh error:', err);
     } finally {
