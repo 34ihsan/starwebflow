@@ -6,6 +6,7 @@ import { generateText } from 'ai';
 import { getFlashModel } from '@/lib/ai/gemini-client';
 import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
 import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
+import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
 
 export async function getEmailData(tenantId?: string) {
   try {
@@ -332,5 +333,126 @@ export async function testMailboxConnection(mailboxId: string) {
       success: false,
       error: error?.message || 'Sunucu bağlantı hatası. Lütfen SMTP/IMAP port ve şifrenizi kontrol edin.'
     };
+  }
+}
+
+export async function getWarmupActivity(tenantId?: string) {
+  try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+
+    // Son 30 aktif/tamamlanmış warmup konuşması
+    const threads = await prisma.emailWarmupThread.findMany({
+      where: {
+        OR: [
+          { tenantId: effectiveTenantId },
+          { mailbox: { tenantId: effectiveTenantId } }
+        ]
+      },
+      include: {
+        mailbox: {
+          select: { email: true, provider: true, status: true, senderName: true }
+        }
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 30
+    });
+
+    // Son yerleşim logları (Inbox vs Spam olayları)
+    const placements = await (prisma as any).emailPlacementLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 30
+    }).catch(() => []);
+
+    return {
+      success: true,
+      data: {
+        threads: threads || [],
+        placements: placements || [],
+        lastActivity: threads[0]?.updatedAt || null
+      }
+    };
+  } catch (error: any) {
+    console.error('getWarmupActivity error:', error);
+    return { success: false, error: 'Isınma geçmişi alınamadı.', data: { threads: [], placements: [], lastActivity: null } };
+  }
+}
+
+export async function getMailboxReport(mailboxId: string) {
+  try {
+    const mailbox = await prisma.emailMailbox.findUnique({
+      where: { id: mailboxId }
+    });
+
+    if (!mailbox) {
+      return { success: false, error: 'Mail kutusu bulunamadı.' };
+    }
+
+    // 1. Warmup Threads (Bu kutudan başlatılan veya bu kutunun hedef olduğu diyaloglar)
+    const threads = await prisma.emailWarmupThread.findMany({
+      where: {
+        OR: [
+          { mailboxId: mailbox.id },
+          { targetEmail: mailbox.email }
+        ]
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 50
+    });
+
+    // 2. Yerleşim Olayları (Placement Logs)
+    const placements = await (prisma as any).emailPlacementLog.findMany({
+      where: {
+        OR: [
+          { senderMailboxId: mailbox.id },
+          { senderEmail: mailbox.email },
+          { recipientEmail: mailbox.email }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    }).catch(() => []);
+
+    // 3. Teslim Edilebilirlik Skoru Hesaplama
+    const deliverability = calculateDeliverabilityScore({
+      spfStatus: !!mailbox.spfStatus,
+      dkimStatus: !!mailbox.dkimStatus,
+      dmarcStatus: !!mailbox.dmarcStatus,
+      reputation: mailbox.reputation || 100,
+      bounceCount: mailbox.bounceCount || 0,
+      spamCount: mailbox.spamCount || 0,
+      sentToday: mailbox.sentToday || 0,
+      warmupDay: mailbox.warmupDay || 1
+    });
+
+    // Toplam gönderilen mesaj adedi (sentToday + thread mesajlarının toplamı)
+    const threadMessagesSum = threads.reduce((acc, t) => acc + (t.messageCount || 1), 0);
+    const totalEstimatedSent = Math.max(mailbox.sentToday, threadMessagesSum);
+
+    const inboxPlacements = placements.filter((p: any) => p.placement === 'INBOX').length;
+    const spamPlacements = placements.filter((p: any) => p.placement === 'SPAM').length;
+    const totalPlacements = inboxPlacements + spamPlacements;
+    const inboxRate = totalPlacements > 0 ? Math.round((inboxPlacements / totalPlacements) * 100) : null;
+
+    return {
+      success: true,
+      data: {
+        mailbox,
+        threads,
+        placements,
+        deliverability,
+        stats: {
+          totalEstimatedSent,
+          threadsCount: threads.length,
+          activeThreadsCount: threads.filter(t => t.status === 'ACTIVE').length,
+          completedThreadsCount: threads.filter(t => t.status === 'COMPLETED').length,
+          inboxRate,
+          spamRate: inboxRate !== null ? 100 - inboxRate : null,
+          remainingDailyLimit: Math.max(0, (mailbox.limit || 50) - (mailbox.sentToday || 0))
+        }
+      }
+    };
+  } catch (error: any) {
+    console.error('getMailboxReport error:', error);
+    return { success: false, error: 'Mail raporu alınamadı.' };
   }
 }

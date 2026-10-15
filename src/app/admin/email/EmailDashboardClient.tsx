@@ -18,6 +18,7 @@ import QuarantineTab from './components/QuarantineTab';
 import MailboxWarmupTab from './components/MailboxWarmupTab';
 import OutreachTab from './components/OutreachTab';
 import TemplatesTab from './components/TemplatesTab';
+import MailboxReportModal from './components/MailboxReportModal';
 import { useEmailStore } from '@/store/emailStore';
 
 export default function EmailDashboardClient({ initialData }: { initialData: { campaigns: any[], templates: any[], mailboxes: any[] } }) {
@@ -1047,71 +1048,23 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
           </div>
         </div>
       )}
-      {/* Mailbox Details Modal */}
+      {/* Mailbox Details & Report Modal */}
       {selectedMailboxDetails && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-lg w-full shadow-2xl">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Database className="w-5 h-5 text-[#4F8EF7]" /> Mail Kutusu Detayları
-              </h3>
-              <button onClick={() => setSelectedMailboxDetails(null)} className="text-[#94A3B8] hover:text-white">&times;</button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <span className="text-sm text-[#94A3B8]">E-Posta:</span>
-                <p className="text-white font-medium">{selectedMailboxDetails.email}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Sağlayıcı:</span>
-                  <p className="text-white font-medium">{selectedMailboxDetails.provider || 'Bilinmiyor'}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Gönderici Adı:</span>
-                  <p className="text-white font-medium">{selectedMailboxDetails.senderName || '-'}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Günlük Limit:</span>
-                  <p className="text-white font-medium">{selectedMailboxDetails.limit} mail</p>
-                </div>
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Bugün Gönderilen:</span>
-                  <p className="text-white font-medium">{selectedMailboxDetails.sentToday || 0} mail</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Ağ İtibarı:</span>
-                  <p className={`font-medium ${Math.min(100, selectedMailboxDetails.reputation) < 90 ? 'text-red-400' : 'text-emerald-400'}`}>{Math.min(100, selectedMailboxDetails.reputation)}/100</p>
-                </div>
-                <div>
-                  <span className="text-sm text-[#94A3B8]">Isınma İlerlemesi:</span>
-                  <p className="text-blue-400 font-medium">% {Math.min(100, selectedMailboxDetails.warmupProgress)}</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3">
-              <button 
-                onClick={() => {
-                  setSelectedMailboxToEdit(selectedMailboxDetails);
-                  setEditAppPassword("");
-                  setEditSmtpPort(selectedMailboxDetails.smtpPort || 465);
-                  setEditImapPort(selectedMailboxDetails.imapPort || 993);
-                  setEditDailyLimit(selectedMailboxDetails.limit || 50);
-                  setSelectedMailboxDetails(null);
-                  setIsEditMailboxModalOpen(true);
-                }} 
-                className="px-5 py-2.5 rounded-xl bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors text-sm font-medium"
-              >
-                Ayarları Düzenle (Karantina Çıkışı)
-              </button>
-              <button onClick={() => setSelectedMailboxDetails(null)} className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors text-sm font-medium">Kapat</button>
-            </div>
-          </div>
-        </div>
+        <MailboxReportModal
+          mailbox={selectedMailboxDetails}
+          onClose={() => setSelectedMailboxDetails(null)}
+          onEditSettings={(mb) => {
+            setSelectedMailboxToEdit(mb);
+            setEditAppPassword("");
+            setEditSmtpPort(mb.smtpPort || 465);
+            setEditImapPort(mb.imapPort || 993);
+            setEditDailyLimit(mb.limit || 50);
+            setIsEditMailboxModalOpen(true);
+          }}
+          onStatusChange={(mailboxId, newStatus) => {
+            setDbMailboxes(prev => prev.map(m => m.id === mailboxId ? { ...m, status: newStatus } : m));
+          }}
+        />
       )}
 
       {/* Edit Mailbox Modal */}

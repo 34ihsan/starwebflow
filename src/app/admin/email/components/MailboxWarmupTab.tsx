@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, RefreshCw, Wrench, ShieldCheck, Globe } from 'lucide-react';
-import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns } from '@/app/actions/email';
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  Flame, CheckCircle2, Search, Pause, Activity, AlertCircle, Plus, Loader2, 
+  RefreshCw, Wrench, ShieldCheck, Globe, Zap, MessageSquare, Clock, ArrowUpRight, 
+  Check, X, Info, Send, Inbox, AlertTriangle
+} from 'lucide-react';
+import { updateMailboxStatus, testMailboxConnection, verifyMailboxDns, getWarmupActivity, getEmailData } from '@/app/actions/email';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
 import { computeMailboxHealth } from '@/lib/warmup/health';
 
@@ -17,30 +21,83 @@ export default function MailboxWarmupTab({
   dbMailboxes, setDbMailboxes, setIsAddMailboxModalOpen, setSelectedMailboxDetails
 }: MailboxWarmupTabProps) {
   const [isTriggeringWarmup, setIsTriggeringWarmup] = useState(false);
+  const [isTriggeringForceWarmup, setIsTriggeringForceWarmup] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [warmupMessage, setWarmupMessage] = useState<string | null>(null);
+  const [detailedRunResult, setDetailedRunResult] = useState<any>(null);
   const [testingMailboxId, setTestingMailboxId] = useState<string | null>(null);
   const [verifyingDnsMailboxId, setVerifyingDnsMailboxId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; text: string }>>({});
 
+  // Canlı Isınma Konuşmaları & Logları
+  const [warmupThreads, setWarmupThreads] = useState<any[]>([]);
+  const [placementLogs, setPlacementLogs] = useState<any[]>([]);
+  const [lastActivityTime, setLastActivityTime] = useState<any>(null);
+  const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+
   const erroredMailboxes = dbMailboxes.filter(m => m.status === 'ERROR' || m.isPaused);
   const activeOrWarmupCount = dbMailboxes.filter(m => m.status === 'ACTIVE' || m.status === 'WARMUP').length;
 
-  const handleManualWarmup = async () => {
-    setIsTriggeringWarmup(true);
-    setWarmupMessage(null);
+  const loadWarmupActivity = useCallback(async () => {
+    setIsLoadingActivity(true);
     try {
-      const res = await fetch('/api/cron/smart-warmup');
+      const res = await getWarmupActivity();
+      if (res.success && res.data) {
+        setWarmupThreads(res.data.threads || []);
+        setPlacementLogs(res.data.placements || []);
+        setLastActivityTime(res.data.lastActivity);
+      }
+    } catch (err) {
+      console.error('Failed to load warmup activity:', err);
+    } finally {
+      setIsLoadingActivity(false);
+    }
+  }, []);
+
+  const refreshAll = async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await getEmailData();
+      if (res.success && res.data?.mailboxes) {
+        setDbMailboxes(res.data.mailboxes);
+      }
+      await loadWarmupActivity();
+      await loadPlacement();
+    } catch (err) {
+      console.error('Refresh error:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadWarmupActivity();
+  }, [loadWarmupActivity]);
+
+  const handleManualWarmup = async (force = false) => {
+    if (force) {
+      setIsTriggeringForceWarmup(true);
+    } else {
+      setIsTriggeringWarmup(true);
+    }
+    setWarmupMessage(null);
+    setDetailedRunResult(null);
+    try {
+      const res = await fetch(`/api/cron/smart-warmup${force ? '?force=true' : ''}`);
       const json = await res.json();
       if (json.success) {
         setWarmupMessage(`✅ ${json.message}`);
-        loadPlacement();
+        setDetailedRunResult(json);
+        refreshAll();
       } else {
         setWarmupMessage(`⚠️ ${json.error || 'Isıtma hatası oluştu.'}`);
+        setDetailedRunResult(json);
       }
     } catch (err: any) {
       setWarmupMessage(`❌ Bağlantı hatası: ${err.message}`);
     } finally {
       setIsTriggeringWarmup(false);
+      setIsTriggeringForceWarmup(false);
     }
   };
 
@@ -170,32 +227,61 @@ export default function MailboxWarmupTab({
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Flame className="w-7 h-7 text-orange-500" />
-              Sıfır-Spam Otonom IP Isıtma (Omni-Routing)
+              <Flame className="w-7 h-7 text-orange-500 animate-pulse" />
+              Sıfır-Spam Otonom IP & Domain Isıtma (Omni-Routing)
             </h3>
             <p className="text-[#94A3B8] mt-2 max-w-2xl text-sm leading-relaxed">
               Gönderim itibarınız düşmeye başladığı an sistem bunu algılar, o domaini dinlenmeye alır ve trafiği anında yedek IP'lere (Outlook, Google, SES) aktarır. Tamamen otonom spam koruması.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              onClick={refreshAll}
+              disabled={isRefreshing}
+              className="bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-white px-3 py-2.5 rounded-xl font-medium text-xs flex items-center gap-2 transition-all disabled:opacity-50"
+              title="Panel Verilerini ve Isınma İlerlemesini Yenile"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
+              Yenile
+            </button>
+
             <button 
-              onClick={handleManualWarmup}
-              disabled={isTriggeringWarmup}
-              className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all disabled:opacity-50"
+              onClick={() => handleManualWarmup(false)}
+              disabled={isTriggeringWarmup || isTriggeringForceWarmup}
+              className="bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center gap-2 transition-all disabled:opacity-50"
+              title="Organik İnsan Ritmine Uygun Otonom Döngü Çalıştır"
             >
               {isTriggeringWarmup ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Manuel Isıtılıyor...
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Çalışıyor...
                 </>
               ) : (
                 <>
-                  <RefreshCw className="w-4 h-4" /> Isıtma Döngüsü Çalıştır
+                  <RefreshCw className="w-3.5 h-3.5" /> Isıtma Döngüsü
                 </>
               )}
             </button>
+
+            <button 
+              onClick={() => handleManualWarmup(true)}
+              disabled={isTriggeringWarmup || isTriggeringForceWarmup}
+              className="bg-orange-500/10 border border-orange-500/30 text-orange-400 hover:bg-orange-500/20 px-3.5 py-2.5 rounded-xl font-medium text-xs flex items-center gap-2 transition-all disabled:opacity-50 shadow-[0_0_15px_rgba(249,115,22,0.15)]"
+              title="Gece / Dinlenme Saatini Aşarak Anında Canlı Test Yap"
+            >
+              {isTriggeringForceWarmup ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Zorla Isıtılıyor...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-3.5 h-3.5 text-orange-400" /> Zorla Isıt (Anında Test)
+                </>
+              )}
+            </button>
+
             <button 
               onClick={() => setIsAddMailboxModalOpen(true)}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-transform"
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2.5 rounded-xl font-medium text-xs flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 transition-transform"
             >
               <Plus className="w-4 h-4" /> Yeni Domain Bağla
             </button>
@@ -203,8 +289,69 @@ export default function MailboxWarmupTab({
         </div>
 
         {warmupMessage && (
-          <div className="mt-4 p-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-white">
-            {warmupMessage}
+          <div className="mt-4 p-3.5 rounded-xl bg-white/[0.04] border border-white/10 text-xs font-semibold text-white flex items-center justify-between">
+            <span>{warmupMessage}</span>
+            <button onClick={() => setWarmupMessage(null)} className="text-[#94A3B8] hover:text-white ml-2 text-sm">✕</button>
+          </div>
+        )}
+
+        {/* Detailed Run Diagnostics Result Modal / Card */}
+        {detailedRunResult && (
+          <div className="mt-4 p-4 rounded-xl bg-[#05050A] border border-cyan-500/30 shadow-2xl space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+              <h4 className="text-xs font-bold text-cyan-400 flex items-center gap-2">
+                <Activity className="w-4 h-4" /> Son Isıtma Döngüsü Ayrıntılı Teşhis Raporu
+                {detailedRunResult.forced && <span className="px-2 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[9px]">ZORLA TEST MODU</span>}
+              </h4>
+              <button onClick={() => setDetailedRunResult(null)} className="text-[#94A3B8] hover:text-white text-xs">✕ Kapat</button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/5">
+                <span className="text-[#94A3B8] text-[10px]">IMAP Okunan Mail</span>
+                <p className="text-white font-bold text-sm mt-0.5">{detailedRunResult.stats?.inboundCount || 0}</p>
+              </div>
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/5">
+                <span className="text-[#94A3B8] text-[10px]">Spam'den Kurtarılan</span>
+                <p className="text-emerald-400 font-bold text-sm mt-0.5">{detailedRunResult.stats?.rescuedCount || 0}</p>
+              </div>
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/5">
+                <span className="text-[#94A3B8] text-[10px]">Gönderilen (Çapraz Ağ)</span>
+                <p className="text-blue-400 font-bold text-sm mt-0.5">{detailedRunResult.stats?.outboundCount || 0}</p>
+              </div>
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/5">
+                <span className="text-[#94A3B8] text-[10px]">Tamamlanan Diyalog</span>
+                <p className="text-purple-400 font-bold text-sm mt-0.5">{detailedRunResult.stats?.completedThreadsCount || 0}</p>
+              </div>
+            </div>
+
+            {/* Gönderilenler veya Hatalar */}
+            {detailedRunResult.sendResults && detailedRunResult.sendResults.length > 0 && (
+              <div className="space-y-1.5 mt-2">
+                <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">Gönderim Hareketleri:</span>
+                {detailedRunResult.sendResults.map((sr: any, idx: number) => (
+                  <div key={idx} className={`p-2 rounded-lg text-xs flex items-center justify-between border ${sr.success ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' : 'bg-red-500/10 border-red-500/20 text-red-300'}`}>
+                    <span className="font-mono text-[11px] truncate">{sr.from} ➔ {sr.to}</span>
+                    <span className="text-[10px] font-semibold">{sr.success ? `✓ "${sr.subject}"` : `✗ Hata: ${sr.error}`}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Atlanan Kutular */}
+            {detailedRunResult.skippedMailboxes && detailedRunResult.skippedMailboxes.length > 0 && (
+              <div className="space-y-1.5 mt-2">
+                <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">Bu Döngüde Atlanan Hesaplar ve Nedenleri:</span>
+                <div className="space-y-1">
+                  {detailedRunResult.skippedMailboxes.map((sk: any, idx: number) => (
+                    <div key={idx} className="p-1.5 px-2.5 rounded-lg bg-white/[0.02] border border-white/5 text-[11px] text-[#94A3B8] flex items-center justify-between">
+                      <span className="font-medium text-white">{sk.email}</span>
+                      <span className="text-amber-400/90 text-[10px]">{sk.reason}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -477,6 +624,18 @@ export default function MailboxWarmupTab({
                 </div>
               </div>
 
+              {safeStatus === 'WARNING' && (
+                <div className="p-2.5 rounded-xl text-[11px] font-medium bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                  ⚠️ <strong>DNS Beklemede:</strong> SPF/DKIM doğrulaması henüz tamamlanmadığı için dinlenmeye alındı. Isınmayı hemen başlatmak için <strong>'Isınma Başlat'</strong> butonuna tıklayabilirsiniz.
+                </div>
+              )}
+
+              {box.isPaused && (
+                <div className="p-2 rounded-xl text-[11px] font-medium bg-red-500/10 border border-red-500/20 text-red-300">
+                  ⏸️ <strong>Kutu Duraklatıldı:</strong> Otomatik ısıtma bu kutuyu atlayacaktır. Başlatmak için 'Isınma Başlat'a tıklayın.
+                </div>
+              )}
+
               {testResult && (
                 <div className={`p-2.5 rounded-xl text-xs font-medium border ${testResult.success ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'}`}>
                   {testResult.text}
@@ -487,9 +646,11 @@ export default function MailboxWarmupTab({
             <div className="mt-6 pt-5 border-t border-white/[0.05] flex gap-2 relative z-10">
               <button 
                 onClick={() => setSelectedMailboxDetails(box)}
-                className="py-2 px-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] text-xs font-semibold text-white transition-colors"
+                className="py-2 px-3 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-xs font-semibold text-blue-400 transition-colors flex items-center gap-1.5"
+                title="Detaylı Gönderim İstatistikleri ve Domain Sağlık Raporu"
               >
-                Detaylar
+                <BarChart3 className="w-3.5 h-3.5" />
+                Rapor & İstatistik
               </button>
 
               <button 
@@ -550,6 +711,118 @@ export default function MailboxWarmupTab({
           </div>
           <span className="font-semibold text-lg group-hover:text-white transition-colors">Yeni Mail Kutusu Bağla</span>
         </button>
+      </div>
+
+      {/* CANLI ISINMA DİYALOGLARI & AĞ HAREKETLERİ (WARMUP ACTIVITY FEED) */}
+      <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 border-b border-white/5 pb-4">
+          <div>
+            <h4 className="text-lg font-bold text-white flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-cyan-400" />
+              Canlı Isınma Konuşmaları & Ağ Diyalogları (Warmup Threads)
+            </h4>
+            <p className="text-xs text-[#94A3B8] mt-1">
+              Eklediğiniz mailler ile çapraz ağ düğümleri arasında otomatik gerçekleşen gerçek B2B diyalogları ve gelen kutusu hareketleri.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {lastActivityTime && (
+              <span className="text-[11px] text-[#94A3B8] flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5 font-mono">
+                <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                Son Aktivite: {new Date(lastActivityTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            )}
+            <button
+              onClick={loadWarmupActivity}
+              disabled={isLoadingActivity}
+              className="bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-white px-3 py-1.5 rounded-lg font-medium text-xs flex items-center gap-1.5 transition-all"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingActivity ? 'animate-spin text-cyan-400' : ''}`} />
+              Güncelle
+            </button>
+          </div>
+        </div>
+
+        {isLoadingActivity ? (
+          <div className="p-12 text-center text-[#94A3B8] flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+            <span className="text-xs">Isınma geçmişi yükleniyor...</span>
+          </div>
+        ) : warmupThreads.length === 0 ? (
+          <div className="p-8 text-center rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
+            <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto text-cyan-400">
+              <Flame className="w-6 h-6" />
+            </div>
+            <h5 className="text-sm font-semibold text-white">Henüz Kayıtlı Isınma Konuşması Bulunmuyor</h5>
+            <p className="text-xs text-[#94A3B8] max-w-lg mx-auto leading-relaxed">
+              Canlı sunucuda yeni eklediğiniz hesapların ısınma sürecini başlatmak için yukarıdaki <strong>"Zorla Isıt (Anında Test)"</strong> butonuna tıklayabilirsiniz. Otomatik döngü ise Hostinger VPS üzerindeki PM2 cron servisi ile her 30 dakikada bir organik olarak çalışır.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/5 text-[#94A3B8] text-[10px] uppercase tracking-wider">
+                  <th className="pb-3 font-semibold">Gönderici Kutu</th>
+                  <th className="pb-3 font-semibold">Hedef Ağ Düğümü</th>
+                  <th className="pb-3 font-semibold">Konu Başlığı</th>
+                  <th className="pb-3 font-semibold text-center">Diyalog Turu</th>
+                  <th className="pb-3 font-semibold text-center">Durum</th>
+                  <th className="pb-3 font-semibold text-right">Zaman</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {warmupThreads.map((thread: any) => (
+                  <tr key={thread.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="py-3 font-medium text-white flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                        {(thread.mailbox?.email || 'M')[0].toUpperCase()}
+                      </div>
+                      <span className="truncate max-w-[160px]">{thread.mailbox?.email || 'Bilinmiyor'}</span>
+                    </td>
+                    <td className="py-3 text-[#94A3B8] font-mono text-[11px]">
+                      {thread.targetEmail}
+                    </td>
+                    <td className="py-3 text-white max-w-[220px] truncate font-medium">
+                      {thread.subject}
+                    </td>
+                    <td className="py-3 text-center">
+                      <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono font-bold text-white">
+                        {thread.messageCount || 1} Mesaj
+                      </span>
+                    </td>
+                    <td className="py-3 text-center">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                        thread.status === 'COMPLETED'
+                          ? 'text-purple-400 bg-purple-500/10 border-purple-500/20'
+                          : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                      }`}>
+                        {thread.status === 'COMPLETED' ? 'Tamamlandı' : 'Diyalogda (Aktif)'}
+                      </span>
+                    </td>
+                    <td className="py-3 text-right text-[#64748B] text-[11px] font-mono">
+                      {new Date(thread.updatedAt || thread.createdAt).toLocaleString('tr-TR', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Canlı Sunucu / Hostinger VPS Cron Rehberi */}
+        <div className="mt-6 pt-5 border-t border-white/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-[#94A3B8]">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Hostinger VPS Otonom Cron: <code>ecosystem.config.js (starwebflow-cron)</code> her 30 dakikada bir otomatik çalışır.</span>
+          </div>
+          <span className="text-[11px] text-[#64748B]">Gece Saatleri (22:00 - 07:00): Organik dinlenme modu aktiftir.</span>
+        </div>
       </div>
     </div>
   );

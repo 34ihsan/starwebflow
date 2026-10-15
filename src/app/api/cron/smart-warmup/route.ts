@@ -184,12 +184,24 @@ export async function GET(req: Request) {
     });
 
     // --- ADIM 2: ORGANİK İNSAN RİTMİ & GÖNDERİM KONTROLÜ ---
+    const url = new URL(req.url);
+    const isForce = url.searchParams.get('force') === 'true';
+
     const organicTiming = isWithinOrganicHours();
-    if (!organicTiming.allowed) {
+    if (!organicTiming.allowed && !isForce) {
       console.log(`[WARMUP TIMING] Gönderim atlandı: ${organicTiming.reason}`);
       return NextResponse.json({
         success: true,
-        message: `IMAP Tarandı (Okunan: ${inboundCount}, Spam'den Kurtarılan: ${rescuedCount}). Gönderim organik ritim nedeniyle durduruldu (${organicTiming.reason}).`
+        skippedDueToTiming: true,
+        timing: organicTiming,
+        stats: {
+          inboundCount,
+          rescuedCount,
+          outboundCount: 0,
+          completedThreadsCount: 0,
+          totalMailboxes: mailboxes.length
+        },
+        message: `IMAP Tarandı (Okunan: ${inboundCount}, Spam'den Kurtarılan: ${rescuedCount}). Gönderim organik ritim nedeniyle durduruldu (${organicTiming.reason}). Acil test için 'Zorla Isıt' yapabilirsiniz.`
       });
     }
 
@@ -201,15 +213,30 @@ export async function GET(req: Request) {
       if (st) (m as any).spammed = st.spam;
     });
 
+    const sendResults: Array<{ from: string; to: string; subject: string; success: boolean; error?: string }> = [];
+    const skippedMailboxes: Array<{ email: string; reason: string }> = [];
+
     // Limitine ulaşmamış göndericileri belirle (Matematiksel Ramping Eğrisi)
     const activeSenders = mailboxes.filter((m) => {
-      if (m.isPaused || m.status === 'ERROR') return false;
+      if (m.isPaused) {
+        skippedMailboxes.push({ email: m.email, reason: 'Kutu duraklatılmış (isPaused: true)' });
+        return false;
+      }
+      if (m.status === 'ERROR') {
+        skippedMailboxes.push({ email: m.email, reason: 'Kutu hata (ERROR) durumunda' });
+        return false;
+      }
       if (shouldQuarantine(placementStats.get(m.email.toLowerCase()))) {
+        skippedMailboxes.push({ email: m.email, reason: 'Yüksek spam oranı nedeniyle karantinada' });
         console.warn(`[PLACEMENT] ${m.email} son 7 günde yüksek spam oranı nedeniyle bu turda atlandı.`);
         return false;
       }
       const dynamicLimit = calculateAdaptiveWarmupLimit(m as unknown as WarmupMailboxMeta);
-      return (m.sentToday || 0) < dynamicLimit;
+      if ((m.sentToday || 0) >= dynamicLimit) {
+        skippedMailboxes.push({ email: m.email, reason: `Günlük ısınma kotasına ulaştı (${m.sentToday}/${dynamicLimit} mail)` });
+        return false;
+      }
+      return true;
     });
 
     if (activeSenders.length >= 1) {
@@ -225,6 +252,7 @@ export async function GET(req: Request) {
         );
 
         if (!recipient) {
+          skippedMailboxes.push({ email: sender.email, reason: 'Uygun çapraz hedef kutu bulunamadı' });
           console.log(`[WARMUP TARGET] Uygun farklı hedef bulunamadı: ${sender.email}`);
           return;
         }
@@ -245,8 +273,9 @@ export async function GET(req: Request) {
           existingThread
         });
 
-        // Eğer bu döngüde yanıt verilmeyecekse (insan ritmi %45 yanıt) pas geç
-        if (!contentResult.shouldReply) {
+        // Eğer bu döngüde yanıt verilmeyecekse (insan ritmi %45 yanıt) pas geç (force durumunda %80'e çıkar)
+        if (!contentResult.shouldReply && !isForce) {
+          skippedMailboxes.push({ email: sender.email, reason: 'Doğal insan bekleme süresi (Yanıt ertelendi)' });
           console.log(`[WARMUP ENGAGEMENT] Yanıt ertelendi (Doğal insan bekleme süresi): ${sender.email} -> ${recipient.email}`);
           return;
         }
@@ -259,96 +288,127 @@ export async function GET(req: Request) {
         const from: any = replierIsRecipient ? recipientBox : sender;
         const toEmail = replierIsRecipient ? sender.email : recipient.email;
 
-        // İnsan ritmi: gönderimler arasında 0.3-3 sn rastgele gecikme (burst oranını kır)
-        await new Promise((r) => setTimeout(r, 300 + Math.random() * 2700));
+        // İnsan ritmi: gönderimler arasında 0.3-3 sn rastgele gecikme (burst oranını kır, force modunda daha kısa)
+        await new Promise((r) => setTimeout(r, isForce ? 200 : 300 + Math.random() * 2700));
 
         // SMTP ile Mail Gönder (5s Timeout)
         const pass = from.smtpPassword || from.appPassword || '';
-        if (from.smtpHost && pass) {
-          try {
-            const dynamicTransporter = nodemailer.createTransport({
-              host: from.smtpHost,
-              port: from.smtpPort || 587,
-              secure: from.smtpPort === 465,
-              auth: { user: from.smtpUser || from.email, pass },
-              tls: { rejectUnauthorized: false },
-              connectionTimeout: 5000
-            } as any);
+        if (!from.smtpHost || !pass) {
+          skippedMailboxes.push({
+            email: from.email,
+            reason: 'SMTP sunucu hostu veya App Password (şifre) eksik'
+          });
+          return;
+        }
 
-            // NOT: Sağlayıcıların "warmup trafiği" olarak işaretleyebileceği X-Warmup özel başlıkları kaldırıldı.
-            const mailOptions: any = {
-              from: `${from.senderName || 'StarWebFlow'} <${from.email}>`,
-              to: toEmail,
-              subject: contentResult.subject,
-              html: `${contentResult.body}\n<!-- swf-warmup-token: ${Date.now()} -->`
-            };
+        try {
+          const dynamicTransporter = nodemailer.createTransport({
+            host: from.smtpHost,
+            port: from.smtpPort || 587,
+            secure: from.smtpPort === 465,
+            auth: { user: from.smtpUser || from.email, pass },
+            tls: { rejectUnauthorized: false },
+            connectionTimeout: 5000
+          } as any);
 
-            if (contentResult.inReplyTo) {
-              mailOptions.inReplyTo = contentResult.inReplyTo;
-              mailOptions.references = [contentResult.inReplyTo];
-            }
+          // NOT: Sağlayıcıların "warmup trafiği" olarak işaretleyebileceği X-Warmup özel başlıkları kaldırıldı.
+          const mailOptions: any = {
+            from: `${from.senderName || 'StarWebFlow'} <${from.email}>`,
+            to: toEmail,
+            subject: contentResult.subject,
+            html: `${contentResult.body}\n<!-- swf-warmup-token: ${Date.now()} -->`
+          };
 
-            const info = await dynamicTransporter.sendMail(mailOptions);
-            const sentMessageId = info.messageId || `<${Date.now()}@starwebflow.com>`;
+          if (contentResult.inReplyTo) {
+            mailOptions.inReplyTo = contentResult.inReplyTo;
+            mailOptions.references = [contentResult.inReplyTo];
+          }
 
-            if (existingThread) {
-              if (contentResult.isCompletedThread) {
-                // Thread tamamlandı, kapat
-                await prisma.emailWarmupThread.update({
-                  where: { id: existingThread.id },
-                  data: {
-                    lastMessageId: sentMessageId,
-                    messageCount: { increment: 1 },
-                    status: 'COMPLETED'
-                  }
-                });
-                completedThreadsCount++;
-                console.log(`[WARMUP THREAD COMPLETED] Thread başarıyla tamamlandı: ${existingThread.id}`);
-              } else {
-                await prisma.emailWarmupThread.update({
-                  where: { id: existingThread.id },
-                  data: {
-                    lastMessageId: sentMessageId,
-                    messageCount: { increment: 1 }
-                  }
-                });
-              }
-            } else {
-              await prisma.emailWarmupThread.create({
+          const info = await dynamicTransporter.sendMail(mailOptions);
+          const sentMessageId = info.messageId || `<${Date.now()}@starwebflow.com>`;
+
+          if (existingThread) {
+            if (contentResult.isCompletedThread) {
+              // Thread tamamlandı, kapat
+              await prisma.emailWarmupThread.update({
+                where: { id: existingThread.id },
                 data: {
-                  tenantId: sender.tenantId,
-                  mailboxId: sender.id,
-                  targetEmail: recipient.email,
-                  subject: contentResult.subject,
-                  lastMessageId: sentMessageId
+                  lastMessageId: sentMessageId,
+                  messageCount: { increment: 1 },
+                  status: 'COMPLETED'
+                }
+              });
+              completedThreadsCount++;
+              console.log(`[WARMUP THREAD COMPLETED] Thread başarıyla tamamlandı: ${existingThread.id}`);
+            } else {
+              await prisma.emailWarmupThread.update({
+                where: { id: existingThread.id },
+                data: {
+                  lastMessageId: sentMessageId,
+                  messageCount: { increment: 1 }
                 }
               });
             }
-
-            outboundCount++;
-
-            // İlerleme ve Limit Güncelle
-            await prisma.emailMailbox.update({
-              where: { id: sender.id },
+          } else {
+            await prisma.emailWarmupThread.create({
               data: {
-                sentToday: { increment: 1 },
-                warmupProgress: { increment: 2 },
-                reputation: { increment: 1 }
+                tenantId: sender.tenantId,
+                mailboxId: sender.id,
+                targetEmail: recipient.email,
+                subject: contentResult.subject,
+                lastMessageId: sentMessageId
               }
             });
-
-            console.log(
-              `[WARMUP SENT] ${sender.email} (${detectProvider(sender.email, sender.smtpHost)}) -> ${recipient.email} (${detectProvider(recipient.email, recipient.smtpHost)}) | Konu: ${contentResult.subject}`
-            );
-          } catch (sendErr: any) {
-            console.error(`SMTP delivery error for ${sender.email}:`, sendErr?.message);
           }
+
+          outboundCount++;
+          sendResults.push({
+            from: from.email,
+            to: toEmail,
+            subject: contentResult.subject,
+            success: true
+          });
+
+          // İlerleme ve Limit Güncelle
+          await prisma.emailMailbox.update({
+            where: { id: sender.id },
+            data: {
+              sentToday: { increment: 1 },
+              warmupProgress: { increment: 2 },
+              reputation: { increment: 1 }
+            }
+          });
+
+          console.log(
+            `[WARMUP SENT] ${sender.email} (${detectProvider(sender.email, sender.smtpHost)}) -> ${recipient.email} (${detectProvider(recipient.email, recipient.smtpHost)}) | Konu: ${contentResult.subject}`
+          );
+        } catch (sendErr: any) {
+          console.error(`SMTP delivery error for ${sender.email}:`, sendErr?.message);
+          sendResults.push({
+            from: from.email,
+            to: toEmail,
+            subject: contentResult.subject,
+            success: false,
+            error: sendErr?.message || 'SMTP Gönderim Hatası'
+          });
         }
       });
     }
 
     return NextResponse.json({
       success: true,
+      forced: isForce,
+      timing: organicTiming,
+      stats: {
+        inboundCount,
+        rescuedCount,
+        outboundCount,
+        completedThreadsCount,
+        totalMailboxes: mailboxes.length,
+        activeSendersCount: activeSenders.length
+      },
+      sendResults,
+      skippedMailboxes,
       message: `A++ Otonom Isıtma Tamamlandı! Okunan: ${inboundCount}, Spam'den Kurtarılan: ${rescuedCount}, Gönderilen (Çapraz Ağ): ${outboundCount}, Tamamlanan Diyalog: ${completedThreadsCount}`
     });
   } catch (error: any) {
