@@ -8,6 +8,7 @@ import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
 import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
 import { getMailboxReadiness } from '@/lib/campaign-readiness';
+import { AutoResponderRule, DEFAULT_CAMPAIGN_RULES } from '@/lib/campaign-rules';
 
 export async function getEmailData(tenantId?: string) {
   try {
@@ -150,6 +151,72 @@ export async function setMailboxCampaigns(mailboxId: string, campaignIds: string
   } catch (error) {
     console.error('setMailboxCampaigns error:', error);
     return { success: false, error: 'Kutunun kampanya listesi güncellenemedi' };
+  }
+}
+
+/**
+ * Kampanyanın otomatik yanıt (auto-responder) kurallarını getirir.
+ */
+export async function getCampaignRules(campaignId: string, tenantId?: string) {
+  try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+    const settings = await prisma.tenantSettings.findUnique({
+      where: { tenantId: effectiveTenantId },
+      select: { preferences: true }
+    });
+
+    const prefs = (settings?.preferences as any) || {};
+    const rules = prefs.campaignRules?.[campaignId];
+
+    if (Array.isArray(rules) && rules.length > 0) {
+      return { success: true, data: rules as AutoResponderRule[] };
+    }
+
+    return { success: true, data: DEFAULT_CAMPAIGN_RULES };
+  } catch (error) {
+    console.error('getCampaignRules error:', error);
+    return { success: false, error: 'Kurallar alınamadı', data: DEFAULT_CAMPAIGN_RULES };
+  }
+}
+
+/**
+ * Kampanyanın otomatik yanıt (auto-responder) kurallarını günceller.
+ */
+export async function saveCampaignRules(campaignId: string, rules: AutoResponderRule[], tenantId?: string) {
+  try {
+    const effectiveTenantId = await resolveTenantId(tenantId || (await getTenantIdOrLegacy()));
+    
+    const settings = await prisma.tenantSettings.findUnique({
+      where: { tenantId: effectiveTenantId }
+    });
+
+    const prefs = (settings?.preferences as any) || {};
+    const campaignRules = { ...(prefs.campaignRules || {}), [campaignId]: rules };
+
+    if (settings) {
+      await prisma.tenantSettings.update({
+        where: { tenantId: effectiveTenantId },
+        data: {
+          preferences: {
+            ...prefs,
+            campaignRules
+          }
+        }
+      });
+    } else {
+      await prisma.tenantSettings.create({
+        data: {
+          tenantId: effectiveTenantId,
+          preferences: { campaignRules }
+        }
+      });
+    }
+
+    safeRevalidatePath('/admin/email');
+    return { success: true, data: rules };
+  } catch (error) {
+    console.error('saveCampaignRules error:', error);
+    return { success: false, error: 'Kurallar kaydedilemedi' };
   }
 }
 

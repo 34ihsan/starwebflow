@@ -14,6 +14,7 @@ import { createEmailCampaign, createEmailMailbox, updateMailboxStatus, updateMai
 import ABTestingTab from './components/ABTestingTab';
 import CampaignsTab from './components/CampaignsTab';
 import CampaignMailboxModal from './components/CampaignMailboxModal';
+import AutoResponderModal from './components/AutoResponderModal';
 import DeliverabilityTab from './components/DeliverabilityTab';
 import QuarantineTab from './components/QuarantineTab';
 import MailboxWarmupTab from './components/MailboxWarmupTab';
@@ -1175,74 +1176,11 @@ export default function EmailDashboardClient({ initialData }: { initialData: { c
 
       {/* Auto Responder Modal */}
       {isAutoResponderModalOpen && selectedCampaignForRules && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-white/5 flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2"><SlidersHorizontal className="w-5 h-5 text-orange-400" /> Otomatik Yanıt (Auto-Responder) Kuralları</h3>
-                <p className="text-sm text-[#94A3B8] mt-1"><strong className="text-white">{selectedCampaignForRules.name}</strong> kampanyası için kurallar.</p>
-              </div>
-              <button onClick={() => setIsAutoResponderModalOpen(false)} className="text-[#64748B] hover:text-white p-2">✕</button>
-            </div>
-            
-            <div className="p-6 space-y-6 overflow-y-auto bg-white/[0.01] flex-1">
-              {/* Rule 1 */}
-              <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 relative">
-                <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <span className="text-xs font-semibold text-[#10B981] bg-[#10B981]/10 px-2 py-1 rounded">AKTİF</span>
-                  <button className="text-[#64748B] hover:text-white"><Settings className="w-4 h-4" /></button>
-                </div>
-                <h4 className="text-white font-medium mb-4">Kural 1: İlgi Gösterenlere Otomatik Toplantı Linki</h4>
-                <div className="space-y-4 text-sm">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-white/5 px-3 py-1.5 rounded-lg text-[#94A3B8] min-w-[80px] text-center font-medium">EĞER</span>
-                    <span className="text-white border border-white/10 px-3 py-1.5 rounded-lg bg-black/40">Gelen yanıt "fiyat", "ücret", "detay" kelimelerini içeriyorsa</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="bg-white/5 px-3 py-1.5 rounded-lg text-[#94A3B8] min-w-[80px] text-center font-medium">VE</span>
-                    <span className="text-white border border-white/10 px-3 py-1.5 rounded-lg bg-black/40">Duygu Analizi (AI) "Pozitif" veya "Nötr" ise</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg min-w-[80px] text-center font-bold">YAP</span>
-                    <span className="text-white border border-white/10 px-3 py-1.5 rounded-lg bg-black/40">"Toplantı Linki Şablonu"nu 15 dakika gecikmeyle gönder.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rule 2 */}
-              <div className="bg-[#05050A] border border-white/[0.05] rounded-xl p-5 relative">
-                <div className="absolute top-4 right-4 flex items-center gap-2">
-                  <span className="text-xs font-semibold text-[#94A3B8] bg-white/10 px-2 py-1 rounded">PASİF</span>
-                  <button className="text-[#64748B] hover:text-white"><Settings className="w-4 h-4" /></button>
-                </div>
-                <h4 className="text-white font-medium mb-4">Kural 2: Reddedenleri Listeden Çıkar</h4>
-                <div className="space-y-4 text-sm">
-                  <div className="flex items-center gap-3">
-                    <span className="bg-white/5 px-3 py-1.5 rounded-lg text-[#94A3B8] min-w-[80px] text-center font-medium">EĞER</span>
-                    <span className="text-white border border-white/10 px-3 py-1.5 rounded-lg bg-black/40">Duygu Analizi (AI) "Negatif" ise (Örn: "ilgilenmiyorum")</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg min-w-[80px] text-center font-bold">YAP</span>
-                    <span className="text-white border border-white/10 px-3 py-1.5 rounded-lg bg-black/40">Durumu "Unsubscribed" yap ve kampanyayı durdur.</span>
-                  </div>
-                </div>
-              </div>
-              
-              <button className="w-full py-4 border-2 border-dashed border-white/10 rounded-xl text-[#94A3B8] font-medium hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2">
-                <Plus className="w-4 h-4" /> Yeni Kural Ekle
-              </button>
-            </div>
-            
-            <div className="p-6 border-t border-white/5 bg-[#0A0A0F] flex justify-end">
-               <button 
-                onClick={() => setIsAutoResponderModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl bg-white/10 text-white font-medium text-sm hover:bg-white/20 transition-colors"
-              >
-                Kapat
-              </button>
-            </div>
-          </div>
-        </div>
+        <AutoResponderModal
+          campaign={selectedCampaignForRules}
+          templates={dbTemplates}
+          onClose={() => setIsAutoResponderModalOpen(false)}
+        />
       )}
     </div>
   );
