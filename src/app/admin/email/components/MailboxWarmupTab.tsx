@@ -240,6 +240,7 @@ export default function MailboxWarmupTab({
   const displayedScore = measuredRate ?? inboxPlacementScore;
 
   return (
+    <>
     <div className="space-y-6 animate-in fade-in">
       {/* Header */}
       <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-2xl p-6 relative overflow-hidden group shadow-2xl">
@@ -918,5 +919,6 @@ export default function MailboxWarmupTab({
         </div>
       </div>
     )}
+  </>
   );
 }
