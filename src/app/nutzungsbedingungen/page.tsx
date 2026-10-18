@@ -6,222 +6,267 @@ export default async function NutzungsbedingungenPage() {
   const res = await getTenantSettings('default-tenant');
   const settings = res.data;
   const companyName = settings?.companyName || "StarWebFlow";
-  const legalName = (settings?.preferences as any)?.general?.legalName || "StarWebFlow GmbH";
-  const supportEmail = (settings?.preferences as any)?.general?.supportEmail || "support@starwebflow.com";
+  const legalName = (settings?.preferences as any)?.billing?.legalName || "Star Web Flow - Sinan Günay";
+  const supportEmail = (settings?.preferences as any)?.general?.supportEmail || "info@starwebflow.com";
 
   const sections = [
     {
       id: 'agreement',
-      title: '1. Sözleşmenin Kabulü ve Hizmet Modeli',
-      germanTitle: '1. Vertragsannahme und Dienstleistungsmodell',
-      englishTitle: '1. Acceptance of Terms and Service Model',
+      title: '1. Sözleşmenin Kabulü, Taraflar ve Hizmet Modeli',
+      germanTitle: '1. Geltungsbereich, Vertragspartner und Leistungsmodell',
+      englishTitle: '1. Scope, Contracting Parties, and Service Model',
       content: (
         <>
           <p>
-            Bu web sitesine erişerek ve hizmetlerimizi kullanarak, {legalName} (bundan böyle "{companyName}" olarak anılacaktır) ile bu Hizmet Şartlarını kabul etmiş sayılırsınız.
+            Bu web sitesine erişerek veya hizmetlerimizden faydalanarak, merkezi Anilinerstr 3, 67105 Schifferstadt, Almanya adresinde mukim <strong>{legalName}</strong> (bundan böyle "{companyName}" olarak anılacaktır) ile bu Genel Hüküm ve Koşulları (AGB) bütünüyle kabul etmiş sayılırsınız.
           </p>
           <p>
-            {companyName}, ajans ve abonelik tabanlı (productized service) dijital hizmetler sunar. Abonelik veya proje anlaşması başlatan tüm müşteriler, iletişim ve proje yönetiminin münhasıran {companyName} Müşteri Portalı veya belirlenen resmi kanallar üzerinden yürütüleceğini kabul eder. Resmi olmayan kanallardan (WhatsApp, yetkisiz e-posta vb.) gelen talepler işleme alınmaz ve yasal bağlayıcılığı yoktur.
+            {companyName}, ajans, özel yazılım geliştirme, yapay zeka otomasyonları ve abonelik tabanlı (Productized Service) dijital çözümler sunar. Taraflar arasındaki tüm proje yönetimi, görev bildirimleri, revizyon ve teslimat süreçleri münhasıran {companyName} Müşteri Portalı ve kayıtlı resmi e-posta adresleri üzerinden yürütülür. Yetkisiz üçüncü taraf kanallardan (WhatsApp, kişisel sosyal medya vb.) iletilen taleplerin şirketimiz nezdinde hiçbir yasal veya operasyonel bağlayıcılığı yoktur.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Durch den Zugriff auf diese Website und die Nutzung unserer Dienste stimmen Sie diesen Nutzungsbedingungen mit {legalName} (im Folgenden als "{companyName}" bezeichnet) zu.
+            Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für alle Verträge und Dienstleistungen zwischen <strong>{legalName}</strong>, Inhaber Sinan Günay, Anilinerstr 3, 67105 Schifferstadt, Deutschland (nachfolgend "{companyName}") und dem Kunden.
           </p>
           <p>
-            {companyName} bietet agentur- und abonnementbasierte (productized service) digitale Dienstleistungen an. Alle Kunden erklären sich damit einverstanden, dass die Kommunikation und das Projektmanagement ausschließlich über das {companyName} Kundenportal oder festgelegte offizielle Kanäle abgewickelt werden. Anfragen über inoffizielle Kanäle (z.B. WhatsApp) werden nicht bearbeitet.
+            {companyName} erbringt Dienstleistungen in den Bereichen Webentwicklung, KI-Automatisierung, Softwareentwicklung und abonnementbasierte digitale Services (Productized Agency). Die Kommunikation und das Projektmanagement erfolgen ausschließlich über das offizielle {companyName}-Kundenportal sowie verifizierte E-Mail-Adressen. Informelle Anfragen über Messengerdienste (z. B. WhatsApp) entfalten keine rechtliche Bindungswirkung.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            By accessing this website and using our services, you agree to these Terms of Service with {legalName} (hereinafter referred to as "{companyName}").
+            These General Terms and Conditions (GTC / AGB) govern all contracts and services provided by <strong>{legalName}</strong> (Owner: Sinan Günay, Anilinerstr 3, 67105 Schifferstadt, Germany; hereinafter "{companyName}") and the client.
           </p>
           <p>
-            {companyName} provides agency and subscription-based digital services. All clients agree that communication and project management will be conducted exclusively through the {companyName} Client Portal or official channels. Requests from unofficial channels are not processed.
+            {companyName} delivers bespoke web engineering, AI workflow automations, and subscription-based digital agency solutions. Project requests, tickets, approvals, and formal handovers are processed strictly via the {companyName} Client Portal and verified email channels. Unofficial communications (e.g. personal instant messengers) carry no binding legal effect.
           </p>
         </>
       )
     },
     {
       id: 'intellectual-property',
-      title: '2. Fikri Mülkiyet Hakları ve Lisans',
-      germanTitle: '2. Geistiges Eigentum und Lizenzen',
-      englishTitle: '2. Intellectual Property Rights and License',
+      title: '2. Mülkiyetin Saklı Tutulması (§ 449 BGB) ve Fikri Haklar',
+      germanTitle: '2. Eigentumsvorbehalt (§ 449 BGB) & Urheberrechte',
+      englishTitle: '2. Retention of Title (§ 449 BGB) & Intellectual Property',
       content: (
         <>
           <p>
-            Üretilen tüm yazılımlar, tasarımlar, grafikler ve kaynak kodlarının mülkiyeti ve telif hakları, proje veya abonelik kapsamındaki <strong>tüm ödemeler eksiksiz olarak yapılana kadar</strong> tamamen {companyName}'a aittir. Ödemeler tamamlandıktan sonra müşteriye ilgili ürün için ticari kullanım lisansı devredilir; ancak altyapı bileşenleri, şirket içi framework'ler ve açık kaynaklı kütüphanelerin fikri mülkiyeti {companyName} veya asıl hak sahiplerinde kalır.
+            Alman Medeni Kanunu (§ 449 BGB Eigentumsvorbehalt) uyarınca; teslim edilen yazılımlar, tasarım dosyaları, kaynak kodlar ve dijital varlıklar üzerindeki tüm fikri mülkiyet ve kullanım hakları, <strong>fatura bedeli eksiksiz ve nakden ödenene kadar münhasıran {companyName}'a aittir</strong>.
           </p>
           <p>
-            Aksi yönde ekstra ücretlendirilmiş yazılı bir Gizlilik Sözleşmesi (White-Label / NDA) imzalanmadıkça, {companyName} üretilen ve tamamlanan işleri, referans, vaka çalışması (case study) ve portfolyo amacıyla kendi web sitesinde veya pazarlama materyallerinde (gizli şirket/müşteri verileri hariç olmak üzere) sergileme ve "Tarafından Yapıldı" (Built by {companyName}) ibaresini projede uygun bir yere ekleme hakkını saklı tutar.
+            Müşterinin ödemede gecikmeye düşmesi durumunda, {companyName} derhal ve önceden ihtara gerek kalmaksızın yazılım erişimini askıya alma, sunucu barındırma hizmetini durdurma ve fikri hakların kullanımını men etme hakkına sahiptir.
+          </p>
+          <p>
+            Aksi yönde ilave ücretlendirilmiş yazılı bir Gizlilik Sözleşmesi (White-Label / NDA) akdedilmedikçe, {companyName} tamamlanan projeleri (müşterinin gizli ticari sırları hariç tutulmak kaydıyla) portfolyosunda referans vaka çalışması (Case Study) olarak sergileme ve projenin altbilgisinde "Built by {companyName}" ibaresine yer verme hakkını saklı tutar.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Das Eigentum und die Urheberrechte an allen erstellten Softwares, Designs und Quellcodes verbleiben bei {companyName}, <strong>bis alle Zahlungen vollständig geleistet sind</strong>. Nach vollständiger Bezahlung erhält der Kunde eine kommerzielle Nutzungslizenz; das Eigentum an zugrundeliegenden Frameworks und Open-Source-Komponenten verbleibt jedoch bei {companyName} oder den jeweiligen Rechteinhabern.
+            Gemäß § 449 BGB behält sich {companyName} das Eigentum und alle Nutzungs- sowie Verwertungsrechte an den gelieferten Arbeitsergebnissen, Quellcodes und Designs <strong>bis zur vollständigen Begleichung aller offenen Forderungen aus dem jeweiligen Vertrag vor</strong>.
           </p>
           <p>
-            Sofern keine gesondert vergütete Geheimhaltungsvereinbarung (NDA) geschlossen wurde, behält sich {companyName} das Recht vor, die abgeschlossenen Arbeiten (ausgenommen vertrauliche Daten) als Referenz in Portfolios zu nutzen und einen "Built by {companyName}"-Hinweis im Projekt zu platzieren.
+            Bei Zahlungsverzug ist {companyName} berechtigt, den Zugriff auf erbrachte Online-Dienste, Software-Deployments oder Kundeninstanzen bis zum vollständigen Zahlungsausgleich unverzüglich zu sperren.
+          </p>
+          <p>
+            Sofern nicht schriftlich gegen gesonderte Vergütung eine White-Label- bzw. Geheimhaltungsvereinbarung (NDA) geschlossen wurde, ist {companyName} berechtigt, erbrachte Leistungen in angemessener Form als Referenzprojekt (Portfolio, Case Study) darzustellen und eine unaufdringliche Urheberkennzeichnung ("Built by {companyName}") im Footer zu platzieren.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            Ownership and copyrights of all software, designs, and source codes produced remain solely with {companyName} <strong>until all payments have been made in full</strong>. Upon full payment, a commercial use license is transferred to the client; however, ownership of underlying frameworks and open-source libraries remains with {companyName} or the original rights holders.
+            Pursuant to § 449 German Civil Code (BGB - Eigentumsvorbehalt), all intellectual property, source codes, and usage licenses remain the sole property of {companyName} <strong>until all contractual fees and invoices are paid in full</strong>.
           </p>
           <p>
-            Unless a separately billed Non-Disclosure Agreement (NDA / White-label) is signed, {companyName} reserves the right to showcase the completed work (excluding confidential data) as a reference in portfolios and marketing materials, and to include a "Built by {companyName}" attribution in the project.
+            In the event of client payment default, {companyName} reserves the absolute right to suspend hosting, deactivate API integrations, or revoke access to deployed systems without prior grace notice.
+          </p>
+          <p>
+            Unless an explicit, separately compensated White-Label / NDA agreement has been executed, {companyName} maintains the right to showcase the finalized work as a public case study and include a subtle attribution link in the deliverables.
+          </p>
+        </>
+      )
+    },
+    {
+      id: 'acceptance-inspection',
+      title: '3. Teslimat, Muayene ve Kabul Prosedürü (§ 640 BGB)',
+      germanTitle: '3. Abnahme und Rügepflicht (§ 640 BGB)',
+      englishTitle: '3. Acceptance, Inspection, and Notification (§ 640 BGB)',
+      content: (
+        <>
+          <p>
+            {companyName} tarafından geliştirilen yazılım veya aşama teslimatı müşteriye bildirildiği tarihten itibaren, müşteri <strong>7 (yedi) iş günü içerisinde</strong> teslimatı test etmek ve varsa esaslı kusurları yazılı olarak bildirmekle yükümlüdür.
+          </p>
+          <p>
+            Bu süre zarfında yazılı, somut ve tekrarlanabilir bir ayıp bildirilmemesi veya müşterinin ilgili yazılımı/web sitesini fiilen yayına alıp ticari faaliyete sokması halinde teslimat, Alman Medeni Kanunu (§ 640 Abs. 2 BGB) uyarınca <strong>hukuken itirazsız kabul edilmiş (abgenommen)</strong> sayılır. Kabul sonrası talep edilecek yeni özellik veya tasarım değişiklikleri ek ücrete tabidir.
+          </p>
+        </>
+      ),
+      germanContent: (
+        <>
+          <p>
+            Nach Mitteilung der Fertigstellung bzw. Bereitstellung eines Meilensteins ist der Kunde verpflichtet, das Arbeitsergebnis innerhalb einer Frist von <strong>7 (sieben) Werktagen</strong> zu prüfen und die Abnahme zu erklären oder wesentliche Mängel schriftlich und reproduzierbar zu rügen.
+          </p>
+          <p>
+            Erfolgt innerhalb dieser Frist keine berechtigte schriftliche Mängelrüge oder setzt der Kunde das Werk ganz oder teilweise produktiv ein, <strong>gilt das Werk gemäß § 640 Abs. 2 BGB als vorbehaltlos abgenommen</strong>. Nachträgliche Änderungswünsche stellen gesondert zu vergütende Mehraufwände dar.
+          </p>
+        </>
+      ),
+      englishContent: (
+        <>
+          <p>
+            Upon notification of milestone completion or delivery, the client is obligated to inspect the deliverables within <strong>7 (seven) business days</strong> and provide written, reproducible defect notices if any substantial flaws exist.
+          </p>
+          <p>
+            If no written notice is provided within this inspection window, or if the client puts the software or website into live productive use, the deliverable is <strong>statutorily deemed fully accepted pursuant to § 640 para. 2 BGB</strong>. Subsequent alterations constitute chargeable change requests.
           </p>
         </>
       )
     },
     {
       id: 'subscription-rules',
-      title: '3. Abonelik, Kredi Devri ve Fiyatlandırma',
-      germanTitle: '3. Abonnement, Guthabenübertragung und Preisgestaltung',
-      englishTitle: '3. Subscription, Credit Rollover and Pricing',
+      title: '4. Abonelikler, Saat Devretmeme Kuralı ve Ödemeler',
+      germanTitle: '4. Abonnements, No-Rollover-Prinzip und Vergütung',
+      englishTitle: '4. Subscriptions, No-Rollover Principle, and Payments',
       content: (
         <>
           <p>
-            Abonelik tabanlı (Retainer) hizmetlerde, müşterinin ilgili ay içerisindeki kullanılmayan çalışma saatleri veya tanımlı görev hakları (krediler) kesinlikle bir sonraki aya devretmez (No Rollover Policy).
+            Abonelik tabanlı (Retainer) hizmetlerde, müşterinin ilgili fatura dönemi içerisinde kullanmadığı geliştirme saatleri veya görev kredileri bir sonraki aya devretmez (Kesin No-Rollover İlkesi).
           </p>
           <p>
-            {companyName}, hizmet bedellerini, abonelik paket ücretlerini ve saatlik danışmanlık oranlarını dilediği zaman, önceden makul bir süre bildirerek değiştirme hakkını saklı tutar. Müşteri, aboneliğini dilediği zaman iptal edebilir; iptal işlemi mevcut fatura döneminin sonundan itibaren geçerli olur. Tahsil edilmiş ücretler iade edilmez.
+            Tahakkuk eden veya peşin ödenen abonelik ücretleri, hizmet altyapısı ve kaynakların rezerve edilmesi nedeniyle iade edilmez (Non-Refundable). Müşteri aboneliğini istediği zaman iptal edebilir; iptal işlemi mevcut fatura döneminin bitiminde geçerli olur.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Bei abonnementbasierten Diensten (Retainer) werden ungenutzte Arbeitsstunden oder Credits des Kunden innerhalb des jeweiligen Monats nicht auf den nächsten Monat übertragen (No Rollover Policy).
+            Bei abonnementbasierten Dienstleistungen (Retainer) verfallen nicht genutzte Stundenkontingente oder Task-Credits mit Ablauf des jeweiligen Abrechnungsmonats; eine Übertragung in Folgemonate ist ausdrücklich ausgeschlossen (No-Rollover-Klausel).
           </p>
           <p>
-            {companyName} behält sich das Recht vor, Servicegebühren, Abonnementpreise und Stundensätze jederzeit mit angemessener Vorankündigung zu ändern. Der Kunde kann sein Abonnement jederzeit kündigen; die Kündigung wird zum Ende des aktuellen Abrechnungszeitraums wirksam. Bereits erhobene Gebühren werden nicht erstattet.
+            Bereits abgerechnete und fällige Abonnementgebühren sind aufgrund der verbindlichen Vorhaltung von Entwicklerkapazitäten nicht erstattungsfähig. Kündigungen sind jederzeit zum Ende des laufenden Abrechnungszeitraums über das Kundenportal möglich.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            In subscription-based (Retainer) services, the client's unused working hours or defined task rights (credits) within the respective month strictly do not roll over to the next month (No Rollover Policy).
+            For subscription/retainer engagements, unused development hours or task allocations expire at the end of each billing cycle; carrying over hours into subsequent months is strictly excluded (No-Rollover Policy).
           </p>
           <p>
-            {companyName} reserves the right to change service fees, subscription prices, and hourly rates at any time with reasonable prior notice. The client can cancel their subscription at any time; cancellation is effective at the end of the current billing cycle. Collected fees are non-refundable.
+            All invoiced and paid subscription fees are strictly non-refundable due to pre-allocated infrastructure and engineering capacity. Cancellations take effect at the conclusion of the active billing period.
           </p>
         </>
       )
     },
     {
       id: 'client-responsibilities',
-      title: '4. Müşteri Sorumlulukları ve Gecikmeler',
-      germanTitle: '4. Kundenpflichten und Verzögerungen',
-      englishTitle: '4. Client Responsibilities and Delays',
+      title: '5. Müşteri İş Birliği Yükümlülüğü ve Proje Duraklatma (Ghosting)',
+      germanTitle: '5. Mitwirkungspflichten des Kunden & Projektaussetzung',
+      englishTitle: '5. Client Collaboration & Project Suspension (Ghosting)',
       content: (
         <>
           <p>
-            Projenin ilerleyebilmesi için müşteri, ihtiyaç duyulan tüm materyalleri (metin, görsel, API anahtarları, geri bildirim vb.) zamanında ve eksiksiz olarak sağlamakla yükümlüdür.
+            Projenin takvimine uygun ilerlemesi için müşteri; talep edilen metin, marka görseli, API anahtarları, alan adı yönlendirmeleri ve onayları gecikmeksizin sağlamak zorundadır.
           </p>
           <p>
-            Müşteriden kaynaklanan bilgi veya onay eksiklikleri nedeniyle projenin <strong>14 günden fazla beklemede kalması (Ghosting)</strong> durumunda, {companyName} projeyi askıya alma ve yeniden başlatma ücreti talep etme veya projeyi mevcut haliyle tamamlanmış sayıp kalan bakiyenin tamamını faturalandırma hakkına sahiptir. Müşteri gecikmelerinden kaynaklanan teslimat uzamalarından {companyName} sorumlu tutulamaz.
+            Müşterinin geri bildirim vermemesi veya onay eksikliği nedeniyle projenin <strong>14 günden fazla kesintiye uğraması (Ghosting)</strong> halinde, {companyName} projeyi askıya alma, yeniden başlatma halinde ek organizasyon bedeli tahakkuk ettirme veya projeyi tamamlanmış sayarak bakiye sözleşme bedelinin tamamını derhal muaccel kılma hakkına sahiptir.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Für den Fortschritt des Projekts ist der Kunde verpflichtet, alle benötigten Materialien (Texte, Bilder, API-Schlüssel, Feedback usw.) rechtzeitig und vollständig zur Verfügung zu stellen.
+            Der Kunde ist zur ordnungsgemäßen und zügigen Mitwirkung verpflichtet (Beistellung von Inhalten, Zugangsdaten, Schnittstellen-Keys und Freigaben).
           </p>
           <p>
-            Wenn das Projekt aufgrund mangelnder Informationen oder Freigaben seitens des Kunden für <strong>mehr als 14 Tage pausiert (Ghosting)</strong>, hat {companyName} das Recht, das Projekt auszusetzen und eine Wiederaufnahmegebühr zu erheben oder das Projekt im aktuellen Zustand als abgeschlossen zu betrachten und den vollen Restbetrag in Rechnung zu stellen.
+            Kommt der Kunde seinen Mitwirkungspflichten trotz Erinnerung für <strong>mehr als 14 Tage nicht nach (Projektstillstand / Ghosting)</strong>, ist {companyName} berechtigt, das Projekt zu pausieren, eine Reaktivierungsgebühr zu verlangen oder die erbrachten Teilleistungen abzurechnen und das Projekt unter Fälligstellung des vereinbarten Restentgelts abzuschließen.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            For the project to progress, the client is obliged to provide all necessary materials (texts, images, API keys, feedback, etc.) in a timely and complete manner.
+            The client is obligated to provide prompt, active collaboration by supplying required branding assets, content, API credentials, and approvals.
           </p>
           <p>
-            If the project is put on hold for <strong>more than 14 days due to lack of information or approval from the client (Ghosting)</strong>, {companyName} has the right to suspend the project and charge a restart fee, or consider the project completed in its current state and invoice the entire remaining balance. {companyName} cannot be held responsible for delivery extensions caused by client delays.
+            If a project is halted for <strong>more than 14 calendar days due to client unresponsive behavior or missing approvals (Ghosting)</strong>, {companyName} reserves the right to suspend development, impose a reactivation fee, or declare the milestone concluded and invoice the full remaining contract amount immediately.
           </p>
         </>
       )
     },
     {
       id: 'liability-limitation',
-      title: '5. Sorumlulukların Sınırlandırılması ve Üçüncü Taraf Hizmetleri',
-      germanTitle: '5. Haftungsbeschränkung und Dienste Dritter',
-      englishTitle: '5. Limitation of Liability and Third-Party Services',
+      title: '6. Sorumluluk Sınırı ve Üçüncü Taraf Kesintileri',
+      germanTitle: '6. Haftungsbegrenzung & Drittanbieter-Services',
+      englishTitle: '6. Limitation of Liability & Third-Party Dependencies',
       content: (
         <>
           <p>
-            {companyName}, teslim edilen yazılımın, tasarımın veya stratejinin müşterinin ticari başarı (satış artışı, kar sağlama) elde etmesini garanti etmez. {companyName}'ın, hizmetlerin kullanımından veya kullanılamamasından kaynaklanan dolaylı zararlar, veri kaybı, kar kaybı veya iş kesintisi için sorumluluğu, yasaların izin verdiği azami ölçüde, <strong>müşterinin son 3 ayda ödediği toplam hizmet bedeli ile sınırlıdır.</strong>
+            {companyName}, teslim edilen yazılımların müşteriye belirli bir satış hacmi veya ticari başarı sağlayacağını taahhüt etmez. Şirketimizin sözleşmeden veya haksız fiilden doğabilecek toplam tazminat sorumluluğu, kasıt ve ağır kusur halleri hariç olmak üzere, <strong>müşterinin son 3 (üç) ayda ödediği net hizmet bedeli ile sınırlıdır</strong>.
           </p>
           <p>
-            Web siteleri veya uygulamalar için entegre edilen üçüncü taraf servislerin (örneğin; Stripe, Vercel, OpenAI, AWS vb.) fiyat politikalarından, erişim kesintilerinden (downtime) veya API değişikliklerinden dolayı projede oluşabilecek aksaklıklardan {companyName} hiçbir şekilde sorumlu tutulamaz. Ek olarak şirketimiz, yazılım projeleri için "uptime garantisi" sağlamaz (Aksi yönde SLA sözleşmesi imzalanmadıkça).
+            Dolaylı zararlar, kâr mahrumiyeti, veri kaybı veya iş durması tazminat kapsamı dışındadır. Entegre edilen üçüncü parti bulut ve API servislerinin (Stripe, OpenAI, Google, AWS, Vercel, Cloudflare vb.) fiyat artışlarından, politika değişikliklerinden veya global erişim kesintilerinden (downtime) {companyName} hiçbir surette sorumlu tutulamaz.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            {companyName} garantiert nicht, dass die gelieferte Software oder das Design zu kommerziellem Erfolg führt. Die Haftung von {companyName} für indirekte Schäden, Datenverlust, entgangenen Gewinn oder Betriebsunterbrechungen ist im gesetzlich zulässigen Höchstmaß auf <strong>den Betrag beschränkt, den der Kunde in den letzten 3 Monaten gezahlt hat.</strong>
+            {companyName} haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit. Bei leichter Fahrlässigkeit haftet {companyName} nur bei Verletzung wesentlicher Vertragspflichten (Kardinalpflichten), begrenzt auf den vorhersehbaren, vertragstypischen Schaden, maximal jedoch auf <strong>die Höhe der in den vorangegangenen 3 Monaten vom Kunden tatsächlich gezahlten Nettovergütung</strong>.
           </p>
           <p>
-            {companyName} haftet in keiner Weise für Störungen, die durch Preisänderungen, Ausfallzeiten (Downtime) oder API-Änderungen integrierter Dienste Dritter (z.B. Stripe, Vercel, OpenAI) entstehen. Es gibt keine "Uptime-Garantie" für die Dienstleistungen (es sei denn, ein spezieller SLA-Vertrag wurde unterzeichnet).
+            Die Haftung für entgangenen Gewinn, mittelbare Schäden, Datenverlust oder Betriebsunterbrechungen ist ausgeschlossen. Für Ausfälle, Preisänderungen oder API-Abschaltungen externer Drittanbieter (z. B. OpenAI, Google, Stripe, Cloudflare, Vercel, AWS) übernimmt {companyName} keine Haftung.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            {companyName} does not guarantee that the delivered software, design, or strategy will result in commercial success for the client. {companyName}'s liability for indirect damages, data loss, lost profits, or business interruption arising from the use of services is limited, to the maximum extent permitted by law, to <strong>the total service fee paid by the client in the last 3 months.</strong>
+            {companyName} disclaims all warranties regarding specific commercial return on investment. Except in cases of willful intent or gross negligence, total aggregate liability for any claims is strictly capped at <strong>the net fees paid by the client in the three (3) months preceding the incident</strong>.
           </p>
           <p>
-            {companyName} cannot be held responsible in any way for disruptions in the project caused by pricing policies, downtime, or API changes of third-party services integrated (e.g., Stripe, Vercel, OpenAI). Additionally, our company does not provide an "uptime guarantee" (Unless an SLA contract is signed to the contrary).
+            Liability for indirect losses, consequential damages, lost profits, data corruption, or downtime is explicitly excluded. {companyName} bears zero liability for outages, rate adjustments, or API deactivations caused by upstream third-party platforms (e.g. OpenAI, Google, Stripe, Vercel, AWS).
           </p>
         </>
       )
     },
     {
       id: 'jurisdiction',
-      title: '6. Yetkili Mahkeme ve Hukuk',
-      germanTitle: '6. Anwendbares Recht & Gerichtsstand',
-      englishTitle: '6. Applicable Law & Jurisdiction',
+      title: '7. Uygulanacak Hukuk ve Münhasır Yetkili Mahkeme',
+      germanTitle: '7. Anwendbares Recht & ausschließlicher Gerichtsstand',
+      englishTitle: '7. Applicable Law & Exclusive Place of Jurisdiction',
       content: (
         <>
           <p>
-            Bu Kullanım Koşullarından doğabilecek tüm ihtilaflarda Alman Hukuku uygulanacaktır. İhtilafların çözümünde Almanya (ilgili eyalet) Mahkemeleri münhasıran yetkilidir.
+            Bu sözleşmeden ve tarafların ticari ilişkisinden doğacak tüm uyuşmazlıklarda <strong>Almanya Federal Cumhuriyeti Hukuku</strong> uygulanır. Birleşmiş Milletler Uluslararası Mal Satımına İlişkin Sözleşmeler Hakkında Antlaşma (CISG) uygulanmaz.
           </p>
           <p>
-            Herhangi bir yasal sorunda bizimle {supportEmail} adresi üzerinden iletişime geçebilirsiniz.
+            Tacirler, kamu tüzel kişileri veya Almanya'da genel yetkili mahkemesi bulunmayan taraflar için doğabilecek tüm ihtilaflarda münhasır yargı yetkisi <strong>Ludwigshafen am Rhein / Speyer (Rheinland-Pfalz, Almanya) Mahkemeleri</strong>'ne aittir.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Für diese Nutzungsbedingungen gilt das Recht der Bundesrepublik Deutschland. Gerichtsstand für alle Streitigkeiten aus oder im Zusammenhang mit diesem Vertrag ist Deutschland.
+            Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts (CISG).
           </p>
           <p>
-            Bei rechtlichen Fragen können Sie uns unter {supportEmail} kontaktieren.
+            Ausschließlicher Gerichtsstand für alle Streitigkeiten aus oder im Zusammenhang mit diesem Vertrag ist, soweit der Kunde Kaufmann im Sinne des HGB, eine juristische Person des öffentlichen Rechts oder ein öffentlich-rechtliches Sondervermögen ist, der Geschäftssitz von {companyName} (<strong>Amtsgericht Ludwigshafen am Rhein bzw. Landgericht Frankenthal / Speyer</strong>).
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            German Law shall apply to all disputes arising from these Terms of Use. The Courts of Germany shall have exclusive jurisdiction for the resolution of disputes.
+            These terms and all related contractual relationships shall be governed exclusively by the laws of the Federal Republic of Germany, excluding the UN Convention on Contracts for the International Sale of Goods (CISG).
           </p>
           <p>
-            For any legal issues, you can contact us at {supportEmail}.
+            To the extent permitted by law, the exclusive venue and jurisdiction for all disputes arising between the parties shall be the competent courts at the registered seat of {companyName} in <strong>Ludwigshafen am Rhein / Speyer (Rhineland-Palatinate, Germany)</strong>.
           </p>
         </>
       )

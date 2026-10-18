@@ -7,279 +7,376 @@ export default function DatenschutzPage() {
   const sections = [
     {
       id: 'general',
-      title: '1. Genel Bilgi ve Veri Sorumlusu',
+      title: '1. Genel Bilgi ve Veri Sorumlusu (Verantwortlicher)',
       germanTitle: '1. Allgemeine Informationen & Verantwortlicher',
       englishTitle: '1. General Information & Data Controller',
       content: (
         <>
           <p>
-            StarWebFlow olarak kişisel verilerinizin güvenliği ve gizliliği bizim için en üst düzeyde öneme sahiptir. Bu Gizlilik Politikası, web sitemizi ziyaret ettiğinizde, hizmetlerimizden faydalandığınızda ve başvuru formlarımızı doldurduğunuzda kişisel verilerinizin nasıl toplandığını, işlendiğini ve korunduğunu açıklar.
+            Star Web Flow olarak kişisel verilerinizin güvenliği, gizliliği ve korunması bizim için en üst düzeyde öneme sahiptir. Bu Gizlilik Politikası (Datenschutzerklärung), web sitemizi (www.starwebflow.com) ziyaret ettiğinizde, dijital hesaplama ve iletişim araçlarımızı kullandığınızda veya ajansımızdan yazılım ve dijital dönüşüm hizmeti aldığınızda kişisel verilerinizin nasıl işlendiğini, korunduğunu ve şirketimizin yasal haklarını açıklar.
           </p>
-          <p>
-            Bu web sitesi, Avrupa Birliği Genel Veri Koruma Yönetmeliği (GDPR/DSGVO) ve Türkiye Cumhuriyeti 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ile uyumlu olarak veri işleme faaliyetleri gerçekleştirmektedir.
+          <p className="mt-3">
+            Veri işleme faaliyetlerimiz, Avrupa Birliği Genel Veri Koruma Tüzüğü (DSGVO / GDPR - Verordnung EU 2016/679), Alman Federal Veri Koruma Kanunu (BDSG), Telekomünikasyon ve Dijital Hizmetler Veri Koruma Kanunu (TDDDG) ve Türkiye Cumhuriyeti 6698 sayılı KVKK mevzuatına tam uyumlu olarak yürütülür.
           </p>
-          <p className="font-bold mt-4 text-slate-900">Veri Sorumlusu (Verantwortlicher):</p>
-          <p>
-            StarWebFlow Dijital Ajans<br />
-            E-posta: privacy@starwebflow.com<br />
-            Telefon: +49 179 492 4556
-          </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm space-y-1">
+            <p className="font-semibold text-slate-900 dark:text-white">Veri Sorumlusu (Verantwortlicher gem. Art. 4 Nr. 7 DSGVO):</p>
+            <p><strong>Unvan:</strong> Star Web Flow - Sinan Günay (Einzelunternehmen / Şahıs İşletmesi)</p>
+            <p><strong>Adres:</strong> Anilinerstr. 3, 67105 Schifferstadt, Rheinland-Pfalz, Deutschland</p>
+            <p><strong>E-Posta:</strong> <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> / <a href="mailto:info@starwebflow.com" className="text-[#4F8EF7] hover:underline">info@starwebflow.com</a></p>
+            <p><strong>Telefon:</strong> +49 179 492 4556</p>
+            <p><strong>Vergi Numarası (St-Nr.):</strong> 41/056/80705 (Finanzamt Speyer-Germersheim)</p>
+            <p><strong>KDV Muafiyeti:</strong> Kleinunternehmer gemäß § 19 UStG</p>
+          </div>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Der Schutz Ihrer persönlichen Daten ist uns ein wichtiges Anliegen. Diese Datenschutzerklärung klärt Sie über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen Daten innerhalb unseres Onlineangebotes auf.
+            Der Schutz Ihrer persönlichen Daten ist für uns von höchster Bedeutung. Diese Datenschutzerklärung klärt Sie über die Art, den Umfang und Zweck der Erhebung und Verwendung personenbezogener Daten auf unserer Website (www.starwebflow.com) sowie im Rahmen unserer Agenturdienstleistungen auf.
           </p>
-          <p>
-            Diese Website verarbeitet Daten im Einklang mit der Datenschutz-Grundverordnung (DSGVO / GDPR) der Europäischen Union und dem türkischen Datenschutzgesetz (KVKK).
+          <p className="mt-3">
+            Die Datenverarbeitung erfolgt in strikter Übereinstimmung mit der europäischen Datenschutz-Grundverordnung (DSGVO), dem Bundesdatenschutzgesetz (BDSG) sowie dem Telekommunikation-Digitale-Dienste-Datenschutz-Gesetz (TDDDG).
           </p>
-          <p className="font-bold mt-4 text-slate-900">Verantwortlicher im Sinne der DSGVO:</p>
-          <p>
-            StarWebFlow Digital Agent<br />
-            E-Mail: privacy@starwebflow.com<br />
-            Telefon: +49 179 492 4556
-          </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm space-y-1">
+            <p className="font-semibold text-slate-900 dark:text-white">Verantwortlicher im Sinne von Art. 4 Nr. 7 DSGVO:</p>
+            <p><strong>Firma/Inhaber:</strong> Star Web Flow - Sinan Günay (Einzelunternehmen)</p>
+            <p><strong>Anschrift:</strong> Anilinerstr. 3, 67105 Schifferstadt, Rheinland-Pfalz, Deutschland</p>
+            <p><strong>E-Mail:</strong> <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> / <a href="mailto:info@starwebflow.com" className="text-[#4F8EF7] hover:underline">info@starwebflow.com</a></p>
+            <p><strong>Telefon:</strong> +49 179 492 4556</p>
+            <p><strong>Steuernummer:</strong> 41/056/80705 (Finanzamt Speyer-Germersheim)</p>
+            <p><strong>Status:</strong> Kleinunternehmer gemäß § 19 UStG (keine Umsatzsteuerausweisung)</p>
+          </div>
         </>
       ),
       englishContent: (
         <>
           <p>
-            At StarWebFlow, the security and confidentiality of your personal data is of the highest importance to us. This Privacy Policy explains how your personal data is collected, processed, and protected when you visit our website, benefit from our services, and fill out our application forms.
+            At Star Web Flow, safeguarding your personal data and confidentiality is our highest priority. This Privacy Policy outlines how your personal data is collected, processed, and safeguarded when visiting www.starwebflow.com, utilizing our interactive tools, or engaging our software engineering services.
           </p>
-          <p>
-            This website processes data in accordance with the European Union General Data Protection Regulation (GDPR) and the Law on Protection of Personal Data of the Republic of Turkey No. 6698 (KVKK).
+          <p className="mt-3">
+            Our data processing operations strictly adhere to the European Union General Data Protection Regulation (EU GDPR), the German Federal Data Protection Act (BDSG), and the German Telecommunications-Telemedia Data Protection Act (TDDDG).
           </p>
-          <p className="font-bold mt-4 text-slate-900">Data Controller:</p>
-          <p>
-            StarWebFlow Digital Agent<br />
-            Email: privacy@starwebflow.com<br />
-            Phone: +49 179 492 4556
-          </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm space-y-1">
+            <p className="font-semibold text-slate-900 dark:text-white">Data Controller (pursuant to Art. 4 No. 7 GDPR):</p>
+            <p><strong>Entity:</strong> Star Web Flow - Sinan Günay (Sole Proprietorship / Einzelunternehmen)</p>
+            <p><strong>Address:</strong> Anilinerstr. 3, 67105 Schifferstadt, Rhineland-Palatinate, Germany</p>
+            <p><strong>Email:</strong> <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> / <a href="mailto:info@starwebflow.com" className="text-[#4F8EF7] hover:underline">info@starwebflow.com</a></p>
+            <p><strong>Phone:</strong> +49 179 492 4556</p>
+            <p><strong>Tax ID:</strong> 41/056/80705 (Finanzamt Speyer-Germersheim)</p>
+            <p><strong>VAT Status:</strong> Small business pursuant to § 19 German UStG (no VAT applied)</p>
+          </div>
         </>
       )
     },
     {
       id: 'data-collection',
-      title: '2. Toplanan Veriler ve Amacı',
-      germanTitle: '2. Erhobene Daten & Zweck',
-      englishTitle: '2. Collected Data & Purpose',
+      title: '2. Toplanan Veri Türleri ve Toplama Yöntemleri',
+      germanTitle: '2. Datenkategorien & Erfassungsmethoden',
+      englishTitle: '2. Categories of Collected Data & Methods',
       content: (
         <>
           <p>
-            Web sitemizde işlem gerçekleştirdiğinizde aşağıdaki veriler şirketimizin meşru menfaatleri, sözleşme öncesi müzakereler ve yasal yükümlülükler çerçevesinde işlenir:
+            Web sitemizi ziyaretinizde veya etkileşimli hizmetlerimizi kullanımınız sırasında şu veriler işlenmektedir:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>İletişim ve Başvuru Bilgileri:</strong> İletişim formları veya simülatörlerde girdiğiniz Ad Soyad, E-posta, Telefon numarası ve Şirket adı. (Amaç: Taleplerinizi yanıtlamak, iş teklifleri hazırlamak).</li>
-            <li><strong>Teknik Simülasyon Verileri:</strong> Tahmini bütçe, proje fikirleri, saatlik çalışan maliyetleri ve operasyonel bilgiler. (Amaç: Şirket analizleri ve değer teklifi sunumu).</li>
-            <li><strong>Sunucu Log Kayıtları:</strong> IP adresiniz (maskelenmiş olarak), tarayıcı türü, işletim sistemi, yönlendirici URL ve erişim tarihi. (Amaç: Güvenlik, DDoS koruması ve sistem kararlılığı).</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>İletişim ve Talep Verileri:</strong> Teklif ve iletişim formlarında ilettiğiniz Ad, Soyad, Kurumsal E-posta adresi, Telefon numarası ve Şirket unvanı.</li>
+            <li><strong>Proje Parametreleri ve Şartname Bilgileri:</strong> ROI hesaplama araçlarında ve Lastenheft oluşturucuda seçilen özellikler, bütçe tahminleri ve sektör bilgileri.</li>
+            <li><strong>Sunucu Log Kayıtları ve Siber Güvenlik Verileri:</strong> Maskelenmiş IP adresiniz, tarayıcı tipi ve versiyonu, işletim sistemi, yönlendiren URL (Referrer), sunucu erişim saati ve DDoS/WAF güvenlik filtreleme logları.</li>
+            <li><strong>Çerez ve Tercih Verileri:</strong> Çerez bannerı üzerinden açık onay vermeniz halinde (Opt-in) analitik ve oturum tercihleri verileri.</li>
           </ul>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Wir verarbeiten personenbezogene Daten unserer Nutzer nur unter Einhaltung der einschlägigen Datenschutzbestimmungen (Art. 6 Abs. 1 lit. b und f DSGVO):
+            Bei der Nutzung unseres Webangebots werden folgende Kategorien personenbezogener Daten verarbeitet:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Kontaktdaten:</strong> Name, E-Mail-Adresse, Telefonnummer, Firmenname bei Nutzung unserer Formulare (Zweck: Beantwortung von Anfragen, Erstellung von Angeboten).</li>
-            <li><strong>Nutzungsdaten:</strong> Angaben wie Projektideen, Budgetvorstellungen und Stundensätze (Zweck: Erstellung von individuellen Angeboten).</li>
-            <li><strong>Server-Logfiles:</strong> IP-Adresse (anonymisiert), Browsertyp, Betriebssystem, Referrer URL, Datum und Uhrzeit des Zugriffs (Zweck: Systemsicherheit und Abwehr von DDoS-Angriffen).</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Kontaktdaten:</strong> Name, E-Mail-Adresse, Telefonnummer und Firmenbezeichnung bei Absenden von Formularen oder Anfragen.</li>
+            <li><strong>Projekt- & Lastenheft-Angaben:</strong> In interaktiven Rechnern ausgewählte technische Anforderungen, Zeithorizonte und Budgetschätzungen.</li>
+            <li><strong>Server-Logfiles & IT-Sicherheitsdaten:</strong> Anonymisierte IP-Adresse, Browsertyp/-version, Betriebssystem, Referrer URL, Zeitstempel der Serveranfrage, Sicherheitsereignisse zur DDoS- und Firewall-Abwehr.</li>
+            <li><strong>Cookie- & Einwilligungsdaten:</strong> Ihre ausgewählten Präferenzen bezüglich Tracking- und Analyse-Cookies gem. § 25 TDDDG.</li>
           </ul>
         </>
       ),
       englishContent: (
         <>
           <p>
-            When you perform transactions on our website, the following data is processed within the framework of our legitimate interests, pre-contractual negotiations, and legal obligations:
+            During your interaction with our platforms, we collect and process the following categories of data:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Contact & Application Information:</strong> Full Name, Email, Phone number, and Company name you enter in contact forms or simulators. (Purpose: Responding to requests, preparing proposals).</li>
-            <li><strong>Technical Simulation Data:</strong> Estimated budget, project ideas, hourly labor costs, and operational details. (Purpose: Business analysis and value proposition presentation).</li>
-            <li><strong>Server Log Files:</strong> IP address (masked), browser type, operating system, referrer URL, and date/time of access automatically sent by your browser. (Purpose: Security, DDoS protection, and system stability).</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Contact Information:</strong> First and last name, business email, telephone number, and company name submitted via forms.</li>
+            <li><strong>Project Brief & Specification Details:</strong> Functional requirements, timeline estimates, and budget tiers selected in our calculators.</li>
+            <li><strong>Server Logs & Cybersecurity Telemetry:</strong> Masked IP address, browser type/version, operating system, referrer URL, request timestamps, and DDoS/WAF protection event data.</li>
+            <li><strong>Cookie Consent Logs:</strong> Your explicit consent preferences regarding non-essential tracking cookies under TDDDG § 25.</li>
           </ul>
         </>
       )
     },
     {
       id: 'legal-basis',
-      title: '3. Veri İşlemenin Hukuki Sebebi',
-      germanTitle: '3. Rechtsgrundlagen der Verarbeitung',
-      englishTitle: '3. Legal Basis of Processing',
+      title: '3. Veri İşlemenin Hukuki Sebepleri (Art. 6 DSGVO)',
+      germanTitle: '3. Rechtsgrundlagen der Verarbeitung (Art. 6 DSGVO)',
+      englishTitle: '3. Legal Bases for Processing (Art. 6 GDPR)',
       content: (
         <>
           <p>
-            Kişisel verilerinizin işlenmesinde şu hukuki sebeplere dayanmaktayız:
+            Kişisel verilerinizin işlenmesinde Avrupa Birliği DSGVO Madde 6 uyarınca şu hukuki sebeplere dayanmaktayız:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Rıza (Art. 6 Abs. 1 lit. a DSGVO / KVKK M. 5/1):</strong> İletişim formunu göndererek veya Çerez rızası vererek açıkça onay verdiğiniz durumlar.</li>
-            <li><strong>Sözleşmenin İfası veya Sözleşme Öncesi Tedbirler (Art. 6 Abs. 1 lit. b DSGVO / KVKK M. 5/2-c):</strong> Bize ilettiğiniz proje fikirlerine göre şartname hazırlamak ve fiyat teklifi oluşturmak.</li>
-            <li><strong>Meşru Menfaatler (Art. 6 Abs. 1 lit. f DSGVO / KVKK M. 5/2-f):</strong> Web sitemizin güvenliğini sağlamak, kötüye kullanımı engellemek ve hizmet kalitemizi artırmak.</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Sözleşmenin İfası veya Ön Hazırlık (Art. 6 Abs. 1 lit. b DSGVO):</strong> Bize ilettiğiniz proje talepleri için teknik şartname hazırlamak, teklif sunmak ve yazılım sözleşmelerini ifa etmek.</li>
+            <li><strong>Yasal Yükümlülükler (Art. 6 Abs. 1 lit. c DSGVO):</strong> Ticari ve mali mevzuat uyarınca faturaların ve ticari yazışmaların arşivlenmesi (§ 257 HGB, § 147 AO).</li>
+            <li><strong>Meşru Menfaatler (Art. 6 Abs. 1 lit. f DSGVO):</strong> Web sunucularımızın güvenliğini sağlamak, siber saldırıları ve kötü niyetli spam faaliyetlerini engellemek, şirketimizin yasal haklarını korumak.</li>
+            <li><strong>Açık Rıza (Art. 6 Abs. 1 lit. a DSGVO & § 25 Abs. 1 TDDDG):</strong> Çerez onay panelinden izin verdiğiniz analitik ve pazarlama çerezlerinin kullanımı.</li>
           </ul>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Die Verarbeitung Ihrer personenbezogenen Daten erfolgt auf Basis folgender Rechtsgrundlagen:
+            Die Verarbeitung Ihrer personenbezogenen Daten stützt sich auf folgende Rechtsgrundlagen gemäß Art. 6 DSGVO:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Einwilligung (Art. 6 Abs. 1 lit. a DSGVO):</strong> Für die Zusendung von Dokumenten und das Setzen von Marketing-Cookies.</li>
-            <li><strong>Vertragserfüllung / Vorvertragliche Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO):</strong> Zur Angebotserstellung basierend auf den von Ihnen eingegebenen Projektdaten.</li>
-            <li><strong>Berechtigte Interessen (Art. 6 Abs. 1 lit. f DSGVO):</strong> Für die Sicherheit der Webserver, DDoS-Schutz und statistische Auswertungen.</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Vertragserfüllung & vorvertragliche Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO):</strong> Zur Angebotserstellung und Ausführung digitaler Entwicklungsaufträge.</li>
+            <li><strong>Rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c DSGVO):</strong> Zur Erfüllung gesetzlicher Buchführungs- und Aufbewahrungspflichten (§ 257 HGB, § 147 AO).</li>
+            <li><strong>Berechtigte Interessen (Art. 6 Abs. 1 lit. f DSGVO):</strong> Gewährleistung der Serverstabilität, Abwehr von Angriffen und Betrugsschutz.</li>
+            <li><strong>Einwilligung (Art. 6 Abs. 1 lit. a DSGVO i.V.m. § 25 Abs. 1 TDDDG):</strong> Für optionale Marketing- und Web-Analyse-Tools, jederzeit widerrufbar.</li>
           </ul>
         </>
       ),
       englishContent: (
         <>
           <p>
-            We rely on the following legal bases for processing your personal data:
+            Processing is grounded on the strict legal mandates of Art. 6 GDPR:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Consent (Art. 6 Abs. 1 lit. a GDPR / KVKK Art. 5/1):</strong> Situations where you explicitly agree by submitting contact forms or giving cookie consent.</li>
-            <li><strong>Performance of Contract or Pre-Contractual Measures (Art. 6 Abs. 1 lit. b GDPR / KVKK Art. 5/2-c):</strong> Preparing specifications and generating price quotes based on project ideas you submit.</li>
-            <li><strong>Legitimate Interests (Art. 6 Abs. 1 lit. f GDPR / KVKK Art. 5/2-f):</strong> Ensuring the security of our website, preventing abuse, and improving service quality.</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Contract Execution & Pre-contractual Inquiries (Art. 6(1)(b) GDPR):</strong> Preparing project specifications, commercial estimates, and executing development agreements.</li>
+            <li><strong>Statutory Compliance (Art. 6(1)(c) GDPR):</strong> Mandatory fiscal and trade law record-keeping (§ 257 HGB, § 147 AO).</li>
+            <li><strong>Legitimate Interests (Art. 6(1)(f) GDPR):</strong> Safeguarding IT perimeter security, fraud prevention, and enforcing legal claims.</li>
+            <li><strong>Explicit Consent (Art. 6(1)(a) GDPR & § 25(1) TDDDG):</strong> For non-mandatory analytics cookies, revocable at any moment.</li>
           </ul>
         </>
       )
     },
     {
-      id: 'data-sharing',
-      title: '4. Veri Aktarımı ve Üçüncü Taraflar',
-      germanTitle: '4. Datenweitergabe an Dritte',
-      englishTitle: '4. Data Sharing & Third Parties',
+      id: 'data-processor',
+      title: '4. Veri İşleyen Sıfatıyla Sorumluluk Sınırları ve Müşterinin Tazminat Borcu',
+      germanTitle: '4. Haftungsausschluss als Auftragsverarbeiter & Freistellung',
+      englishTitle: '4. Data Processor Safeguards & Client Indemnification',
       content: (
         <>
           <p>
-            Kişisel verileriniz, yasal zorunluluklar veya hizmetin ifası için gerekli teknik iş ortaklıklar haricinde asla üçüncü şahıslara satılmaz veya ticari amaçla paylaşılmaz. Veri işleme faaliyetlerinde kullandığımız güvenli altyapılar şunlardır:
+            Müşterilerimiz için geliştirdiğimiz web siteleri, veritabanları, SaaS yazılımları veya yapay zeka otomasyonlarında; müşterinin son kullanıcılarına ait verilerin işlenmesi bakımından Star Web Flow münhasıran <strong>"Veri İşleyen (Auftragsverarbeiter gem. Art. 28 DSGVO)"</strong> statüsündedir.
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Vercel & AWS:</strong> Web sitemizin barındırıldığı (hosting) ve Frankfurt/Almanya sunucularında GDPR uyumlu çalışan altyapı sağlayıcıları.</li>
-            <li><strong>Calendly / Google:</strong> Toplantı planlamanız için kullanılan takvim entegrasyonu.</li>
-            <li><strong>Google Analytics / Meta Pixel:</strong> Sadece çerez panelinden açık rıza verdiğiniz takdirde çalışan anonim analiz ve reklam pikselleri.</li>
+          <p className="mt-3">
+            Hizmeti satın alan müşteri ise yasal olarak tek başına <strong>"Veri Sorumlusu (Verantwortlicher gem. Art. 4 Nr. 7 DSGVO)"</strong> sıfatına sahiptir. Müşteri, geliştirdiğimiz platformlara aktarılan veya sistemler aracılığıyla toplanan tüm son kullanıcı verilerinin yürürlükteki veri koruma yasalarına (DSGVO, BDSG, TDDDG, KVKK) uygun şekilde toplandığını, gerekli açık rıza ve aydınlatma metinlerinin sağlandığını garanti eder.
+          </p>
+          <p className="mt-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm">
+            <strong>Kusursuz Tazminat Taahhüdü:</strong> Müşterinin veri koruma yükümlülüklerine aykırı davranışı, eksik rıza alması veya hukuka aykırı veri işlemesi nedeniyle Star Web Flow - Sinan Günay aleyhine doğabilecek her türlü idari para cezası (DSGVO Art. 83 cezaları dahil), resmi denetim giderleri, avukatlık ücretleri ve üçüncü şahıs tazminat talepleri, ilk yazılı ihtarla birlikte MÜŞTERİ TARAFINDAN DEFATEN VE EKSİKSİZ TAZMİN EDİLİR.
+          </p>
+        </>
+      ),
+      germanContent: (
+        <>
+          <p>
+            Soweit Star Web Flow im Auftrag von Kunden Softwarelösungen, Datenbanken oder KI-Systeme entwickelt oder hostet, in denen Endnutzerdaten des Kunden verarbeitet werden, wird Star Web Flow ausschließlich als <strong>Auftragsverarbeiter gemäß Art. 28 DSGVO</strong> tätig.
+          </p>
+          <p className="mt-3">
+            Der Kunde ist und bleibt alleiniger <strong>Verantwortlicher im Sinne von Art. 4 Nr. 7 DSGVO</strong>. Der Kunde sichert vertraglich zu, dass sämtliche verarbeiteten Endnutzerdaten vollumfänglich datenschutzkonform erhoben wurden.
+          </p>
+          <p className="mt-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm">
+            <strong>Freistellungsverpflichtung des Kunden:</strong> Der Kunde stellt Star Web Flow - Sinan Günay auf erstes schriftliches Anfordern von allen behördlichen Bußgeldern (insb. Art. 83 DSGVO), Rechtsanwaltskosten, Gerichtskosten und Schadensersatzansprüchen Dritter frei, die aus datenschutzrechtlichen Verstößen des Kunden resultieren.
+          </p>
+        </>
+      ),
+      englishContent: (
+        <>
+          <p>
+            When engineering custom platforms, databases, or AI systems handling end-user data on behalf of clients, Star Web Flow acts strictly as a <strong>Data Processor pursuant to Art. 28 GDPR</strong>.
+          </p>
+          <p className="mt-3">
+            The client purchasing our services remains the sole <strong>Data Controller under Art. 4 No. 7 GDPR</strong>. The client guarantees that all end-user data processed was lawfully obtained with valid consent.
+          </p>
+          <p className="mt-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm">
+            <strong>Indemnification Guarantee:</strong> The client unconditionally agrees to indemnify and hold harmless Star Web Flow - Sinan Günay from all administrative penalties (including GDPR Art. 83 fines), legal defense costs, and third-party claims arising from the client’s failure to comply with privacy laws.
+          </p>
+        </>
+      )
+    },
+    {
+      id: 'ai-thirdparty-safeguards',
+      title: '5. Yapay Zeka (AI) Güvenliği, Bulut Altyapısı ve Sunucu Lokasyonu',
+      germanTitle: '5. KI-Sicherheit, Cloud-Infrastruktur & Serverstandort',
+      englishTitle: '5. AI Security, Cloud Infrastructure & Hosting Location',
+      content: (
+        <>
+          <p>
+            Star Web Flow, müşterilerine en yüksek performans ve güvenliği sunmak üzere Tier-1 küresel altyapı sağlayıcıları ile çalışmaktadır:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Sunucu Konumu (Almanya / AB):</strong> Web sitemiz ve veritabanı altyapılarımız, ISO 27001 ve SOC 2 sertifikalı Frankfurt am Main / Almanya veri merkezlerinde (Vercel, AWS, Cloudflare) barındırılmaktadır.</li>
+            <li><strong>Yapay Zeka API Güvencesi:</strong> Kullandığımız kurumsal AI modelleri (OpenAI Enterprise, Google Cloud Vertex AI, Anthropic); müşterilerimize ait ticari sırları veya kaynak kodlarını kamuya açık modelleri eğitmek amacıyla (training data) KESİNLİKLE KULLANMAZ.</li>
+            <li><strong>3. Taraf Altyapı Sorumsuzluğu:</strong> Küresel bulut veya AI sağlayıcılarının geçici servis kesintilerinden veya üçüncü taraf politika değişikliklerinden doğabilecek dolaylı iş kayıplarından şirketimiz sorumlu değildir.</li>
           </ul>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Eine Weitergabe Ihrer Daten an Dritte erfolgt nur im Rahmen gesetzlicher Vorgaben oder zur Erfüllung unserer vertraglichen Pflichten:
+            Star Web Flow setzt auf erstklassige, zertifizierte Cloud- und KI-Infrastrukturen:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Hosting (Vercel & AWS):</strong> Unsere Web-Infrastruktur befindet sich auf DSGVO-konformen Servern in Frankfurt, Deutschland.</li>
-            <li><strong>Calendly / Google Calendar:</strong> Zur Direktbuchung von Strategiegesprächen auf freiwilliger Basis.</li>
-            <li><strong>Analyse- & Tracking-Tools (Google, Meta):</strong> Nur aktiv, wenn Sie über unseren Cookie-Banner explizit eingewilligt haben.</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Serverstandort (Deutschland / EU):</strong> Unsere Web- und Datenbankinfrastruktur wird auf ISO-27001-zertifizierten Rechenzentren in Frankfurt am Main, Deutschland betrieben (Vercel, AWS, Cloudflare).</li>
+            <li><strong>KI-Datenschutz:</strong> Eingesetzte KI-Schnittstellen (OpenAI, Google Gemini) verarbeiten Daten ausschließlich situativ über sichere Enterprise-APIs; Kundendaten werden NIEMALS für öffentliches Modell-Training verwendet.</li>
+            <li><strong>Infrastruktur-Ausschluss:</strong> Für externe Ausfälle von Cloud- oder Schnittstellenbetreibern übernimmt Star Web Flow keine Haftung für Folgeschäden.</li>
           </ul>
         </>
       ),
       englishContent: (
         <>
           <p>
-            Your personal data is never sold or shared for commercial purposes with third parties, except as required by law or for technical partnerships necessary for service delivery. The secure infrastructures we use are:
+            Star Web Flow utilizes certified global cloud and enterprise AI infrastructures:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Vercel & AWS:</strong> Hosting infrastructure providers operating in Frankfurt/Germany servers, fully GDPR compliant.</li>
-            <li><strong>Calendly / Google:</strong> Calendar integration used for scheduling meetings.</li>
-            <li><strong>Google Analytics / Meta Pixel:</strong> Anonymous analytics and advertising pixels that only run if you give explicit consent in the cookie settings panel.</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Hosting Location (Germany / EU):</strong> Primary web clusters and databases are hosted in ISO 27001 certified data centers in Frankfurt am Main, Germany (Vercel, AWS, Cloudflare).</li>
+            <li><strong>Enterprise AI Governance:</strong> AI integrations (OpenAI, Google Gemini) operate under strict enterprise API terms; client data is STRICTLY NEVER utilized to train public foundation models.</li>
+            <li><strong>Third-Party Outage Disclaimer:</strong> Star Web Flow accepts no liability for indirect business disruptions caused by external upstream service interruptions.</li>
+          </ul>
+        </>
+      )
+    },
+    {
+      id: 'retention-periods',
+      title: '6. Saklama Süreleri ve Ticari Arşivleme (§ 147 AO, § 257 HGB)',
+      germanTitle: '6. Speicherdauer & Gesetzliche Aufbewahrung (§ 147 AO, § 257 HGB)',
+      englishTitle: '6. Data Retention & Statutory Archiving Periods',
+      content: (
+        <>
+          <p>
+            Kişisel verileriniz, işleme amacının gerektirdiği süre ve Alman vergi ile ticaret mevzuatının zorunlu kıldığı yasal süreler boyunca saklanır:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Faturalar ve Mali Defterler:</strong> 10 yıl (§ 147 Abs. 3 AO).</li>
+            <li><strong>Sözleşmeler ve Ticari Yazışmalar:</strong> 6 yıl (§ 257 Abs. 4 HGB).</li>
+            <li><strong>Web Güvenlik Logları:</strong> Siber saldırı tespiti ve savunması amacıyla azami 14-90 gün süreyle saklanır ve ardından kalıcı olarak silinir.</li>
+          </ul>
+        </>
+      ),
+      germanContent: (
+        <>
+          <p>
+            Personenbezogene Daten werden nach Zweckfortfall gelöscht, sofern keine gesetzlichen Aufbewahrungsfristen entgegenstehen:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Buchungsbelege und Rechnungen:</strong> 10 Jahre gemäß § 147 Abs. 3 AO.</li>
+            <li><strong>Handelsbriefe und Verträge:</strong> 6 Jahre gemäß § 257 Abs. 4 HGB.</li>
+            <li><strong>Sicherheits-Logfiles:</strong> Werden zur Gefahrenabwehr maximal 14 bis 90 Tage vorgehalten.</li>
+          </ul>
+        </>
+      ),
+      englishContent: (
+        <>
+          <p>
+            Data is erased once the primary purpose expires, unless statutory archiving rules require continued retention:
+          </p>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Invoices and Fiscal Records:</strong> 10 years pursuant to § 147(3) German Fiscal Code (AO).</li>
+            <li><strong>Commercial Correspondence and Contracts:</strong> 6 years pursuant to § 257(4) German Commercial Code (HGB).</li>
+            <li><strong>Security Server Logs:</strong> Maintained for 14–90 days for cybersecurity defenses, then automatically purged.</li>
           </ul>
         </>
       )
     },
     {
       id: 'user-rights',
-      title: '5. Haklarınız (DSGVO & KVKK)',
-      germanTitle: '5. Ihre Rechte',
-      englishTitle: '5. Your Rights',
+      title: '7. Veri Sahibinin Hakları ve Denetim Makamı (LfDI Rheinland-Pfalz)',
+      germanTitle: '7. Betroffenenrechte & Aufsichtsbehörde (LfDI Rheinland-Pfalz)',
+      englishTitle: '7. Data Subject Rights & Supervisory Authority (LfDI RLP)',
       content: (
         <>
           <p>
-            Veri sahibi olarak kişisel verileriniz üzerinde tam kontrol hakkına sahipsiniz. KVKK Madde 11 ve GDPR kapsamında şu haklara sahipsiniz:
+            DSGVO Madde 15-22 ve KVKK uyarınca sahip olduğunuz yasal haklar:
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Bilgi alma ve erişim hakkı (Hangi verilerinizin işlendiğini öğrenme).</li>
-            <li>Düzeltme hakkı (Hatalı veya eksik verilerinizin güncellenmesini isteme).</li>
-            <li>Silme ve unutulma hakkı (Verilerinizin sistemlerimizden tamamen silinmesini talep etme).</li>
-            <li>Rızayı geri çekme hakkı (Verdiğiniz çerez veya iletişim rızalarını dilediğiniz an iptal etme).</li>
+          <ul className="list-disc pl-5 space-y-2 mt-3">
+            <li><strong>Bilgi Edinme ve Erişim (Art. 15 DSGVO):</strong> Hangi verilerinizin işlendiğini öğrenme.</li>
+            <li><strong>Düzeltme (Art. 16 DSGVO):</strong> Hatalı verilerin düzeltilmesini talep etme.</li>
+            <li><strong>Silme / Unutulma (Art. 17 DSGVO):</strong> Verilerinizin yasal şartlar dahilinde silinmesini isteme.</li>
+            <li><strong>İşlemenin Kısıtlanması ve Taşınabilirlik (Art. 18 & 20 DSGVO):</strong> İşlemenin sınırlandırılması ve verilerin makinece okunabilir formatta teslimi.</li>
+            <li><strong>İtiraz Hakkı (Art. 21 DSGVO):</strong> Meşru menfaate dayalı işlemelere itiraz etme.</li>
           </ul>
           <p className="mt-4">
-            Tüm talepleriniz için bize <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> adresinden ulaşabilirsiniz. Talepleriniz en geç 30 gün içinde ücretsiz olarak sonuçlandırılacaktır.
+            Talepleriniz için lütfen kimlik teyidiyle birlikte <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> adresine başvurunuz.
           </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm">
+            <p className="font-semibold text-slate-900 dark:text-white">Almanya Yetkili Denetim Makamı (Zuständige Aufsichtsbehörde):</p>
+            <p>Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Rheinland-Pfalz (LfDI RLP)</p>
+            <p>Hintere Bleiche 34, 55116 Mainz, Deutschland | Web: <a href="https://www.datenschutz.rlp.de" target="_blank" rel="noopener noreferrer" className="text-[#4F8EF7] hover:underline">www.datenschutz.rlp.de</a></p>
+          </div>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Sperrung oder Löschung Ihrer gespeicherten Daten (Art. 15-21 DSGVO):
+            Ihnen stehen nach Art. 15–22 DSGVO umfassende Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch zu.
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Recht auf Auskunft über die verarbeiteten personenbezogenen Daten.</li>
-            <li>Recht auf Berichtigung unrichtiger Daten.</li>
-            <li>Recht auf Löschung ("Recht auf Vergessenwerden").</li>
-            <li>Recht auf Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft.</li>
-          </ul>
           <p className="mt-4">
-            Wenden Sie sich zur Ausübung dieser Rechte einfach an <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a>.
+            Zur Geltendmachung Ihrer Rechte schreiben Sie bitte an: <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a>.
           </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm">
+            <p className="font-semibold text-slate-900 dark:text-white">Zuständige Aufsichtsbehörde:</p>
+            <p>Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Rheinland-Pfalz (LfDI RLP)</p>
+            <p>Hintere Bleiche 34, 55116 Mainz, Deutschland | Internet: <a href="https://www.datenschutz.rlp.de" target="_blank" rel="noopener noreferrer" className="text-[#4F8EF7] hover:underline">www.datenschutz.rlp.de</a></p>
+          </div>
         </>
       ),
       englishContent: (
         <>
           <p>
-            As a data subject, you have full control over your personal data. Under KVKK Article 11 and GDPR, you have the following rights:
+            Pursuant to Articles 15–22 of the GDPR, you have the right to access, rectify, erase, restrict processing, transfer data, and object to processing.
           </p>
-          <ul className="list-disc pl-5 space-y-2">
-            <li>Right to be informed and access (Learn what data is processed).</li>
-            <li>Right to rectification (Request updates to incorrect/incomplete data).</li>
-            <li>Right to erasure and to be forgotten (Request complete removal of your data from our systems).</li>
-            <li>Right to withdraw consent (Cancel cookie or contact consents at any time).</li>
-          </ul>
           <p className="mt-4">
-            Contact us at <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a> for any requests. We will resolve your requests within 30 days free of charge.
+            To submit a verified data subject request, please email: <a href="mailto:privacy@starwebflow.com" className="text-[#4F8EF7] hover:underline">privacy@starwebflow.com</a>.
           </p>
+          <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-sm">
+            <p className="font-semibold text-slate-900 dark:text-white">Competent Supervisory Authority:</p>
+            <p>Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Rheinland-Pfalz (LfDI RLP)</p>
+            <p>Hintere Bleiche 34, 55116 Mainz, Germany | Web: <a href="https://www.datenschutz.rlp.de" target="_blank" rel="noopener noreferrer" className="text-[#4F8EF7] hover:underline">www.datenschutz.rlp.de</a></p>
+          </div>
         </>
       )
     },
     {
-      id: 'data-processor',
-      title: '6. Veri İşleyen Sıfatıyla Sorumluluklarımız',
-      germanTitle: '6. Unsere Verantwortung als Auftragsverarbeiter',
-      englishTitle: '6. Our Responsibility as Data Processor',
+      id: 'applicable-law',
+      title: '8. Uygulanacak Hukuk ve Yetkili Mahkeme (Gerichtsstand)',
+      germanTitle: '8. Anwendbares Recht & Gerichtsstand',
+      englishTitle: '8. Applicable Law & Exclusive Venue',
       content: (
         <>
           <p>
-            Müşterilerimiz için geliştirdiğimiz yazılım, web sitesi veya uygulamalarda işlenen üçüncü taraf kişisel verileri (müşterilerimizin son kullanıcıları) için şirketimiz "Veri İşleyen (Data Processor)" konumundadır.
+            İşbu Gizlilik Politikası ve veri koruma süreçlerine münhasıran <strong>Almanya Federal Cumhuriyeti Hukuku</strong> tatbik edilir.
           </p>
-          <p>
-            Bu durumlarda "Veri Sorumlusu (Data Controller)", hizmeti satın alan müşterimizdir. Müşteri, işlenmesi için tarafımıza veya geliştirdiğimiz sistemlere aktardığı her türlü verinin yasalara (KVKK/GDPR) uygun olarak toplandığını, gerekli rızaların alındığını beyan ve taahhüt eder. Müşterinin hukuka aykırı veri yüklemesi veya veri toplaması nedeniyle doğacak hiçbir yasal ihlalden StarWebFlow sorumlu tutulamaz.
-          </p>
-          <p>
-            Yapay zeka (AI) hizmetlerimiz bağlamında; StarWebFlow'a sağlanan anonimleştirilmiş proje verileri (API keyler ve gizli müşteri verileri hariç olmak kaydıyla), sadece ilgili müşteri projesinin geliştirilmesi amacıyla OpenAI/Gemini gibi 3. taraf AI servisleri aracılığıyla işlenebilir ancak bu veriler kamuya açık yapay zeka modellerini eğitmek amacıyla (training data) kesinlikle kullanılmaz.
+          <p className="mt-2">
+            Doğabilecek tüm uyuşmazlıklarda yetkili mahkeme <strong>Almanya / Ludwigshafen am Rhein (veya Speyer) Mahkemeleri</strong>dir.
           </p>
         </>
       ),
       germanContent: (
         <>
           <p>
-            Bei personenbezogenen Daten Dritter (Endnutzer unserer Kunden), die in von uns entwickelten Softwares oder Websites verarbeitet werden, agiert unser Unternehmen als "Auftragsverarbeiter" (Data Processor).
+            Es gilt das Recht der <strong>Bundesrepublik Deutschland</strong>.
           </p>
-          <p>
-            In diesen Fällen ist der Kunde, der die Dienstleistung erwirbt, der "Verantwortliche" (Data Controller). Der Kunde sichert zu, dass alle Daten, die er uns oder den von uns entwickelten Systemen zur Verarbeitung übermittelt, rechtmäßig (gemäß DSGVO) erhoben wurden. StarWebFlow übernimmt keine Haftung für rechtliche Verstöße, die aus einer unrechtmäßigen Datenerhebung oder -speicherung durch den Kunden resultieren.
-          </p>
-          <p>
-            Im Zusammenhang mit unseren KI-Diensten (AI); Anonymisierte Projektdaten, die StarWebFlow zur Verfügung gestellt werden (mit Ausnahme von API-Schlüsseln und vertraulichen Kundendaten), können über KI-Dienste von Drittanbietern (wie OpenAI/Gemini) nur zur Entwicklung des jeweiligen Kundenprojekts verarbeitet werden, diese Daten werden jedoch keinesfalls zum Trainieren öffentlicher KI-Modelle (Trainingsdaten) verwendet.
+          <p className="mt-2">
+            Ausschließlicher Gerichtsstand für alle Streitigkeiten ist <strong>Ludwigshafen am Rhein (bzw. Speyer), Rheinland-Pfalz, Deutschland</strong>.
           </p>
         </>
       ),
       englishContent: (
         <>
           <p>
-            For third-party personal data (end-users of our clients) processed in the software, websites, or applications we develop for our clients, our company acts as the "Data Processor".
+            This policy is governed exclusively by the laws of the <strong>Federal Republic of Germany</strong>.
           </p>
-          <p>
-            In these cases, the "Data Controller" is our client purchasing the service. The client declares and undertakes that any data they transfer to us or the systems we develop for processing has been collected in compliance with the law (KVKK/GDPR), and necessary consents have been obtained. StarWebFlow cannot be held liable for any legal violations arising from the client's unlawful data upload or data collection.
-          </p>
-          <p>
-            In the context of our AI services; Anonymized project data provided to StarWebFlow (excluding API keys and confidential client data) may be processed via third-party AI services (like OpenAI/Gemini) solely for the purpose of developing the respective client project, however, this data is strictly never used to train public AI models (training data).
+          <p className="mt-2">
+            The exclusive place of jurisdiction is <strong>Ludwigshafen am Rhein (or Speyer), Rhineland-Palatinate, Germany</strong>.
           </p>
         </>
       )
@@ -288,15 +385,15 @@ export default function DatenschutzPage() {
 
   return (
     <LegalPageLayout
-      title="Gizlilik Politikası"
+      title="Gizlilik Politikası (Datenschutz)"
       germanTitle="Datenschutzerklärung"
-      englishTitle="Privacy Policy"
-      subtitle="StarWebFlow dijital ekosistemindeki kişisel verilerinizin korunması ve gizliliğine dair yasal bilgilendirme."
-      germanSubtitle="Rechtliche Informationen zum Schutz und zur Vertraulichkeit Ihrer personenbezogenen Daten."
-      englishSubtitle="Legal information regarding the protection and confidentiality of your personal data."
-      lastUpdated="21 Haziran 2026"
-      germanLastUpdated="21. Juni 2026"
-      englishLastUpdated="June 21, 2026"
+      englishTitle="Privacy Policy (GDPR)"
+      subtitle="Star Web Flow dijital ekosistemindeki kişisel verilerinizin korunması, DSGVO/TDDDG uyumu ve kurumsal güvence esasları."
+      germanSubtitle="Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO, BDSG und TDDDG durch Star Web Flow."
+      englishSubtitle="Legal disclosures regarding personal data handling, GDPR/TDDDG compliance, and liability boundaries for Star Web Flow."
+      lastUpdated="18 Ekim 2026"
+      germanLastUpdated="18. Oktober 2026"
+      englishLastUpdated="October 18, 2026"
       sections={sections}
     />
   )

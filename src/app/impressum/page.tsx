@@ -60,17 +60,25 @@ export default function ImpressumPage() {
       title: 'Umsatzsteuer / Vergi Bilgileri',
       content: (
         <>
-          <p className="font-bold text-slate-900 mt-6 mb-2">Steuernummer / Vergi Kimlik Numarası:</p>
+          <p className="font-bold text-slate-900 mt-4 mb-1">Steuernummer / Vergi Numarası:</p>
+          <p className="text-slate-600 font-mono">
+            41 / 056 / 80705 (Finanzamt Speyer-Germersheim)
+          </p>
+          <p className="font-bold text-slate-900 mt-4 mb-1">KDV Muafiyeti (Umsatzsteuerbefreiung):</p>
           <p className="text-slate-600">
-            Steuernummer / Vergi No: 41 / 056 / 80705
+            Alman Katma Değer Vergisi Kanunu (UStG) § 19 Küçük İşletme Yönetmeliği (Kleinunternehmerregelung) uyarınca faturalarımızda KDV hesaplanmamaktadır ve KDV kimlik numarası (USt-IdNr.) aranmamaktadır.
           </p>
         </>
       ),
       germanContent: (
         <>
-          <p className="font-bold text-slate-900 mt-6 mb-2">Steuernummer:</p>
+          <p className="font-bold text-slate-900 mt-4 mb-1">Steuernummer:</p>
+          <p className="text-slate-600 font-mono">
+            41 / 056 / 80705 (Finanzamt Speyer-Germersheim)
+          </p>
+          <p className="font-bold text-slate-900 mt-4 mb-1">Umsatzsteuerhinweis:</p>
           <p className="text-slate-600">
-            Steuernummer: 41 / 056 / 80705
+            Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung). Eine gesonderte Umsatzsteuer-Identifikationsnummer (USt-IdNr.) wird nicht geführt.
           </p>
         </>
       )

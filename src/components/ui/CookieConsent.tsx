@@ -362,41 +362,42 @@ export default function CookieConsent() {
               </div>
             )}
 
-            {/* Buttons Group (compliant: Equal Weight & Clear Reject Button) */}
+            {/* Buttons Group (compliant: Equal Weight & Clear Reject Button with high contrast) */}
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
-              <Button
-                variant="primary"
+              <button
+                type="button"
                 onClick={handleAcceptAll}
-                className="w-full sm:order-3 shadow-[0_0_20px_rgba(79,142,247,0.15)] text-xs py-3"
+                className="w-full sm:order-3 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-xs tracking-wide transition-all duration-200 cursor-pointer shadow-lg shadow-indigo-500/25 active:scale-[0.98] text-center"
               >
                 {t.acceptAll}
-              </Button>
-              <Button
-                variant="outline"
+              </button>
+              
+              <button
+                type="button"
                 onClick={handleRejectAll}
-                className="w-full sm:order-2 border-white/[0.08] hover:bg-white/5 text-xs py-3 text-white"
+                className="w-full sm:order-2 px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-600 dark:bg-white/[0.10] dark:hover:bg-white/[0.18] dark:text-white dark:border-white/20 font-bold text-xs tracking-wide transition-all duration-200 cursor-pointer active:scale-[0.98] text-center shadow-sm"
               >
                 {t.rejectAll}
-              </Button>
+              </button>
               
               {showCustomize ? (
-                <Button
-                  variant="outline"
+                <button
+                  type="button"
                   onClick={handleSaveSelection}
-                  className="w-full sm:order-1 border-[#4F8EF7]/30 text-[#4F8EF7] hover:bg-[#4F8EF7]/10 text-xs py-3"
+                  className="w-full sm:order-1 px-5 py-3 rounded-xl border border-[#4F8EF7]/50 bg-[#4F8EF7]/15 hover:bg-[#4F8EF7]/25 text-[#4F8EF7] font-bold text-xs transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98]"
                 >
                   <Check className="w-3.5 h-3.5" />
                   {t.saveSelection}
-                </Button>
+                </button>
               ) : (
-                <Button
-                  variant="outline"
+                <button
+                  type="button"
                   onClick={() => setShowCustomize(true)}
-                  className="w-full sm:order-1 border-white/[0.08] hover:bg-white/5 text-xs py-3 text-[#94A3B8]"
+                  className="w-full sm:order-1 px-5 py-3 rounded-xl border border-zinc-700 dark:border-white/10 bg-transparent hover:bg-zinc-800/60 dark:hover:bg-white/[0.06] text-zinc-300 dark:text-[#94A3B8] hover:text-white font-medium text-xs transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98]"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   {t.customize}
-                </Button>
+                </button>
               )}
             </div>
 
