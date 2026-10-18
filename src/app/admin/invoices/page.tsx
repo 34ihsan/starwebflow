@@ -30,18 +30,18 @@ export default async function AdminInvoicesDashboardPage() {
   const billingSettings = prefs.billing || {};
 
   const defaultSettings = {
-    name: billingSettings.legalName || settings?.companyName || "Şirket Adı",
+    name: billingSettings.legalName || settings?.companyName || "Star Web Flow",
     logo: prefs.branding?.logoUrl || "",
-    address: billingSettings.address || "",
-    taxId: billingSettings.taxNumber || "",
-    vatId: billingSettings.vatId || "",
-    iban: billingSettings.iban || "",
-    bankName: billingSettings.bankName || "",
-    swift: billingSettings.swift || "",
-    bankCurrency: billingSettings.bankCurrency || "TRY",
-    email: prefs.general?.supportEmail || session?.email || "info@starwebflow.com",
-    phone: prefs.general?.supportPhone || "",
-    website: prefs.billing?.website || prefs.general?.website || "www.starwebflow.com",
+    address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+    taxId: billingSettings.taxNumber || "41/056/80705",
+    vatId: billingSettings.vatId || "DE4105680705",
+    iban: billingSettings.iban || "DE98545500100194489159",
+    bankName: billingSettings.bankName || "Sparkasse Vorderpfalz",
+    swift: billingSettings.swift || "LUHSDE6AXXX",
+    bankCurrency: billingSettings.bankCurrency || "EUR",
+    email: prefs.general?.supportEmail || billingSettings.email || "info@starwebflow.com",
+    phone: prefs.general?.supportPhone || billingSettings.phone || "",
+    website: billingSettings.website || prefs.general?.website || "www.starwebflow.com",
     isKleinunternehmer: 
       String(billingSettings.vatRate) === "0" || 
       billingSettings.isKleinunternehmer === true || 

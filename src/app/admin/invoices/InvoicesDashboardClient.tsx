@@ -5,7 +5,7 @@ import {
   FileText, Search, Plus,
   CheckCircle2, Clock, Eye,
   Download, CreditCard, Send, Settings,
-  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus
+  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus, Globe
 } from "lucide-react";
 
 import { createInvoice, deleteInvoice, updateInvoice } from "@/app/actions/invoice";
@@ -882,8 +882,65 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [sending, setSending] = useState(false);
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [localSettings, setLocalSettings] = useState(tenantSettings);
+  const [localSettings, setLocalSettings] = useState(tenantSettings || {});
   const [savingSettings, setSavingSettings] = useState(false);
+
+  useEffect(() => {
+    if (tenantSettings) {
+      setLocalSettings(tenantSettings);
+    }
+  }, [tenantSettings]);
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const payload = {
+        companyName: localSettings.name,
+        preferences: {
+          general: {
+            supportEmail: localSettings.email || "info@starwebflow.com",
+            supportPhone: localSettings.phone || "",
+            website: localSettings.website || "www.starwebflow.com",
+            currency: localSettings.bankCurrency || "EUR"
+          },
+          branding: {
+            logoUrl: localSettings.logo || ""
+          },
+          billing: {
+            legalName: localSettings.name,
+            email: localSettings.email || "info@starwebflow.com",
+            phone: localSettings.phone || "",
+            address: localSettings.address || "",
+            taxNumber: localSettings.taxId || "",
+            vatId: localSettings.vatId || "",
+            bankName: localSettings.bankName || "",
+            iban: localSettings.iban || "",
+            swift: localSettings.swift || "",
+            bankCurrency: localSettings.bankCurrency || "EUR",
+            website: localSettings.website || "www.starwebflow.com",
+            isKleinunternehmer: localSettings.isKleinunternehmer === true,
+            vatRate: localSettings.isKleinunternehmer ? "0" : "19"
+          }
+        }
+      };
+
+      const res = await updateTenantSettings(tenantId, payload);
+      if (res.success) {
+        setIsSettingsModalOpen(false);
+        setLocalSettings({ ...localSettings });
+        Object.assign(tenantSettings, localSettings);
+        alert("Fatura & şirket iletişim bilgileri başarıyla kaydedildi!");
+      } else {
+        alert("Ayarlar kaydedilemedi: " + (res.error || "Bilinmeyen hata"));
+      }
+    } catch (err: any) {
+      console.error("Save settings error:", err);
+      alert("Bir hata oluştu: " + err.message);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
 
   // Client management state
   const [editingClient, setEditingClient] = useState<any | null>(null);
@@ -1395,6 +1452,17 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                   className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-[#4F8EF7]/50 transition-colors w-64 placeholder:text-[#64748B]"
                 />
               </div>
+              <button 
+                onClick={() => {
+                  setLocalSettings({ ...tenantSettings, ...localSettings });
+                  setIsSettingsModalOpen(true);
+                }}
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all"
+                title="Fatura & Şirket Bilgileri Ayarları"
+              >
+                <Settings className="w-4 h-4 text-[#94A3B8]" />
+                <span className="hidden sm:inline">Fatura Ayarları</span>
+              </button>
               <button onClick={handleOpenNewInvoice}
                 className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]">
                 <Plus className="w-4 h-4" /> Yeni Fatura Kes
@@ -1869,6 +1937,243 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* INVOICE SETTINGS MODAL */}
+      {isSettingsModalOpen && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-2xl w-full shadow-2xl my-auto flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0A0A0F] z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#4F8EF7]/10 border border-[#4F8EF7]/20 flex items-center justify-center text-[#4F8EF7]">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Fatura & Şirket Bilgileri Ayarları</h3>
+                  <p className="text-xs text-[#94A3B8]">Faturalarınızda, alt bilgi ve PDF çıktılarında görünecek bilgiler</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsSettingsModalOpen(false)} 
+                className="text-[#64748B] hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="p-6 space-y-6 overflow-y-auto">
+              {/* Bölüm 1: Şirket & İletişim Bilgileri */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold text-[#4F8EF7] uppercase tracking-wider flex items-center gap-2">
+                  <Building2 className="w-4 h-4" /> Şirket & İletişim Bilgileri
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Şirket / Yasal Ünvan *</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={localSettings.name || ""} 
+                      onChange={e => setLocalSettings({...localSettings, name: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                      placeholder="StarWebFlow Digital Agent" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Fatura / İletişim E-Postası *</label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input 
+                        type="email" 
+                        required
+                        value={localSettings.email || ""} 
+                        onChange={e => setLocalSettings({...localSettings, email: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                        placeholder="info@starwebflow.com" 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Telefon Numarası</label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input 
+                        type="text" 
+                        value={localSettings.phone || ""} 
+                        onChange={e => setLocalSettings({...localSettings, phone: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                        placeholder="+49 ..." 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Web Sitesi</label>
+                    <div className="relative">
+                      <Globe className="w-4 h-4 text-[#64748B] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input 
+                        type="text" 
+                        value={localSettings.website || ""} 
+                        onChange={e => setLocalSettings({...localSettings, website: e.target.value})}
+                        className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                        placeholder="www.starwebflow.com" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Açık Adres (Sokak, No, Posta Kodu, Şehir, Ülke)</label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-[#64748B] absolute left-3.5 top-3" />
+                    <textarea 
+                      rows={2}
+                      value={localSettings.address || ""} 
+                      onChange={e => setLocalSettings({...localSettings, address: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl pl-10 pr-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none resize-none" 
+                      placeholder="Anilinerstr 3, 67105 Schifferstadt, Deutschland" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Logo URL (İsteğe bağlı)</label>
+                  <input 
+                    type="text" 
+                    value={localSettings.logo || ""} 
+                    onChange={e => setLocalSettings({...localSettings, logo: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                    placeholder="https://www.starwebflow.com/images/logo.png" 
+                  />
+                </div>
+              </div>
+
+              {/* Bölüm 2: Vergi Bilgileri & Muafiyet */}
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                  <FileText className="w-4 h-4" /> Vergi Bilgileri (Finanzamt)
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Steuernummer (Vergi Numarası)</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.taxId || ""} 
+                      onChange={e => setLocalSettings({...localSettings, taxId: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none font-mono" 
+                      placeholder="41/056/80705" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">USt-IdNr. (KDV Kimlik No)</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.vatId || ""} 
+                      onChange={e => setLocalSettings({...localSettings, vatId: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none font-mono" 
+                      placeholder="DE4105680705" 
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="isKleinunternehmerCheck"
+                    checked={localSettings.isKleinunternehmer === true} 
+                    onChange={e => setLocalSettings({...localSettings, isKleinunternehmer: e.target.checked})}
+                    className="mt-1 w-4 h-4 rounded text-blue-600 bg-white/5 border-white/20 focus:ring-blue-500 focus:ring-offset-0" 
+                  />
+                  <label htmlFor="isKleinunternehmerCheck" className="cursor-pointer">
+                    <p className="text-white font-semibold text-xs">Kleinunternehmer (§19 UStG) KDV Muafiyeti</p>
+                    <p className="text-[#94A3B8] text-[11px] mt-0.5">
+                      İşaretlendiğinde faturalarda %0 KDV uygulanır ve faturanın altına yasal muafiyet metni (Gemäß § 19 UStG wird keine Umsatzsteuer berechnet) eklenir.
+                    </p>
+                  </label>
+                </div>
+              </div>
+
+              {/* Bölüm 3: Banka ve Ödeme Bilgileri */}
+              <div className="space-y-4 pt-4 border-t border-white/5">
+                <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" /> Banka & Ödeme Bilgileri
+                </h4>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Banka Adı</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.bankName || ""} 
+                      onChange={e => setLocalSettings({...localSettings, bankName: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                      placeholder="Sparkasse Vorderpfalz" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Para Birimi</label>
+                    <select 
+                      value={localSettings.bankCurrency || "EUR"} 
+                      onChange={e => setLocalSettings({...localSettings, bankCurrency: e.target.value})}
+                      className="w-full bg-[#12121A] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none"
+                    >
+                      <option value="EUR">EUR (€)</option>
+                      <option value="TRY">TRY (₺)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="GBP">GBP (£)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">IBAN Numarası</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.iban || ""} 
+                      onChange={e => setLocalSettings({...localSettings, iban: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none font-mono" 
+                      placeholder="DE98545500100194489159" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">BIC / SWIFT Kodu</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.swift || ""} 
+                      onChange={e => setLocalSettings({...localSettings, swift: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none font-mono" 
+                      placeholder="LUHSDE6AXXX" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-white/5 sticky bottom-0 bg-[#0A0A0F] pb-1">
+                <button 
+                  type="button" 
+                  onClick={() => setIsSettingsModalOpen(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-medium transition-colors"
+                >
+                  Vazgeç
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={savingSettings}
+                  className="flex-1 py-3 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50 shadow-lg shadow-[#4F8EF7]/20"
+                >
+                  {savingSettings ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

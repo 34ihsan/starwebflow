@@ -88,6 +88,17 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
 
     const validatedData = updateSettingsSchema.parse(data);
 
+    // Ensure tenant exists
+    await prisma.tenant.upsert({
+      where: { id: tenantId },
+      update: {},
+      create: {
+        id: tenantId,
+        name: validatedData.companyName || 'StarWebFlow Agency',
+        slug: tenantId === 'default-tenant' ? 'default' : tenantId
+      }
+    });
+
     const existingSettings = await prisma.tenantSettings.findUnique({
       where: { tenantId }
     });
@@ -111,6 +122,32 @@ export async function updateTenantSettings(tenantId: string, data: { companyName
         }),
       }
     });
+
+    // Also sync to default-tenant if on custom tenant to ensure client portal consistency
+    if (tenantId !== 'default-tenant') {
+      try {
+        await prisma.tenant.upsert({
+          where: { id: 'default-tenant' },
+          update: {},
+          create: { id: 'default-tenant', name: 'Default Tenant', slug: 'default' }
+        });
+        await prisma.tenantSettings.upsert({
+          where: { tenantId: 'default-tenant' },
+          create: {
+            tenantId: 'default-tenant',
+            companyName: validatedData.companyName || 'StarWebFlow',
+            apiKeys: validatedData.apiKeys || {},
+            preferences: validatedData.preferences || {},
+          },
+          update: {
+            ...(validatedData.companyName && { companyName: validatedData.companyName }),
+            ...(validatedData.preferences && { preferences: validatedData.preferences }),
+          }
+        });
+      } catch (e) {
+        // ignore fallback sync error
+      }
+    }
     try {
       safeRevalidatePath('/admin/settings');
       safeRevalidatePath('/admin/invoices');
