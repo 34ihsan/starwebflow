@@ -16,7 +16,7 @@ const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
 function checkRateLimit(ipOrId: string): boolean {
   const now = Date.now();
   const windowMs = 60000; // 1 minute
-  const maxRequests = 5;
+  const maxRequests = 60;
 
   let record = rateLimitMap.get(ipOrId);
   if (!record || now > record.resetTime) {

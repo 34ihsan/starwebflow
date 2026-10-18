@@ -15,6 +15,7 @@ export interface InvoicePreviewProps {
     email: string;
     phone: string;
     website: string;
+    founderName?: string;
     isKleinunternehmer?: boolean;
   };
   client: {
@@ -68,6 +69,7 @@ const localDict = {
     bank: 'Banka',
     taxDetails: 'Vergi Bilgileri',
     notes: 'Notlar',
+    founderLabel: 'Kurucu',
   },
   de: {
     invoice: 'Rechnung',
@@ -88,6 +90,7 @@ const localDict = {
     bank: 'Bank',
     taxDetails: 'Steuerangaben',
     notes: 'Bemerkungen',
+    founderLabel: 'Inhaber',
   }
 };
 
@@ -96,6 +99,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
   const currencyLocale = invoice.currency === 'TRY' ? 'tr-TR' : 'de-DE';
   const websiteDisplay = (companySettings?.website || 'www.starwebflow.com').replace(/^https?:\/\//, '').replace(/\/$/, '');
   const emailDisplay = companySettings?.email || "info@starwebflow.com";
+  const founderDisplay = companySettings?.founderName || "Sinan Günay";
 
   return (
     <div className="bg-white text-zinc-900 shadow-2xl rounded-2xl max-w-4xl mx-auto font-sans ring-1 ring-zinc-200/50 overflow-hidden flex flex-col" id="invoice-preview" style={{ minHeight: '1123px', position: 'relative' }}>
@@ -129,7 +133,17 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
             )}
           </div>
           <div className="text-right">
-            <h2 className="text-4xl font-light text-zinc-300 uppercase tracking-widest mb-8">{dict.invoice}</h2>
+            {/* Şirket ve Kurucu / Yetkili Adı (Sağ Üst Köşe) */}
+            <div className="mb-4 text-right">
+              <h2 className="text-2xl font-bold text-zinc-900 tracking-tight leading-tight">
+                {companySettings.name || 'Star Web Flow'}
+              </h2>
+              <p className="text-xs font-semibold text-zinc-600 uppercase tracking-wider mt-0.5">
+                {dict.founderLabel}: {founderDisplay}
+              </p>
+            </div>
+
+            <h3 className="text-3xl font-light text-zinc-300 uppercase tracking-widest mb-6">{dict.invoice}</h3>
             
             <div className="bg-zinc-50 rounded-xl p-5 border border-zinc-100 shadow-sm min-w-[240px]">
               <div className="flex justify-between items-center mb-3 pb-3 border-b border-zinc-200">
@@ -293,7 +307,10 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
       <div className="border-t border-zinc-200 bg-zinc-50/50 p-10 sm:px-16 sm:py-10 mt-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
           <div>
-            <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
+            <h5 className="text-zinc-800 font-semibold mb-1 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
+            <p className="text-zinc-600 font-medium text-xs mb-2">
+              {dict.founderLabel}: {founderDisplay}
+            </p>
             <p className="whitespace-pre-wrap mb-2">{companySettings.address || 'Adres bilgisi girilmedi'}</p>
             {emailDisplay && <p>{emailDisplay}</p>}
             {companySettings.phone && <p>{companySettings.phone}</p>}

@@ -69,6 +69,10 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             <p class="text-xs text-slate-500 max-w-xs leading-relaxed">${companySettings.address}</p>
           </div>
           <div class="text-right">
+            <div style="margin-bottom: 12px; text-align: right;">
+              <div style="font-size: 20px; font-weight: 800; color: #0f172a; line-height: 1.2;">${companySettings.name || 'Star Web Flow'}</div>
+              <div style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; margin-top: 3px;">Inhaber / Kurucu: ${companySettings.founderName || 'Sinan Günay'}</div>
+            </div>
             <h2 class="text-3xl font-light text-slate-400 uppercase tracking-widest mb-4">Fatura</h2>
             <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-right font-mono">
               <span class="text-slate-500">Fatura No:</span>
@@ -133,6 +137,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
         <footer class="border-t border-slate-200 pt-8 text-[10px] text-slate-400 flex justify-between leading-relaxed">
           <div>
             <p class="font-semibold text-slate-500 mb-1">${companySettings.name}</p>
+            <p class="font-medium text-slate-500 mb-1">Inhaber: ${companySettings.founderName || 'Sinan Günay'}</p>
             <p>${companySettings.address}</p>
             ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
             ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}

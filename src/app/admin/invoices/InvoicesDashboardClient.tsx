@@ -45,7 +45,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     notes: 'Bemerkungen:',
     saveBtn: 'Rechnung drucken / PDF speichern',
     closeBtn: 'Schließen',
-    billedTo: 'Rechnungsempfänger'
+    billedTo: 'Rechnungsempfänger',
+    founderLabel: 'Inhaber'
   } : {
     title: 'Fatura',
     invoiceNo: 'Fatura No:',
@@ -66,7 +67,8 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
     notes: 'Notlar:',
     saveBtn: 'PDF Olarak Kaydet / Yazdır',
     closeBtn: 'Kapat',
-    billedTo: 'Fatura Edilen'
+    billedTo: 'Fatura Edilen',
+    founderLabel: 'Kurucu'
   };
 
   const itemsHtml = invoice.items.map((item: any) => `
@@ -80,6 +82,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
   const logoHtml = companySettings.logo ? '<img src="' + companySettings.logo + '" alt="Logo" class="h-16 w-auto mb-6 object-contain" onerror="this.style.display=\'none\'" />' : `<h1 class="text-3xl font-bold tracking-tight text-zinc-900 mb-6">${companySettings.name}</h1>`;
   const websiteDisplay = (companySettings?.website || 'www.starwebflow.com').replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const founderDisplay = companySettings.founderName || 'Sinan Günay';
   
   const diffDays = invoice.dueDate && invoice.invoiceDate 
     ? Math.round((new Date(invoice.dueDate).getTime() - new Date(invoice.invoiceDate).getTime()) / (1000 * 3600 * 24))
@@ -712,6 +715,14 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                 </div>
               </div>
               <div class="invoice-meta-box">
+                <div style="text-align: right; margin-bottom: 12px;">
+                  <div style="font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.02em; line-height: 1.2;">
+                    ${companySettings.name || 'Star Web Flow'}
+                  </div>
+                  <div style="font-size: 11px; font-weight: 600; color: #4b5563; margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase;">
+                    ${labels.founderLabel}: ${founderDisplay}
+                  </div>
+                </div>
                 <div class="invoice-title">${labels.title}</div>
                 <div class="meta-card">
                   <div class="meta-row meta-row-main">
@@ -828,6 +839,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             <div class="page-number-indicator"></div>
             <div class="footer-col">
               <h5 class="footer-col-title">${companySettings.name}</h5>
+              <p style="font-weight: 600; color: #4b5563; margin-bottom: 4px;">${labels.founderLabel}: ${founderDisplay}</p>
               <p style="white-space: pre-wrap; margin-bottom: 8px;">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
               ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
               ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
@@ -902,6 +914,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             supportEmail: localSettings.email || "info@starwebflow.com",
             supportPhone: localSettings.phone || "",
             website: localSettings.website || "www.starwebflow.com",
+            founderName: localSettings.founderName || "Sinan Günay",
             currency: localSettings.bankCurrency || "EUR"
           },
           branding: {
@@ -909,6 +922,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           },
           billing: {
             legalName: localSettings.name,
+            founderName: localSettings.founderName || "Sinan Günay",
             email: localSettings.email || "info@starwebflow.com",
             phone: localSettings.phone || "",
             address: localSettings.address || "",
@@ -1943,7 +1957,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
 
       {/* INVOICE SETTINGS MODAL */}
       {isSettingsModalOpen && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-[60] flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-[#0A0A0F] border border-white/10 rounded-2xl max-w-2xl w-full shadow-2xl my-auto flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-white/5 flex justify-between items-center sticky top-0 bg-[#0A0A0F] z-10">
               <div className="flex items-center gap-3">
@@ -1979,7 +1993,18 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                       value={localSettings.name || ""} 
                       onChange={e => setLocalSettings({...localSettings, name: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
-                      placeholder="StarWebFlow Digital Agent" 
+                      placeholder="Star Web Flow" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">Kurucu / Yetkili Adı (Inhaber / Founder)</label>
+                    <input 
+                      type="text" 
+                      value={localSettings.founderName || ""} 
+                      onChange={e => setLocalSettings({...localSettings, founderName: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none" 
+                      placeholder="Sinan Günay" 
                     />
                   </div>
 
@@ -2190,6 +2215,36 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             </div>
             
             <div className="p-6 space-y-8 overflow-y-auto">
+              {/* Şirket / Fatura Kesici Bilgileri Banner */}
+              <div className="bg-gradient-to-r from-blue-950/40 via-purple-950/20 to-transparent border border-blue-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold text-sm">{localSettings.name || 'Star Web Flow'}</span>
+                      <span className="text-xs text-[#94A3B8]">({`Inhaber / Kurucu: ${localSettings.founderName || 'Sinan Günay'}`})</span>
+                    </div>
+                    <div className="text-xs text-[#94A3B8] mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span>✉️ {localSettings.email || 'info@starwebflow.com'}</span>
+                      {localSettings.phone && <span>📞 {localSettings.phone}</span>}
+                      {localSettings.taxId && <span>🏛️ St-Nr: {localSettings.taxId}</span>}
+                      {localSettings.vatId && <span>🇪🇺 USt-IdNr: {localSettings.vatId}</span>}
+                      <span>{localSettings.isKleinunternehmer ? '⚠️ §19 UStG (KDV Muaf)' : '🧾 Standart KDV'}</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsModalOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-[#4F8EF7]/20 hover:bg-[#4F8EF7]/30 border border-[#4F8EF7]/40 text-[#4F8EF7] hover:text-white text-xs font-semibold flex items-center gap-2 transition-all shrink-0 cursor-pointer shadow-sm"
+                >
+                  <Settings className="w-4 h-4" />
+                  Şirket & Fatura Ayarlarını Düzenle
+                </button>
+              </div>
+
               {/* Müşteri ve Proje */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
@@ -2262,7 +2317,16 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
 
                 {/* Fatura Detayları */}
                 <div className="space-y-4">
-                  <h4 className="font-semibold text-white border-b border-white/10 pb-2">Fatura Ayarları</h4>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <h4 className="font-semibold text-white">Fatura Numarası & Tarihleri</h4>
+                    <button 
+                      type="button" 
+                      onClick={() => setIsSettingsModalOpen(true)}
+                      className="text-xs text-[#4F8EF7] hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                    >
+                      <Settings className="w-3.5 h-3.5" /> Şirket/E-posta Ayarları
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
                       <label className="block text-xs text-[#94A3B8] mb-1">Fatura Numarası (Rechnungsnr.)</label>
