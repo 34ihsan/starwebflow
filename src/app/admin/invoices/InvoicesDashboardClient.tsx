@@ -5,7 +5,7 @@ import {
   FileText, Search, Plus,
   CheckCircle2, Clock, Eye,
   Download, CreditCard, Send, Settings,
-  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus, Globe
+  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus, Globe, LayoutTemplate
 } from "lucide-react";
 
 import { createInvoice, deleteInvoice, updateInvoice } from "@/app/actions/invoice";
@@ -715,14 +715,15 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                 </div>
               </div>
               <div class="invoice-meta-box">
+                ${companySettings.showHeaderFounder !== false ? `
                 <div style="text-align: right; margin-bottom: 12px;">
                   <div style="font-size: 20px; font-weight: 800; color: #111827; letter-spacing: -0.02em; line-height: 1.2;">
                     ${companySettings.name || 'Star Web Flow'}
                   </div>
-                  <div style="font-size: 11px; font-weight: 600; color: #4b5563; margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase;">
-                    ${labels.founderLabel}: ${founderDisplay}
-                  </div>
-                </div>
+                  ${founderDisplay ? `<div style="font-size: 11px; font-weight: 600; color: #4b5563; margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase;">
+                    ${companySettings.founderTitle || labels.founderLabel}: ${founderDisplay}
+                  </div>` : ''}
+                </div>` : ''}
                 <div class="invoice-title">${labels.title}</div>
                 <div class="meta-card">
                   <div class="meta-row meta-row-main">
@@ -839,7 +840,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
             <div class="page-number-indicator"></div>
             <div class="footer-col">
               <h5 class="footer-col-title">${companySettings.name}</h5>
-              <p style="font-weight: 600; color: #4b5563; margin-bottom: 4px;">${labels.founderLabel}: ${founderDisplay}</p>
+              ${companySettings.showFooterFounder !== false && founderDisplay ? `<p style="font-weight: 600; color: #4b5563; margin-bottom: 4px;">${companySettings.founderTitle || labels.founderLabel}: ${founderDisplay}</p>` : ''}
               <p style="white-space: pre-wrap; margin-bottom: 8px;">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
               ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
               ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
@@ -915,6 +916,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             supportPhone: localSettings.phone || "",
             website: localSettings.website || "www.starwebflow.com",
             founderName: localSettings.founderName || "Sinan Günay",
+            founderTitle: localSettings.founderTitle || "Inhaber",
             currency: localSettings.bankCurrency || "EUR"
           },
           branding: {
@@ -923,6 +925,9 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           billing: {
             legalName: localSettings.name,
             founderName: localSettings.founderName || "Sinan Günay",
+            founderTitle: localSettings.founderTitle || "Inhaber",
+            showHeaderFounder: localSettings.showHeaderFounder !== false,
+            showFooterFounder: localSettings.showFooterFounder !== false,
             email: localSettings.email || "info@starwebflow.com",
             phone: localSettings.phone || "",
             address: localSettings.address || "",
@@ -2049,6 +2054,53 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                         placeholder="www.starwebflow.com" 
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Gösterim Seçenekleri (Header & Footer) */}
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <LayoutTemplate className="w-3.5 h-3.5 text-[#4F8EF7]" /> Faturada Kurucu & Şirket Gösterim Seçenekleri
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <label className="text-[11px] text-[#94A3B8]">Ünvan Etiketi:</label>
+                      <input 
+                        type="text" 
+                        value={localSettings.founderTitle || "Inhaber"} 
+                        onChange={e => setLocalSettings({...localSettings, founderTitle: e.target.value})}
+                        className="bg-[#12121A] border border-white/10 text-white rounded-lg px-2.5 py-1 text-xs focus:border-[#4F8EF7] focus:outline-none w-28" 
+                        placeholder="Inhaber" 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <label className="flex items-start gap-2.5 cursor-pointer p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={localSettings.showHeaderFounder !== false} 
+                        onChange={e => setLocalSettings({...localSettings, showHeaderFounder: e.target.checked})}
+                        className="mt-0.5 w-4 h-4 rounded text-blue-600 bg-white/5 border-white/20 focus:ring-blue-500 focus:ring-offset-0" 
+                      />
+                      <div>
+                        <p className="text-white text-xs font-semibold">Header'da Göster (Sağ Üst)</p>
+                        <p className="text-[#94A3B8] text-[11px] mt-0.5">Faturanın sağ üst köşesinde şirket ve kurucu adını gösterir</p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={localSettings.showFooterFounder !== false} 
+                        onChange={e => setLocalSettings({...localSettings, showFooterFounder: e.target.checked})}
+                        className="mt-0.5 w-4 h-4 rounded text-blue-600 bg-white/5 border-white/20 focus:ring-blue-500 focus:ring-offset-0" 
+                      />
+                      <div>
+                        <p className="text-white text-xs font-semibold">Footer'da Göster (Alt Bilgi)</p>
+                        <p className="text-[#94A3B8] text-[11px] mt-0.5">Faturanın altındaki şirket sütununda kurucu adını gösterir</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
 

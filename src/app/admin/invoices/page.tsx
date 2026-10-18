@@ -32,6 +32,9 @@ export default async function AdminInvoicesDashboardPage() {
   const defaultSettings = {
     name: billingSettings.legalName || settings?.companyName || "Star Web Flow",
     founderName: billingSettings.founderName || prefs.general?.founderName || "Sinan Günay",
+    founderTitle: billingSettings.founderTitle || prefs.general?.founderTitle || "Inhaber",
+    showHeaderFounder: billingSettings.showHeaderFounder !== false,
+    showFooterFounder: billingSettings.showFooterFounder !== false,
     logo: prefs.branding?.logoUrl || "",
     address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
     taxId: billingSettings.taxNumber || "41/056/80705",

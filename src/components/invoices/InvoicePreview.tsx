@@ -16,6 +16,9 @@ export interface InvoicePreviewProps {
     phone: string;
     website: string;
     founderName?: string;
+    founderTitle?: string;
+    showHeaderFounder?: boolean;
+    showFooterFounder?: boolean;
     isKleinunternehmer?: boolean;
   };
   client: {
@@ -134,14 +137,18 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
           </div>
           <div className="text-right">
             {/* Şirket ve Kurucu / Yetkili Adı (Sağ Üst Köşe) */}
-            <div className="mb-4 text-right">
-              <h2 className="text-2xl font-bold text-zinc-900 tracking-tight leading-tight">
-                {companySettings.name || 'Star Web Flow'}
-              </h2>
-              <p className="text-xs font-semibold text-zinc-600 uppercase tracking-wider mt-0.5">
-                {dict.founderLabel}: {founderDisplay}
-              </p>
-            </div>
+            {companySettings.showHeaderFounder !== false && (
+              <div className="mb-4 text-right">
+                <h2 className="text-2xl font-bold text-zinc-900 tracking-tight leading-tight">
+                  {companySettings.name || 'Star Web Flow'}
+                </h2>
+                {founderDisplay && (
+                  <p className="text-xs font-semibold text-zinc-600 uppercase tracking-wider mt-0.5">
+                    {companySettings.founderTitle || dict.founderLabel}: {founderDisplay}
+                  </p>
+                )}
+              </div>
+            )}
 
             <h3 className="text-3xl font-light text-zinc-300 uppercase tracking-widest mb-6">{dict.invoice}</h3>
             
@@ -308,9 +315,11 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] leading-relaxed text-zinc-500">
           <div>
             <h5 className="text-zinc-800 font-semibold mb-1 uppercase tracking-widest text-[10px]">{companySettings.name}</h5>
-            <p className="text-zinc-600 font-medium text-xs mb-2">
-              {dict.founderLabel}: {founderDisplay}
-            </p>
+            {companySettings.showFooterFounder !== false && founderDisplay && (
+              <p className="text-zinc-600 font-medium text-xs mb-2">
+                {companySettings.founderTitle || dict.founderLabel}: {founderDisplay}
+              </p>
+            )}
             <p className="whitespace-pre-wrap mb-2">{companySettings.address || 'Adres bilgisi girilmedi'}</p>
             {emailDisplay && <p>{emailDisplay}</p>}
             {companySettings.phone && <p>{companySettings.phone}</p>}
