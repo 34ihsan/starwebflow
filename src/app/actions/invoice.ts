@@ -248,3 +248,49 @@ export async function updateInvoice(id: string, tenantId: string, data: any) {
     return { success: false, error: 'Failed to update invoice' };
   }
 }
+
+export async function updateInvoiceStatus(id: string, tenantId: string, status: string, notes?: string) {
+  try {
+    const existing = await prisma.invoice.findUnique({
+      where: { id }
+    });
+
+    if (!existing) {
+      return { success: false, error: 'Fatura bulunamadı.' };
+    }
+
+    const updatedNotes = notes 
+      ? (existing.notes ? `${existing.notes}\n[${new Date().toLocaleDateString('tr-TR')}]: ${notes}` : `[${new Date().toLocaleDateString('tr-TR')}]: ${notes}`)
+      : existing.notes;
+
+    const invoice = await prisma.invoice.update({
+      where: { id },
+      data: {
+        status: status.toUpperCase(),
+        notes: updatedNotes
+      },
+      include: {
+        project: {
+          include: { client: true }
+        },
+        clientCompany: true,
+        items: true
+      }
+    });
+
+    await logActivity({
+      tenantId,
+      action: status.toUpperCase() === 'PAID' ? 'PAYMENT_COLLECTED' : 'INVOICE_STATUS_UPDATED',
+      entityType: 'Invoice',
+      entityId: id,
+      details: `${invoice.invoiceNo} numaralı faturanın durumu "${status.toUpperCase()}" olarak güncellendi.`,
+    });
+
+    safeRevalidatePath('/admin/invoices');
+    return { success: true, data: JSON.parse(JSON.stringify(invoice)) };
+  } catch (error) {
+    console.error('updateInvoiceStatus error:', error);
+    return { success: false, error: 'Fatura durumu güncellenirken bir hata oluştu.' };
+  }
+}
+

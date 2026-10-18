@@ -5,10 +5,11 @@ import {
   FileText, Search, Plus,
   CheckCircle2, Clock, Eye,
   Download, CreditCard, Send, Settings,
-  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus, Globe, LayoutTemplate
+  Trash2, Users, Building2, Mail, Phone, MapPin, Edit3, X, UserPlus, Globe, LayoutTemplate,
+  AlertCircle, ArrowRight, RefreshCw, Check
 } from "lucide-react";
 
-import { createInvoice, deleteInvoice, updateInvoice } from "@/app/actions/invoice";
+import { createInvoice, deleteInvoice, updateInvoice, updateInvoiceStatus } from "@/app/actions/invoice";
 import { sendInvoiceToClient } from "@/app/actions/dispatch";
 import { createClientCompany, updateClientCompany, deleteClientCompany } from "@/app/actions/clientCompany";
 import { updateTenantSettings } from "@/app/actions/settings";
@@ -872,7 +873,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 
 
 export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, crmLeads = [], tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], crmLeads?: any[], tenantSettings: any, tenantId: string }) {
-  const [activeMainTab, setActiveMainTab] = useState<"invoices" | "clients">("invoices");
+  const [activeMainTab, setActiveMainTab] = useState<"invoices" | "clients" | "approvals">("invoices");
   const [activeTab, setActiveTab] = useState<"all" | "paid" | "pending" | "overdue">("all");
   const [invoices, setInvoices] = useState<any[]>(initialInvoices || []);
   const [companies, setCompanies] = useState<any[]>(clientCompanies || []);
@@ -973,6 +974,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     clientCompanyId: "",
     currency: "EUR",
     taxRate: 19,
+    status: "PENDING",
     invoiceDate: new Date().toISOString().split('T')[0],
     deliveryDate: new Date().toISOString().split('T')[0],
     deliveryEndDate: "",
@@ -980,6 +982,63 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
     notes: "",
     items: [{ description: "", quantity: 1, unitPrice: 0 }]
   });
+
+  // Approval / Collection state
+  const [approvingInvoice, setApprovingInvoice] = useState<any | null>(null);
+  const [approvalMethod, setApprovalMethod] = useState<string>("Banka Havalesi / SEPA");
+  const [approvalDate, setApprovalDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [approvalNotes, setApprovalNotes] = useState<string>("");
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<boolean>(false);
+
+  const handleQuickStatusChange = async (invoice: any, newStatus: string) => {
+    if (newStatus === 'PAID') {
+      setApprovingInvoice(invoice);
+      setApprovalDate(new Date().toISOString().split('T')[0]);
+      setApprovalMethod("Banka Havalesi / SEPA");
+      setApprovalNotes("");
+      return;
+    }
+
+    try {
+      setIsUpdatingStatus(true);
+      const res = await updateInvoiceStatus(invoice.id, tenantId, newStatus);
+      if (res.success && res.data) {
+        setInvoices(prev => prev.map(inv => inv.id === invoice.id ? { ...inv, status: newStatus.toUpperCase() } : inv));
+      } else {
+        alert("Durum güncellenemedi: " + (res.error || "Bilinmeyen hata"));
+      }
+    } catch (err: any) {
+      alert("Hata: " + err.message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
+  const handleConfirmApproval = async () => {
+    if (!approvingInvoice) return;
+    setIsUpdatingStatus(true);
+    try {
+      const noteMsg = `[Tahsilat Onayı] Tarih: ${approvalDate} | Yöntem: ${approvalMethod}${approvalNotes ? ` | Not: ${approvalNotes}` : ''}`;
+      const res = await updateInvoiceStatus(approvingInvoice.id, tenantId, 'PAID', noteMsg);
+      if (res.success && res.data) {
+        setInvoices(prev => prev.map(inv => inv.id === approvingInvoice.id ? { 
+          ...inv, 
+          status: 'PAID',
+          notes: res.data.notes || inv.notes 
+        } : inv));
+        const approvedNo = approvingInvoice.invoiceNo;
+        setApprovingInvoice(null);
+        alert(`✓ ${approvedNo} numaralı faturanın tahsilatı başarıyla onaylandı ve kaydedildi!`);
+      } else {
+        alert("Tahsilat onaylanamadı: " + (res.error || "Bilinmeyen hata"));
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Tahsilat onaylanırken hata oluştu: " + err.message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
 
   const [newClientData, setNewClientData] = useState({
     name: "", email: "", addressStreet: "", addressCity: "", addressZip: "", addressCountry: "Germany", taxId: "", vatId: ""
@@ -1101,7 +1160,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         taxAmount,
         grossAmount,
         currency: invoiceData.currency,
-        status: 'PENDING',
+        status: invoiceData.status || 'PENDING',
         invoiceDate: invoiceData.invoiceDate ? new Date(invoiceData.invoiceDate) : undefined,
         deliveryDate: invoiceData.deliveryDate ? new Date(invoiceData.deliveryDate) : undefined,
         deliveryEndDate: invoiceData.deliveryEndDate ? new Date(invoiceData.deliveryEndDate) : undefined,
@@ -1413,6 +1472,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       clientCompanyId: "",
       currency: "EUR",
       taxRate: 19,
+      status: "PENDING",
       invoiceDate: new Date().toISOString().split('T')[0],
       deliveryDate: new Date().toISOString().split('T')[0],
       deliveryEndDate: "",
@@ -1431,6 +1491,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
       clientCompanyId: invoice.clientCompanyId || "",
       currency: invoice.currency || "EUR",
       taxRate: invoice.taxRate !== undefined && invoice.taxRate !== null ? Number(invoice.taxRate) : 19,
+      status: (invoice.status || "PENDING").toUpperCase(),
       invoiceDate: invoice.invoiceDate ? new Date(invoice.invoiceDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       deliveryDate: invoice.deliveryDate ? new Date(invoice.deliveryDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       deliveryEndDate: invoice.deliveryEndDate ? new Date(invoice.deliveryEndDate).toISOString().split('T')[0] : "",
@@ -1461,7 +1522,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           <p className="text-[#94A3B8] mt-2">Finanzamt uyumlu faturalandırma, müşteri ve tahsilat yönetimi.</p>
         </div>
         <div className="flex items-center gap-3">
-          {activeMainTab === 'invoices' ? (
+          {activeMainTab === 'invoices' && (
             <>
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
@@ -1487,7 +1548,8 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                 <Plus className="w-4 h-4" /> Yeni Fatura Kes
               </button>
             </>
-          ) : (
+          )}
+          {activeMainTab === 'clients' && (
             <>
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
@@ -1503,11 +1565,27 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               </button>
             </>
           )}
+          {activeMainTab === 'approvals' && (
+            <>
+              <div className="relative hidden md:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+                <input
+                  type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Fatura veya müşteri ara..."
+                  className="bg-[#0A0A0F] border border-white/[0.05] text-white text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-amber-500/50 transition-colors w-64 placeholder:text-[#64748B]"
+                />
+              </div>
+              <button onClick={handleOpenNewInvoice}
+                className="flex items-center gap-2 bg-gradient-to-r from-[#4F8EF7] to-purple-600 hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all shadow-[0_0_20px_rgba(79,142,247,0.3)]">
+                <Plus className="w-4 h-4" /> Yeni Fatura Kes
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Main Tabs */}
-      <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
+      <div className="flex flex-wrap gap-1 bg-white/5 border border-white/10 rounded-xl p-1 w-fit">
         <button
           onClick={() => setActiveMainTab('invoices')}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -1533,6 +1611,19 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
             activeMainTab === 'clients' ? 'bg-white/20' : 'bg-white/10 text-[#64748B]'
           }`}>{companies.length}</span>
+        </button>
+        <button
+          onClick={() => setActiveMainTab('approvals')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeMainTab === 'approvals'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg'
+              : 'text-[#94A3B8] hover:text-white'
+          }`}
+        >
+          <CheckCircle2 className="w-4 h-4" /> Tahsilat & Ödeme Onayı
+          <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+            activeMainTab === 'approvals' ? 'bg-white/20 text-white' : 'bg-amber-400/20 text-amber-400'
+          }`}>{invoices.filter(i => ['PENDING', 'DRAFT', 'OVERDUE'].includes((i.status || '').toUpperCase())).length}</span>
         </button>
       </div>
 
@@ -1822,13 +1913,44 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-                      invoice.status === 'PAID' ? 'text-[#10B981] bg-[#10B981]/10 border-[#10B981]/20' : 
-                      invoice.status === 'PENDING' ? 'text-amber-400 bg-amber-400/10 border-amber-400/20' :
-                      'text-slate-400 bg-slate-400/10 border-slate-400/20'
-                    }`}>
-                      {invoice.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={(invoice.status || 'PENDING').toUpperCase()}
+                        onChange={(e) => handleQuickStatusChange(invoice, e.target.value)}
+                        disabled={isUpdatingStatus}
+                        className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-colors cursor-pointer focus:outline-none ${
+                          (invoice.status || '').toUpperCase() === 'PAID' 
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                            : (invoice.status || '').toUpperCase() === 'PENDING'
+                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                            : (invoice.status || '').toUpperCase() === 'OVERDUE'
+                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                            : 'bg-white/5 text-[#94A3B8] border-white/10'
+                        }`}
+                      >
+                        <option value="PENDING" className="bg-[#12121A] text-amber-400">Ödeme Bekliyor</option>
+                        <option value="PAID" className="bg-[#12121A] text-emerald-400">Tahsil Edildi (Ödendi)</option>
+                        <option value="OVERDUE" className="bg-[#12121A] text-rose-400">Gecikti</option>
+                        <option value="DRAFT" className="bg-[#12121A] text-slate-400">Taslak</option>
+                        <option value="CANCELLED" className="bg-[#12121A] text-red-500">İptal Edildi</option>
+                      </select>
+
+                      {(invoice.status || '').toUpperCase() !== 'PAID' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setApprovingInvoice(invoice);
+                            setApprovalDate(new Date().toISOString().split('T')[0]);
+                            setApprovalMethod("Banka Havalesi / SEPA");
+                            setApprovalNotes("");
+                          }}
+                          className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold transition-all flex items-center gap-1 shadow-sm whitespace-nowrap"
+                          title="Tahsilatı Onayla"
+                        >
+                          <Check className="w-3 h-3" /> Onayla
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1872,6 +1994,347 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         </div>
       </div>
       )} {/* end invoices tab */}
+
+      {/* ============ APPROVALS / TAHSİLAT ONAYI TAB ============ */}
+      {activeMainTab === 'approvals' && (
+        <div className="space-y-8 animate-in fade-in duration-300">
+          {/* Executive Tahsilat KPI Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="bg-[#0A0A0F] border border-amber-500/20 p-5 rounded-2xl relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#94A3B8]">Onay Bekleyen Tahsilat</p>
+                  <h4 className="text-xl font-bold text-amber-400 font-mono mt-0.5">
+                    {formatCurrency(pendingAmount, "EUR")}
+                  </h4>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#64748B]">
+                {invoices.filter(i => ['PENDING', 'DRAFT'].includes((i.status || '').toUpperCase())).length} adet fatura tahsilat bekliyor
+              </p>
+            </div>
+
+            <div className="bg-[#0A0A0F] border border-emerald-500/20 p-5 rounded-2xl relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#94A3B8]">Tahsil Edilen (Onaylı)</p>
+                  <h4 className="text-xl font-bold text-emerald-400 font-mono mt-0.5">
+                    {formatCurrency(monthlyRevenue, "EUR")}
+                  </h4>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#64748B]">
+                {invoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length} adet fatura kasaya girdi
+              </p>
+            </div>
+
+            <div className="bg-[#0A0A0F] border border-rose-500/20 p-5 rounded-2xl relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 text-rose-400">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#94A3B8]">Gecikmiş Ödemeler</p>
+                  <h4 className="text-xl font-bold text-rose-400 font-mono mt-0.5">
+                    {formatCurrency(overdueAmount, "EUR")}
+                  </h4>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#64748B]">
+                {invoices.filter(i => (i.status || '').toUpperCase() === 'OVERDUE').length} adet faturanın vadesi doldu
+              </p>
+            </div>
+
+            <div className="bg-[#0A0A0F] border border-indigo-500/20 p-5 rounded-2xl relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-[#94A3B8]">Tahsilat Başarı Oranı</p>
+                  <h4 className="text-xl font-bold text-indigo-400 font-mono mt-0.5">
+                    {monthlyRevenue + pendingAmount > 0 
+                      ? `%${Math.round((monthlyRevenue / (monthlyRevenue + pendingAmount)) * 100)}` 
+                      : '%100'}
+                  </h4>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#64748B]">
+                Toplam {invoices.length} fatura üzerinden
+              </p>
+            </div>
+          </div>
+
+          {/* Section 1: Onay Bekleyen Faturalar (Tahsilat Bekleyenler) */}
+          <div className="bg-[#0A0A0F] border border-white/[0.08] rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-400" />
+                  Onay Bekleyen Faturalar & Tahsilat Girişi
+                </h3>
+                <p className="text-xs text-[#94A3B8] mt-1">
+                  Müşteriden ödemesi alınan faturaları buradan doğrudan onaylayıp tahsilatı sisteme işleyebilirsiniz.
+                </p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold w-fit">
+                {invoices.filter(i => ['PENDING', 'DRAFT', 'OVERDUE'].includes((i.status || '').toUpperCase())).length} Bekleyen Fatura
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/[0.05] font-semibold text-xs text-[#64748B] uppercase tracking-wider bg-white/[0.01]">
+                    <th className="py-4 px-6">Fatura No / Müşteri</th>
+                    <th className="py-4 px-6">Bekleyen Tutar</th>
+                    <th className="py-4 px-6">Fatura & Vade Tarihi</th>
+                    <th className="py-4 px-6">Vade Durumu</th>
+                    <th className="py-4 px-6">Mevcut Durum</th>
+                    <th className="py-4 px-6 text-right">Tahsilat Onayı</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.05] text-sm">
+                  {invoices.filter(i => ['PENDING', 'DRAFT', 'OVERDUE'].includes((i.status || '').toUpperCase())).length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-14 text-center text-[#64748B]">
+                        <CheckCircle2 className="w-12 h-12 mx-auto mb-3 text-emerald-400/50" />
+                        <p className="font-semibold text-white/90 text-sm">Harika! Bekleyen tahsilat bulunmuyor.</p>
+                        <p className="text-xs text-[#64748B] mt-1">Tüm faturalarınız başarıyla tahsil edilmiş ve onaylanmış durumda.</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    invoices
+                      .filter(i => ['PENDING', 'DRAFT', 'OVERDUE'].includes((i.status || '').toUpperCase()))
+                      .filter(i => {
+                        const q = searchQuery.toLowerCase().trim();
+                        if (!q) return true;
+                        return (i.invoiceNo || "").toLowerCase().includes(q) ||
+                               (i.clientCompany?.name || i.project?.client?.name || "").toLowerCase().includes(q) ||
+                               (i.notes || "").toLowerCase().includes(q);
+                      })
+                      .map(invoice => {
+                        const diffDays = invoice.dueDate 
+                          ? Math.ceil((new Date(invoice.dueDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24))
+                          : null;
+
+                        return (
+                          <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors group">
+                            <td className="py-4 px-6">
+                              <div onClick={() => handleViewInvoice(invoice)} className="font-semibold text-white flex items-center gap-2 group-hover:text-[#4F8EF7] transition-colors cursor-pointer">
+                                <FileText className="w-4 h-4 text-amber-400" />
+                                {invoice.invoiceNo}
+                              </div>
+                              <div className="text-xs text-[#94A3B8] mt-1 font-medium">
+                                {invoice.clientCompany?.name || invoice.project?.client?.name || "Bilinmiyor"}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 font-mono text-white text-base font-bold">
+                              {formatCurrency(Number(invoice.grossAmount || invoice.amount || 0), invoice.currency || 'EUR')}
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-col gap-0.5 text-xs font-mono">
+                                <span className="text-[#94A3B8]">Düzenleme: {new Date(invoice.invoiceDate || invoice.createdAt).toLocaleDateString('tr-TR')}</span>
+                                <span className="text-amber-300 font-semibold">Vade: {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('tr-TR') : '-'}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              {diffDays !== null ? (
+                                diffDays < 0 ? (
+                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-lg">
+                                    <AlertCircle className="w-3.5 h-3.5" />
+                                    {Math.abs(diffDays)} gün gecikti
+                                  </span>
+                                ) : diffDays === 0 ? (
+                                  <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+                                    Bugün son gün!
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-xs font-medium text-[#94A3B8] bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+                                    {diffDays} gün kaldı
+                                  </span>
+                                )
+                              ) : (
+                                <span className="text-xs text-[#64748B]">-</span>
+                              )}
+                            </td>
+                            <td className="py-4 px-6">
+                              <select
+                                value={(invoice.status || 'PENDING').toUpperCase()}
+                                onChange={(e) => handleQuickStatusChange(invoice, e.target.value)}
+                                disabled={isUpdatingStatus}
+                                className="text-xs font-bold rounded-lg px-2.5 py-1 bg-[#12121A] text-amber-400 border border-amber-500/30 cursor-pointer focus:outline-none"
+                              >
+                                <option value="PENDING" className="text-amber-400">Bekliyor (PENDING)</option>
+                                <option value="OVERDUE" className="text-rose-400">Gecikti (OVERDUE)</option>
+                                <option value="DRAFT" className="text-slate-400">Taslak (DRAFT)</option>
+                                <option value="CANCELLED" className="text-red-500">İptal (CANCELLED)</option>
+                              </select>
+                            </td>
+                            <td className="py-4 px-6 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setApprovingInvoice(invoice);
+                                    setApprovalDate(new Date().toISOString().split('T')[0]);
+                                    setApprovalMethod("Banka Havalesi / SEPA");
+                                    setApprovalNotes("");
+                                  }}
+                                  className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20 cursor-pointer"
+                                >
+                                  <Check className="w-3.5 h-3.5" /> Tahsilatı Onayla
+                                </button>
+                                <button 
+                                  onClick={() => handleViewInvoice(invoice)} 
+                                  className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" 
+                                  title="Görüntüle"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Section 2: Son Tamamlanan / Tahsil Edilen Faturalar (PAID) */}
+          <div className="bg-[#0A0A0F] border border-white/[0.08] rounded-2xl shadow-xl overflow-hidden">
+            <div className="p-6 border-b border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  Tamamlanan Tahsilatlar (Tahsil Edildi)
+                </h3>
+                <p className="text-xs text-[#94A3B8] mt-1">
+                  Onaylanmış ve kasaya girmiş tüm faturaların detaylı tahsilat kaydı.
+                </p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold w-fit">
+                {invoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length} Onaylı Tahsilat
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/[0.05] font-semibold text-xs text-[#64748B] uppercase tracking-wider bg-white/[0.01]">
+                    <th className="py-4 px-6">Fatura No / Müşteri</th>
+                    <th className="py-4 px-6">Tahsil Edilen Tutar</th>
+                    <th className="py-4 px-6">Fatura & Vade Tarihi</th>
+                    <th className="py-4 px-6">Tahsilat Notu & İşlem Bilgisi</th>
+                    <th className="py-4 px-6">Durum</th>
+                    <th className="py-4 px-6 text-right">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.05] text-sm">
+                  {invoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-[#64748B]">
+                        Henüz onaylanmış tahsilat kaydı bulunmuyor.
+                      </td>
+                    </tr>
+                  ) : (
+                    invoices
+                      .filter(i => (i.status || '').toUpperCase() === 'PAID')
+                      .filter(i => {
+                        const q = searchQuery.toLowerCase().trim();
+                        if (!q) return true;
+                        return (i.invoiceNo || "").toLowerCase().includes(q) ||
+                               (i.clientCompany?.name || i.project?.client?.name || "").toLowerCase().includes(q) ||
+                               (i.notes || "").toLowerCase().includes(q);
+                      })
+                      .map(invoice => (
+                        <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors group">
+                          <td className="py-4 px-6">
+                            <div onClick={() => handleViewInvoice(invoice)} className="font-semibold text-white flex items-center gap-2 group-hover:text-[#4F8EF7] transition-colors cursor-pointer">
+                              <FileText className="w-4 h-4 text-emerald-400" />
+                              {invoice.invoiceNo}
+                            </div>
+                            <div className="text-xs text-[#94A3B8] mt-1 font-medium">
+                              {invoice.clientCompany?.name || invoice.project?.client?.name || "Bilinmiyor"}
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 font-mono text-emerald-400 text-base font-bold">
+                            {formatCurrency(Number(invoice.grossAmount || invoice.amount || 0), invoice.currency || 'EUR')}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex flex-col gap-0.5 text-xs font-mono text-[#94A3B8]">
+                              <span>Tarih: {new Date(invoice.invoiceDate || invoice.createdAt).toLocaleDateString('tr-TR')}</span>
+                              <span>Vade: {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('tr-TR') : '-'}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 max-w-xs">
+                            <div className="text-xs text-[#94A3B8] truncate" title={invoice.notes || ''}>
+                              {invoice.notes || <span className="italic text-[#64748B]">Not eklenmemiş</span>}
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30">
+                              <Check className="w-3.5 h-3.5" /> Tahsil Edildi
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`${invoice.invoiceNo} numaralı faturanın durumunu tekrar "Ödeme Bekliyor" olarak değiştirmek istiyor musunuz?`)) {
+                                    handleQuickStatusChange(invoice, 'PENDING');
+                                  }
+                                }}
+                                className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[#94A3B8] hover:text-white text-xs font-medium border border-white/5 transition-colors cursor-pointer"
+                                title="Onayı Geri Al"
+                              >
+                                Geri Al
+                              </button>
+                              <button 
+                                onClick={() => handleViewInvoice(invoice)} 
+                                className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" 
+                                title="Görüntüle"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  const client = invoice.clientCompany || invoice.project?.client || {};
+                                  const defaultLang = (client.addressCountry?.toLowerCase().includes('de') || client.addressCountry?.toLowerCase().includes('almanya') || invoice.currency === 'EUR') ? 'de' : 'tr';
+                                  const mappedInvoice = {
+                                    ...invoice,
+                                    taxRate: Number(invoice.taxRate !== undefined && invoice.taxRate !== null ? invoice.taxRate : 19),
+                                    netAmount: Number(invoice.netAmount || 0),
+                                    taxAmount: Number(invoice.taxAmount || 0),
+                                    grossAmount: Number(invoice.grossAmount || invoice.amount || 0)
+                                  };
+                                  handlePrintInvoice(tenantSettings, client, mappedInvoice, defaultLang);
+                                }} 
+                                className="p-2 hover:bg-white/[0.05] rounded-lg text-[#64748B] hover:text-white transition-colors" 
+                                title="PDF İndir"
+                              >
+                                <Download className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )} {/* end approvals tab */}
 
       {/* CLIENT ADD/EDIT MODAL */}
       {isAddClientModalOpen && (
@@ -2420,6 +2883,28 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                         <option value={0} className="text-black bg-white">0% (Reverse Charge)</option>
                       </select>
                     </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs text-[#94A3B8] mb-1">Tahsilat / Ödeme Durumu</label>
+                      <select 
+                        className={`w-full bg-[#12121A] border rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none ${
+                          invoiceData.status === 'PAID' 
+                            ? 'text-emerald-400 border-emerald-500/40' 
+                            : invoiceData.status === 'PENDING'
+                            ? 'text-amber-400 border-amber-500/40'
+                            : invoiceData.status === 'OVERDUE'
+                            ? 'text-rose-400 border-rose-500/40'
+                            : 'text-white border-white/10'
+                        }`}
+                        value={invoiceData.status || "PENDING"} 
+                        onChange={e => setInvoiceData({...invoiceData, status: e.target.value})}
+                      >
+                        <option value="PENDING" className="bg-[#12121A] text-amber-400">⏳ Ödeme Bekliyor (PENDING)</option>
+                        <option value="PAID" className="bg-[#12121A] text-emerald-400">✓ Tahsil Edildi (PAID)</option>
+                        <option value="OVERDUE" className="bg-[#12121A] text-rose-400">⚠️ Gecikti (OVERDUE)</option>
+                        <option value="DRAFT" className="bg-[#12121A] text-slate-400">📝 Taslak (DRAFT)</option>
+                        <option value="CANCELLED" className="bg-[#12121A] text-red-500">✕ İptal Edildi (CANCELLED)</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2502,6 +2987,114 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
         </div>
       )}
 
+
+      {/* ============ PAYMENT APPROVAL MODAL ============ */}
+      {approvingInvoice && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-[#0A0A0F] border border-white/15 rounded-2xl max-w-lg w-full shadow-2xl my-auto overflow-hidden">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-gradient-to-r from-emerald-950/40 via-transparent to-transparent">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Tahsilat Onayı</h3>
+                  <p className="text-xs text-[#94A3B8]">Fatura tahsilatını onaylayıp sisteme işleyin</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setApprovingInvoice(null)} 
+                className="text-[#64748B] hover:text-white p-1 rounded-lg hover:bg-white/5 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5">
+              {/* Invoice Summary Box */}
+              <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-[#64748B] font-medium block">Fatura & Müşteri</span>
+                  <span className="text-sm font-bold text-white block mt-0.5 font-mono">{approvingInvoice.invoiceNo}</span>
+                  <span className="text-xs text-[#94A3B8] block mt-0.5 font-medium">
+                    {approvingInvoice.clientCompany?.name || approvingInvoice.project?.client?.name || "Bilinmiyor"}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-[#64748B] font-medium block">Tahsil Edilecek Tutar</span>
+                  <span className="text-xl font-extrabold text-emerald-400 font-mono block mt-0.5">
+                    {formatCurrency(Number(approvingInvoice.grossAmount || approvingInvoice.amount || 0), approvingInvoice.currency || 'EUR')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#94A3B8] mb-1.5">
+                    Tahsilat / Ödeme Tarihi *
+                  </label>
+                  <input
+                    type="date"
+                    value={approvalDate}
+                    onChange={(e) => setApprovalDate(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#94A3B8] mb-1.5">
+                    Ödeme Kanalı / Yöntemi *
+                  </label>
+                  <select
+                    value={approvalMethod}
+                    onChange={(e) => setApprovalMethod(e.target.value)}
+                    className="w-full bg-[#12121A] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="Banka Havalesi / SEPA">🏦 Banka Havalesi / SEPA</option>
+                    <option value="Kredi Kartı / Stripe">💳 Kredi Kartı / Online Ödeme</option>
+                    <option value="PayPal">🅿️ PayPal</option>
+                    <option value="Nakit / Elden">💵 Nakit</option>
+                    <option value="Diğer">📋 Diğer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#94A3B8] mb-1.5">
+                    İşlem / Dekont Notu (İsteğe bağlı)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={approvalNotes}
+                    onChange={(e) => setApprovalNotes(e.target.value)}
+                    placeholder="Örn: Sparkasse dekont ref no: 2026-9481, hesaba geçti."
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-white/10 flex items-center justify-end gap-3 bg-white/[0.01]">
+              <button
+                type="button"
+                onClick={() => setApprovingInvoice(null)}
+                className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmApproval}
+                disabled={isUpdatingStatus}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-90 text-white text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              >
+                <Check className="w-4 h-4" />
+                {isUpdatingStatus ? 'Onaylanıyor...' : 'Tahsilatı Onayla ve Kaydet'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Önizleme Modları */}
       {isPreviewMode && renderPreview()}
