@@ -418,6 +418,18 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                           className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
                         />
                       </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-[#94A3B8]">Web Sitesi Adresi</label>
+                        <input 
+                          type="text" 
+                          placeholder="www.starwebflow.com"
+                          value={preferences.general?.website || "www.starwebflow.com"} 
+                          onChange={(e) => setSettings({...settings, preferences: {...preferences, general: {...preferences.general, website: e.target.value}}})}
+                          className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                        <p className="text-[10px] text-[#64748B]">Faturaların ve sözleşmelerin alt bilgi alanında yer alır.</p>
+                      </div>
                     </div>
                   </div>
 
@@ -602,6 +614,17 @@ export default function SettingsDashboardClient({ initialData, tenantId = 'defau
                           }}
                           className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors placeholder:text-white/[0.2] resize-none"
                         />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-[#94A3B8]">Web Sitesi</label>
+                        <input 
+                          type="text" 
+                          placeholder="www.starwebflow.com"
+                          value={preferences.billing?.website || preferences.general?.website || "www.starwebflow.com"} 
+                          onChange={(e) => setSettings({...settings, preferences: {...preferences, billing: {...preferences.billing, website: e.target.value}}})}
+                          className="w-full bg-[#0A0A0F] border border-white/[0.05] rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors placeholder:text-white/[0.2]"
+                        />
+                        <p className="text-[10px] text-[#64748B]">Faturanın alt bilgi (footer) alanında gösterilir.</p>
                       </div>
                     </div>
                   </div>

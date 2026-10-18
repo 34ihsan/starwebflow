@@ -17,17 +17,27 @@ export default async function ClientInvoicesPage() {
   
   const invoices = res.success ? res.data?.recentInvoices || [] : [];
   
+  const prefs: any = settings?.preferences || {};
+  const billingSettings = prefs.billing || {};
+
   const defaultSettings = {
-    name: settings?.companyName || "Star Web Flow",
-    logo: "https://www.starwebflow.com/images/logo.png",
-    address: "Musterstr. 1, 12345 Berlin, Germany",
-    taxId: "12/345/67890",
-    vatId: "DE123456789",
-    iban: "DE12 3456 7890 1234 5678 90",
-    bankName: "Musterbank",
-    email: "info@starwebflow.com",
-    phone: "+49 123 456 789",
-    website: "www.starwebflow.com"
+    name: billingSettings.legalName || settings?.companyName || "Star Web Flow",
+    logo: prefs.branding?.logoUrl || "https://www.starwebflow.com/images/logo.png",
+    address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+    taxId: billingSettings.taxNumber || "41/056/80705",
+    vatId: billingSettings.vatId || "DE4105680705",
+    iban: billingSettings.iban || "DE98545500100194489159",
+    bankName: billingSettings.bankName || "Sparkasse Vorderpfalz",
+    swift: billingSettings.swift || "LUHSDE6AXXX",
+    email: prefs.general?.supportEmail || "info@starwebflow.com",
+    phone: prefs.general?.supportPhone || "",
+    website: prefs.billing?.website || prefs.general?.website || "www.starwebflow.com",
+    isKleinunternehmer: 
+      String(billingSettings.vatRate) === "0" || 
+      billingSettings.isKleinunternehmer === true || 
+      String(prefs?.invoiceSettings?.vatRate) === "0" ||
+      prefs?.invoiceSettings?.isKleinunternehmer === true ||
+      false
   };
 
   return (

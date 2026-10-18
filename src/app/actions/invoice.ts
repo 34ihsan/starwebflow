@@ -4,10 +4,19 @@ import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 
-export async function getInvoices(tenantId: string) {
+export async function getInvoices(tenantId: string, isSuperAdmin: boolean = false) {
   try {
+    const whereClause = isSuperAdmin
+      ? {}
+      : {
+          OR: [
+            { tenantId },
+            { tenantId: 'default-tenant' }
+          ]
+        };
+
     const invoices = await prisma.invoice.findMany({
-      where: { tenantId },
+      where: whereClause,
       include: {
         project: {
           include: { client: true }
@@ -152,11 +161,11 @@ export async function deleteInvoice(id: string, tenantId: string) {
     });
 
     const invoice = await prisma.invoice.delete({
-      where: { id, tenantId },
+      where: { id },
     });
 
     await logActivity({
-      tenantId,
+      tenantId: invoice.tenantId || tenantId,
       action: 'DELETED_INVOICE',
       entityType: 'Invoice',
       entityId: id,
@@ -190,7 +199,7 @@ export async function updateInvoice(id: string, tenantId: string, data: any) {
 
     // Update invoice and add new items
     const invoice = await prisma.invoice.update({
-      where: { id, tenantId },
+      where: { id },
       data: {
         ...(data.invoiceNo && data.invoiceNo.trim() ? { invoiceNo: data.invoiceNo.trim() } : {}),
         projectId: data.projectId,

@@ -134,8 +134,9 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
           <div>
             <p class="font-semibold text-slate-500 mb-1">${companySettings.name}</p>
             <p>${companySettings.address}</p>
-            <p>${companySettings.phone}</p>
-            <p>${companySettings.email} | ${companySettings.website}</p>
+            ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
+            ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
+            <p>${(companySettings.website || 'www.starwebflow.com').replace(/^https?:\/\//, '').replace(/\/$/, '')}</p>
           </div>
           <div>
             <p class="font-semibold text-slate-500 mb-1">Banka Bilgileri</p>

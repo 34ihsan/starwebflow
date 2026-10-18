@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   FileText, Search, Plus,
   CheckCircle2, Clock, Eye,
@@ -79,6 +79,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
   `).join('');
 
   const logoHtml = companySettings.logo ? '<img src="' + companySettings.logo + '" alt="Logo" class="h-16 w-auto mb-6 object-contain" onerror="this.style.display=\'none\'" />' : `<h1 class="text-3xl font-bold tracking-tight text-zinc-900 mb-6">${companySettings.name}</h1>`;
+  const websiteDisplay = (companySettings?.website || 'www.starwebflow.com').replace(/^https?:\/\//, '').replace(/\/$/, '');
   
   const diffDays = invoice.dueDate && invoice.invoiceDate 
     ? Math.round((new Date(invoice.dueDate).getTime() - new Date(invoice.invoiceDate).getTime()) / (1000 * 3600 * 24))
@@ -642,21 +643,21 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               bottom: 12mm !important;
               left: 20mm !important;
               right: 20mm !important;
-              height: 75px !important; /* Increased to allow bottom spacing for page numbering */
+              height: 82px !important; /* Increased to allow bottom spacing for page numbering and website */
               display: flex !important;
               page-break-inside: avoid;
             }
             .footer-col {
               font-size: 7.5px !important;
-              line-height: 1.3 !important;
-              padding-bottom: 25px !important; /* Reserve more bottom space inside footer columns */
+              line-height: 1.35 !important;
+              padding-bottom: 15px !important; /* Reserve bottom space inside footer columns */
             }
             .footer-col-title {
               font-size: 7.5px !important;
               margin-bottom: 4px !important;
             }
             .invoice-page {
-              padding-bottom: 105px !important; /* Safe offset for footer container height */
+              padding-bottom: 110px !important; /* Safe offset for footer container height */
             }
             /* Custom Page Number Styles at footer bottom-right corner */
             .page-number-indicator {
@@ -707,6 +708,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
                 <div class="company-contact">
                   ${companySettings.email ? `<div>E: ${companySettings.email}</div>` : ''}
                   ${companySettings.phone ? `<div>T: ${companySettings.phone}</div>` : ''}
+                  <div>W: ${websiteDisplay}</div>
                 </div>
               </div>
               <div class="invoice-meta-box">
@@ -829,7 +831,7 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
               <p style="white-space: pre-wrap; margin-bottom: 8px;">${companySettings.address || 'Adres bilgisi girilmedi'}</p>
               ${companySettings.email ? `<p>${companySettings.email}</p>` : ''}
               ${companySettings.phone ? `<p>${companySettings.phone}</p>` : ''}
-              ${companySettings.website ? `<p>${companySettings.website}</p>` : ''}
+              <p>${websiteDisplay}</p>
             </div>
             <div class="footer-col">
               <h5 class="footer-col-title">${labels.bankInfo}</h5>
@@ -859,8 +861,17 @@ export const handlePrintInvoice = (companySettings: any, client: any, invoice: a
 export default function InvoicesDashboardClient({ initialInvoices, projects, clientCompanies, crmLeads = [], tenantSettings, tenantId }: { initialInvoices: any[], projects: any[], clientCompanies: any[], crmLeads?: any[], tenantSettings: any, tenantId: string }) {
   const [activeMainTab, setActiveMainTab] = useState<"invoices" | "clients">("invoices");
   const [activeTab, setActiveTab] = useState<"all" | "paid" | "pending" | "overdue">("all");
-  const [invoices, setInvoices] = useState<any[]>(initialInvoices);
-  const [companies, setCompanies] = useState<any[]>(clientCompanies);
+  const [invoices, setInvoices] = useState<any[]>(initialInvoices || []);
+  const [companies, setCompanies] = useState<any[]>(clientCompanies || []);
+
+  useEffect(() => {
+    setInvoices(initialInvoices || []);
+  }, [initialInvoices]);
+
+  useEffect(() => {
+    setCompanies(clientCompanies || []);
+  }, [clientCompanies]);
+
   const [isAddInvoiceModalOpen, setIsAddInvoiceModalOpen] = useState(false);
   const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -902,16 +913,24 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
   const [loading, setLoading] = useState(false);
 
   // Stats
-  const monthlyRevenue = invoices.filter(i => i.status === 'PAID' || i.status === 'paid').reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
-  const pendingAmount = invoices.filter(i => i.status === 'PENDING' || i.status === 'draft').reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
-  const overdueAmount = invoices.filter(i => i.status === 'OVERDUE' || i.status === 'overdue').reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
+  const monthlyRevenue = invoices.filter(i => (i.status || '').toUpperCase() === 'PAID').reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
+  const pendingAmount = invoices.filter(i => ['PENDING', 'DRAFT'].includes((i.status || '').toUpperCase())).reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
+  const overdueAmount = invoices.filter(i => (i.status || '').toUpperCase() === 'OVERDUE').reduce((acc, curr) => acc + Number(curr.grossAmount || curr.amount || 0), 0);
   
   const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.invoiceNo?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (invoice.clientCompany?.name || invoice.project?.client?.name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch = !q || 
+                          (invoice.invoiceNo || "").toLowerCase().includes(q) || 
+                          (invoice.clientCompany?.name || invoice.project?.client?.name || "").toLowerCase().includes(q) ||
+                          (invoice.project?.title || "").toLowerCase().includes(q) ||
+                          (invoice.notes || "").toLowerCase().includes(q);
     if (!matchesSearch) return false;
     if (activeTab === "all") return true;
-    return invoice.status.toLowerCase() === activeTab;
+    const invStatus = (invoice.status || '').toLowerCase();
+    if (activeTab === "pending") {
+      return invStatus === "pending" || invStatus === "draft";
+    }
+    return invStatus === activeTab.toLowerCase();
   });
 
   const calculateTotals = () => {
@@ -1432,7 +1451,12 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
+        <div 
+          onClick={() => setActiveTab('all')}
+          className={`bg-[#0A0A0F] border p-6 rounded-2xl relative overflow-hidden group cursor-pointer transition-all ${
+            activeTab === 'all' ? 'border-[#4F8EF7]/50 ring-1 ring-[#4F8EF7]/30 shadow-lg shadow-[#4F8EF7]/10' : 'border-white/[0.05] hover:border-white/20'
+          }`}
+        >
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
               <CreditCard className="w-6 h-6 text-white" />
@@ -1443,7 +1467,12 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             </div>
           </div>
         </div>
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
+        <div 
+          onClick={() => setActiveTab('paid')}
+          className={`bg-[#0A0A0F] border p-6 rounded-2xl relative overflow-hidden group cursor-pointer transition-all ${
+            activeTab === 'paid' ? 'border-[#10B981]/50 ring-1 ring-[#10B981]/30 shadow-lg shadow-[#10B981]/10' : 'border-white/[0.05] hover:border-white/20'
+          }`}
+        >
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 flex items-center justify-center border border-[#10B981]/20">
               <CheckCircle2 className="w-6 h-6 text-[#10B981]" />
@@ -1454,7 +1483,12 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             </div>
           </div>
         </div>
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
+        <div 
+          onClick={() => setActiveTab('pending')}
+          className={`bg-[#0A0A0F] border p-6 rounded-2xl relative overflow-hidden group cursor-pointer transition-all ${
+            activeTab === 'pending' ? 'border-amber-400/50 ring-1 ring-amber-400/30 shadow-lg shadow-amber-400/10' : 'border-white/[0.05] hover:border-white/20'
+          }`}
+        >
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-amber-400/10 flex items-center justify-center border border-amber-400/20">
               <Clock className="w-6 h-6 text-amber-400" />
@@ -1465,7 +1499,12 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
             </div>
           </div>
         </div>
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group">
+        <div 
+          onClick={() => setActiveMainTab('clients')}
+          className={`bg-[#0A0A0F] border p-6 rounded-2xl relative overflow-hidden group cursor-pointer transition-all ${
+            activeMainTab === 'clients' ? 'border-[#4F8EF7]/50 ring-1 ring-[#4F8EF7]/30' : 'border-white/[0.05] hover:border-white/20'
+          }`}
+        >
           <div className="flex items-center gap-4 mb-2">
             <div className="w-12 h-12 rounded-xl bg-[#4F8EF7]/10 flex items-center justify-center border border-[#4F8EF7]/20">
               <Users className="w-6 h-6 text-[#4F8EF7]" />
@@ -1477,6 +1516,35 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
           </div>
         </div>
       </div>
+
+      {/* Invoice Filter Pills (Only in invoices tab) */}
+      {activeMainTab === 'invoices' && (
+        <div className="flex flex-wrap items-center gap-2 pt-1 pb-1">
+          {[
+            { id: 'all', label: 'Tüm Faturalar', count: invoices.length },
+            { id: 'paid', label: 'Tahsil Edilenler', count: invoices.filter(i => (i.status || '').toUpperCase() === 'PAID').length },
+            { id: 'pending', label: 'Bekleyen / Taslak', count: invoices.filter(i => ['PENDING', 'DRAFT'].includes((i.status || '').toUpperCase())).length },
+            { id: 'overdue', label: 'Gecikmiş', count: invoices.filter(i => (i.status || '').toUpperCase() === 'OVERDUE').length },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 border ${
+                activeTab === tab.id
+                  ? 'bg-[#4F8EF7] text-white border-[#4F8EF7] shadow-sm shadow-[#4F8EF7]/30'
+                  : 'bg-white/5 text-[#94A3B8] border-white/5 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === tab.id ? 'bg-white/20 text-white' : 'bg-white/10 text-[#64748B]'
+              }`}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ============ CLIENTS TAB ============ */}
       {activeMainTab === 'clients' && (
@@ -1628,7 +1696,18 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.05] text-sm">
-              {filteredInvoices.map(invoice => (
+              {filteredInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-16 text-center text-[#64748B]">
+                    <FileText className="w-12 h-12 mx-auto mb-3 opacity-30 text-[#64748B]" />
+                    <p className="font-semibold text-white/80 text-sm">Fatura bulunamadı</p>
+                    <p className="text-xs text-[#64748B] mt-1 max-w-sm mx-auto">
+                      {searchQuery ? `"${searchQuery}" aramasıyla eşleşen fatura bulunamadı.` : 'Bu filtrede henüz kayıtlı fatura bulunmuyor.'}
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredInvoices.map(invoice => (
                 <tr key={invoice.id} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="py-4 px-6">
                     <div onClick={() => handleViewInvoice(invoice)} className="font-semibold text-white flex items-center gap-2 group-hover:text-[#4F8EF7] transition-colors cursor-pointer">
@@ -1700,7 +1779,7 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                     </div>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

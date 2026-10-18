@@ -3,10 +3,19 @@
 import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 
-export async function getProjects(tenantId: string) {
+export async function getProjects(tenantId: string, isSuperAdmin: boolean = false) {
   try {
+    const whereClause = isSuperAdmin
+      ? {}
+      : {
+          OR: [
+            { tenantId },
+            { tenantId: 'default-tenant' }
+          ]
+        };
+
     const projects = await prisma.project.findMany({
-      where: { tenantId },
+      where: whereClause,
       include: {
         client: true,
         tasks: true,

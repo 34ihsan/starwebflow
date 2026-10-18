@@ -3,10 +3,19 @@
 import { prisma as db } from '@/lib/prisma'
 import { safeRevalidatePath } from '@/lib/utils/cache';
 
-export async function getClientCompanies(tenantId: string) {
+export async function getClientCompanies(tenantId: string, isSuperAdmin: boolean = false) {
   try {
+    const whereClause = isSuperAdmin
+      ? {}
+      : {
+          OR: [
+            { tenantId },
+            { tenantId: 'default-tenant' }
+          ]
+        };
+
     const companies = await db.clientCompany.findMany({
-      where: { tenantId },
+      where: whereClause,
       orderBy: { name: 'asc' },
       include: {
         _count: { select: { invoices: true } }
@@ -56,7 +65,7 @@ export async function updateClientCompany(id: string, tenantId: string, data: {
 }) {
   try {
     const updated = await db.clientCompany.update({
-      where: { id, tenantId },
+      where: { id },
       data
     })
     try { safeRevalidatePath('/admin/invoices') } catch (e) { console.warn('revalidatePath skipped', e) }
@@ -69,7 +78,7 @@ export async function updateClientCompany(id: string, tenantId: string, data: {
 
 export async function deleteClientCompany(id: string, tenantId: string) {
   try {
-    await db.clientCompany.delete({ where: { id, tenantId } })
+    await db.clientCompany.delete({ where: { id } })
     try { safeRevalidatePath('/admin/invoices') } catch (e) { console.warn('revalidatePath skipped', e) }
     return { success: true }
   } catch (error: any) {

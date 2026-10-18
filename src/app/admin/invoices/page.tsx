@@ -8,14 +8,22 @@ import { getServerSession } from '@/modules/auth/auth.helpers';
 
 export default async function AdminInvoicesDashboardPage() {
   const session = await getServerSession();
+  const isSuperAdmin = session?.role === 'SUPER_ADMIN';
   const tenantId = session?.tenantId || 'default-tenant';
 
   const [invoicesRes, projectsRes, companiesRes, leadsRes, settings] = await Promise.all([
-    getInvoices(tenantId),
-    getProjects(tenantId),
-    getClientCompanies(tenantId),
+    getInvoices(tenantId, isSuperAdmin),
+    getProjects(tenantId, isSuperAdmin),
+    getClientCompanies(tenantId, isSuperAdmin),
     getLeads(tenantId),
-    prisma.tenantSettings.findUnique({ where: { tenantId } })
+    prisma.tenantSettings.findFirst({
+      where: {
+        OR: [
+          { tenantId },
+          { tenantId: 'default-tenant' }
+        ]
+      }
+    })
   ]);
 
   const prefs: any = settings?.preferences || {};
@@ -31,9 +39,9 @@ export default async function AdminInvoicesDashboardPage() {
     bankName: billingSettings.bankName || "",
     swift: billingSettings.swift || "",
     bankCurrency: billingSettings.bankCurrency || "TRY",
-    email: prefs.general?.supportEmail || session?.email || "",
+    email: prefs.general?.supportEmail || session?.email || "info@starwebflow.com",
     phone: prefs.general?.supportPhone || "",
-    website: prefs.general?.website || "",
+    website: prefs.billing?.website || prefs.general?.website || "www.starwebflow.com",
     isKleinunternehmer: 
       String(billingSettings.vatRate) === "0" || 
       billingSettings.isKleinunternehmer === true || 

@@ -240,7 +240,8 @@ export async function runRetentionCleanup(tenantId: string = 'default-tenant', r
             language: 'de',
             timezone: 'Europe/Berlin',
             general: {
-              currency: "EUR"
+              currency: "EUR",
+              website: "www.starwebflow.com"
             },
             billing: {
               legalName: "StarWebFlow Digital Agent",
@@ -248,6 +249,7 @@ export async function runRetentionCleanup(tenantId: string = 'default-tenant', r
               taxNumber: "41/056/80705",
               vatId: "DE4105680705",
               address: "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
+              website: "www.starwebflow.com",
               bankName: "Sparkasse Vorderpfalz",
               iban: "DE98545500100194489159",
               swift: "LUHSDE6AXXX",

@@ -94,6 +94,7 @@ const localDict = {
 export default function InvoicePreview({ companySettings, client, invoice, lang = 'tr' }: InvoicePreviewProps) {
   const dict = localDict[lang] || localDict.tr;
   const currencyLocale = invoice.currency === 'TRY' ? 'tr-TR' : 'de-DE';
+  const websiteDisplay = (companySettings?.website || 'www.starwebflow.com').replace(/^https?:\/\//, '').replace(/\/$/, '');
 
   return (
     <div className="bg-white text-zinc-900 shadow-2xl rounded-2xl max-w-4xl mx-auto font-sans ring-1 ring-zinc-200/50 overflow-hidden flex flex-col" id="invoice-preview" style={{ minHeight: '1123px', position: 'relative' }}>
@@ -118,10 +119,11 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
             <div className="text-zinc-500 text-sm leading-relaxed mt-4 max-w-sm whitespace-pre-wrap">
               {companySettings.address}
             </div>
-            {(companySettings.email || companySettings.phone) && (
+            {(companySettings.email || companySettings.phone || websiteDisplay) && (
               <div className="text-zinc-500 text-sm mt-3 space-y-1">
                 {companySettings.email && <div className="flex items-center gap-2"><svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>{companySettings.email}</div>}
                 {companySettings.phone && <div className="flex items-center gap-2"><svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>{companySettings.phone}</div>}
+                {websiteDisplay && <div className="flex items-center gap-2"><svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>{websiteDisplay}</div>}
               </div>
             )}
           </div>
@@ -294,7 +296,7 @@ export default function InvoicePreview({ companySettings, client, invoice, lang 
             <p className="whitespace-pre-wrap mb-2">{companySettings.address || 'Adres bilgisi girilmedi'}</p>
             {companySettings.email && <p>{companySettings.email}</p>}
             {companySettings.phone && <p>{companySettings.phone}</p>}
-            {companySettings.website && <p>{companySettings.website}</p>}
+            <p>{websiteDisplay}</p>
           </div>
           <div>
             <h5 className="text-zinc-800 font-semibold mb-3 uppercase tracking-widest text-[10px]">{dict.bankDetails}</h5>
