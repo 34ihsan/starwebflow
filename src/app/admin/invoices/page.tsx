@@ -38,7 +38,7 @@ export default async function AdminInvoicesDashboardPage() {
     logo: prefs.branding?.logoUrl || "",
     address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
     taxId: billingSettings.taxNumber || "41/056/80705",
-    vatId: billingSettings.vatId || "DE4105680705",
+    vatId: billingSettings.vatId || "",
     iban: billingSettings.iban || "DE98545500100194489159",
     bankName: billingSettings.bankName || "Sparkasse Vorderpfalz",
     swift: billingSettings.swift || "LUHSDE6AXXX",

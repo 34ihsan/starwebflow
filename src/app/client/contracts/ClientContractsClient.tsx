@@ -143,7 +143,7 @@ export const handlePrintContract = (contract: any, companySettings?: any) => {
     name: "StarWebFlow Digital Agent",
     address: "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
     taxId: "41/056/80705",
-    vatId: "DE4105680705",
+    vatId: "",
     email: "info@starwebflow.com",
     website: "www.starwebflow.com",
     phone: "+49 179 492 4556"
@@ -410,7 +410,7 @@ export default function ClientContractsClient({
     logo: prefs.branding?.logoUrl || "",
     address: billingSettings.address || "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
     taxId: billingSettings.taxNumber || "41/056/80705",
-    vatId: billingSettings.vatId || "DE4105680705",
+    vatId: billingSettings.vatId || "",
     email: prefs.general?.supportEmail || "info@starwebflow.com",
     website: prefs.general?.website || "www.starwebflow.com",
     phone: prefs.general?.supportPhone || "+49 179 492 4556"

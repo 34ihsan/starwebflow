@@ -55,7 +55,7 @@ export async function getTenantSettings(tenantId: string) {
               legalName: "StarWebFlow Digital Agent",
               taxOffice: "Speyer-Germersheim",
               taxNumber: "41/056/80705",
-              vatId: "DE4105680705",
+              vatId: "",
               address: "Anilinerstr 3, 67105 Schifferstadt, Deutschland",
               website: "www.starwebflow.com",
               bankName: "Sparkasse Vorderpfalz",

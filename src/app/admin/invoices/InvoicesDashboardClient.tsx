@@ -2612,13 +2612,16 @@ export default function InvoicesDashboardClient({ initialInvoices, projects, cli
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-[#94A3B8] mb-1.5">USt-IdNr. (KDV Kimlik No)</label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-medium text-[#94A3B8]">USt-IdNr. (KDV Kimlik No)</label>
+                      <span className="text-[10px] text-zinc-500 font-normal">Kleinunternehmer için isteğe bağlıdır</span>
+                    </div>
                     <input 
                       type="text" 
                       value={localSettings.vatId || ""} 
                       onChange={e => setLocalSettings({...localSettings, vatId: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:border-[#4F8EF7] focus:outline-none font-mono" 
-                      placeholder="DE4105680705" 
+                      placeholder="Yoksa boş bırakın (Örn: DE123456789)" 
                     />
                   </div>
                 </div>
