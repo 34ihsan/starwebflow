@@ -9,6 +9,8 @@ export const metadata = {
 
 import { isStripeEnabled } from '@/lib/stripe';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ClientInvoicesPage() {
   const [res, settings] = await Promise.all([
     getClientDashboardData('default-tenant'),

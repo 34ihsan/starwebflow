@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 import InvoicesDashboardClient from './InvoicesDashboardClient';
 import { getServerSession } from '@/modules/auth/auth.helpers';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminInvoicesDashboardPage() {
   const session = await getServerSession();
   const isSuperAdmin = session?.role === 'SUPER_ADMIN';

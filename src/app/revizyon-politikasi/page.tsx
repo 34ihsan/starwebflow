@@ -2,6 +2,8 @@ import { getTenantSettings } from '@/app/actions/settings';
 import React from 'react';
 import LegalPageLayout from '@/components/layout/LegalPageLayout';
 
+export const dynamic = 'force-dynamic';
+
 export default async function RevizyonPolitikasiPage() {
   const res = await getTenantSettings('default-tenant');
   const settings = res.data;
