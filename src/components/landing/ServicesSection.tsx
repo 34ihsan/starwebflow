@@ -75,16 +75,20 @@ function AIAgentsInteractiveVisual({ language }: { language: string }) {
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </div>
           <span className="font-mono font-bold text-emerald-700 tracking-wider">
-            {language === 'tr' ? 'OTONOM AJAN MERKEZİ' : language === 'de' ? 'AUTONOMER AGENT' : 'AUTONOMOUS AGENT CORE'}
+            {language === 'tr' ? 'OTONOM AJAN MERKEZİ' : language === 'de' ? 'AUTONOMES AGENTEN-ZENTRUM' : 'AUTONOMOUS AGENT CORE'}
           </span>
           <span className="px-2 py-0.5 rounded-full text-[10px] bg-purple-100 text-purple-700 font-mono font-semibold border border-purple-200">
-            Model-Agnostik & RAG v4.2
+            {language === 'tr' ? 'Model-Agnostik & RAG v4.2' : language === 'de' ? 'Modell-Agnostisch & RAG v4.2' : 'Model-Agnostic & RAG v4.2'}
           </span>
         </div>
         <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
-          <span className="hidden sm:inline font-medium text-slate-700">Multi-LLM + Sesli AI + On-Premise</span>
+          <span className="hidden sm:inline font-medium text-slate-700">
+            {language === 'tr' ? 'Multi-LLM + Sesli AI + On-Premise' : language === 'de' ? 'Multi-LLM + Voice-KI + On-Premise' : 'Multi-LLM + Voice AI + On-Premise'}
+          </span>
           <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-          <span className="text-purple-700 font-semibold">7/24 Kesintisiz</span>
+          <span className="text-purple-700 font-semibold">
+            {language === 'tr' ? '7/24 Kesintisiz' : language === 'de' ? '24/7 Non-Stop' : '24/7 Always-On'}
+          </span>
         </div>
       </div>
 
@@ -93,7 +97,7 @@ function AIAgentsInteractiveVisual({ language }: { language: string }) {
         {/* Left Inputs (Channels) */}
         <div className="lg:col-span-3 flex lg:flex-col gap-1.5 justify-between">
           {[
-            { name: language === 'tr' ? 'Sesli Ajan (Telefon)' : 'Voice Agent', icon: Bot, active: activeStep === 0 },
+            { name: language === 'tr' ? 'Sesli Ajan (Telefon)' : language === 'de' ? 'Voice-Agent (Telefon)' : 'Voice Agent (Phone)', icon: Bot, active: activeStep === 0 },
             { name: 'Live Chat & WhatsApp', icon: MessageSquare, active: activeStep === 1 },
             { name: language === 'tr' ? 'E-posta & Webhook' : 'E-Mail & Webhook', icon: Send, active: activeStep === 2 },
           ].map((ch) => {
@@ -125,7 +129,7 @@ function AIAgentsInteractiveVisual({ language }: { language: string }) {
               {current.channel}
             </span>
             <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md font-mono border border-emerald-200 font-bold">
-              ⚡ 1.1s Yanıt
+              ⚡ 1.1s {language === 'tr' ? 'Yanıt' : language === 'de' ? 'Antwort' : 'Response'}
             </span>
           </div>
 
@@ -149,9 +153,9 @@ function AIAgentsInteractiveVisual({ language }: { language: string }) {
         {/* Right Outputs (Deliverables) */}
         <div className="lg:col-span-3 flex lg:flex-col gap-1.5 justify-between">
           {[
-            { name: 'Lead Skor: 98/100', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-200' },
-            { name: language === 'tr' ? 'Takvim Randevusu' : 'Calendar Booking', icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-200' },
-            { name: language === 'tr' ? 'Kişiselleştirilmiş PDF' : 'Custom PDF Deal', icon: Sparkles, color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200' },
+            { name: language === 'tr' ? 'Lead Skor: 98/100' : language === 'de' ? 'Lead-Score: 98/100' : 'Lead Score: 98/100', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50 border-amber-200' },
+            { name: language === 'tr' ? 'Takvim Randevusu' : language === 'de' ? 'Terminbuchung' : 'Calendar Booking', icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-50 border-emerald-200' },
+            { name: language === 'tr' ? 'Kişiselleştirilmiş PDF' : language === 'de' ? 'Individuelles PDF-Angebot' : 'Custom PDF Proposal', icon: Sparkles, color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200' },
           ].map((out) => {
             const Icon = out.icon
             return (
@@ -190,7 +194,7 @@ function AutomationInteractiveVisual({ language }: { language: string }) {
           </span>
         </div>
         <span className="font-mono text-[10px] text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300 font-semibold">
-          140ms · 0 Hata
+          140ms · {language === 'tr' ? '0 Hata' : language === 'de' ? '0 Fehler' : '0 Errors'}
         </span>
       </div>
 
@@ -202,7 +206,9 @@ function AutomationInteractiveVisual({ language }: { language: string }) {
             <Zap className="w-3.5 h-3.5" />
           </div>
           <span className="text-[10px] font-mono text-slate-800 font-bold leading-tight">Webhook</span>
-          <span className="text-[9px] text-slate-500 leading-none mt-0.5 font-medium">{language === 'tr' ? 'Lead / Form' : 'Inbound'}</span>
+          <span className="text-[9px] text-slate-500 leading-none mt-0.5 font-medium">
+            {language === 'tr' ? 'Lead / Form' : language === 'de' ? 'Lead / Formular' : 'Inbound Lead'}
+          </span>
         </div>
 
         {/* Connector 1 */}
@@ -215,8 +221,12 @@ function AutomationInteractiveVisual({ language }: { language: string }) {
           <div className="w-6 h-6 rounded-md bg-white/20 flex items-center justify-center text-white mb-1 animate-[spin_8s_linear_infinite]">
             <Cog className="w-3.5 h-3.5" />
           </div>
-          <span className="text-[10px] font-mono text-white font-bold leading-tight">n8n AI Motor</span>
-          <span className="text-[9px] text-emerald-100 leading-none mt-0.5 font-medium">{language === 'tr' ? 'Kognitif Ayrıştırma' : 'Cognitive Parse'}</span>
+          <span className="text-[10px] font-mono text-white font-bold leading-tight">
+            {language === 'tr' ? 'n8n AI Motor' : language === 'de' ? 'n8n KI-Engine' : 'n8n AI Engine'}
+          </span>
+          <span className="text-[9px] text-emerald-100 leading-none mt-0.5 font-medium">
+            {language === 'tr' ? 'Kognitif Ayrıştırma' : language === 'de' ? 'Kognitive Analyse' : 'Cognitive Parsing'}
+          </span>
         </div>
 
         {/* Connector 2 */}
@@ -230,12 +240,16 @@ function AutomationInteractiveVisual({ language }: { language: string }) {
             <Database className="w-3.5 h-3.5" />
           </div>
           <span className="text-[10px] font-mono text-slate-800 font-bold leading-tight">ERP / CRM</span>
-          <span className="text-[9px] text-slate-500 leading-none mt-0.5 font-medium">{language === 'tr' ? 'Otomatik Fatura' : 'Auto Invoicing'}</span>
+          <span className="text-[9px] text-slate-500 leading-none mt-0.5 font-medium">
+            {language === 'tr' ? 'Otomatik Fatura' : language === 'de' ? 'Auto-Rechnung' : 'Auto Invoicing'}
+          </span>
         </div>
       </div>
 
       <div className="mt-2 text-[10px] font-mono text-slate-600 flex items-center justify-between pt-1.5 border-t border-emerald-100">
-        <span className="text-emerald-700 font-bold">⚡ {language === 'tr' ? 'Haftalık +15 Saat Tasarruf' : 'Weekly +15h Saved'}</span>
+        <span className="text-emerald-700 font-bold">
+          ⚡ {language === 'tr' ? 'Haftalık +15 Saat Tasarruf' : language === 'de' ? 'Wöchentlich +15 Std. gespart' : 'Weekly +15h Saved'}
+        </span>
         <span className="text-slate-500 font-medium">REST API Sync</span>
       </div>
     </div>
@@ -267,13 +281,15 @@ function WebEcosystemInteractiveVisual({ language }: { language: string }) {
         {/* Speed Highlight */}
         <div className="flex flex-col">
           <span className="text-[9px] uppercase tracking-wider text-slate-500 font-mono font-bold">
-            {language === 'tr' ? 'Yüklenme Hızı' : 'Load Speed'}
+            {language === 'tr' ? 'Yüklenme Hızı' : language === 'de' ? 'Ladezeit' : 'Load Speed'}
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-mono">
               0.4s
             </span>
-            <span className="text-[10px] font-bold text-emerald-700 font-mono">Işık Hızı</span>
+            <span className="text-[10px] font-bold text-emerald-700 font-mono">
+              {language === 'tr' ? 'Işık Hızı' : language === 'de' ? 'Lichtgeschwindigkeit' : 'Lightning Fast'}
+            </span>
           </div>
         </div>
 
@@ -296,8 +312,10 @@ function WebEcosystemInteractiveVisual({ language }: { language: string }) {
       </div>
 
       <div className="flex items-center justify-between text-[10px] font-mono text-slate-600 pt-1">
-        <span className="text-blue-700 font-semibold">Next.js 14 & SSR Edge Cache</span>
-        <span className="text-emerald-700 font-bold">3x Satış Dönüşümü</span>
+        <span className="text-blue-700 font-semibold">Next.js 14/15 & SSR Edge Cache</span>
+        <span className="text-emerald-700 font-bold">
+          {language === 'tr' ? '3x Satış Dönüşümü' : language === 'de' ? '3x Mehr Conversions' : '3x Sales Conversion'}
+        </span>
       </div>
     </div>
   )
@@ -312,36 +330,50 @@ function CloudSaaSInteractiveVisual({ language }: { language: string }) {
         <div className="flex items-center gap-1.5">
           <Monitor className="w-3.5 h-3.5 text-cyan-600" />
           <span className="font-mono font-bold text-cyan-900">
-            {language === 'tr' ? 'ÖZEL SAAS & BULUT KONTROL' : 'CUSTOM SAAS PORTAL'}
+            {language === 'tr' ? 'ÖZEL SAAS & BULUT KONTROL' : language === 'de' ? 'CUSTOM SAAS & CLOUD-PORTAL' : 'CUSTOM SAAS PORTAL'}
           </span>
         </div>
         <span className="text-[10px] font-mono text-cyan-800 bg-cyan-100 px-2 py-0.5 rounded-full border border-cyan-300 font-semibold">
-          %99.9 Uptime
+          {language === 'tr' ? '%99.9 Uptime' : '99.9% Uptime'}
         </span>
       </div>
 
       {/* Architecture Metrics Grid */}
       <div className="grid grid-cols-3 gap-2 my-2">
         <div className="bg-white p-2 rounded-lg border border-cyan-200 text-center shadow-xs">
-          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">{language === 'tr' ? 'Veritabanı' : 'Database'}</div>
+          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">
+            {language === 'tr' ? 'Veritabanı' : language === 'de' ? 'Datenbank' : 'Database'}
+          </div>
           <div className="text-xs font-bold font-mono text-cyan-800 mt-0.5">PostgreSQL</div>
           <div className="text-[9px] text-emerald-700 font-medium mt-0.5">3.2ms Latency</div>
         </div>
         <div className="bg-white p-2 rounded-lg border border-cyan-200 text-center shadow-xs">
-          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">{language === 'tr' ? 'Yalıtım' : 'Deploy'}</div>
+          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">
+            {language === 'tr' ? 'Yalıtım' : language === 'de' ? 'Deployment' : 'Deploy'}
+          </div>
           <div className="text-xs font-bold font-mono text-cyan-800 mt-0.5">Docker VPS</div>
           <div className="text-[9px] text-emerald-700 font-medium mt-0.5">Cloud-Native</div>
         </div>
         <div className="bg-white p-2 rounded-lg border border-cyan-200 text-center shadow-xs">
-          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">{language === 'tr' ? 'Yönetim' : 'Control'}</div>
-          <div className="text-xs font-bold font-mono text-cyan-800 mt-0.5">Tek Panel</div>
-          <div className="text-[9px] text-amber-700 font-bold mt-0.5">Sıfır Excel</div>
+          <div className="text-[9px] text-slate-500 font-mono font-semibold uppercase">
+            {language === 'tr' ? 'Yönetim' : language === 'de' ? 'Steuerung' : 'Control'}
+          </div>
+          <div className="text-xs font-bold font-mono text-cyan-800 mt-0.5">
+            {language === 'tr' ? 'Tek Panel' : language === 'de' ? 'Ein Dashboard' : 'Single Dashboard'}
+          </div>
+          <div className="text-[9px] text-amber-700 font-bold mt-0.5">
+            {language === 'tr' ? 'Sıfır Excel' : language === 'de' ? 'Kein Excel' : 'Zero Excel'}
+          </div>
         </div>
       </div>
 
       <div className="flex items-center justify-between text-[10px] font-mono text-slate-600 pt-1 border-t border-cyan-100">
-        <span className="text-cyan-800 font-bold">Excel Kalabalığına Son</span>
-        <span className="text-slate-500 font-medium">Sınırsız Ölçeklenebilir</span>
+        <span className="text-cyan-800 font-bold">
+          {language === 'tr' ? 'Excel Kalabalığına Son' : language === 'de' ? 'Schluss mit Excel-Listen' : 'No More Excel Clutter'}
+        </span>
+        <span className="text-slate-500 font-medium">
+          {language === 'tr' ? 'Sınırsız Ölçeklenebilir' : language === 'de' ? 'Grenzenlos skalierbar' : 'Infinitely Scalable'}
+        </span>
       </div>
     </div>
   )
@@ -355,7 +387,7 @@ function GrowthMarketingInteractiveVisual({ language }: { language: string }) {
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-amber-600" />
           <span className="font-mono font-bold text-amber-900">
-            {language === 'tr' ? 'ALGORİTMİK GROWTH KOKPİTİ' : 'ALGORITHMIC GROWTH ENGINE'}
+            {language === 'tr' ? 'ALGORİTMİK GROWTH KOKPİTİ' : language === 'de' ? 'ALGORITHMISCHE GROWTH-ENGINE' : 'ALGORITHMIC GROWTH ENGINE'}
           </span>
           <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-mono font-semibold border border-amber-300">
             Meta CAPI + Google Ads
@@ -371,15 +403,21 @@ function GrowthMarketingInteractiveVisual({ language }: { language: string }) {
         <div className="md:col-span-5 flex flex-col gap-1.5">
           <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-amber-200 text-xs font-mono shadow-xs">
             <span className="text-slate-800 font-medium">Meta CAPI (Server-Side)</span>
-            <span className="text-emerald-700 text-[11px] font-bold">1st-Party Veri</span>
+            <span className="text-emerald-700 text-[11px] font-bold">
+              {language === 'tr' ? '1st-Party Veri' : language === 'de' ? 'First-Party-Daten' : '1st-Party Data'}
+            </span>
           </div>
           <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-amber-200 text-xs font-mono shadow-xs">
             <span className="text-slate-800 font-medium">Google Ads Enhanced</span>
             <span className="text-emerald-700 text-[11px] font-bold">Offline Sync</span>
           </div>
           <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-amber-200 text-xs font-mono shadow-xs">
-            <span className="text-slate-800 font-medium">{language === 'tr' ? 'Edinme Maliyeti (CAC)' : 'Acquisition Cost'}</span>
-            <span className="text-emerald-700 text-[11px] font-bold">-45% Tasarruf</span>
+            <span className="text-slate-800 font-medium">
+              {language === 'tr' ? 'Edinme Maliyeti (CAC)' : language === 'de' ? 'Akquisekosten (CAC)' : 'Acquisition Cost (CAC)'}
+            </span>
+            <span className="text-emerald-700 text-[11px] font-bold">
+              {language === 'tr' ? '-45% Tasarruf' : language === 'de' ? '-45% Ersparnis' : '-45% Saved'}
+            </span>
           </div>
         </div>
 
@@ -421,8 +459,16 @@ function GrowthMarketingInteractiveVisual({ language }: { language: string }) {
       </div>
 
       <div className="flex items-center justify-between text-[11px] font-mono text-slate-600 pt-2 border-t border-amber-100">
-        <span className="text-amber-800 font-semibold">Boşa Bütçe Harcamadan Nokta Atışı Müşteri Akışı</span>
-        <span className="text-emerald-700 font-bold">Sektör Lideri ROAS</span>
+        <span className="text-amber-800 font-semibold">
+          {language === 'tr'
+            ? 'Boşa Bütçe Harcamadan Nokta Atışı Müşteri Akışı'
+            : language === 'de'
+            ? 'Gezielter Kundenstrom ohne Budgetverschwendung'
+            : 'Targeted Inbound Without Wasted Ad Spend'}
+        </span>
+        <span className="text-emerald-700 font-bold">
+          {language === 'tr' ? 'Sektör Lideri ROAS' : language === 'de' ? 'Branchenführender ROAS' : 'Industry-Leading ROAS'}
+        </span>
       </div>
     </div>
   )

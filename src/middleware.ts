@@ -138,11 +138,11 @@ export async function middleware(req: NextRequest) {
 
     // Bellek temizliği (Garbage collection) - 3000 anahtarı geçerse süresi dolanları temizle
     if (rateLimitCache.size > 3000) {
-      for (const [key, val] of rateLimitCache.entries()) {
+      rateLimitCache.forEach((val, key) => {
         if (currentTime > val.resetAt) {
           rateLimitCache.delete(key);
         }
-      }
+      });
     }
 
     if (state.count > tierLimit) {

@@ -151,19 +151,19 @@ export default function BeforeAfterComparison() {
                 onClick={() => setActiveTab('speed')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'speed' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                ⚡ {isTr ? 'Hız & Core Web Vitals' : 'Speed & Core Vitals'}
+                ⚡ {isTr ? 'Hız & Core Web Vitals' : isDe ? 'Speed & Core Web Vitals' : 'Speed & Core Vitals'}
               </button>
               <button
                 onClick={() => setActiveTab('revenue')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'revenue' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                💰 {isTr ? 'Ciro & Terk Oranı' : 'Revenue & Bounce'}
+                💰 {isTr ? 'Ciro & Terk Oranı' : isDe ? 'Umsatz & Absprungrate' : 'Revenue & Bounce'}
               </button>
               <button
                 onClick={() => setActiveTab('ai')}
                 className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'ai' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                🤖 {isTr ? '7/24 AI Satış Gücü' : '24/7 AI Sales'}
+                🤖 {isTr ? '7/24 AI Satış Gücü' : isDe ? '24/7 KI-Vertrieb' : '24/7 AI Sales'}
               </button>
             </div>
           </div>
@@ -179,18 +179,18 @@ export default function BeforeAfterComparison() {
               <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" />
               <span className="w-3 h-3 rounded-full bg-emerald-400 inline-block" />
               <span className="text-xs font-bold text-slate-600 ml-2 hidden sm:inline-block">
-                {isTr ? 'Canlı Tarayıcı Simülasyonu & Web Vitals Testi' : 'Browser Simulator & Web Vitals Test'}
+                {isTr ? 'Canlı Tarayıcı Simülasyonu & Web Vitals Testi' : isDe ? 'Live Browser-Simulation & Web Vitals Test' : 'Browser Simulator & Web Vitals Test'}
               </span>
             </div>
 
             {/* Quick Slider Position Shortcuts */}
             <div className="flex items-center gap-1.5 text-xs font-bold">
-              <span className="text-slate-500 mr-1 hidden md:inline">{isTr ? 'Görünüm:' : 'View:'}</span>
+              <span className="text-slate-500 mr-1 hidden md:inline">{isTr ? 'Görünüm:' : isDe ? 'Ansicht:' : 'View:'}</span>
               <button 
                 onClick={() => setSliderPos(0)} 
                 className={`px-2 py-1 rounded text-[11px] font-bold ${sliderPos === 0 ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-white text-slate-600 border border-slate-200'}`}
               >
-                {isTr ? 'Sadece Eski' : 'Old Only'}
+                {isTr ? 'Sadece Eski' : isDe ? 'Nur Alt' : 'Old Only'}
               </button>
               <button 
                 onClick={() => setSliderPos(50)} 
@@ -202,7 +202,7 @@ export default function BeforeAfterComparison() {
                 onClick={() => setSliderPos(100)} 
                 className={`px-2 py-1 rounded text-[11px] font-bold ${sliderPos === 100 ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-white text-slate-600 border border-slate-200'}`}
               >
-                {isTr ? 'Sadece StarWebFlow' : 'StarWebFlow Only'}
+                {isTr ? 'Sadece StarWebFlow' : isDe ? 'Nur StarWebFlow' : 'StarWebFlow Only'}
               </button>
             </div>
           </div>
@@ -219,7 +219,7 @@ export default function BeforeAfterComparison() {
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                   <span>https://eski-site.com</span>
                   <span className="ml-auto text-[10px] bg-rose-200 text-rose-800 px-1.5 py-0.5 rounded font-mono font-bold">
-                    HTTP/1.1 (Yavaş)
+                    {isTr ? 'HTTP/1.1 (Yavaş)' : isDe ? 'HTTP/1.1 (Langsam)' : 'HTTP/1.1 (Slow)'}
                   </span>
                 </div>
 
@@ -228,12 +228,12 @@ export default function BeforeAfterComparison() {
                   <div className="flex justify-between text-xs font-bold text-slate-700">
                     <span className="flex items-center gap-1.5 text-rose-700">
                       <AlertTriangle className="w-3.5 h-3.5" />
-                      {slowPhase === 'init' && 'Bağlantı kuruluyor...'}
-                      {slowPhase === 'ttfb' && '⚠️ TTFB Gecikmesi (Sunucu meşgul)'}
-                      {slowPhase === 'blocking' && '⚠️ Render engelleyen 18 JS eklentisi'}
-                      {slowPhase === 'uncompressed' && '⚠️ Ağır sıkıştırılmamış resimler'}
-                      {slowPhase === 'completed' && '❌ Yükleme Bitti: 4.2s (Müşterilerin %53\'ü kaçtı)'}
-                      {slowPhase === 'idle' && 'Geleneksel Monolitik / WordPress Site'}
+                      {slowPhase === 'init' && (isTr ? 'Bağlantı kuruluyor...' : isDe ? 'Verbindung wird hergestellt...' : 'Connecting...')}
+                      {slowPhase === 'ttfb' && (isTr ? '⚠️ TTFB Gecikmesi (Sunucu meşgul)' : isDe ? '⚠️ TTFB-Verzögerung (Server ausgelastet)' : '⚠️ TTFB Delay (Server busy)')}
+                      {slowPhase === 'blocking' && (isTr ? '⚠️ Render engelleyen 18 JS eklentisi' : isDe ? '⚠️ 18 Render-blockierende JS-Plugins' : '⚠️ 18 Render-blocking JS plugins')}
+                      {slowPhase === 'uncompressed' && (isTr ? '⚠️ Ağır sıkıştırılmamış resimler' : isDe ? '⚠️ Große unkomprimierte Bilder' : '⚠️ Heavy uncompressed images')}
+                      {slowPhase === 'completed' && (isTr ? '❌ Yükleme Bitti: 4.2s (Müşterilerin %53\'ü kaçtı)' : isDe ? '❌ Ladevorgang beendet: 4.2s (53% Absprungrate)' : '❌ Load Finished: 4.2s (53% bounce rate)')}
+                      {slowPhase === 'idle' && (isTr ? 'Geleneksel Monolitik / WordPress Site' : isDe ? 'Klassische Monolithische / WordPress-Seite' : 'Traditional Monolithic / WordPress Site')}
                     </span>
                     <span className="font-mono text-rose-600 font-bold">{slowTime.toFixed(2)}s</span>
                   </div>
@@ -247,26 +247,47 @@ export default function BeforeAfterComparison() {
 
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-rose-100/80 border border-rose-200 text-rose-800 text-xs font-bold mb-3 shadow-2xs">
                   <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                  {isTr ? 'GELENEKSEL YAVAŞ SİTE' : 'TRADITIONAL SLOW WEBSITE'}
+                  {isTr ? 'GELENEKSEL YAVAŞ SİTE' : isDe ? 'KLASSISCHE LANGSAME WEBSITE' : 'TRADITIONAL SLOW WEBSITE'}
                 </div>
                 
                 <h3 className="text-2xl font-black text-slate-900 mb-3 font-['Outfit']">
-                  {isTr ? 'Yavaş Yüklenme & Ciro Kaybı' : 'Slow Speed & Lost Revenue'}
+                  {isTr ? 'Yavaş Yüklenme & Ciro Kaybı' : isDe ? 'Geringe Geschwindigkeit & Umsatzverlust' : 'Slow Speed & Lost Revenue'}
                 </h3>
 
                 {activeTab === 'speed' && (
                   <ul className="space-y-2.5 text-sm text-slate-700 font-medium">
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>LCP: 4.2s</strong> — Sayfa ekrana gelene kadar kullanıcı sıkılıp çıkıyor.</span>
+                      <span>
+                        <strong>LCP: 4.2s</strong> —{' '}
+                        {isTr
+                          ? 'Sayfa ekrana gelene kadar kullanıcı sıkılıp çıkıyor.'
+                          : isDe
+                          ? 'Nutzer brechen ab, bevor der Inhalt überhaupt geladen ist.'
+                          : 'Users abandon the page before content renders.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Lighthouse: 34/100</strong> — Google SEO sıralamasında geriye düşer.</span>
+                      <span>
+                        <strong>Lighthouse: 34/100</strong> —{' '}
+                        {isTr
+                          ? 'Google SEO sıralamasında geriye düşer.'
+                          : isDe
+                          ? 'Verliert Rankings in den Google-SEO-Ergebnissen.'
+                          : 'Drops significantly in Google SEO rankings.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Ağır Veritabanı Yükü:</strong> Paylaşımlı hostingde eşzamanlı 50 kişide çöker.</span>
+                      <span>
+                        <strong>{isTr ? 'Ağır Veritabanı Yükü:' : isDe ? 'Hohe Datenbanklast:' : 'Heavy Database Load:'}</strong>{' '}
+                        {isTr
+                          ? 'Paylaşımlı hostingde eşzamanlı 50 kişide çöker.'
+                          : isDe
+                          ? 'Bricht auf Shared-Hosting bei 50 gleichzeitigen Nutzern ein.'
+                          : 'Crashes on shared hosting with 50 concurrent visitors.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -275,15 +296,36 @@ export default function BeforeAfterComparison() {
                   <ul className="space-y-2.5 text-sm text-slate-700 font-medium">
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>%53 Terk Etme Oranı:</strong> 3 saniyeyi geçen her tıklama doğrudan çöpe gider.</span>
+                      <span>
+                        <strong>{isTr ? '%53 Terk Etme Oranı:' : isDe ? '53% Absprungrate:' : '53% Bounce Rate:'}</strong>{' '}
+                        {isTr
+                          ? '3 saniyeyi geçen her tıklama doğrudan çöpe gider.'
+                          : isDe
+                          ? 'Jeder Klick über 3 Sekunden ist verlorenes Budget.'
+                          : 'Clicks taking over 3 seconds are directly wasted.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Dönüşüm Oranı: %1.2</strong> — Reklam bütçenizin çoğu boşa harcanır.</span>
+                      <span>
+                        <strong>{isTr ? 'Dönüşüm Oranı: %1.2' : isDe ? 'Konvertierungsrate: 1.2%' : 'Conversion Rate: 1.2%'}</strong> —{' '}
+                        {isTr
+                          ? 'Reklam bütçenizin çoğu boşa harcanır.'
+                          : isDe
+                          ? 'Ein Großteil Ihres Werbebudgets verpufft wirkungslos.'
+                          : 'Most of your paid ad budget is burned uselessly.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Müşteri Algısı:</strong> Yavaş site profesyonel olmayan işletme izlenimi verir.</span>
+                      <span>
+                        <strong>{isTr ? 'Müşteri Algısı:' : isDe ? 'Kundenwahrnehmung:' : 'Brand Perception:'}</strong>{' '}
+                        {isTr
+                          ? 'Yavaş site profesyonel olmayan işletme izlenimi verir.'
+                          : isDe
+                          ? 'Eine langsame Website wirkt unprofessionell und mindert Vertrauen.'
+                          : 'Slow websites signal an amateurish and unreliable brand.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -292,15 +334,36 @@ export default function BeforeAfterComparison() {
                   <ul className="space-y-2.5 text-sm text-slate-700 font-medium">
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Statik İletişim Formu:</strong> Müşteri saatlerce veya günlerce yanıt bekler.</span>
+                      <span>
+                        <strong>{isTr ? 'Statik İletişim Formu:' : isDe ? 'Statisches Kontaktformular:' : 'Static Contact Form:'}</strong>{' '}
+                        {isTr
+                          ? 'Müşteri saatlerce veya günlerce yanıt bekler.'
+                          : isDe
+                          ? 'Kunden warten stunden- oder tagelang auf eine Antwort.'
+                          : 'Customers wait hours or days for a response.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Gece Gelen Talepler Kayıp:</strong> Mesai saati dışındaki alıcılar rakibe gider.</span>
+                      <span>
+                        <strong>{isTr ? 'Gece Gelen Talepler Kayıp:' : isDe ? 'Verlorene Nacht-Leads:' : 'Lost Night Inquiries:'}</strong>{' '}
+                        {isTr
+                          ? 'Mesai saati dışındaki alıcılar rakibe gider.'
+                          : isDe
+                          ? 'Interessenten außerhalb der Bürozeiten wandern zur Konkurrenz ab.'
+                          : 'Out-of-office prospects immediately leave for competitors.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-rose-500 mt-1.5 flex-shrink-0" />
-                      <span><strong>Sıfır Kişiselleştirme:</strong> Her ziyaretçiye aynı cansız şablon gösterilir.</span>
+                      <span>
+                        <strong>{isTr ? 'Sıfır Kişiselleştirme:' : isDe ? 'Keine Personalisierung:' : 'Zero Personalization:'}</strong>{' '}
+                        {isTr
+                          ? 'Her ziyaretçiye aynı cansız şablon gösterilir.'
+                          : isDe
+                          ? 'Jeder Besucher sieht dieselbe starre Standard-Vorlage.'
+                          : 'Every visitor sees the same generic, unresponsive template.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -310,18 +373,24 @@ export default function BeforeAfterComparison() {
               <div className="grid grid-cols-3 gap-3 max-w-md w-full">
                 <div className="p-3.5 rounded-xl bg-white border border-rose-200 text-center shadow-xs">
                   <Gauge className="w-5 h-5 text-rose-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">Hız Skoru</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'Hız Skoru' : isDe ? 'Speed-Score' : 'Speed Score'}
+                  </span>
                   <span className="text-xl font-black text-rose-600 font-['Outfit']">34 / 100</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white border border-rose-200 text-center shadow-xs">
                   <Zap className="w-5 h-5 text-rose-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">LCP Süresi</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'LCP Süresi' : isDe ? 'LCP-Zeit' : 'LCP Time'}
+                  </span>
                   <span className="text-xl font-black text-rose-600 font-['Outfit']">{slowTime > 0 ? `${slowTime.toFixed(1)}s` : '4.2s'}</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white border border-rose-200 text-center shadow-xs">
                   <TrendingUp className="w-5 h-5 text-rose-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">Dönüşüm</span>
-                  <span className="text-xl font-black text-rose-600 font-['Outfit']">%1.2</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'Dönüşüm' : isDe ? 'Conversion' : 'Conversion'}
+                  </span>
+                  <span className="text-xl font-black text-rose-600 font-['Outfit']">{isTr ? '%1.2' : '1.2%'}</span>
                 </div>
               </div>
             </div>
@@ -346,10 +415,10 @@ export default function BeforeAfterComparison() {
                   <div className="flex justify-between text-xs font-bold text-slate-700">
                     <span className="flex items-center gap-1.5 text-emerald-800">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      {fastPhase === 'init' && 'Edge Server bağlandı...'}
-                      {fastPhase === 'rendering' && '⚡ Sub-second Server Component Streamed'}
-                      {fastPhase === 'completed' && '✨ Anında Açıldı: 0.38s (Lighthouse 99 Skor)'}
-                      {fastPhase === 'idle' && 'StarWebFlow Hibrit Edge Mimarisi'}
+                      {fastPhase === 'init' && (isTr ? 'Edge Server bağlandı...' : isDe ? 'Edge-Server verbunden...' : 'Edge Server connected...')}
+                      {fastPhase === 'rendering' && (isTr ? '⚡ Sub-second Server Component Streamed' : isDe ? '⚡ Sub-Second Server Component gestreamt' : '⚡ Sub-second Server Component Streamed')}
+                      {fastPhase === 'completed' && (isTr ? '✨ Anında Açıldı: 0.38s (Lighthouse 99 Skor)' : isDe ? '✨ Sofort geladen: 0.38s (Lighthouse 99 Score)' : '✨ Instant Load: 0.38s (Lighthouse 99 Score)')}
+                      {fastPhase === 'idle' && (isTr ? 'StarWebFlow Hibrit Edge Mimarisi' : isDe ? 'StarWebFlow Hybride Edge-Architektur' : 'StarWebFlow Hybrid Edge Architecture')}
                     </span>
                     <span className="font-mono text-emerald-700 font-bold">{fastTime.toFixed(2)}s</span>
                   </div>
@@ -363,26 +432,47 @@ export default function BeforeAfterComparison() {
 
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-bold mb-3 shadow-2xs">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  {isTr ? 'STARWEBFLOW SUB-SECOND & MODEL-AGNOSTİK AI' : 'STARWEBFLOW SUB-SECOND & MODEL-AGNOSTIC AI'}
+                  {isTr ? 'STARWEBFLOW SUB-SECOND & MODEL-AGNOSTİK AI' : isDe ? 'STARWEBFLOW SUB-SECOND & MODELL-AGNOSTISCHE KI' : 'STARWEBFLOW SUB-SECOND & MODEL-AGNOSTIC AI'}
                 </div>
 
                 <h3 className="text-2xl font-black text-slate-900 mb-3 font-['Outfit']">
-                  {isTr ? 'Sub-Second Hız & 3.6x Ciro Artışı' : 'Sub-Second Speed & 3.6x Revenue'}
+                  {isTr ? 'Sub-Second Hız & 3.6x Ciro Artışı' : isDe ? 'Sub-Second Speed & 3.6x Mehr Umsatz' : 'Sub-Second Speed & 3.6x Revenue'}
                 </h3>
 
                 {activeTab === 'speed' && (
                   <ul className="space-y-2.5 text-sm text-slate-800 font-semibold inline-block text-left">
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>LCP: 0.38s</strong> — Göz kırpma hızında (sub-second) anında tam yüklenme.</span>
+                      <span>
+                        <strong>LCP: 0.38s</strong> —{' '}
+                        {isTr
+                          ? 'Göz kırpma hızında (sub-second) anında tam yüklenme.'
+                          : isDe
+                          ? 'Blitzschnelle (sub-second) Vollladung im Wimpernschlag.'
+                          : 'Sub-second instant rendering in the blink of an eye.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Lighthouse: 99/100</strong> — Google SEO ve Ads kalite skorlarında zirve.</span>
+                      <span>
+                        <strong>Lighthouse: 99/100</strong> —{' '}
+                        {isTr
+                          ? 'Google SEO ve Ads kalite skorlarında zirve.'
+                          : isDe
+                          ? 'Spitzenwerte bei Google SEO- & Ads-Qualitätsfaktoren.'
+                          : 'Top-tier rankings in Google SEO and Ads quality score.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Global Edge Dağıtım:</strong> Frankfurt, İstanbul, Zürih sunucularında sıfır gecikme.</span>
+                      <span>
+                        <strong>{isTr ? 'Global Edge Dağıtım:' : isDe ? 'Globales Edge-CDN:' : 'Global Edge CDN:'}</strong>{' '}
+                        {isTr
+                          ? 'Frankfurt, İstanbul, Zürih sunucularında sıfır gecikme.'
+                          : isDe
+                          ? 'Null Latenz über Server in Frankfurt, Zürich, Istanbul.'
+                          : 'Zero latency across servers in Frankfurt, Zurich, Istanbul.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -391,15 +481,36 @@ export default function BeforeAfterComparison() {
                   <ul className="space-y-2.5 text-sm text-slate-800 font-semibold inline-block text-left">
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>%8.4 Düşük Bounce:</strong> Reklamdan gelen her ziyaretçi anında siteyi görür.</span>
+                      <span>
+                        <strong>{isTr ? '%8.4 Düşük Bounce:' : isDe ? '8.4% Geringe Absprungrate:' : '8.4% Low Bounce:'}</strong>{' '}
+                        {isTr
+                          ? 'Reklamdan gelen her ziyaretçi anında siteyi görür.'
+                          : isDe
+                          ? 'Jeder Werbebesucher sieht die Seite sofort ohne Wartezeit.'
+                          : 'Every ad visitor lands and experiences the page instantly.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Dönüşüm Oranı: %4.8</strong> — Aynı reklam bütçesiyle 3.6 kat daha fazla müşteri.</span>
+                      <span>
+                        <strong>{isTr ? 'Dönüşüm Oranı: %4.8' : isDe ? 'Konvertierungsrate: 4.8%' : 'Conversion Rate: 4.8%'}</strong> —{' '}
+                        {isTr
+                          ? 'Aynı reklam bütçesiyle 3.6 kat daha fazla müşteri.'
+                          : isDe
+                          ? '3.6x mehr Kunden beim exakt gleichen Werbebudget.'
+                          : '3.6x more customers generated from the exact same ad spend.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Premium Prestij:</strong> Apple akıcılığında deneyim, yüksek bütçeli teklifler getirir.</span>
+                      <span>
+                        <strong>{isTr ? 'Premium Prestij:' : isDe ? 'Premium-Wirkung:' : 'Premium Prestige:'}</strong>{' '}
+                        {isTr
+                          ? 'Apple akıcılığında deneyim, yüksek bütçeli teklifler getirir.'
+                          : isDe
+                          ? 'Apple-weiche UX überzeugt solvente B2B-Kunden sofort.'
+                          : 'Apple-grade fluidity commands high-ticket B2B deals.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -408,15 +519,36 @@ export default function BeforeAfterComparison() {
                   <ul className="space-y-2.5 text-sm text-slate-800 font-semibold inline-block text-left">
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Model-Agnostik AI & Ses:</strong> Sesli ve yazılı olarak müşteriyi 0.9s karşılar, analiz eder.</span>
+                      <span>
+                        <strong>{isTr ? 'Model-Agnostik AI & Ses:' : isDe ? 'Modell-Agnostische KI & Voice:' : 'Model-Agnostic AI & Voice:'}</strong>{' '}
+                        {isTr
+                          ? 'Sesli ve yazılı olarak müşteriyi 0.9s karşılar, analiz eder.'
+                          : isDe
+                          ? 'Begrüßt und qualifiziert Kunden in 0.9s per Sprache & Chat.'
+                          : 'Engages and qualifies clients in 0.9s via voice & chat.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Gece Satış Yapabilme:</strong> 7/24 randevu oluşturur, WhatsApp veya CRM'e yazar.</span>
+                      <span>
+                        <strong>{isTr ? 'Gece Satış Yapabilme:' : isDe ? '24/7 Vertriebsaktivität:' : '24/7 Sales Engine:'}</strong>{' '}
+                        {isTr
+                          ? '7/24 randevu oluşturur, WhatsApp veya CRM\'e yazar.'
+                          : isDe
+                          ? 'Bucht Termine rund um die Uhr direkt ins CRM oder WhatsApp.'
+                          : 'Books qualified meetings round the clock directly into CRM & WhatsApp.'}
+                      </span>
                     </li>
                     <li className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 flex-shrink-0" />
-                      <span><strong>Sıfır Vendor Lock-in:</strong> Claude, Llama, GPT desteğiyle TR, DE, EN akıcı satış motoru.</span>
+                      <span>
+                        <strong>{isTr ? 'Sıfır Vendor Lock-in:' : isDe ? 'Kein Vendor Lock-in:' : 'Zero Vendor Lock-in:'}</strong>{' '}
+                        {isTr
+                          ? 'Claude, Llama, GPT desteğiyle TR, DE, EN akıcı satış motoru.'
+                          : isDe
+                          ? 'Fließender Vertrieb in DE, EN, TR mit Claude, Llama & GPT.'
+                          : 'Fluent multilingual sales in EN, DE, TR powered by Claude, Llama & GPT.'}
+                      </span>
                     </li>
                   </ul>
                 )}
@@ -426,18 +558,24 @@ export default function BeforeAfterComparison() {
               <div className="grid grid-cols-3 gap-3 max-w-md w-full ml-auto">
                 <div className="p-3.5 rounded-xl bg-white border border-emerald-200 text-center shadow-xs">
                   <Gauge className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">Hız Skoru</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'Hız Skoru' : isDe ? 'Speed-Score' : 'Speed Score'}
+                  </span>
                   <span className="text-xl font-black text-emerald-700 font-['Outfit']">99 / 100</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white border border-emerald-200 text-center shadow-xs">
                   <Zap className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">LCP Süresi</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'LCP Süresi' : isDe ? 'LCP-Zeit' : 'LCP Time'}
+                  </span>
                   <span className="text-xl font-black text-emerald-700 font-['Outfit']">0.38s</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white border border-emerald-200 text-center shadow-xs">
                   <TrendingUp className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
-                  <span className="block text-[11px] font-bold text-slate-500 uppercase">Dönüşüm</span>
-                  <span className="text-xl font-black text-emerald-700 font-['Outfit']">%4.8</span>
+                  <span className="block text-[11px] font-bold text-slate-500 uppercase">
+                    {isTr ? 'Dönüşüm' : isDe ? 'Conversion' : 'Conversion'}
+                  </span>
+                  <span className="text-xl font-black text-emerald-700 font-['Outfit']">{isTr ? '%4.8' : '4.8%'}</span>
                 </div>
               </div>
             </div>
@@ -459,7 +597,7 @@ export default function BeforeAfterComparison() {
               max="100"
               value={sliderPos}
               onChange={(e) => setSliderPos(Number(e.target.value))}
-              aria-label="Karşılaştırma kaydırıcısı"
+              aria-label={isTr ? 'Karşılaştırma kaydırıcısı' : isDe ? 'Vergleichs-Schieberegler' : 'Comparison slider'}
               className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40"
             />
           </div>
@@ -474,12 +612,16 @@ export default function BeforeAfterComparison() {
                 <p className="text-xs sm:text-sm font-bold text-slate-900">
                   {isTr 
                     ? 'Bu Testte Tam Olarak Ne Ölçülüyor?' 
-                    : 'Was genau wird in diesem Test gemessen?'}
+                    : isDe
+                    ? 'Was genau wird in diesem Test gemessen?'
+                    : 'What exactly is measured in this test?'}
                 </p>
                 <p className="text-xs text-slate-600 mt-0.5">
                   {isTr 
                     ? 'Google Lighthouse LCP (Largest Contentful Paint) ve TTFB (Sunucu Tepki Süresi) baz alınarak gerçek dünya tarayıcı simülasyonu çalıştırılır.' 
-                    : 'Echte Browser-Simulation basierend auf Google Lighthouse LCP & TTFB.'}
+                    : isDe
+                    ? 'Echte Browser-Simulation basierend auf Google Lighthouse LCP & TTFB.'
+                    : 'Real browser simulation based on Google Lighthouse LCP and TTFB.'}
                 </p>
               </div>
             </div>
@@ -488,7 +630,13 @@ export default function BeforeAfterComparison() {
               href="#contact"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-colors whitespace-nowrap"
             >
-              <span>{isTr ? 'Sitenizi Ücretsiz Analiz Ettirin' : 'Kostenlose Web-Analyse anfordern'}</span>
+              <span>
+                {isTr 
+                  ? 'Sitenizi Ücretsiz Analiz Ettirin' 
+                  : isDe
+                  ? 'Kostenlose Web-Analyse anfordern'
+                  : 'Request Free Web Audit'}
+              </span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>

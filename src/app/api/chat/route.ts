@@ -263,17 +263,18 @@ Aracı çalıştırdıktan sonra: "Teşekkürler, bilgilerinizi uzman ekibimize 
             const targetDate = new Date();
             targetDate.setDate(targetDate.getDate() + 1); // default next business day
             targetDate.setHours(11, 0, 0, 0);
+            const endDate = new Date(targetDate.getTime() + 30 * 60 * 1000);
 
             await prisma.appointment.create({
               data: {
                 tenantId,
-                leadId: lead.id,
-                title: `StarWebFlow Keşif Toplantısı - ${name}`,
-                date: targetDate,
-                duration: 30,
-                status: 'PENDING',
-                type: 'ONLINE',
-                notes: `Talep Konusu: ${topic || 'Genel Proje Keşfi'}. Ziyaretçi Talebi: ${preferredDate || 'Müsait ilk saat'}.`
+                title: `StarWebFlow Keşif Toplantısı - ${name} (${topic || 'Genel Proje Keşfi'})`,
+                clientName: name,
+                clientEmail: email,
+                startTime: targetDate,
+                endTime: endDate,
+                status: 'pending',
+                meetLink: null
               }
             });
 

@@ -181,7 +181,11 @@ export default function ROICalculatorSection() {
                   {language === 'tr' ? 'Operasyonel Tasarruf Simülatörü' : language === 'de' ? 'Ersparnis-Simulator' : 'Savings Simulator'}
                 </h3>
                 <p className="text-xs text-slate-500 font-medium">
-                  {language === 'tr' ? 'Ekibinizin haftalık angarya yükünü girin' : 'Input weekly manual hours'}
+                  {language === 'tr'
+                    ? 'Ekibinizin haftalık angarya yükünü girin'
+                    : language === 'de'
+                    ? 'Wöchentlichen Routineaufwand eingeben'
+                    : 'Input weekly manual hours'}
                 </p>
               </div>
             </div>
@@ -326,6 +330,8 @@ export default function ROICalculatorSection() {
             <p className="text-sm text-slate-600 mt-2 font-medium">
               {language === 'tr'
                 ? 'Sadece yazılım değil; doğrudan bilançonuzu ve müşteri memnuniyetinizi büyüten mühendislik.'
+                : language === 'de'
+                ? 'Nicht nur Software, sondern Ingenieurskunst, die Ihre Bilanz und Kundenzufriedenheit steigert.'
                 : 'Engineered directly to transform your balance sheet and customer satisfaction.'}
             </p>
           </div>
@@ -351,7 +357,13 @@ export default function ROICalculatorSection() {
                   </div>
                   <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-bold text-slate-700">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{language === 'tr' ? 'Ölçülebilir & Garanti' : 'Measurable SLA'}</span>
+                    <span>
+                      {language === 'tr'
+                        ? 'Ölçülebilir & Garanti'
+                        : language === 'de'
+                        ? 'Messbar & Garantiert'
+                        : 'Measurable SLA'}
+                    </span>
                   </div>
                 </div>
               )

@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     // 1. Apify Scraper'ı Webhook veya Senkron olarak tetikle
     const scraperResult = await runApifyScraperAction(tenantId, {}, { sector, location, country, platform, targetRoles, personName, personRole });
     
-    if (scraperResult.isAsync) {
+    if (scraperResult.isAsync || !('rawScrapedData' in scraperResult)) {
       return NextResponse.json({
         success: true,
         message: "Arama arka planda başlatıldı. Veriler geldikçe CRM'inize (Veri Havuzuna) otomatik eklenecektir.",
