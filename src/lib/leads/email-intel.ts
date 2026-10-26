@@ -27,6 +27,7 @@ export interface EmailDiscoveryResult {
   candidates: EmailCandidate[];
   domain: string | null;
   pagesCrawled: number;
+  discoveredPhones?: string[];
 }
 
 const CONTACT_PATHS = [
@@ -83,6 +84,31 @@ export function extractEmailsFromHtml(html: string): { email: string; viaMailto:
     if (!found.has(e)) found.set(e, false);
   }
   return Array.from(found.entries()).map(([email, viaMailto]) => ({ email, viaMailto }));
+}
+
+/** Web sitesi HTML'inden gerçek telefon numaralarını (tel: linkleri ve Impressum/Kontakt formatları) çıkarır */
+export function extractPhonesFromHtml(html: string): string[] {
+  const found = new Set<string>();
+  
+  // 1. href="tel:..." linkleri (En kesin ve güvenilir)
+  const telRe = /href=["']tel:([^"'\s>]+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = telRe.exec(html))) {
+    let clean = m[1].replace(/[^0-9+]/g, ' ').trim();
+    if (clean.length >= 6 && clean.length <= 25) found.add(clean);
+  }
+
+  // 2. Metin içindeki Telefon / Tel / Fon / Phone kalıpları (Almanca ve Uluslararası)
+  const textRe = /(?:Tel(?:efon)?|Phone|Fon|Mobil|Mobile)[:\.\s]+([+]?[0-9]{1,4}[0-9\s\-\/\(\)]{6,22})/gi;
+  while ((m = textRe.exec(html))) {
+    let clean = m[1].replace(/[\r\n\t]/g, '').trim();
+    const digitsOnly = clean.replace(/[^0-9]/g, '');
+    if (digitsOnly.length >= 7 && digitsOnly.length <= 16) {
+      found.add(clean);
+    }
+  }
+
+  return Array.from(found);
 }
 
 async function fetchText(url: string, timeoutMs = 4500): Promise<string | null> {
@@ -206,13 +232,18 @@ export async function discoverEmail(params: {
   const base = `https://${domain}`;
   const pages = await Promise.all(CONTACT_PATHS.map((p) => fetchText(base + p)));
   const raw = new Map<string, boolean>();
+  const discoveredPhones: string[] = [];
   pages.forEach((html) => {
     if (!html) return;
     result.pagesCrawled++;
     extractEmailsFromHtml(html).forEach(({ email, viaMailto }) => {
       if (!raw.has(email) || viaMailto) raw.set(email, viaMailto);
     });
+    extractPhonesFromHtml(html).forEach((phone) => {
+      if (!discoveredPhones.includes(phone)) discoveredPhones.push(phone);
+    });
   });
+  result.discoveredPhones = discoveredPhones;
 
   const candidates: EmailCandidate[] = [];
   for (const [email, viaMailto] of Array.from(raw.entries())) {

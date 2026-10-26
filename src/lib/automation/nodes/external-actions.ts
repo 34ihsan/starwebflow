@@ -211,7 +211,8 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
         const name = item.name || item.display_name?.split(',')[0]?.trim();
         if (!name || name.length < 2) continue;
         const website = item.extratags?.website || item.extratags?.['contact:website'] || item.extratags?.url || '';
-        const phone = item.extratags?.phone || item.extratags?.['contact:phone'] || '';
+        const phone = item.extratags?.phone || item.extratags?.['contact:phone'] || item.extratags?.['contact:mobile'] || '';
+        const email = item.extratags?.email || item.extratags?.['contact:email'] || '';
         const address = item.display_name || `${cleanLocation}, ${cleanCountry}`;
         
         rawItems.push({
@@ -219,6 +220,7 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
           title: name,
           website,
           phone,
+          email,
           location: `${item.address?.city || item.address?.town || cleanLocation}, ${cleanCountry}`,
           address,
           totalScore: 4.5,
@@ -414,12 +416,17 @@ Dataset: ${JSON.stringify(chunk)}
     let email: string | null = original.email || null;
     let emailConfidence: number | null = email ? 70 : null;
     let emailKind: string | null = null;
-    if (!email) {
+    let phone: string | null = original.phone || null;
+
+    if (original.website && (!email || !phone)) {
       const found = await enrichLeadEmail(original.website, original.name, decisionMakerName);
-      if (found.best) {
+      if (!email && found.best) {
         email = found.best.email;
         emailConfidence = found.best.confidence;
         emailKind = found.best.kind;
+      }
+      if (!phone && found.discoveredPhones && found.discoveredPhones.length > 0) {
+        phone = found.discoveredPhones[0];
       }
     }
 
@@ -435,7 +442,7 @@ Dataset: ${JSON.stringify(chunk)}
       decisionMakerName,
       email,
       emailConfidence,
-      phone: original.phone,
+      phone,
       aiWinProbability: ai.winProbability ?? null
     });
 
@@ -453,7 +460,7 @@ Dataset: ${JSON.stringify(chunk)}
       email,
       emailConfidence,
       emailKind,
-      phone: original.phone || null,
+      phone: phone || original.phone || null,
       website: original.website || null,
       score: scored.score,
       tier: scored.tier,
