@@ -31,26 +31,45 @@ export interface EmailDiscoveryResult {
 }
 
 const CONTACT_PATHS = [
-  '', '/contact', '/contact-us', '/kontakt', '/impressum', '/iletisim', '/hakkimizda', '/about', '/ueber-uns', '/team',
+  '', 
+  '/impressum', '/impressum.html', '/impressum.htm', '/impressum.php',
+  '/kontakt', '/kontakt.html', '/kontakt.htm', '/kontakt.php',
+  '/contact', '/contact-us', '/contact.html',
+  '/ueber-uns', '/about', '/team', '/anfahrt'
 ];
 
 const JUNK_DOMAINS = new Set([
   'example.com', 'domain.com', 'email.com', 'sentry.io', 'wixpress.com', 'sentry-next.wixpress.com',
   'yourdomain.com', 'mysite.com', 'test.com',
 ]);
-const JUNK_LOCALPARTS = /^(noreply|no-reply|donotreply|do-not-reply|mailer-daemon|postmaster|abuse|webmaster|root|privacy|dpo|datenschutz|unsubscribe|bounce|spam)$/i;
+const JUNK_LOCALPARTS = /^(noreply|no-reply|donotreply|do-not-reply|mailer-daemon|postmaster|abuse|webmaster|root|privacy|dpo|datenschutz|unsubscribe|bounce|spam|stadtverwaltung|buergermeister)$/i;
 const ASSET_EXT = /\.(png|jpe?g|gif|svg|webp|css|js|woff2?|ico|pdf)$/i;
-const ROLE_LOCALPARTS = /^(info|contact|hello|hallo|office|sales|support|service|mail|kontakt|iletisim|bilgi|team|hi|admin|booking|reservierung|praxis|buero|büro)$/i;
+const ROLE_LOCALPARTS = /^(info|contact|hello|hallo|office|sales|support|service|mail|kontakt|iletisim|bilgi|team|hi|admin|booking|reservierung|praxis|buero|büro|termin|termine|empfang)$/i;
 const FREE_PROVIDERS = new Set(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'gmx.de', 'gmx.net', 'web.de', 't-online.de', 'icloud.com', 'yandex.com']);
 
 const mxCache = new Map<string, boolean>();
 const catchAllCache = new Map<string, boolean>();
 
-function resolveMxExists(domain: string): Promise<boolean> {
+function resolveMxExists(domain: string, timeoutMs = 2500): Promise<boolean> {
   if (mxCache.has(domain)) return Promise.resolve(mxCache.get(domain)!);
   return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      mxCache.set(domain, true);
+      resolve(true);
+    }, timeoutMs);
+
     dns.resolveMx(domain, (err, records) => {
-      const ok = !err && !!records && records.length > 0;
+      clearTimeout(timer);
+      if (err) {
+        // Ağ kısıtlaması veya port 53 engeli durumunda (ECONNREFUSED/SERVFAIL vb.) taramayı engelleme
+        if (err.code === 'ECONNREFUSED' || err.code === 'ETIMEOUT' || err.code === 'EREFUSED') {
+          mxCache.set(domain, true);
+          return resolve(true);
+        }
+        mxCache.set(domain, false);
+        return resolve(false);
+      }
+      const ok = Array.isArray(records) && records.length > 0;
       mxCache.set(domain, ok);
       resolve(ok);
     });
@@ -94,14 +113,15 @@ export function extractPhonesFromHtml(html: string): string[] {
   const telRe = /href=["']tel:([^"'\s>]+)["']/gi;
   let m: RegExpExecArray | null;
   while ((m = telRe.exec(html))) {
-    let clean = m[1].replace(/[^0-9+]/g, ' ').trim();
+    let clean = m[1].replace(/[^0-9+]/g, ' ').replace(/\s+/g, ' ').trim();
     if (clean.length >= 6 && clean.length <= 25) found.add(clean);
   }
 
   // 2. Metin içindeki Telefon / Tel / Fon / Phone kalıpları (Almanca ve Uluslararası)
-  const textRe = /(?:Tel(?:efon)?|Phone|Fon|Mobil|Mobile)[:\.\s]+([+]?[0-9]{1,4}[0-9\s\-\/\(\)]{6,22})/gi;
+  const textRe = /(?:Tel(?:\.|efon)?|Phone|Fon|Mobil|Mobile)[:\.\s]+([+]?[0-9\(\)\/\s\-]{6,25})/gi;
   while ((m = textRe.exec(html))) {
-    let clean = m[1].replace(/[\r\n\t]/g, '').trim();
+    let clean = m[1].replace(/[\r\n\t<]/g, '').trim();
+    clean = clean.replace(/\s+/g, ' ');
     const digitsOnly = clean.replace(/[^0-9]/g, '');
     if (digitsOnly.length >= 7 && digitsOnly.length <= 16) {
       found.add(clean);

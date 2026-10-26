@@ -10,7 +10,14 @@ export async function GET(req: Request) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
     const sector = searchParams.get('sector');
 
-    const where: any = { tenantId };
+    const where: any = { 
+      tenantId,
+      NOT: [
+        { email: { contains: 'stadtverwaltung' } },
+        { email: { contains: 'rathaus' } },
+        { company: 'Mannheim' }
+      ]
+    };
     if (sector && sector.trim().length > 0) {
       where.industry = { contains: sector.trim(), mode: 'insensitive' };
     }
@@ -39,25 +46,44 @@ export async function POST(req: Request) {
 
     console.log(`[Prospecting API] Received search request for tenant ${tenantId}:`, { sector, country, location, platform, targetRoles, personName, personRole });
 
-    // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
-    const existingLeads = await prisma.lead.findMany({
+    // Varsa eski belediye ve geçersiz çöpleri temizle
+    await prisma.lead.deleteMany({
       where: {
         tenantId,
-        industry: sector,
-        location: location,
-        country: country,
-        source: platform
-      },
-      take: 20
-    });
+        OR: [
+          { email: { contains: 'stadtverwaltung' } },
+          { email: { contains: 'rathaus' } },
+          { company: 'Mannheim' }
+        ]
+      }
+    }).catch(() => {});
 
-    if (existingLeads && existingLeads.length > 0) {
-      console.log(`[Prospecting API] Found ${existingLeads.length} cached leads for tenant ${tenantId}, returning directly.`);
-      return NextResponse.json({
-        success: true,
-        message: `${existingLeads.length} müşteri önbellekten (ücretsiz) getirildi.`,
-        results: existingLeads
+    // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
+    if (!body.fresh) {
+      const existingLeads = await prisma.lead.findMany({
+        where: {
+          tenantId,
+          industry: sector,
+          location: location,
+          country: country,
+          NOT: [
+            { email: { contains: 'stadtverwaltung' } },
+            { email: { contains: 'rathaus' } },
+            { company: location }
+          ]
+        },
+        take: 20
       });
+
+      const validLeads = (existingLeads || []).filter(l => l.email || l.phone || l.website);
+      if (validLeads.length >= 3) {
+        console.log(`[Prospecting API] Found ${validLeads.length} valid cached leads for tenant ${tenantId}, returning directly.`);
+        return NextResponse.json({
+          success: true,
+          message: `${validLeads.length} müşteri önbellekten (ücretsiz) getirildi.`,
+          results: validLeads
+        });
+      }
     }
 
     // 1. Scraper'ı tetikle (Apify veya Direct Fallback)

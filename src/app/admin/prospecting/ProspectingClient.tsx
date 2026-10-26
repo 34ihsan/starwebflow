@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { 
   Radar, MapPin, Globe2, Briefcase, Database, 
-  Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle, Target, ChevronDown, Check
+  Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle, Target, ChevronDown, Check,
+  Phone, ExternalLink
 } from "lucide-react";
 
 const TARGET_ROLES = [
@@ -115,7 +116,7 @@ export default function ProspectingClient() {
       const response = await fetch('/api/prospecting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles, personName, personRole })
+        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles, personName, personRole, fresh: true })
       });
       
       if (!response.ok) {
@@ -575,9 +576,22 @@ export default function ProspectingClient() {
                       />
                     </td>
                     <td className="p-4">
-                      <div className="font-bold text-white text-sm group-hover:text-[#8B5CF6] transition-colors">{lead.company}</div>
+                      <div className="font-bold text-white text-sm group-hover:text-[#8B5CF6] transition-colors flex items-center gap-1.5">
+                        <span>{lead.company || lead.name}</span>
+                        {lead.website && (
+                          <a 
+                            href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-[#94A3B8] hover:text-[#4F8EF7] transition-colors inline-flex items-center"
+                            title={`Siteye Git: ${lead.website}`}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 text-slate-400 hover:text-white" />
+                          </a>
+                        )}
+                      </div>
                       <div className="text-xs text-[#94A3B8] mt-1 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {lead.location}
+                        <MapPin className="w-3 h-3 text-[#8B5CF6]" /> {lead.location}
                       </div>
                       {lead.industry && (
                         <div className="text-xs text-purple-400 mt-1">{lead.industry}</div>
@@ -586,13 +600,31 @@ export default function ProspectingClient() {
                     <td className="p-4">
                       <div className="text-sm font-medium text-white mb-1">
                         {lead.decisionMakerName ? (
-                          <span className="flex items-center gap-1 text-emerald-400">
-                            <CheckCircle2 className="w-3 h-3" />
-                            {lead.decisionMakerName} ({lead.decisionMakerTitle || 'CEO'})
+                          <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                            {lead.decisionMakerName} {lead.decisionMakerTitle ? `(${lead.decisionMakerTitle})` : ''}
                           </span>
-                        ) : lead.name}
+                        ) : (
+                          <span className="text-white/80">{lead.name || 'Genel İletişim'}</span>
+                        )}
                       </div>
-                      <div className="text-xs text-[#94A3B8]">{lead.email}</div>
+                      <div className="text-xs space-y-1">
+                        {lead.email ? (
+                          <div className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300">
+                            <Mail className="w-3.5 h-3.5 shrink-0 text-sky-400/80" />
+                            <a href={`mailto:${lead.email}`} className="hover:underline">{lead.email}</a>
+                          </div>
+                        ) : null}
+                        {lead.phone ? (
+                          <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
+                            <Phone className="w-3.5 h-3.5 shrink-0 text-emerald-400/80" />
+                            <a href={`tel:${lead.phone}`} className="hover:underline">{lead.phone}</a>
+                          </div>
+                        ) : null}
+                        {!lead.email && !lead.phone && (
+                          <span className="text-xs text-amber-400/70 italic">İletişim bilgisi taranıyor...</span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="space-y-2">
