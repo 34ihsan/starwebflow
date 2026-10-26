@@ -161,70 +161,76 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
  * never fails even if Apify token is missing, expired, or out of credits.
  */
 async function runDirectSearchFallback(tenantId: string, options: any) {
-  const { sector = "Dentist", location = "Berlin", country = "Germany", platform = "google_maps" } = options;
-  const query = `${sector} ${location} ${country}`.trim();
-  console.log(`[Zero-Cost Fallback] Searching OpenStreetMap & Web for: "${query}"`);
+  const { sector = "Restaurant", location = "Frankfurt", country = "Germany", platform = "google_maps" } = options;
+  const cleanSector = sector.trim().toLowerCase();
+  const cleanLocation = location.trim();
+  const cleanCountry = country.trim();
+  
+  console.log(`[Gerçek Dizin Taraması] OpenStreetMap üzerinden aranıyor: "${sector} in ${cleanLocation}, ${cleanCountry}"`);
   
   const rawItems: any[] = [];
+  
+  // Sektöre göre OSM amenity/office haritalaması (100% Gerçek Veri)
+  let amenityParam = "";
+  if (/restaurant|cafe|bar|gastronomie|lokanta|yemek|döner/i.test(cleanSector)) {
+    amenityParam = "&amenity=restaurant";
+  } else if (/dentist|diş|zahnarzt/i.test(cleanSector)) {
+    amenityParam = "&amenity=dentist";
+  } else if (/doctor|arzt|klinik|sağlık|doktor|physiotherapie/i.test(cleanSector)) {
+    amenityParam = "&amenity=doctors";
+  } else if (/law|lawyer|anwalt|hukuk|avukat|notar/i.test(cleanSector)) {
+    amenityParam = "&office=lawyer";
+  } else if (/hotel|otel|hostel|konaklama/i.test(cleanSector)) {
+    amenityParam = "&tourism=hotel";
+  }
+
   try {
-    const osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&extratags=1&limit=20`;
-    const res = await fetch(osmUrl, {
+    // 1. Yapılandırılmış şehir & sektör sorgusu
+    let osmUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&limit=25&city=${encodeURIComponent(cleanLocation)}&country=${encodeURIComponent(cleanCountry)}${amenityParam}`;
+    
+    let res = await fetch(osmUrl, {
       headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
-      signal: AbortSignal.timeout(6000)
+      signal: AbortSignal.timeout(8000)
     });
-    if (res.ok) {
-      const data = await res.json();
+
+    let data = res.ok ? await res.json() : [];
+
+    // Eğer yapılandırılmış aramada sonuç gelmezse serbest metin araması yap
+    if (!Array.isArray(data) || data.length === 0) {
+      const freeQuery = `${sector} ${cleanLocation} ${cleanCountry}`.trim();
+      osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(freeQuery)}&format=json&addressdetails=1&extratags=1&limit=25`;
+      res = await fetch(osmUrl, {
+        headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
+        signal: AbortSignal.timeout(8000)
+      });
+      data = res.ok ? await res.json() : [];
+    }
+
+    if (Array.isArray(data)) {
       for (const item of data) {
         const name = item.name || item.display_name?.split(',')[0]?.trim();
-        if (!name) continue;
+        if (!name || name.length < 2) continue;
         const website = item.extratags?.website || item.extratags?.['contact:website'] || item.extratags?.url || '';
         const phone = item.extratags?.phone || item.extratags?.['contact:phone'] || '';
+        const address = item.display_name || `${cleanLocation}, ${cleanCountry}`;
+        
         rawItems.push({
           name,
           title: name,
           website,
           phone,
-          location: `${item.address?.city || item.address?.town || location}, ${country}`,
-          address: item.display_name,
-          totalScore: +(4.0 + Math.random() * 0.9).toFixed(1),
-          reviews: ['Müşteri iletişimi ve online randevu konusunda modern altyapıya ihtiyaç duyuluyor.']
+          location: `${item.address?.city || item.address?.town || cleanLocation}, ${cleanCountry}`,
+          address,
+          totalScore: 4.5,
+          reviews: []
         });
       }
     }
   } catch (e: any) {
-    console.warn('[Zero-Cost Fallback] OpenStreetMap request timed out or unavailable:', e?.message || e);
+    console.warn('[Gerçek Dizin Taraması] OpenStreetMap isteği:', e?.message || e);
   }
 
-  // If real directory results are under 5, enrich with targeted industry business entities
-  if (rawItems.length < 5) {
-    const cleanCity = location.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'center';
-    const cleanSector = sector.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'agency';
-    const isDe = /germany|deutschland|austria|switzerland|berlin|munich|frankfurt|köln|hamburg|schifferstadt/i.test(`${location} ${country}`);
-    const tld = isDe ? '.de' : /turkey|türkiye|istanbul|ankara|izmir/i.test(`${location} ${country}`) ? '.com.tr' : '.com';
-    
-    const candidateSuffixes = [
-      { prefix: 'Zentrum', domainPrefix: 'zentrum' },
-      { prefix: 'Grup & Partner', domainPrefix: 'partner' },
-      { prefix: 'Klinik & Studio', domainPrefix: 'studio' },
-      { prefix: 'Expert Hub', domainPrefix: 'expert' },
-      { prefix: 'Çözüm & Danışmanlık', domainPrefix: 'solutions' },
-      { prefix: 'Modern Systems', domainPrefix: 'systems' },
-    ];
-
-    for (const c of candidateSuffixes) {
-      const compName = `${sector} ${c.prefix} (${location})`;
-      rawItems.push({
-        name: compName,
-        title: compName,
-        website: `https://www.${cleanSector}-${cleanCity}-${c.domainPrefix}${tld}`,
-        phone: isDe ? `+49 170 ${Math.floor(1000000 + Math.random() * 9000000)}` : `+90 532 ${Math.floor(1000000 + Math.random() * 9000000)}`,
-        location: `${location}, ${country}`,
-        totalScore: +(4.2 + Math.random() * 0.7).toFixed(1),
-        reviews: ['Online randevu ve hızlı müşteri takibinde dijitalleşme ihtiyacı var.']
-      });
-    }
-  }
-
+  console.log(`[Gerçek Dizin Taraması] ${cleanLocation} için ${rawItems.length} adet 100% gerçek işletme bulundu.`);
   return { rawScrapedData: rawItems, isAsync: false, platform };
 }
 
