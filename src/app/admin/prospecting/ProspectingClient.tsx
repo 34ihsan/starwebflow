@@ -145,7 +145,7 @@ export default function ProspectingClient() {
           // Arka planda çalışma durumunda 3 saniyede bir polling başlat
           setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
           let attempts = 0;
-          const pollUrl = sector ? `/api/prospecting?sector=${encodeURIComponent(sector)}` : '/api/prospecting';
+          const pollUrl = '/api/prospecting?limit=50';
           const interval = setInterval(async () => {
             attempts++;
             try {

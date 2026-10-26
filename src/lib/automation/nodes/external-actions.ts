@@ -468,6 +468,21 @@ export async function createLeadsAction(tenantId: string, payload: any, nodeData
   const { location, country, industry } = nodeData || {};
   console.log(`[CRM Node] Importing ${cleanedData.length} leads into database...`);
 
+  // Güvenlik: default-tenant veya ilgili tenant kaydının veritabanında var olduğundan emin ol
+  try {
+    await prisma.tenant.upsert({
+      where: { id: tenantId },
+      update: {},
+      create: {
+        id: tenantId,
+        name: 'StarWebFlow Workspace',
+        slug: tenantId === 'default-tenant' ? 'default' : tenantId
+      }
+    });
+  } catch (tErr) {
+    console.warn(`[CRM Node] Tenant upsert notice:`, tErr);
+  }
+
   let importedCount = 0;
   const createdLeads = [];
 
@@ -552,8 +567,8 @@ export async function createLeadsAction(tenantId: string, payload: any, nodeData
           data: {
             tenantId,
             email: item.email,
-            name: item.name,
-            company: item.company,
+            name: item.name || item.company || "Potansiyel Müşteri",
+            company: item.company || item.name || null,
             phone: item.phone,
             website: item.website,
             decisionMakerName: item.decisionMakerName,

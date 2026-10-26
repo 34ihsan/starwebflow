@@ -3,16 +3,34 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.tenant.upsert({
+  const tenant = await prisma.tenant.upsert({
     where: { slug: 'default' },
     update: {},
     create: {
       id: 'default-tenant',
-      name: 'Default Tenant',
+      name: 'StarWebFlow Workspace',
       slug: 'default'
     }
   });
-  console.log('Default tenant created.');
+  console.log('Default tenant ensured:', tenant.id);
+
+  await prisma.tenantSettings.upsert({
+    where: { tenantId: 'default-tenant' },
+    update: {},
+    create: {
+      tenantId: 'default-tenant',
+      companyName: 'StarWebFlow Digital Agent',
+      preferences: {
+        language: 'de',
+        timezone: 'Europe/Berlin',
+        general: {
+          currency: 'EUR',
+          website: 'www.starwebflow.com'
+        }
+      }
+    }
+  });
+  console.log('Default tenant settings ensured.');
 }
 
 main()
