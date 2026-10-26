@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAdminModel, extractJsonFromText } from '@/lib/ai/gemini-client';
 import { analyzeSpamWords, SPAM_KEYWORDS } from '@/lib/deliverability-score';
 import { computeMailboxHealth, type MailboxHealthInput } from '@/lib/warmup/health';
 
@@ -452,7 +452,7 @@ export async function generateWarmupContent(params: {
       if (isClosingTurn) {
         // AI İle Bağlamsal Doğal Kapanış Üret (Statik robotik cümleler tamamen kaldırıldı!)
         const { text: generatedClosing } = await generateText({
-          model: getFlashModel(),
+          model: getAdminModel(),
           system: `${persona}
 GÖREV: Karşındaki meslektaşınla "${existingThread.subject}" konusunu görüşüyordunuz ve konu netleşti. 
 Konuşmayı profesyonelce, yapıcı ve samimi bir dille sonlandıran 1-2 cümlelik çok doğal bir veda/kapanış yanıtı yaz. YANIT DİLİ: ${langName}.
@@ -482,7 +482,7 @@ KURALLAR:
 
       // Devam eden konuşmaya doğal B2B ara yanıt üret
       const { text: generatedEmail } = await generateText({
-        model: getFlashModel(),
+        model: getAdminModel(),
         system: `${persona}
 GÖREV: Karşındaki meslektaşından gelen "${existingThread.subject}" başlıklı e-postaya 1-3 cümlelik çok doğal, profesyonel bir yanıt yaz. YANIT DİLİ: ${langName}.
 KURALLAR:
@@ -513,7 +513,7 @@ KURALLAR:
       const scenario = B2B_SCENARIOS[Math.floor(Math.random() * B2B_SCENARIOS.length)];
 
       const { text: generatedEmail } = await generateText({
-        model: getFlashModel(),
+        model: getAdminModel(),
         system: `${persona}
 GÖREV: İş arkadaşına göndermek üzere "${scenario.topic}" konulu kısa bir kurumsal e-posta hazırla. E-POSTA DİLİ: ${langName} (konu başlığı ve metin bu dilde, doğal biçimde yazılmalı).
 BAĞLAM: ${scenario.context}
@@ -526,12 +526,7 @@ KURALLAR:
         prompt: 'Kurumsal e-posta üret.'
       });
 
-      let cleanJson = generatedEmail.trim();
-      if (cleanJson.startsWith('```')) {
-        cleanJson = cleanJson.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
-      }
-
-      const parsed = JSON.parse(cleanJson);
+      const parsed = JSON.parse(extractJsonFromText(generatedEmail));
       let subject = parsed.subject || scenario.topic;
       let bodyText = parsed.body || pickFrom(FB.conversations).body;
 

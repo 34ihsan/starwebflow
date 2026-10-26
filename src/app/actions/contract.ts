@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { logActivity } from './activity';
 import { generateText } from 'ai';
-import { getProModel, getFlashModel } from '@/lib/ai/gemini-client';
+import { getWebDevModel } from '@/lib/ai/gemini-client';
 
 function getFallbackTemplate(clientName: string, title: string, type: string, serviceType: string, value?: number, currency?: string) {
   const serviceName = {
@@ -91,7 +91,7 @@ Aşağıdaki bilgilere dayanarak profesyonel, hukuki geçerliliği olan, premium
         }
 
         const { text } = await generateText({
-          model: getProModel(),
+          model: getWebDevModel(),
           prompt: `${systemPrompt}
 
 Müşteri/Firma Adı: ${data.clientName}
@@ -271,7 +271,7 @@ export async function generatePflichtenheftFromLastenheft(lastenheftContent: str
     }
 
     const { text } = await generateText({
-      model: getProModel(),
+      model: getWebDevModel(),
       prompt: `Sen uzman bir B2B teknik mimar ve yazılım mühendisisin. Kesinlikle bir hukukçu veya avukat DEĞİLSİN.
 ${domainExpertise}
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) dökümanını incele.
@@ -352,7 +352,7 @@ export async function generateLastenheftFromChoices(data: {
     const langText = data.language === 'en' ? 'English' : data.language === 'de' ? 'German (Deutsch)' : 'Türkçe (Turkish)';
 
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getWebDevModel(),
       prompt: `Sen uzman bir B2B iş analisti ve proje yöneticisisin. 
 Aşağıda müşterinin yazdığı serbest metin proje açıklaması, seçilen hizmet türü, sektör tercihleri ve seçilen işlevlere dayanarak kısa, özet ve net bir "HİZMET SÖZLEŞMESİ VE TEKNİK ŞARTNAME (LASTENHEFT)" dokümanı oluştur.
 
@@ -438,7 +438,7 @@ export async function generateOfficialContract(data: {
     }
 
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getWebDevModel(),
       prompt: `Sen B2B teknoloji hukuku ve sözleşme danışmanlığı konusunda uzmanlaşmış, şirket çıkarlarını korumada son derece agresif ve kıdemli bir hukukçusun.
 Aşağıda verilen "Lastenheft" (Müşteri İş Gereksinimleri) ve "Pflichtenheft" (Teknik Uygulama Şartnamesi) dokümanlarını esas alarak, StarWebFlow şirketimizin haklarını, çıkarlarını ve yasal sınırlarını en üst düzeyde koruyan (Pro/Elit düzeyde tek taraflı korumacı), hukuki geçerliliği olan resmi bir "B2B ANA HİZMET SÖZLEŞMESİ" (Master Service Agreement) oluştur.
 
@@ -486,7 +486,7 @@ export async function createPublicLastenheft(data: {
 }) {
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getWebDevModel(),
       prompt: `Sen StarWebFlow Bilişim'in baş iş analistisin. 
 Müşteri aşağıdaki fikir ile web sitemiz üzerinden bir proje talebinde bulundu.
 Müşteri Adı: ${data.name}

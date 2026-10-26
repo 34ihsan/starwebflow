@@ -25,7 +25,7 @@ export const en = {
     login: 'Login',
     register: 'Become Client',
     allServices: 'See all services →',
-    portfolioTitle: 'Our Service Portfolio',
+    portfolioTitle: 'Services',
   },
   hero: {
     badge: '🚀 The AI Era Has Begun',

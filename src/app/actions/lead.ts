@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAdminModel } from '@/lib/ai/gemini-client';
 import { verifyRecaptcha } from '@/lib/recaptcha';
 import { sendProposalEmail, sendLeadNotification } from '@/lib/email';
 import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
@@ -219,7 +219,7 @@ export async function createLeadWithAIEmail(data: {
     if (data.sendEmail && data.email) {
       try {
         const { text } = await generateText({
-          model: getFlashModel(),
+          model: getAdminModel(),
           system: `Sen StarWebflow (dijital web ve yazılım ajansı) adına konuşan profesyonel bir asistansın.
 Kurallar (RAG Strict Boundaries):
 1. ASLA fiyat, ücret, maliyet veya kesin teslim süresi (örn: "2 haftada biter") taahhüdü VERME.
@@ -366,7 +366,7 @@ export async function getLeadActivities(leadId: string) {
 export async function generateAIOffer(leadData: any) {
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getAdminModel(),
       system: `Sen StarWebflow (dijital ajans) için satış uzmanısın. Bize başvuran veya sistemimizde yer alan potansiyel müşterilere özel bir teklif mektubu oluşturuyorsun.
 Kurallar:
 1. Kısa, resmi ama sıcak bir dil kullan.

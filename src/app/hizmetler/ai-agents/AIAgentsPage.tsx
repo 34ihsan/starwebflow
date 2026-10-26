@@ -10,6 +10,8 @@ import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
 import Button from '@/components/ui/Button'
 import LeadFormModal from '@/components/services/LeadFormModal'
+import LiveAgentClone from '@/components/services/live-ai/LiveAgentClone'
+import AgentTelemetryCockpit from '@/components/services/live-ai/AgentTelemetryCockpit'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import {
   Bot, Zap, TrendingUp, Clock, MessageSquare,
@@ -798,30 +800,10 @@ export default function AIAgentsPage() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <AgentTestLab />
+            <LiveAgentClone />
 
-            {/* Right: Features */}
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
-                {c.sim.featuresTitle}
-              </div>
-              {[
-                { icon: '🧠', title: c.sim.f1Title, desc: c.sim.f1Desc },
-                { icon: '🔗', title: c.sim.f2Title, desc: c.sim.f2Desc },
-                { icon: '🌍', title: c.sim.f3Title, desc: c.sim.f3Desc },
-                { icon: '📊', title: c.sim.f4Title, desc: c.sim.f4Desc },
-                { icon: '🔒', title: c.sim.f5Title, desc: c.sim.f5Desc },
-                { icon: '🎭', title: c.sim.f6Title, desc: c.sim.f6Desc },
-              ].map((f, i) => (
-                <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-xs hover:border-purple-300 hover:shadow-sm transition-all">
-                  <div className="text-2xl flex-shrink-0">{f.icon}</div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-900 mb-0.5">{f.title}</div>
-                    <div className="text-xs text-slate-600 leading-relaxed font-normal">{f.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Right: Enterprise Telemetry Cockpit */}
+            <AgentTelemetryCockpit />
           </div>
         </div>
       </section>

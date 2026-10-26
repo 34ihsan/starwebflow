@@ -9,9 +9,11 @@ import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
 import Button from '@/components/ui/Button'
-import LeadFormModal from '@/components/services/LeadFormModal'
+import LiveCreativeStudio from '@/components/services/live-ai/LiveCreativeStudio'
+import AdsTelemetryCockpit from '@/components/services/live-ai/AdsTelemetryCockpit'
 import { Megaphone, TrendingUp, Zap, Target, BarChart3, Sparkles, Loader2, CheckCircle } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import LeadFormModal from '@/components/services/LeadFormModal'
 
 const ACCENT = '#F59E0B'
 
@@ -614,41 +616,9 @@ export default function ReklamSosyalPage() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <CreativeGenerator />
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
-                {dict.whyUs.title}
-              </div>
-              {servicesList.map((s, i) => {
-                const Icon = s.icon
-                return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-amber-300 hover:shadow-xs transition-all">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${s.color}15` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: s.color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-slate-900 mb-0.5">{s.title}</div>
-                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{s.desc}</div>
-                    </div>
-                  </div>
-                )
-              })}
-
-              {/* Platform logos */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
-                <div className="text-xs font-bold text-slate-700 mb-3">{dict.whyUs.platformsTitle}</div>
-                <div className="flex flex-wrap gap-2">
-                  {['Meta Ads', 'Google Ads', 'TikTok Ads', 'LinkedIn Ads', 'YouTube', 'Instagram', 'Pinterest'].map(p => (
-                    <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-medium">
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <LiveCreativeStudio />
+            {/* Right: Performance Attribution Command Center */}
+            <AdsTelemetryCockpit />
           </div>
         </div>
       </section>

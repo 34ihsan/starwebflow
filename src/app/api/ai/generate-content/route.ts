@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getFlashModel, getProModel } from '@/lib/ai/gemini-client';
+import { getGrowthModel, getAdminModel, OLLAMA_MODELS, isOllamaPrimary } from '@/lib/ai/gemini-client';
 import { checkAndIncrementUsage, handleUsageError } from '@/lib/subscription/usage';
 
 export const maxDuration = 60;
@@ -84,7 +84,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Geçersiz içerik tipi' }, { status: 400 });
     }
 
-    const model = usePro ? getProModel() : getFlashModel();
+    const isAdminContent = type === 'email' || type === 'proposal';
+    const model = isAdminContent ? getAdminModel() : getGrowthModel();
+    const activeModelName = isOllamaPrimary()
+      ? (isAdminContent ? OLLAMA_MODELS.ADMIN : OLLAMA_MODELS.GROWTH)
+      : (usePro ? 'gemini-2.5-pro' : 'gemini-2.5-flash');
 
     const { text } = await generateText({
       model,
@@ -94,7 +98,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content: text,
       type,
-      model: usePro ? 'gemini-2.0-pro-exp' : 'gemini-2.0-flash',
+      model: activeModelName,
       wordCount: text.split(' ').length,
     });
   } catch (error: any) {

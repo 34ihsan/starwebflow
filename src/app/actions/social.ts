@@ -383,15 +383,15 @@ JSON Formatı şu şekilde OLMALIDIR:
     let aiResult: any = {};
 
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+    if (!googleKey && process.env.OLLAMA_ENABLED !== 'true') {
       throw new Error("GOOGLE_AI_API_KEY bulunamadı veya geçerli değil. İşlem iptal edildi.");
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
     
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       system: systemPrompt,
       prompt: userPrompt,
     });
@@ -406,7 +406,7 @@ JSON Formatı şu şekilde OLMALIDIR:
 
     if (visualEngine && visualEngine !== 'none' && !finalImagePrompt) {
       const { text: promptText } = await generateText({
-          model: getFlashModel(),
+          model: getGrowthModel(),
           system: 'Sen profesyonel bir AI Görsel Prompt Mühendisisin.',
           prompt: `Şu konu için Google Imagen veya Midjourney'de kullanılmak üzere yüksek çözünürlüklü, çarpıcı, 1-2 cümlelik İngilizce bir image prompt'u yaz:\n\n${topic}\n\nSADECE prompt'u döndür.`,
       });
@@ -472,7 +472,7 @@ export async function generateLeadMagnetAndFunnel(params: {
 
   try {
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
 
     let blogContext = '';
     if (blogId) {
@@ -503,7 +503,7 @@ Magnet Türü: ${leadType}
 }`;
 
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       system: systemPrompt,
       prompt: userPrompt,
     });
@@ -620,11 +620,11 @@ export async function selfHealingCreativeReplacement(adId: string) {
     if (!ad) return { success: false, error: 'Kampanya bulunamadı' };
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
 
     // 1. Yorulan reklam için yeni kanca & metin üret
     const { text: newAdCopy } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       system: 'Sen reklam performansını tazeleyen AI Self-Healing Engine sin.',
       prompt: `Şu reklamın CTR ve ROAS oranı düştü (Yoruldu):\nMevcut Reklam: "${ad.name}"\nPlatform: ${ad.platform}\n\nBu reklam için daha yüksek CTR alacak YENİ 1 Adet Agresif Kanca ve Metin üret. Sadece metni yaz.`
     });
@@ -774,13 +774,13 @@ export async function bulkGenerateSocialContent(rows: { topic: string; platforms
 export async function suggestSocialIdeas(topicContext?: string) {
   try {
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+    if (!googleKey && process.env.OLLAMA_ENABLED !== 'true') {
       return { success: false, error: 'Google AI API Key bulunamadı.' };
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
-    const model = getFlashModel();
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+    const model = getGrowthModel();
 
     const systemPrompt = `Rol: StarWebFlow ajansının dijital pazarlama ve içerik stratejistisin. KESİNLİKLE kendine "Sen" diye hitap etme ve "Sen StarWebFlow olarak" diye başlama.
 Görevin, projenin sunduğu TÜM HİZMETLERİ (Modern Web Tasarımı, SEO, Sosyal Medya Yönetimi, Dijital Dönüşüm, Yapay Zeka Çözümleri, İçerik Pazarlaması, Reklam Yönetimi) kapsayacak şekilde çeşitli ve profesyonel 5 adet harika sosyal medya post fikri üretmektir. Sadece tek bir hizmete odaklanma, farklı hizmetleri harmanla.
@@ -1095,7 +1095,7 @@ export async function seedTitanAdCampaigns() {
 export async function generateAdVariants(data: { productName: string; targetAudience: string; offer: string }) {
   try {
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+    if (!googleKey && process.env.OLLAMA_ENABLED !== 'true') {
       return {
         success: true,
         variants: [
@@ -1107,8 +1107,8 @@ export async function generateAdVariants(data: { productName: string; targetAudi
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
-    const model = getFlashModel();
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+    const model = getGrowthModel();
 
     const prompt = `Şu ürün için yüksek dönüşüm sağlayan 3 farklı reklam metni ikili varyantı üret:
 Ürün/Hizmet: ${data.productName}
@@ -1146,7 +1146,7 @@ JSON Array olarak döndür:
 export async function generateAdAudienceTargeting(productTopic: string) {
   try {
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+    if (!googleKey && process.env.OLLAMA_ENABLED !== 'true') {
       return {
         success: true,
         targeting: {
@@ -1160,7 +1160,7 @@ export async function generateAdAudienceTargeting(productTopic: string) {
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
 
     const prompt = `Şu ürün veya hizmet için Meta, Google ve LinkedIn Reklamları hedef kitle tavsiye paketi oluştur:
 Ürün/Konu: ${productTopic}
@@ -1175,7 +1175,7 @@ JSON Nesnesi olarak döndür:
 }`;
 
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       system: 'Sen kıdemli performans pazarlama ve medya satın alma uzmanısın.',
       prompt
     });
@@ -1202,7 +1202,7 @@ JSON Nesnesi olarak döndür:
 export async function reverseEngineerCompetitorAds(competitorInput: string) {
   try {
     const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
+    if (!googleKey && process.env.OLLAMA_ENABLED !== 'true') {
       return {
         success: true,
         analysis: {
@@ -1217,7 +1217,7 @@ export async function reverseEngineerCompetitorAds(competitorInput: string) {
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
 
     const prompt = `Şu rakip şirket/marka veya sektör konusu için reklam ters mühendislik analizi yap:
 Rakip/Konu: ${competitorInput}
@@ -1233,7 +1233,7 @@ Analiz et ve JSON Nesnesi olarak döndür:
 }`;
 
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       system: 'Sen ters mühendislik uzmanı, kıdemli medya satın almacı ve performans reklam hackerısın.',
       prompt
     });
@@ -1309,16 +1309,9 @@ export async function getAudienceAnalytics() {
 
 
 async function callGemini(prompt: string, systemPrompt: string): Promise<string> {
-  const { generateText } = await import('ai');
-  const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
-  const googleKey = process.env.GOOGLE_AI_API_KEY;
-  if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') throw new Error('NO_API_KEY');
-  const google = createGoogleGenerativeAI({ apiKey: googleKey });
-  const model = google('gemini-2.5-flash');
-  const { text } = await generateText({ model, system: systemPrompt, prompt });
-  let clean = text.trim();
-  if (clean.startsWith('```json')) clean = clean.replace(/```json/g, '').replace(/```/g, '').trim();
-  return clean;
+  const { generateTextResilient, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+  const { text } = await generateTextResilient({ system: systemPrompt, prompt, preferredModel: 'growth' });
+  return extractJsonFromText(text);
 }
 
 // ─── 1. Derin Kampanya Denetimi (AI Audit Engine) ─────────────────────────

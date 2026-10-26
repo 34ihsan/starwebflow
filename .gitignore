@@ -7,3 +7,5 @@ build
 .vercel
 *.log
 *.tsbuildinfo
+scratch/
+test_audit_output.json

@@ -25,7 +25,7 @@ export const tr = {
     login: 'Giriş Yap',
     register: 'Müşteri Ol',
     allServices: 'Tüm hizmetleri gör →',
-    portfolioTitle: 'Hizmet Portföyümüz',
+    portfolioTitle: 'Hizmetlerimiz',
   },
   hero: {
     badge: '🚀 Yapay Zeka Çağı Başladı',
@@ -36,8 +36,8 @@ export const tr = {
     ctaSecondary: 'ROI Analizi Hesapla',
   },
   services: {
-    title: 'Neler Yapıyoruz?',
-    subtitle: 'Mühendislik Gücü + Somut İşletme Kazancı: B2B Markanızı Zirveye Taşıyan Hibrit Ekosistemler',
+    title: 'Hizmetlerimiz & Çözüm Ekosistemi',
+    subtitle: 'Uçtan Uca Dijital Büyüme: Satışlarınızı Artıran, İş Yükünüzü Otomatikleştiren Akıllı Sistemler',
     web: {
       title: 'Sub-Second Modern Edge Web & Headless Mimari',
       desc: 'Milisaniyeler içinde (0.38s) yüklenen, global Edge CDN ve headless mimariyle güçlendirilmiş dijital vitrin. Ziyaretçi kaybını sıfırlayarak satış dönüşüm oranınızı 3.6 katına çıkarır.',

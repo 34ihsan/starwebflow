@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { generateTextResilient } from '@/lib/ai/gemini-client';
+import { generateTextResilient, extractJsonFromText } from '@/lib/ai/gemini-client';
 import { sendOutreachEmail } from '@/lib/email';
 import { resolveTenantId } from '@/lib/tenant';
 
@@ -9,10 +9,11 @@ import { resolveTenantId } from '@/lib/tenant';
 export async function analyzeLeadProfile(email: string, name: string | null, company: string | null) {
   try {
     const { text } = await generateTextResilient({
+      preferredModel: 'admin',
       system: `You are an expert data analyst. Based on the lead's email, name, and company, deduce their primary language (e.g. TR, EN, DE) and industry. Return ONLY a JSON object: {"language": "XX", "industry": "SectorName"}. DO NOT return markdown.`,
       prompt: `Name: ${name || 'N/A'}\nEmail: ${email}\nCompany: ${company || 'N/A'}`
     });
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(extractJsonFromText(text));
     return {
       language: parsed.language || 'EN',
       industry: parsed.industry || 'Genel'
@@ -27,6 +28,7 @@ export async function analyzeLeadProfile(email: string, name: string | null, com
 export async function metamorphicRewrite(basePrompt: string, leadProfile: { name: string | null, company: string | null, language: string, industry: string }) {
   try {
     const { text } = await generateTextResilient({
+      preferredModel: 'admin',
       system: `Sen elit bir B2B Satış Yöneticisisin. Sana verilen e-posta taslağını (prompt), %100 özgün ve yapısal olarak tamamen farklı olacak şekilde yeniden yazacaksın (Hyper-Spintax / Metamorphic Spinning). Bu işlem spam filtrelerini atlatmak için kritik öneme sahip.
 Kurallar:
 1. Ana mesajın özü ve sunulan değer (Value Proposition) KESİNLİKLE aynı kalmalı ancak cümle yapıları, paragraf dizilimi ve kullanılan kelime dağarcığı tamamen değiştirilmeli. Her bir çıktı birbirinden benzersiz olmalı.
@@ -58,6 +60,7 @@ Lütfen bu taslağı hedef dilde, belirtilen kurallara tam uyarak HTML formatın
 export async function generateDynamicSubjectLine(leadProfile: { name: string | null, company: string | null, language: string, industry: string }) {
   try {
     const { text } = await generateTextResilient({
+      preferredModel: 'admin',
       system: `You are an elite B2B copywriter specializing in ultra-high open-rate cold email subjects.
 Generate EXACTLY ONE natural, personal subject line tailored to the lead.
 STRICT RULES:

@@ -24,6 +24,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ['bullmq', 'ioredis'],
 
   async redirects() {
     return [

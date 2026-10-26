@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAutomationModel } from '@/lib/ai/gemini-client';
 
 /**
  * Dinamik değişken çözümleyici:
@@ -144,7 +144,7 @@ export async function aiDeepAnalysisAction(tenantId: string, context: any, nodeD
 
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getAutomationModel(),
       system: `Sen Starwebflow'un kıdemli yazılım ve dönüşüm mimarısın. Şirket bilgilerini analiz edip B2B satış ekibi için 3 maddelik eksik analizi ve tahmini proje büyüklüğü çıkar.`,
       prompt: `Şirket: ${company}\nWeb Sitesi: ${website}\nSektör / Notlar: ${JSON.stringify(context.trigger || {})}\n\nLütfen JSON formatında çıktı ver: { "score": 85, "summary": "...", "techStack": ["Next.js", "Tailwind"], "pitchAngle": "..." }`
     });

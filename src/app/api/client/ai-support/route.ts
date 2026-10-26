@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/modules/auth/auth.helpers';
 import { prisma } from '@/lib/prisma';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAgentModel } from '@/lib/ai/gemini-client';
 import { generateText } from 'ai';
 
 export async function POST(req: Request) {
@@ -116,7 +116,7 @@ Müşterinin mesajı: "${lastUserMessage}"
 Cevabını oluştururken markanın prestijine yakışır, samimi ama kurumsal bir ton kullan.`;
     }
 
-    const model = getFlashModel();
+    const model = getAgentModel();
     const result = await generateText({
       model,
       system: systemPrompt,

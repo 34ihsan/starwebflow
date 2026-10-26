@@ -132,13 +132,13 @@ export default async function RootLayout({
             __html: `(function(){try{var root=document.documentElement;root.classList.remove('dark');root.classList.add('light');root.setAttribute('data-theme','light');root.style.colorScheme='light';localStorage.setItem('starwebflow-theme','light');}catch(e){}})()`,
           }}
         />
-        {/* Preload critical assets */}
-        <link rel="preload" as="image" href="/starwebflow_banner_1.png" />
         {/* GEO & AI Search Engine Standards (LLMs.txt & Machine-Readable Specs) */}
         <link rel="alternate" type="text/plain" href="https://starwebflow.com/llms.txt" title="StarWebFlow LLM Summary Context" />
         <link rel="alternate" type="text/plain" href="https://starwebflow.com/llms-full.txt" title="StarWebFlow Comprehensive LLM Documentation" />
         <link rel="alternate" type="text/plain" href="https://starwebflow.com/ai.txt" title="StarWebFlow AI Directives" />
         <meta name="ai-content-declaration" content="human-reviewed, factual, B2B-technology" />
+        <meta name="ai-sales-agent" content="active; provider=StarWebFlow-Autonomous-AI; availability=24/7; languages=tr,de,en" />
+        <meta name="crm-automation" content="active; pipeline=B2B-Lead-Scoring-n8n-Webhook; response-sla=instant" />
         <meta name="rating" content="general" />
         <meta name="revisit-after" content="2 days" />
         <meta name="geo.region" content="DE-RP" />

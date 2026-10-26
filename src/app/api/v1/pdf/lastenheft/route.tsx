@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
 import React from 'react'
 import { z } from 'zod'
-import { generateObject } from 'ai'
-import { getFlashModel } from '@/lib/ai/gemini-client'
+import { generateJsonResilient } from '@/lib/ai/gemini-client'
 
 export const maxDuration = 60
 
@@ -539,8 +538,6 @@ export async function GET(request: NextRequest) {
     let aiData: LastenheftData;
 
     try {
-      const model = getFlashModel()
-      
       const systemPrompt = `
 Sen StarWebFlow Architecture Studio'nun baş teknoloji yöneticisi (CTO) ve baş iş analistisin. 
 Aşağıdaki bilgilere sahip bir müşteri için profesyonel, zengin ve değer odaklı bir Teknik Şartname Belgesi (Lastenheft) hazırlayacaksın.
@@ -559,17 +556,17 @@ Lütfen tam olarak şu alanları içeren bir JSON nesnesi oluştur:
 5. timeline: Müşterinin fikrinin karmaşıklığına uygun olarak tasarlanmış 4 haftalık/sprintlik bir takvim. Her adım "sprint" (örn: Sprint 1 (1. Hafta) - Planlama & Altyapı) ve "deliverables" (bu sprint sonunda teslim edilecek somut işler ve kazanımlar, en fazla 1 cümle) içermelidir.
 6. securityAndSla: En fazla 3 adet güvenlik, gizlilik ve SLA taahhüt maddesi (örn: sunucu lokasyonu, şifreleme standartları, uptime garantisi). Her biri en fazla 1 cümle olmalıdır.
 
-Ton: Son derece profesyonel, güven veren, kurumsal ve ikna edici. Türkçe yaz.
+Ton: Son derece profesyonel, güven veren, kurumsal ve ikna edici. Türkçe yaz. SADECE geçerli JSON nesnesi döndür.
 `
 
-      const response = await generateObject({
-        model,
+      const generatedObj = await generateJsonResilient({
+        domain: 'webdev',
         schema: LastenheftDataSchema,
         prompt: systemPrompt,
       })
 
       // Clean all Turkish characters from the dynamically generated AI object
-      aiData = cleanObjectStrings(response.object)
+      aiData = cleanObjectStrings(generatedObj)
     } catch (aiError) {
       console.error('[Lastenheft AI Gen Error] Falling back to structured templates:', aiError)
       aiData = getFallbackData(ideaInput, nameInput)

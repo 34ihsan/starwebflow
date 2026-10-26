@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import { safeRevalidatePath } from '@/lib/utils/cache';
 import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAdminModel, extractJsonFromText } from '@/lib/ai/gemini-client';
 import { checkSPF, checkDMARC, checkDKIM } from '@/lib/utils/dns-check';
 import { resolveTenantId, getTenantIdOrLegacy } from '@/lib/tenant';
 import { calculateDeliverabilityScore } from '@/lib/deliverability-score';
@@ -405,7 +405,7 @@ export async function updateMailboxCredentials(data: {
 export async function analyzeEmailContent(content: string) {
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getAdminModel(),
       system: `Sen bir e-posta pazarlama uzmanı ve AI analizörüsün. Gelen metni analiz edip, JSON formatında yanıt dönmelisin.
 Format:
 {
@@ -418,7 +418,7 @@ Format:
     });
 
     try {
-      const result = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim());
+      const result = JSON.parse(extractJsonFromText(text));
       return { success: true, data: result };
     } catch (e) {
       return { success: false, error: 'JSON parse hatası' };

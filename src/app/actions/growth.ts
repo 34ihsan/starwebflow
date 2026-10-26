@@ -18,35 +18,25 @@ async function getActiveTenantId(): Promise<string> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HELPER: Gemini Call with Graceful Fallback
+// HELPER: Resilient AI Call (Ollama starwebflow-growth <-> Gemini Fallback)
 // ═══════════════════════════════════════════════════════════════════════════
 async function callGemini(prompt: string, systemPrompt: string): Promise<string> {
-  const googleKey = process.env.GOOGLE_AI_API_KEY;
-  if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-    throw new Error('GOOGLE_AI_API_KEY not configured');
+  const { isAiConfigured, generateTextResilient, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+  if (!isAiConfigured()) {
+    throw new Error('AI motoru yapılandırılmamış (Ollama veya Google AI)');
   }
 
   try {
-    const { generateText } = await import('ai');
-    const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
-    const google = createGoogleGenerativeAI({ apiKey: googleKey });
-
-    const result = await generateText({
-      model: google('gemini-2.5-flash'),
+    const result = await generateTextResilient({
       system: systemPrompt,
       prompt,
-      temperature: 0.7,
+      temperature: 0.35,
+      preferredModel: 'growth',
     });
 
-    let text = result.text.trim();
-    if (text.startsWith('```json')) {
-      text = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (text.startsWith('```')) {
-      text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
-    return text;
+    return extractJsonFromText(result.text);
   } catch (err: any) {
-    console.warn('Gemini call failed in growth.ts, using fallback logic:', err?.message || err);
+    console.warn('AI call failed in growth.ts, using fallback logic:', err?.message || err);
     throw err;
   }
 }

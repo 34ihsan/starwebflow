@@ -2,9 +2,8 @@
 
 import { prisma } from '@/lib/prisma';
 import { EMAIL_POOL, MASTER_BLUEPRINT } from '@/lib/email-pool';
-import { generateObject } from 'ai';
 import { z } from 'zod';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { generateJsonResilient } from '@/lib/ai/gemini-client';
 import { getTenantIdOrLegacy } from '@/lib/tenant';
 
 async function ensureTenant() {
@@ -67,9 +66,9 @@ export async function createCampaignFromPool(poolId: string) {
 export async function generateCustomCampaign(customSector: string, serviceType: string) {
   const tenantId = await ensureTenant();
 
-  // Fully Generate the Elite 5-Step Drip Campaign Using Gemini 2.5 Pro
-  const result = await generateObject({
-    model: getFlashModel(),
+  // Fully Generate the Elite 5-Step Drip Campaign Using starwebflow-growth / Gemini
+  const generated = await generateJsonResilient({
+    domain: 'growth',
     schema: z.object({
       templates: z.array(
         z.object({
@@ -94,10 +93,23 @@ Kritik Kurallar ve Drip Psikolojisi:
 
 Her mailin 'subject' kısmı tıklanma oranını artıracak kadar doğal olmalı. Kurumsal kasıntı bir dilden kaçın, samimi ve profesyonel bir tonda B2B satışı yap.
 
-SADECE E-POSTA GÖVDESİNİ (İÇERİĞİ) YAZIN. Altına veya üstüne isim, imza, iyi çalışmalar gibi şeyler EKLMEYİN, biz sistemsel olarak enjekte edeceğiz.`
+SADECE E-POSTA GÖVDESİNİ (İÇERİĞİ) YAZIN ve şu JSON şemasında döndürün: { "templates": [{ "day": 1, "subject": "...", "body": "<p>...</p>" }, ...] }. Altına veya üstüne isim, imza, iyi çalışmalar gibi şeyler EKLEMEYİN, biz sistemsel olarak enjekte edeceğiz.`
   });
 
-  const templates = result.object.templates;
+  const templates = generated.templates.map((tpl) => {
+    if (tpl.day === 1) {
+      // Deterministic spam protection: strip any accidental links from Day 1 icebreaker email
+      return {
+        ...tpl,
+        body: tpl.body
+          .replace(/<a\b[^>]*>(.*?)<\/a>/gi, '$1')
+          .replace(/https?:\/\/\S+/gi, '')
+          .replace(/\bwww\.\S+/gi, '')
+          .trim(),
+      };
+    }
+    return tpl;
+  });
 
   // Add Company Signature, Legal Info, and Unsubscribe link to every email body
   const signAndLegalHtml = `

@@ -23,49 +23,49 @@ export default function Navbar() {
 
   const services = [
     {
+      icon: Bot,
+      label: language === 'de' ? 'KI-Agenten' : language === 'en' ? 'AI Agents' : 'AI Agents (Dijital Çalışanlar)',
+      subLabel: language === 'de' ? '24/7 Vertrieb & Support' : language === 'en' ? '24/7 Sales & Support' : '7/24 Müşteri & Satış',
+      desc: language === 'de' ? 'Rund um die Uhr Kundenbetreuung, automatische Angebote und Termine.' : language === 'en' ? '24/7 client inquiries, instant proposals, and calendar bookings.' : '7/24 müşteri karşılama, anında teklif ve otonom randevu.',
+      href: '/hizmetler/ai-agents',
+      color: '#8B5CF6',
+      badge: language === 'de' ? '24/7 aktiv' : language === 'en' ? '24/7 Active' : '7/24 Aktif',
+    },
+    {
+      icon: Cog,
+      label: language === 'de' ? 'KI-Automation' : language === 'en' ? 'AI Automation' : 'AI Otomasyon',
+      subLabel: language === 'de' ? 'Workflows & Integration' : language === 'en' ? 'Workflows & Integration' : 'İş Akışları & Entegrasyon',
+      desc: language === 'de' ? 'Spart Ihrem Team durch smarte Automatisierung 15+ Stunden pro Woche.' : language === 'en' ? 'Automates manual tasks and saves your team 15+ hours weekly.' : 'Tekrarlayan operasyonları otomatikleştirerek haftalık 15+ saat kazandırır.',
+      href: '/hizmetler/ai-otomasyon',
+      color: '#10B981',
+      badge: 'n8n & API',
+    },
+    {
       icon: Globe,
-      label: language === 'de' ? 'Sub-Second Web-Ökosystem' : language === 'en' ? 'Sub-Second Web Ecosystem' : 'Sub-Second Web Ekosistemi',
-      subLabel: 'Next.js 14 & Ultra Speed',
-      desc: language === 'de' ? 'Lädt in unter 0,4s, verhindert Absprünge und verdreifacht die Conversion-Rate.' : language === 'en' ? '0.4s load time prevents visitor drop-off and triples sales conversion.' : '0.4s açılış süresi ile ziyaretçi kaybını önler, satış dönüşümünü 3x artırır.',
+      label: language === 'de' ? 'Webentwicklung' : language === 'en' ? 'Web Development' : 'Web Geliştirme',
+      subLabel: language === 'de' ? 'Ultra-Fast & SEO' : language === 'en' ? 'Ultra-Fast & SEO' : 'Hızlı & Yüksek Dönüşüm',
+      desc: language === 'de' ? 'Lädt unter 0,4s, verhindert Absprünge und steigert die Conversion.' : language === 'en' ? 'Sub-second load times that eliminate bounce rates and drive sales.' : '0.4s açılış süresi ile müşteri kaybını önler, satış dönüşümünü katlar.',
       href: '/hizmetler/web-gelistirme',
       color: '#4F8EF7',
-      badge: language === 'de' ? 'SSR / Ultra-Speed' : language === 'en' ? 'SSR / Ultra Speed' : 'SSR / Ultra Hız',
+      badge: language === 'de' ? 'Ultra-Speed' : language === 'en' ? 'Ultra Speed' : 'Ultra Hız',
     },
     {
       icon: Monitor,
-      label: language === 'de' ? 'Maßgeschneiderte SaaS & Cloud' : language === 'en' ? 'Custom SaaS & Cloud Architecture' : 'Özel SaaS & Bulut Mimari',
-      subLabel: 'Cloud-Native & Dashboards',
-      desc: language === 'de' ? 'Schluss mit Excel-Chaos: Maßgeschneiderte Cloud-Verwaltung für Ihr Unternehmen.' : language === 'en' ? 'Eliminate spreadsheet chaos with custom cloud management built for your firm.' : 'Excel karmaşasına son veren, şirketinize özel bulut yönetim altyapıları.',
+      label: language === 'de' ? 'Web-Apps & SaaS' : language === 'en' ? 'Web Apps & SaaS' : 'Web Uygulaması & SaaS',
+      subLabel: language === 'de' ? 'Portale & Cloud' : language === 'en' ? 'Portals & Cloud' : 'Özel Portallar & Cloud',
+      desc: language === 'de' ? 'Maßgeschneiderte Portale und Dashboards statt Excel-Chaos.' : language === 'en' ? 'Custom cloud management and portals tailored to your business.' : 'Excel karmaşasına son veren, şirketinize özel bulut yönetim altyapıları.',
       href: '/hizmetler/web-uygulamasi',
       color: '#06B6D4',
       badge: 'Cloud-Native',
     },
     {
-      icon: Bot,
-      label: language === 'de' ? 'Autonome KI-Agenten' : language === 'en' ? 'Autonomous AI Agents' : 'Otonom AI Ajanları',
-      subLabel: language === 'de' ? 'LLM & RAG-Architektur' : language === 'en' ? 'LLM & RAG Architecture' : 'LLM & RAG Mimarisi',
-      desc: language === 'de' ? 'Rund-um-die-Uhr Kundenbetreuung, automatische Angebotserstellung und Terminbuchung.' : language === 'en' ? '24/7 client inquiries, automated proposals, and direct calendar appointments.' : '7/24 kesintisiz müşteri yanıtı, teklif sunma ve otomatik randevu alımı.',
-      href: '/hizmetler/ai-agents',
-      color: '#8B5CF6',
-      badge: 'Multi-LLM & RAG',
-    },
-    {
-      icon: Cog,
-      label: language === 'de' ? 'Kognitive Workflow-Automatisierung' : language === 'en' ? 'Cognitive Workflow Automation' : 'Kognitif İş Akışı Otomasyonu',
-      subLabel: language === 'de' ? 'n8n & API-Integration' : language === 'en' ? 'n8n & API Integration' : 'n8n & API Entegrasyonu',
-      desc: language === 'de' ? 'Spart Ihrem Team durch intelligente Automatisierungen wöchentlich 15+ Stunden.' : language === 'en' ? 'Saves your team 15+ hours weekly by automating operational processes.' : 'Süreçleri otomatikleştirerek ekibinize haftalık 15+ saat kazandırır.',
-      href: '/hizmetler/ai-otomasyon',
-      color: '#10B981',
-      badge: 'n8n & Webhooks',
-    },
-    {
       icon: Megaphone,
-      label: language === 'de' ? 'Datengesteuertes Wachstum' : language === 'en' ? 'Data-Driven Algorithmic Growth' : 'Veri Odaklı Algoritmik Büyüme',
-      subLabel: 'Growth & Performance Ads',
-      desc: language === 'de' ? 'Meta CAPI & Google Ads für punktgenaue Kundenakquise mit maximalem ROAS.' : language === 'en' ? 'Targeted client acquisition funnel with Meta CAPI & Google Ads.' : 'Meta CAPI & Google Ads ile hedef kitleye nokta atışı müşteri akışı.',
+      label: language === 'de' ? 'Ads & Social Media' : language === 'en' ? 'Ads & Social Media' : 'Reklam & Sosyal Medya',
+      subLabel: language === 'de' ? 'Meta & Google Ads' : language === 'en' ? 'Meta & Google Growth' : 'Meta & Google Büyüme',
+      desc: language === 'de' ? 'Punktgenaue Kundenakquise über Meta & Google mit starkem ROAS.' : language === 'en' ? 'Targeted customer acquisition campaigns with maximum ROAS.' : 'Meta CAPI ve Google Ads ile hedef kitleye nokta atışı müşteri akışı.',
       href: '/hizmetler/reklam-sosyal-medya',
       color: '#F59E0B',
-      badge: 'High ROAS',
+      badge: language === 'de' ? 'High ROAS' : language === 'en' ? 'High ROAS' : 'Yüksek ROAS',
     },
   ]
 
@@ -175,7 +175,7 @@ export default function Navbar() {
                           {t('navbar.portfolioTitle')}
                         </span>
                         <h4 className="text-sm font-bold text-slate-900 leading-none">
-                          {language === 'de' ? 'Ingenieurskunst + Messbarer Geschäftserfolg' : language === 'en' ? 'Engineering Power + Concrete Business ROI' : 'Mühendislik Gücü + Somut İşletme Kazancı'}
+                          {language === 'de' ? 'Digitale Lösungen & KI-Systeme' : language === 'en' ? 'Digital Solutions & AI Systems' : 'Dijital Çözümler & Yapay Zeka'}
                         </h4>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-xs">

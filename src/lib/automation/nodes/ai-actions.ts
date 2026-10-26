@@ -3,7 +3,7 @@
  * Görsel üretimi (Imagen 4) ve Video üretimi (Veo 3.1) işlemleri
  */
 import { generateText } from "ai";
-import { getFlashModel, getGoogleApiKey, GEMINI_MODELS } from "@/lib/ai/gemini-client";
+import { getGrowthModel, getGoogleApiKey, GEMINI_MODELS } from "@/lib/ai/gemini-client";
 
 // ─── Görsel Üretimi (Imagen 4) ───────────────────────────────────────────────
 export async function aiGenerateImageAction(tenantId: string, payload: any, nodeData: any) {
@@ -105,7 +105,7 @@ export async function aiGenerateContentAction(tenantId: string, payload: any, no
 
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       prompt: `Sen StarWebflow'un içerik uzmanısın.
 İçerik tipi: ${contentType}
 Konu: ${topic}

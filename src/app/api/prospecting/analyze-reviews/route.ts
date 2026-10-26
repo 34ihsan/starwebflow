@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateTextResilient } from '@/lib/ai/gemini-client';
+import { generateTextResilient, extractJsonFromText } from '@/lib/ai/gemini-client';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
@@ -11,14 +11,14 @@ export async function POST(req: Request) {
     }
 
     const { text } = await generateTextResilient({
+      preferredModel: 'admin',
       system: `Sen elit bir dijital ajansın baş stratejisti ve metin yazarısın. Şirket yorumlarını inceleyip en büyük acı noktasını (Pain Point) tespit et ve ikna edici bir teklif cümlesi (Custom Pitch) yaz. Çıktıyı SADECE JSON formatında ver: {"painPoint": "...", "customPitch": "..."}`,
       prompt: `Şirket Adı: ${companyName || 'Bu Şirket'}\nMüşteri Yorumları:\n${reviews.map((r: string) => `- ${r}`).join('\n')}`
     });
 
-    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
     let parsedData;
     try {
-      parsedData = JSON.parse(cleanedText);
+      parsedData = JSON.parse(extractJsonFromText(text));
     } catch(e) {
       console.log("Failed to parse JSON", text);
       parsedData = {

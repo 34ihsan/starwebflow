@@ -8,13 +8,15 @@ import ComparisonTable from '@/components/services/ComparisonTable'
 import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
-import LeadFormModal from '@/components/services/LeadFormModal'
+import LiveConversionRewriter from '@/components/services/live-ai/LiveConversionRewriter'
+import WebdevTelemetryCockpit from '@/components/services/live-ai/WebdevTelemetryCockpit'
 import {
   Zap, Clock, TrendingUp, BarChart3, AlertCircle, ArrowRight, Loader2,
   ShieldCheck, Smartphone, Search
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import LeadFormModal from '@/components/services/LeadFormModal'
 
 const ACCENT = '#4F8EF7'
 
@@ -977,29 +979,10 @@ export default function WebGelistirmePage() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <ConversionAnalyzer />
+            <LiveConversionRewriter />
 
-            {/* Right: What we deliver */}
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">{dict.whyUs.title}</div>
-              {servicesList.map((item, i) => {
-                const Icon = item.icon
-                return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${item.color}15` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: item.color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-slate-900 mb-0.5">{item.title}</div>
-                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{item.desc}</div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            {/* Right: Silicon Valley Tier-1 Cockpit */}
+            <WebdevTelemetryCockpit />
           </div>
         </div>
       </section>

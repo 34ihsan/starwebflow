@@ -9,9 +9,11 @@ import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
 import Button from '@/components/ui/Button'
-import LeadFormModal from '@/components/services/LeadFormModal'
+import LiveSpecArchitect from '@/components/services/live-ai/LiveSpecArchitect'
+import SaaSTelemetryCockpit from '@/components/services/live-ai/SaaSTelemetryCockpit'
 import { Monitor, TrendingUp, Users, Database, Zap, CheckCircle, BarChart3, Settings, Bell, ArrowRight, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
+import LeadFormModal from '@/components/services/LeadFormModal'
 
 const ACCENT = '#06B6D4'
 
@@ -729,29 +731,9 @@ export default function WebUygulamasiPage() {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <DigitalTwinGenerator />
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
-                {dict.whyUs.title}
-              </div>
-              {featuresList.map((f, i) => {
-                const Icon = f.icon
-                return (
-                  <div key={i} className="flex gap-4 p-4 rounded-xl border border-slate-200/90 bg-white shadow-2xs hover:border-cyan-300 hover:shadow-xs transition-all">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${f.color}15` }}
-                    >
-                      <Icon className="w-5 h-5" style={{ color: f.color }} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-slate-900 mb-0.5">{f.title}</div>
-                      <div className="text-xs text-slate-600 leading-relaxed font-normal">{f.desc}</div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <LiveSpecArchitect />
+            {/* Right: CTO Cloud Architecture Vault */}
+            <SaaSTelemetryCockpit />
           </div>
         </div>
       </section>

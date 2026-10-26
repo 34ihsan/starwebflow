@@ -323,39 +323,44 @@ export async function aiCleanDataAction(tenantId: string, payload: any, nodeData
   // AI ANALİZİ: küçük parçalar (chunk) halinde, her kayıt kararlı bir `idx` ile eşleşir.
   // Tek dev prompt yerine chunk = bir parça bozulursa tüm sonuç kaybolmaz; sıra kayması riski ortadan kalkar.
   const aiByIdx = new Map<number, any>();
+  const { isOllamaPrimary, isAiConfigured, generateTextResilient, extractJsonFromText } = await import('@/lib/ai/gemini-client');
   const apiKey = process.env.GOOGLE_AI_API_KEY;
-  if (apiKey) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const responseSchema = {
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          idx: { type: SchemaType.NUMBER },
-          company: { type: SchemaType.STRING },
-          decisionMakerName: { type: SchemaType.STRING, nullable: true },
-          decisionMakerTitle: { type: SchemaType.STRING, nullable: true },
-          painPoints: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-          digitalGaps: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-          customPitch: { type: SchemaType.STRING, nullable: true },
-          winProbability: { type: SchemaType.NUMBER, nullable: true }
-        },
-        required: ["idx", "company", "painPoints", "digitalGaps"]
-      }
-    };
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: { responseMimeType: "application/json", responseSchema: responseSchema as any }
-    });
-
-    const CHUNK = 12;
+  if (isAiConfigured()) {
+    const useLocalOllama = isOllamaPrimary() || !apiKey;
+    const CHUNK = useLocalOllama ? 6 : 12;
     const chunks: any[][] = [];
     for (let i = 0; i < enrichedPrunedData.length; i += CHUNK) chunks.push(enrichedPrunedData.slice(i, i + CHUNK));
 
-    await mapLimit(chunks, 3, async (chunk, ci) => {
+    let geminiModel: any = null;
+    if (!useLocalOllama && apiKey) {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const responseSchema = {
+        type: SchemaType.ARRAY,
+        items: {
+          type: SchemaType.OBJECT,
+          properties: {
+            idx: { type: SchemaType.NUMBER },
+            company: { type: SchemaType.STRING },
+            decisionMakerName: { type: SchemaType.STRING, nullable: true },
+            decisionMakerTitle: { type: SchemaType.STRING, nullable: true },
+            painPoints: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+            digitalGaps: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+            customPitch: { type: SchemaType.STRING, nullable: true },
+            winProbability: { type: SchemaType.NUMBER, nullable: true }
+          },
+          required: ["idx", "company", "painPoints", "digitalGaps"]
+        }
+      };
+      geminiModel = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        generationConfig: { responseMimeType: "application/json", responseSchema: responseSchema as any }
+      });
+    }
+
+    await mapLimit(chunks, useLocalOllama ? 1 : 3, async (chunk, ci) => {
       const prompt = `
 You are an expert B2B lead analyst for a digital agency (web, SEO, automation, ads).
-Each item has an "idx" - you MUST echo the same idx back, one output object per input item.
+Each item has an "idx" - you MUST echo the same idx back, one output object per input item in a JSON Array.
 'detectedTech' = technologies found on their site, 'detectedIntent' = buying/growth signals.
 For each item:
 1. company: clean company name (remove GmbH, LLC, etc).
@@ -365,13 +370,26 @@ For each item:
 5. customPitch: ONE sentence cold-email opening hook in Turkish referencing specific evidence (a real pain point, tech or intent signal). No hype words, no fake claims.
 6. winProbability: 0.0-1.0 realistic likelihood they need our services (be conservative; most are < 0.6).
 
+Return ONLY a valid JSON Array.
 Dataset: ${JSON.stringify(chunk)}
 `;
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
-          const res = await model.generateContent(prompt);
-          const parsed = JSON.parse(res.response.text());
-          for (const a of parsed) if (typeof a.idx === "number") aiByIdx.set(a.idx, a);
+          let rawJson = '';
+          if (geminiModel) {
+            const res = await geminiModel.generateContent(prompt);
+            rawJson = res.response.text();
+          } else {
+            const res = await generateTextResilient({
+              prompt,
+              preferredModel: 'automation',
+              temperature: 0.2,
+            });
+            rawJson = extractJsonFromText(res.text);
+          }
+          const parsed = JSON.parse(rawJson);
+          const arr = Array.isArray(parsed) ? parsed : (parsed.items || parsed.leads || []);
+          for (const a of arr) if (typeof a?.idx === "number") aiByIdx.set(a.idx, a);
           return;
         } catch (err) {
           console.error(`[AI Cleaner Node] Chunk ${ci} attempt ${attempt + 1} failed:`, (err as Error).message);
@@ -379,7 +397,7 @@ Dataset: ${JSON.stringify(chunk)}
       }
     });
   } else {
-    console.warn("[AI Cleaner Node] GOOGLE_AI_API_KEY missing - continuing with rule-based enrichment only.");
+    console.warn("[AI Cleaner Node] AI motoru yapılandırılmamış - continuing with rule-based enrichment only.");
   }
 
   // E-POSTA KEŞFİ + SKORLAMA (sınırlı eşzamanlılık)

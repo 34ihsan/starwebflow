@@ -16,7 +16,7 @@ export const de = {
     pending: 'Ausstehend',
   },
   navbar: {
-    services: 'Dienstleistungen',
+    services: 'Leistungen',
     whyUs: 'Warum wir?',
     pricing: 'Preise',
     process: 'Prozess',
@@ -24,8 +24,8 @@ export const de = {
     contact: 'Kontakt',
     login: 'Anmelden',
     register: 'Kunde werden',
-    allServices: 'Alle Dienstleistungen sehen →',
-    portfolioTitle: 'Unser Dienstleistungsportfolio',
+    allServices: 'Alle Leistungen sehen →',
+    portfolioTitle: 'Leistungen',
   },
   hero: {
     badge: '🚀 Die KI-Ära hat begonnen',

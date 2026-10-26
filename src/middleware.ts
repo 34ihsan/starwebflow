@@ -21,6 +21,8 @@ function applySecurityHeaders(res: NextResponse): NextResponse {
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   res.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
+  res.headers.set('X-DNS-Prefetch-Control', 'on');
+  res.headers.set('X-Powered-By', 'StarWebFlow Enterprise AI Engine');
   return res;
 }
 

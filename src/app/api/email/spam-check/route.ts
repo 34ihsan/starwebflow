@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getFlashModel } from '@/lib/ai/gemini-client';
+import { getAdminModel, extractJsonFromText } from '@/lib/ai/gemini-client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
 
     const fullText = `${subject || ''} ${emailBody || ''}`;
 
-    // YZ Tabanlı Semantik Spam Analizi
+    // YZ Tabanlı Semantik Spam Analizi (starwebflow-admin:latest)
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getAdminModel(),
       system: `Sen elit düzey bir E-Posta Deliverability ve Spam Analiz uzmanısın. Gönderilen metni analiz edip, JSON formatında yanıt dönmelisin.
 Format:
 {
@@ -30,7 +30,7 @@ Kurallar: Satış baskısı (aciliyet, "hemen al", "ücretsiz"), aşırı büyü
 
     let aiResult;
     try {
-      aiResult = JSON.parse(text.replace(/```json\n?|\n?```/g, '').trim());
+      aiResult = JSON.parse(extractJsonFromText(text));
     } catch (e) {
       console.error("AI Parse error:", text);
       return NextResponse.json({ error: 'YZ analizi parse edilemedi' }, { status: 500 });

@@ -11,6 +11,8 @@ import GlowCard from '@/components/ui/GlowCard'
 import { Clock, TrendingUp, Zap, CheckCircle, GitBranch, Database, Mail, FileText, RefreshCw, Loader2 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import LeadFormModal from '@/components/services/LeadFormModal'
+import LiveWorkflowSandbox from '@/components/services/live-ai/LiveWorkflowSandbox'
+import AutomationTelemetryCockpit from '@/components/services/live-ai/AutomationTelemetryCockpit'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 const ACCENT = '#10B981'
@@ -669,22 +671,9 @@ export default function AIOtomasyonPage() {
             </p>
           </div>
           <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <CostSaverCalculator />
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">
-                {dict.calculatorSection.asideTitle}
-              </div>
-              {dict.calculatorSection.asideTasks.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-emerald-300 transition-all">
-                  <span className="text-xl">{item.emoji}</span>
-                  <span className="text-sm text-slate-700 font-medium flex-1">{item.text}</span>
-                  <span className="text-xs font-bold text-rose-600">{item.hours}</span>
-                </div>
-              ))}
-              <div className="text-center text-xs text-slate-500 mt-2 font-medium">
-                {dict.calculatorSection.asideTotal}
-              </div>
-            </div>
+            <LiveWorkflowSandbox />
+            {/* Right: Automation Telemetry Cockpit */}
+            <AutomationTelemetryCockpit />
           </div>
         </div>
       </section>

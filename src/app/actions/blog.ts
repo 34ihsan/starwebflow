@@ -103,15 +103,14 @@ function generateSlug(title: string) {
 export async function generateAIBlog(topic: string, keywords: string, includePAA: boolean = true, authorName?: string) {
   try {
     const tenantId = await getActiveTenantId();
-    const googleKey = process.env.GOOGLE_AI_API_KEY;
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
 
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-      return { success: false, error: 'Google AI API Key bulunamadı.' };
+    if (!isAiConfigured()) {
+      return { success: false, error: 'AI motoru yapılandırılmamış.' };
     }
 
     const { generateText } = await import('ai');
-    const { getProModel } = await import('@/lib/ai/gemini-client');
-    const model = getProModel();
+    const model = getGrowthModel();
 
     let paaQuestions = '';
     if (includePAA) {
@@ -217,14 +216,13 @@ Lütfen makaleyi Markdown olarak yaz ve sonuna istediğim JSON formatındaki met
 
 export async function suggestBlogIdeas() {
   try {
-    const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-      return { success: false, error: 'Google AI API Key bulunamadı.' };
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+    if (!isAiConfigured()) {
+      return { success: false, error: 'AI motoru yapılandırılmamış.' };
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
-    const model = getFlashModel();
+    const model = getGrowthModel();
 
     const systemPrompt = `Sen StarWebFlow adlı B2B dijital ajansın baş içerik stratejistisin.
 Ajansın hizmetleri şunlar: SEO, Web Tasarımı, Webflow Geliştirme, Sosyal Medya Yönetimi, Dijital Pazarlama.
@@ -246,11 +244,7 @@ Amacın, StarWebFlow'un potansiyel müşterilerini (KOBİ'ler, Kurumsal şirketl
       prompt: "Bana 5 adet blog yazısı fikri öner.",
     });
 
-    let jsonStr = text.trim();
-    if (jsonStr.startsWith('```json')) {
-      jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-    }
-    const ideas = JSON.parse(jsonStr);
+    const ideas = JSON.parse(extractJsonFromText(text));
     
     return { success: true, data: ideas };
   } catch (error: any) {
@@ -268,14 +262,13 @@ export async function repurposeBlogToSocial(blogId: string) {
 
     if (!blog) return { success: false, error: 'Blog not found' };
 
-    const googleKey = process.env.GOOGLE_AI_API_KEY;
-    if (!googleKey || googleKey === 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-      return { success: false, error: 'Google AI API Key bulunamadı.' };
+    const { getGrowthModel, isAiConfigured, extractJsonFromText } = await import('@/lib/ai/gemini-client');
+    if (!isAiConfigured()) {
+      return { success: false, error: 'AI motoru yapılandırılmamış.' };
     }
 
     const { generateText } = await import('ai');
-    const { getFlashModel } = await import('@/lib/ai/gemini-client');
-    const model = getFlashModel();
+    const model = getGrowthModel();
 
     const systemPrompt = `Sen bir Sosyal Medya İçerik Geri Dönüşüm (Repurposing) uzmanısın.
 Gönderilen uzun blog yazısını okuyacak ve bundan 2 adet sosyal medya içeriği üreteceksin:
@@ -298,11 +291,7 @@ Blog İçeriği (ilk 3000 karakter): ${blog.content.substring(0, 3000)}`;
       prompt: userPrompt,
     });
 
-    let jsonStr = text.trim();
-    if (jsonStr.startsWith('\`\`\`json')) {
-      jsonStr = jsonStr.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-    }
-    const socials = JSON.parse(jsonStr);
+    const socials = JSON.parse(extractJsonFromText(text));
 
     let createdCount = 0;
     for (const item of socials) {

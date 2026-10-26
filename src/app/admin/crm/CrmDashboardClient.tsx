@@ -71,6 +71,8 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerGenerating, setOfferGenerating] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState("");
+  const [battlecard, setBattlecard] = useState<any>(null);
+  const [copiedField, setCopiedField] = useState<string>("");
   const [targetOfferLead, setTargetOfferLead] = useState<any>(null);
 
   const handleGenerateOffer = async (lead: any) => {
@@ -79,14 +81,22 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
     setIsOfferModalOpen(true);
     setOfferGenerating(true);
     setGeneratedOffer("");
+    setBattlecard(null);
     
     try {
-      const { generateAIOffer } = await import('@/app/actions/lead');
-      const res = await generateAIOffer(lead);
-      if (res.success && res.text) {
-        setGeneratedOffer(res.text);
+      const res = await fetch('/api/admin/lead-battlecard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead }),
+      });
+      const data = await res.json();
+      if (data.success && data.battlecard) {
+        setBattlecard(data.battlecard);
+        setGeneratedOffer(`Konu: ${data.battlecard.coldEmailSubject}\n\n${data.battlecard.coldEmailBody}`);
       } else {
-        setGeneratedOffer("Teklif oluşturulurken bir hata oluştu veya bağlantı kurulamadı.");
+        const { generateAIOffer } = await import('@/app/actions/lead');
+        const fallbackRes = await generateAIOffer(lead);
+        setGeneratedOffer(fallbackRes.text || "Teklif hazırlandı.");
       }
     } catch (error) {
       console.error(error);
@@ -94,6 +104,12 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
     } finally {
       setOfferGenerating(false);
     }
+  };
+
+  const copyBattlecardText = (key: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(key);
+    setTimeout(() => setCopiedField(""), 2000);
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -283,8 +299,11 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                 <div className="text-sm text-[#94A3B8] mb-3">
                   {formatCurrency(lead.value || 0, lead.currency || "TRY")}
                 </div>
-                <button className="w-full text-xs bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 text-white py-2 rounded-xl transition-opacity font-bold">
-                  Hemen İletişime Geç
+                <button
+                  onClick={() => handleGenerateOffer(lead)}
+                  className="w-full text-xs bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 text-white py-2 rounded-xl transition-opacity font-bold cursor-pointer"
+                >
+                  ✨ 360° AI Satış Battlecard Üret
                 </button>
               </div>
             ))}
@@ -543,17 +562,27 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
         </div>
       )}
 
-      {/* AI Offer Generation Modal */}
+      {/* AI 360 Battlecard & Offer Generation Modal */}
       {isOfferModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="bg-[#0A0A0F] border border-[#8B5CF6]/30 rounded-2xl p-6 w-full max-w-2xl shadow-[0_0_40px_rgba(139,92,246,0.15)] relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-[#0A0A0F] border border-[#8B5CF6]/30 rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_0_40px_rgba(139,92,246,0.2)] relative">
             {/* Background Glow */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#4F8EF7]"></div>
             
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#8B5CF6]" /> 
-              AI Destekli Teklif Oluşturucu
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#8B5CF6]" /> 
+                🎯 360° AI Satış Paketi (Battlecard)
+              </h2>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="text-[10px] font-mono bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full">
+                  starwebflow-admin:latest
+                </span>
+                <span className="text-[10px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  starwebflow-growth:latest
+                </span>
+              </div>
+            </div>
 
             {offerGenerating ? (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
@@ -562,7 +591,109 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                   <div className="absolute inset-0 border-4 border-[#8B5CF6] rounded-full border-t-transparent animate-spin"></div>
                   <BrainCircuit className="absolute inset-0 m-auto w-6 h-6 text-[#8B5CF6] animate-pulse" />
                 </div>
-                <p className="text-[#94A3B8] font-medium animate-pulse">{targetOfferLead ? (targetOfferLead.company || targetOfferLead.name || targetOfferLead.firstName) : 'Müşteri'} için özel strateji ve teklif metni hazırlanıyor...</p>
+                <p className="text-[#94A3B8] font-medium animate-pulse">
+                  {targetOfferLead ? (targetOfferLead.company || targetOfferLead.name || targetOfferLead.firstName) : 'Müşteri'} için 360° psikolojik profil, Cold Email, WhatsApp mesajı ve otomasyon mimarisi üretiliyor...
+                </p>
+              </div>
+            ) : battlecard ? (
+              <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+                {/* 1. Psikoloji & Acı Noktası */}
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="bg-[#05050A] border border-purple-500/20 rounded-xl p-4">
+                    <div className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-1">
+                      🧠 Karar Verici Psikolojisi
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">{battlecard.psychologySummary}</p>
+                  </div>
+                  <div className="bg-[#05050A] border border-amber-500/20 rounded-xl p-4">
+                    <div className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
+                      🔥 Tespit Edilen Acı Noktası
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">{battlecard.painPoint}</p>
+                  </div>
+                </div>
+
+                {/* 2. Spam-Korumalı Cold Email */}
+                <div className="bg-[#05050A] border border-white/[0.08] rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">
+                      📧 1. Gün Cold Email (Link-Free & Spam Korumalı)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                        %{battlecard.inboxScore} Inbox Garantili
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => copyBattlecardText("email", generatedOffer)}
+                        className="text-xs bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                      >
+                        {copiedField === "email" ? "✓ Kopyalandı" : "Kopyala"}
+                      </button>
+                    </div>
+                  </div>
+                  <textarea 
+                    rows={5}
+                    className="w-full bg-transparent text-white text-xs sm:text-sm focus:outline-none resize-none leading-relaxed"
+                    value={generatedOffer}
+                    onChange={(e) => setGeneratedOffer(e.target.value)}
+                  />
+                </div>
+
+                {/* 3. WhatsApp / LinkedIn Icebreaker */}
+                <div className="bg-[#05050A] border border-emerald-500/20 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                      💬 WhatsApp / LinkedIn Buz Kırıcı Mesajı
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyBattlecardText("wa", battlecard.whatsappIcebreaker)}
+                      className="text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    >
+                      {copiedField === "wa" ? "✓ Kopyalandı" : "WhatsApp Metnini Kopyala"}
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-200 leading-relaxed">{battlecard.whatsappIcebreaker}</p>
+                </div>
+
+                {/* 4. Önerilen Paket & Otomasyon Düğümleri */}
+                <div className="bg-[#05050A] border border-indigo-500/20 rounded-xl p-4">
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">
+                    ⚙️ Önerilen Mimari Paket: <span className="text-white">{battlecard.recommendedPackage}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {(battlecard.automationNodes || []).map((n: string, idx: number) => (
+                      <span key={idx} className="text-[11px] font-mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2.5 py-1 rounded-lg">
+                        {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-6 pt-3 border-t border-white/10">
+                  <span className="text-xs font-medium text-[#10B981] flex items-center gap-1 bg-[#10B981]/10 px-2.5 py-1 rounded-md">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> 360° Satış Paketi Hazır
+                  </span>
+                  
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => setIsOfferModalOpen(false)}
+                      className="px-4 py-2 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      Kapat
+                    </button>
+                    <button 
+                      onClick={() => {
+                        copyBattlecardText("all", generatedOffer);
+                        setIsOfferModalOpen(false);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white hover:opacity-90 transition-opacity text-sm font-medium shadow-[0_0_15px_rgba(139,92,246,0.3)] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Send className="w-4 h-4" /> Kopyala & Gönder
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4 animate-in slide-in-from-bottom-4 duration-500">
@@ -575,29 +706,8 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                     onChange={(e) => setGeneratedOffer(e.target.value)}
                   />
                 </div>
-                
-                <div className="flex items-center justify-between mt-6">
-                  <span className="text-xs font-medium text-[#10B981] flex items-center gap-1 bg-[#10B981]/10 px-2 py-1 rounded-md">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Metin Başarıyla Üretildi
-                  </span>
-                  
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => setIsOfferModalOpen(false)}
-                      className="px-4 py-2 rounded-xl border border-white/[0.1] text-white hover:bg-white/[0.05] transition-colors text-sm font-medium"
-                    >
-                      İptal
-                    </button>
-                    <button 
-                      onClick={() => {
-                        alert("Teklif başarıyla gönderildi!");
-                        setIsOfferModalOpen(false);
-                      }}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white hover:opacity-90 transition-opacity text-sm font-medium shadow-[0_0_15px_rgba(139,92,246,0.3)] flex items-center gap-2"
-                    >
-                      <Send className="w-4 h-4" /> Müşteriye Gönder
-                    </button>
-                  </div>
+                <div className="flex justify-end gap-3">
+                  <button onClick={() => setIsOfferModalOpen(false)} className="px-4 py-2 rounded-xl border border-white/[0.1] text-white text-sm">Kapat</button>
                 </div>
               </div>
             )}
@@ -626,7 +736,21 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
               {/* Lead Info */}
               {selectedTask.lead && (
                 <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-5">
-                  <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><Users className="w-4 h-4 text-[#8B5CF6]" /> Müşteri Profili</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2"><Users className="w-4 h-4 text-[#8B5CF6]" /> Müşteri Profili</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const leadObj = selectedTask.lead;
+                        setSelectedTask(null);
+                        handleGenerateOffer(leadObj);
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      360° AI Satış Battlecard Üret
+                    </button>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-[#64748B] mb-1">Müşteri Adı</p>

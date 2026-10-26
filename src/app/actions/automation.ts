@@ -220,8 +220,9 @@ export async function seedTitanTemplates(tenantId?: string, templates: { name: s
 
 export async function generateFlowFromPrompt(prompt: string) {
   try {
-    const { object } = await generateObject({
-      model: getFlashModel(),
+    const { generateJsonResilient } = await import('@/lib/ai/gemini-client');
+    const object = await generateJsonResilient({
+      domain: 'automation',
       system: `Sen StarWebflow platformunun Titan Mode Otomasyon Yöneticisisin. 
 Kullanıcının verdiği isteğe göre ileri seviye yapay zeka otomasyon akışı (Node Array) oluşturmalısın.
 
@@ -245,16 +246,23 @@ Kurallar:
   { "id": "n3", "type": "action", "app": "Landing Gen", "label": "Müşteriye Özel Mikro Landing Page Üret" },
   { "id": "n4", "type": "action", "app": "Email", "label": "Kişiselleştirilmiş İkna Maili At" }
 ]`,
-      prompt: `Kullanıcı İsteği: "${prompt}"\n\nBu isteği yerine getirecek Titan Mode otomasyon düğümlerini oluştur.`,
+      prompt: `Kullanıcı İsteği: "${prompt}"\n\nBu isteği yerine getirecek Titan Mode otomasyon düğümlerini SADECE JSON Array olarak oluştur.`,
       schema: z.array(z.object({
-        id: z.string(),
-        type: z.string(),
-        app: z.string(),
-        label: z.string()
+        id: z.string().optional(),
+        type: z.string().optional(),
+        app: z.string().optional(),
+        label: z.string().optional()
       }))
     });
 
-    return { success: true, nodes: object };
+    const normalizedNodes = object.map((n: any, idx: number) => ({
+      id: n.id || `n${idx + 1}`,
+      type: idx === 0 ? 'trigger' : (n.type || 'action'),
+      app: n.app || 'Star AI',
+      label: n.label || n.name || n.title || `Otomasyon Adımı ${idx + 1}`,
+    }));
+
+    return { success: true, nodes: normalizedNodes };
   } catch (e) {
     console.error('AI Flow Generation failed:', e);
     return { success: false, error: 'AI akış oluşturamadı' };

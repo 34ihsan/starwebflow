@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createLeadWithProposal } from '@/app/actions/lead';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
 
@@ -98,6 +98,32 @@ export default function QuickQuoteForm() {
     customIndustry: '',
     serviceType: '',
   });
+  const [auditPrefill, setAuditPrefill] = useState<{
+    domain: string;
+    overallScore: number;
+    lcpTime: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleAuditPrefill = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      setAuditPrefill({
+        domain: detail.domain || '',
+        overallScore: detail.overallScore || 0,
+        lcpTime: detail.lcpTime || '',
+      });
+      setFormData((prev) => ({
+        ...prev,
+        industry: detail.detectedIndustry || prev.industry,
+        serviceType: detail.recommendedService || prev.serviceType,
+        email: prev.email || (detail.domain && !detail.domain.includes('starwebflow') && !detail.domain.includes('localhost') ? `info@${detail.domain}` : ''),
+      }));
+    };
+
+    window.addEventListener('starwebflow:audit-prefill', handleAuditPrefill);
+    return () => window.removeEventListener('starwebflow:audit-prefill', handleAuditPrefill);
+  }, []);
 
   const activeService = formData.serviceType || defaultService;
   const activeIndustry = formData.industry || defaultIndustry;
@@ -122,7 +148,9 @@ export default function QuickQuoteForm() {
       email: formData.email,
       industry: finalIndustry,
       serviceType: activeService,
-      source: 'Quick Quote Form',
+      source: auditPrefill
+        ? `Quick Quote Form (Audit: ${auditPrefill.domain} - ${auditPrefill.overallScore}/100)`
+        : 'Quick Quote Form',
       recaptchaToken,
     });
 
@@ -177,6 +205,29 @@ export default function QuickQuoteForm() {
         </div>
 
         <div className="bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-200/90 shadow-sm">
+          {auditPrefill && (
+            <div className="mb-5 p-3.5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 flex items-center gap-3 animate-in fade-in duration-300">
+              <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <span className="font-bold text-purple-900 block">
+                  {language === 'de'
+                    ? `Audit-Daten für ${auditPrefill.domain} übernommen`
+                    : language === 'en'
+                    ? `Audit data for ${auditPrefill.domain} pre-filled`
+                    : `${auditPrefill.domain} Canlı Denetim Verileri Aktarıldı`}
+                </span>
+                <span className="text-purple-700 font-medium">
+                  {language === 'de'
+                    ? `Aktueller Score: ${auditPrefill.overallScore}/100 (${auditPrefill.lcpTime}) → Ziel: 99/100`
+                    : language === 'en'
+                    ? `Current Score: ${auditPrefill.overallScore}/100 (${auditPrefill.lcpTime}) → Target: 99/100`
+                    : `Mevcut Skor: ${auditPrefill.overallScore}/100 (${auditPrefill.lcpTime}) → Hedef: 99/100`}
+                </span>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{tLocal.nameLabel}</label>

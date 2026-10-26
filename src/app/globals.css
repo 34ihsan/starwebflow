@@ -316,7 +316,7 @@ select option, select optgroup {
 /* Marquee */
 .marquee-track {
   display: flex;
-  animation: marquee 25s linear infinite;
+  animation: marquee 55s linear infinite;
   width: max-content;
 }
 .marquee-track:hover {

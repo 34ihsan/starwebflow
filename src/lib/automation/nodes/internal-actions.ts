@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateText } from "ai";
-import { getFlashModel, getProModel } from "@/lib/ai/gemini-client";
+import { getAutomationModel, getGrowthModel } from "@/lib/ai/gemini-client";
 
 
 export async function createProjectAction(tenantId: string, payload: any, nodeData: any) {
@@ -91,7 +91,7 @@ export async function aiScoreLeadAction(tenantId: string, payload: any, nodeData
   let score = 50; // Fallback
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getAutomationModel(),
       prompt: `Sen bir satış uzmanısın. Aşağıdaki lead verisini değerlendir ve 0-100 arasında bir satın alma niyet skoru belirle.
 Lead: ${leadData}
 SADECE bir sayı döndür (0-100). Başka bir şey yazma.`,
@@ -189,7 +189,7 @@ export async function aiCompanyResearchAction(tenantId: string, payload: any, no
   let insight = "Şirket araştırması yapılamadı.";
   try {
     const { text } = await generateText({
-      model: getProModel(),
+      model: getAutomationModel(),
       prompt: `Sen bir B2B satış istihbarat uzmanısın. Aşağıdaki şirket hakkında kısa bir profil çıkar.
 Şirket adı: ${companyName}
 ${website ? `Web sitesi: ${website}` : ""}
@@ -241,7 +241,7 @@ export async function startEmailCampaignAction(tenantId: string, payload: any, n
   let emailContent = "";
   try {
     const { text } = await generateText({
-      model: getFlashModel(),
+      model: getGrowthModel(),
       prompt: `Sen StarWebflow'un kişiselleştirilmiş e-posta uzmanısın.
 Kampanya: ${campaignName}
 Alıcı: ${recipientName}${recipientCompany ? ` (${recipientCompany})` : ""}
