@@ -633,12 +633,26 @@ export default function ProspectingClient() {
                             Ghosting Riski
                           </span>
                         )}
-                        <div className="flex items-center gap-2">
-                          <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div className={`h-full rounded-full ${(lead.winProbability || lead.score) >= 90 ? 'bg-[#10B981]' : (lead.winProbability || lead.score) >= 80 ? 'bg-[#4F8EF7]' : 'bg-[#F59E0B]'}`} style={{ width: `${lead.winProbability || lead.score}%` }}></div>
-                          </div>
-                          <span className="text-xs font-bold text-white">%{lead.winProbability || lead.score}</span>
-                        </div>
+                        {(() => {
+                          const p = lead.winProbability != null ? Number(lead.winProbability) : null;
+                          const s = lead.score != null ? Number(lead.score) : null;
+                          let pct = 70;
+                          if (p != null) {
+                            pct = p <= 1.0 ? Math.round(p * 100) : Math.round(p);
+                          } else if (s != null) {
+                            pct = s <= 1.0 ? Math.round(s * 100) : Math.round(s);
+                          }
+                          pct = Math.max(1, Math.min(100, pct));
+                          const colorClass = pct >= 80 ? 'bg-[#10B981]' : pct >= 60 ? 'bg-[#4F8EF7]' : 'bg-[#F59E0B]';
+                          return (
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                <div className={`h-full rounded-full ${colorClass}`} style={{ width: `${pct}%` }}></div>
+                              </div>
+                              <span className="text-xs font-bold text-white">%{pct}</span>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </td>
                     <td className="p-4">
