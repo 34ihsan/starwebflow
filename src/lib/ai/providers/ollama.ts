@@ -169,8 +169,8 @@ export class OllamaProvider implements ILLMProvider {
       const timeout = setTimeout(() => controller.abort(), 5000);
 
       const [tagsRes, psRes] = await Promise.all([
-        fetch(`${this.baseUrl}/api/tags`, { signal: controller.signal }),
-        fetch(`${this.baseUrl}/api/ps`, { signal: controller.signal }),
+        fetch(`${this.baseUrl}/api/tags`, { signal: controller.signal, cache: 'no-store' }),
+        fetch(`${this.baseUrl}/api/ps`, { signal: controller.signal, cache: 'no-store' }),
       ]);
       clearTimeout(timeout);
 

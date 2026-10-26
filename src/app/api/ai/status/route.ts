@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { OllamaProvider } from '@/lib/ai/providers/ollama';
 import { OLLAMA_MODELS, isOllamaPrimary, getGoogleApiKey } from '@/lib/ai/gemini-client';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   const ollama = new OllamaProvider();
   const health = await ollama.checkHealth();

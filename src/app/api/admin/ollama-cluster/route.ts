@@ -13,6 +13,9 @@ const DOMAIN_MODELS = [
   { key: 'embed', name: OLLAMA_MODELS.EMBED, role: 'RAG & Vektör Arama (768-dim)' },
 ];
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     let installedModels: string[] = [];
@@ -21,8 +24,8 @@ export async function GET() {
 
     try {
       const [tagsRes, psRes] = await Promise.all([
-        fetch(`${OLLAMA_BASE_URL}/api/tags`, { signal: AbortSignal.timeout(3000) }),
-        fetch(`${OLLAMA_BASE_URL}/api/ps`, { signal: AbortSignal.timeout(3000) }),
+        fetch(`${OLLAMA_BASE_URL}/api/tags`, { signal: AbortSignal.timeout(3000), cache: 'no-store' }),
+        fetch(`${OLLAMA_BASE_URL}/api/ps`, { signal: AbortSignal.timeout(3000), cache: 'no-store' }),
       ]);
 
       if (tagsRes.ok) {
