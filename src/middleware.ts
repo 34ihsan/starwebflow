@@ -13,13 +13,16 @@ const rateLimitCache = new Map<string, { count: number; resetAt: number }>();
 /**
  * Yanıtlara kurumsal düzeyde HTTP Güvenlik Başlıklarını (Enterprise Security Headers) enjekte eder.
  */
-function applySecurityHeaders(res: NextResponse): NextResponse {
+function applySecurityHeaders(res: NextResponse, req?: NextRequest): NextResponse {
   res.headers.set('X-Frame-Options', 'DENY');
   res.headers.set('X-Content-Type-Options', 'nosniff');
   res.headers.set('X-XSS-Protection', '1; mode=block');
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  const isHttps = req ? (req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https') : false;
+  if (isHttps) {
+    res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  }
   res.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   res.headers.set('X-DNS-Prefetch-Control', 'on');
   res.headers.set('X-Powered-By', 'StarWebFlow Enterprise AI Engine');
