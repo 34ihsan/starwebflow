@@ -118,6 +118,22 @@ export default function ProspectingClient() {
         body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles, personName, personRole })
       });
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        let message = `Sunucu hatası: HTTP ${response.status}`;
+        try {
+          const errJson = JSON.parse(errorText);
+          if (errJson.error) message = errJson.error;
+        } catch {
+          if (response.status === 504) {
+            message = "Arama ve AI analizi devam ediyor (Zaman aşımı). Lütfen birazdan sayfayı yenileyin veya CRM / Veri Havuzu sekmesini kontrol edin.";
+          }
+        }
+        alert(message);
+        setSearchStatusText(null);
+        return;
+      }
+
       const data = await response.json();
       
       if (data.success) {
