@@ -8,9 +8,15 @@ export async function GET(req: Request) {
     const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());
     const { searchParams } = new URL(req.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    const sector = searchParams.get('sector');
+
+    const where: any = { tenantId };
+    if (sector && sector.trim().length > 0) {
+      where.industry = { contains: sector.trim(), mode: 'insensitive' };
+    }
 
     const leads = await prisma.lead.findMany({
-      where: { tenantId },
+      where,
       orderBy: { createdAt: 'desc' },
       take: limit
     });
@@ -34,7 +40,6 @@ export async function POST(req: Request) {
     console.log(`[Prospecting API] Received search request for tenant ${tenantId}:`, { sector, country, location, platform, targetRoles, personName, personRole });
 
     // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
-    // Eğer veritabanında daha önce aynı arama yapılmış ve kaydedilmişse Apify'a gitmeyip direkt onları döndürüyoruz.
     const existingLeads = await prisma.lead.findMany({
       where: {
         tenantId,
@@ -55,27 +60,29 @@ export async function POST(req: Request) {
       });
     }
 
-    // 1. Apify Scraper'ı Webhook veya Senkron olarak tetikle
+    // 1. Scraper'ı tetikle (Apify veya Direct Fallback)
     const scraperResult = await runApifyScraperAction(tenantId, {}, { sector, location, country, platform, targetRoles, personName, personRole });
     
-    if (scraperResult.isAsync || !('rawScrapedData' in scraperResult)) {
-      return NextResponse.json({
-        success: true,
-        message: "Arama arka planda başlatıldı. Veriler geldikçe CRM'inize (Veri Havuzuna) otomatik eklenecektir.",
-        results: []
-      });
-    }
-
-    // Eğer senkron çalıştıysa (Localhost veya küçük veri) hemen AI ve CRM işlemlerini yap
-    const cleanerResult = await aiCleanDataAction(tenantId, { rawScrapedData: scraperResult.rawScrapedData, platform: platform }, {});
+    const rawData = scraperResult?.rawScrapedData || [];
     
-    // Skorlar aiCleanDataAction içinde deterministik olarak hesaplanır (rastgele skor kaldırıldı)
-    const createResult = await createLeadsAction(tenantId, { cleanedData: cleanerResult.cleanedData }, { location, country, industry: sector });
+    // 2. AI Temizleme ve CRM Kaydını Asenkron Arka Planda Başlat (HTTP bağlantısını 504'e düşürmemek için)
+    if (rawData.length > 0) {
+      (async () => {
+        try {
+          console.log(`[Prospecting Background] ${rawData.length} kayıt için AI temizleme ve CRM aktarımı başladı...`);
+          const cleanerResult = await aiCleanDataAction(tenantId, { rawScrapedData: rawData, platform: platform }, {});
+          const createResult = await createLeadsAction(tenantId, { cleanedData: cleanerResult.cleanedData }, { location, country, industry: sector });
+          console.log(`[Prospecting Background] Tamamlandı: ${createResult.importedCount} müşteri CRM'e kaydedildi.`);
+        } catch (bgErr: any) {
+          console.error("[Prospecting Background Error]:", bgErr?.message || bgErr);
+        }
+      })();
+    }
 
     return NextResponse.json({
       success: true,
-      message: `${createResult.importedCount} potansiyel müşteri bulundu ve CRM'e aktarıldı.`,
-      results: createResult.createdLeads
+      message: "Arama ve AI analizi arka planda başlatıldı. Veriler işlendikçe otomatik listelenecektir...",
+      results: []
     });
 
   } catch (error: any) {

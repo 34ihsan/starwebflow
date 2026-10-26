@@ -140,38 +140,43 @@ export default function ProspectingClient() {
         if (Array.isArray(data.results) && data.results.length > 0) {
           setResults(data.results);
           setSearchStatusText(null);
+          setIsSearching(false);
         } else {
-          // Arka planda çalışma veya asenkron kuyruk durumunda 3 saniyede bir polling başlat
+          // Arka planda çalışma durumunda 3 saniyede bir polling başlat
           setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
           let attempts = 0;
+          const pollUrl = sector ? `/api/prospecting?sector=${encodeURIComponent(sector)}` : '/api/prospecting';
           const interval = setInterval(async () => {
             attempts++;
             try {
-              const checkRes = await fetch('/api/prospecting');
+              const checkRes = await fetch(pollUrl);
               const checkData = await checkRes.json();
-              if (checkData.success && checkData.results && checkData.results.length > 0) {
+              if (checkData.success && Array.isArray(checkData.results) && checkData.results.length > 0) {
                 setResults(checkData.results);
                 setSearchStatusText(null);
+                setIsSearching(false);
                 clearInterval(interval);
+                return;
               }
             } catch (err) {
               // Devam et
             }
-            if (attempts >= 10) {
+            if (attempts >= 30) {
               clearInterval(interval);
               setSearchStatusText(null);
+              setIsSearching(false);
             }
           }, 3000);
         }
       } else {
         alert("Arama sırasında hata oluştu: " + data.error);
         setSearchStatusText(null);
+        setIsSearching(false);
       }
     } catch (err) {
       console.error(err);
       alert("Sistemle bağlantı kurulamadı.");
       setSearchStatusText(null);
-    } finally {
       setIsSearching(false);
     }
   };
