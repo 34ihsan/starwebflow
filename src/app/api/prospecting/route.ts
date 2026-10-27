@@ -9,6 +9,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
     const sector = searchParams.get('sector');
+    const location = searchParams.get('location');
+    const after = searchParams.get('after');
 
     const where: any = { 
       tenantId,
@@ -20,6 +22,16 @@ export async function GET(req: Request) {
     };
     if (sector && sector.trim().length > 0) {
       where.industry = { contains: sector.trim(), mode: 'insensitive' };
+    }
+    if (location && location.trim().length > 0) {
+      where.location = { contains: location.trim(), mode: 'insensitive' };
+    }
+    if (after) {
+      const afterDate = new Date(after);
+      if (!isNaN(afterDate.getTime())) {
+        // 5 saniye tolerans ile yeni aramadan sonra oluşturulan kayıtları getir
+        where.createdAt = { gte: new Date(afterDate.getTime() - 5000) };
+      }
     }
 
     const leads = await prisma.lead.findMany({
@@ -34,6 +46,38 @@ export async function GET(req: Request) {
     });
   } catch (error: any) {
     console.error("[Prospecting API GET] Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());
+    const body = await req.json();
+    const { leadIds, clearAll, sector, location } = body;
+
+    if (clearAll) {
+      const where: any = { tenantId };
+      if (sector && sector.trim()) where.industry = { contains: sector.trim(), mode: 'insensitive' };
+      if (location && location.trim()) where.location = { contains: location.trim(), mode: 'insensitive' };
+
+      const res = await prisma.lead.deleteMany({ where });
+      return NextResponse.json({ success: true, count: res.count, message: `${res.count} potansiyel müşteri veritabanından silindi.` });
+    }
+
+    if (Array.isArray(leadIds) && leadIds.length > 0) {
+      const res = await prisma.lead.deleteMany({
+        where: {
+          tenantId,
+          id: { in: leadIds }
+        }
+      });
+      return NextResponse.json({ success: true, count: res.count, message: `${res.count} müşteri silindi.` });
+    }
+
+    return NextResponse.json({ success: false, error: "Silinecek müşteri belirtilmedi." }, { status: 400 });
+  } catch (error: any) {
+    console.error("[Prospecting API DELETE] Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

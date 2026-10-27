@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   Radar, MapPin, Globe2, Briefcase, Database, 
   Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle, Target, ChevronDown, Check,
-  Phone, ExternalLink
+  Phone, ExternalLink, Trash2
 } from "lucide-react";
 
 const TARGET_ROLES = [
@@ -107,16 +107,105 @@ export default function ProspectingClient() {
     }
   };
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteSingle = async (id: string) => {
+    if (!confirm("Bu potansiyel müşteriyi silmek istediğinize emin misiniz?")) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/prospecting', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadIds: [id] })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResults(prev => prev.filter(r => r.id !== id));
+        setSelectedLeads(prev => prev.filter(lId => lId !== id));
+      } else {
+        alert("Silme başarısız: " + (data.error || "Bilinmeyen hata"));
+      }
+    } catch (err) {
+      alert("Silme sırasında bağlantı hatası oluştu.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedLeads.length === 0) return alert("Lütfen silmek için en az bir müşteri seçin.");
+    if (!confirm(`${selectedLeads.length} müşteriyi silmek istediğinize emin misiniz?`)) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/prospecting', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadIds: selectedLeads })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResults(prev => prev.filter(r => !selectedLeads.includes(r.id)));
+        setSelectedLeads([]);
+      } else {
+        alert("Silme başarısız: " + (data.error || "Bilinmeyen hata"));
+      }
+    } catch (err) {
+      alert("Silme sırasında hata oluştu.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (results.length === 0) return;
+    if (!confirm("Ekrandaki tüm potansiyel müşterileri silmek ve listeyi sıfırlamak istediğinize emin misiniz?")) return;
+    setIsDeleting(true);
+    try {
+      const allIds = results.map(r => r.id);
+      const res = await fetch('/api/prospecting', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leadIds: allIds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResults([]);
+        setSelectedLeads([]);
+      } else {
+        alert("Temizleme başarısız: " + (data.error || "Bilinmeyen hata"));
+      }
+    } catch (err) {
+      alert("Temizleme sırasında hata oluştu.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleSearch = async () => {
     if (!sector || !country) return alert("Lütfen sektör ve ülke giriniz.");
     setIsSearching(true);
     setSearchStatusText("Hedef şirketler ve karar vericiler taranıyor...");
+    // Yeni arama başladığında eski listeyi anında temizle!
+    setResults([]);
+    setSelectedLeads([]);
     
+    const searchTimestamp = new Date().toISOString();
+
     try {
       const response = await fetch('/api/prospecting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sector, country, location, platform, targetRoles: selectedTargetRoles, personName, personRole, fresh: true })
+        body: JSON.stringify({ 
+          sector, 
+          country, 
+          location, 
+          platform, 
+          targetRoles: selectedTargetRoles, 
+          personName, 
+          personRole, 
+          fresh: true,
+          timestamp: searchTimestamp 
+        })
       });
       
       if (!response.ok) {
@@ -132,6 +221,7 @@ export default function ProspectingClient() {
         }
         alert(message);
         setSearchStatusText(null);
+        setIsSearching(false);
         return;
       }
 
@@ -146,7 +236,8 @@ export default function ProspectingClient() {
           // Arka planda çalışma durumunda 3 saniyede bir polling başlat
           setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
           let attempts = 0;
-          const pollUrl = '/api/prospecting?limit=50';
+          // SADECE BU YENİ ARAMADAN SONRA oluşturulan verileri getir!
+          const pollUrl = `/api/prospecting?limit=50&sector=${encodeURIComponent(sector)}&after=${encodeURIComponent(searchTimestamp)}`;
           const interval = setInterval(async () => {
             attempts++;
             try {
@@ -529,16 +620,38 @@ export default function ProspectingClient() {
               </div>
               Taranan Potansiyel Müşteriler ({results.length})
             </h2>
-            <button 
-              onClick={() => {
-                if(selectedLeads.length === 0) return alert("Önce listeden müşteri seçiniz.");
-                setIsModalOpen(true);
-              }}
-              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all text-sm font-bold flex items-center gap-2"
-            >
-              <TrendingUp className="w-4 h-4" />
-              Seçilenleri Kampanyaya Aktar ({selectedLeads.length})
-            </button>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {selectedLeads.length > 0 && (
+                <button
+                  onClick={handleDeleteSelected}
+                  disabled={isDeleting}
+                  className="px-4 py-2 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 rounded-xl transition-all text-xs md:text-sm font-semibold flex items-center gap-1.5"
+                  title="Seçilen potansiyel müşterileri sil"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-400" />
+                  Seçilenleri Sil ({selectedLeads.length})
+                </button>
+              )}
+              <button 
+                onClick={handleClearAll}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl transition-all text-xs md:text-sm font-medium flex items-center gap-1.5"
+                title="Tüm listeyi temizle"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-slate-400" />
+                Listeyi Temizle
+              </button>
+              <button 
+                onClick={() => {
+                  if(selectedLeads.length === 0) return alert("Önce listeden müşteri seçiniz.");
+                  setIsModalOpen(true);
+                }}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all text-xs md:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/30"
+              >
+                <TrendingUp className="w-4 h-4" />
+                Seçilenleri Kampanyaya Aktar ({selectedLeads.length})
+              </button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -656,20 +769,30 @@ export default function ProspectingClient() {
                       </div>
                     </td>
                     <td className="p-4">
-                      {lead.painPoints && lead.painPoints.length > 0 ? (
-                        <span className="text-xs bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 text-[#8B5CF6] px-2 py-1 rounded cursor-help flex items-center gap-1 w-fit" title={lead.customPitch}>
-                          <Sparkles className="w-3 h-3" />
-                          {lead.painPoints[0]}
-                        </span>
-                      ) : (
-                        <button 
-                          onClick={() => handleAnalyze(lead)}
-                          disabled={analyzingId === lead.id}
-                          className="text-xs text-[#4F8EF7] hover:text-white bg-[#4F8EF7]/10 hover:bg-[#4F8EF7] px-3 py-1.5 rounded transition-colors font-medium flex items-center gap-1 w-fit"
+                      <div className="flex items-center gap-2">
+                        {lead.painPoints && lead.painPoints.length > 0 ? (
+                          <span className="text-xs bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 text-[#8B5CF6] px-2 py-1 rounded cursor-help flex items-center gap-1 w-fit" title={lead.customPitch}>
+                            <Sparkles className="w-3 h-3" />
+                            {lead.painPoints[0]}
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => handleAnalyze(lead)}
+                            disabled={analyzingId === lead.id}
+                            className="text-xs text-[#4F8EF7] hover:text-white bg-[#4F8EF7]/10 hover:bg-[#4F8EF7] px-3 py-1.5 rounded transition-colors font-medium flex items-center gap-1 w-fit"
+                          >
+                            {analyzingId === lead.id ? "Analiz..." : "AI Yorum Analizi"}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteSingle(lead.id)}
+                          disabled={isDeleting}
+                          className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors ml-auto"
+                          title="Bu müşteriyi sil"
                         >
-                          {analyzingId === lead.id ? "Analiz..." : "AI Yorum Analizi"}
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))}
