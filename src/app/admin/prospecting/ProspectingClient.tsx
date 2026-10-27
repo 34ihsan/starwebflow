@@ -110,47 +110,35 @@ export default function ProspectingClient() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteSingle = async (id: string) => {
-    if (!confirm("Bu potansiyel müşteriyi silmek istediğinize emin misiniz?")) return;
-    setIsDeleting(true);
+    // Anında ekrandan ve seçimlerden kaldır (Optimistic UI)
+    setResults(prev => prev.filter(r => r.id !== id));
+    setSelectedLeads(prev => prev.filter(lId => lId !== id));
     try {
-      const res = await fetch('/api/prospecting', {
+      await fetch('/api/prospecting', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ leadIds: [id] })
       });
-      const data = await res.json();
-      if (data.success) {
-        setResults(prev => prev.filter(r => r.id !== id));
-        setSelectedLeads(prev => prev.filter(lId => lId !== id));
-      } else {
-        alert("Silme başarısız: " + (data.error || "Bilinmeyen hata"));
-      }
     } catch (err) {
-      alert("Silme sırasında bağlantı hatası oluştu.");
-    } finally {
-      setIsDeleting(false);
+      console.error("Silme hatası:", err);
     }
   };
 
   const handleDeleteSelected = async () => {
     if (selectedLeads.length === 0) return alert("Lütfen silmek için en az bir müşteri seçin.");
-    if (!confirm(`${selectedLeads.length} müşteriyi silmek istediğinize emin misiniz?`)) return;
+    const toDelete = [...selectedLeads];
+    // Anında ekrandan ve seçimlerden kaldır (Optimistic UI)
+    setResults(prev => prev.filter(r => !toDelete.includes(r.id)));
+    setSelectedLeads([]);
     setIsDeleting(true);
     try {
-      const res = await fetch('/api/prospecting', {
+      await fetch('/api/prospecting', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadIds: selectedLeads })
+        body: JSON.stringify({ leadIds: toDelete })
       });
-      const data = await res.json();
-      if (data.success) {
-        setResults(prev => prev.filter(r => !selectedLeads.includes(r.id)));
-        setSelectedLeads([]);
-      } else {
-        alert("Silme başarısız: " + (data.error || "Bilinmeyen hata"));
-      }
     } catch (err) {
-      alert("Silme sırasında hata oluştu.");
+      console.error("Silme hatası:", err);
     } finally {
       setIsDeleting(false);
     }
@@ -158,24 +146,19 @@ export default function ProspectingClient() {
 
   const handleClearAll = async () => {
     if (results.length === 0) return;
-    if (!confirm("Ekrandaki tüm potansiyel müşterileri silmek ve listeyi sıfırlamak istediğinize emin misiniz?")) return;
+    const allIds = results.map(r => r.id);
+    // Anında tüm listeyi ve seçimleri sıfırla (Optimistic UI)
+    setResults([]);
+    setSelectedLeads([]);
     setIsDeleting(true);
     try {
-      const allIds = results.map(r => r.id);
-      const res = await fetch('/api/prospecting', {
+      await fetch('/api/prospecting', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadIds: allIds })
+        body: JSON.stringify({ clearAll: true, leadIds: allIds })
       });
-      const data = await res.json();
-      if (data.success) {
-        setResults([]);
-        setSelectedLeads([]);
-      } else {
-        alert("Temizleme başarısız: " + (data.error || "Bilinmeyen hata"));
-      }
     } catch (err) {
-      alert("Temizleme sırasında hata oluştu.");
+      console.error("Temizleme hatası:", err);
     } finally {
       setIsDeleting(false);
     }
@@ -657,15 +640,16 @@ export default function ProspectingClient() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.05] bg-white/[0.02]">
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider w-14">
                     <input 
                       type="checkbox" 
                       onChange={(e) => {
-                        if(e.target.checked) setSelectedLeads(results.map(r => r.id));
+                        if (e.target.checked) setSelectedLeads(results.map(r => r.id));
                         else setSelectedLeads([]);
                       }}
-                      checked={selectedLeads.length === results.length && results.length > 0}
-                      className="rounded border-white/[0.05] bg-[#05050A] text-[#8B5CF6] focus:ring-[#8B5CF6]/50"
+                      checked={selectedLeads.length > 0 && selectedLeads.length === results.length}
+                      className="w-5 h-5 rounded-md border-2 border-white/30 bg-slate-900 checked:bg-[#8B5CF6] accent-[#8B5CF6] cursor-pointer"
+                      title="Tümünü Seç / Kaldır"
                     />
                   </th>
                   <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">İşletme Adı</th>
@@ -677,15 +661,19 @@ export default function ProspectingClient() {
               <tbody className="divide-y divide-white/[0.05]">
                 {results.map((lead) => (
                   <tr key={lead.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="p-4">
+                    <td 
+                      className="p-4 w-14 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const id = lead.id;
+                        setSelectedLeads(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+                      }}
+                    >
                       <input 
                         type="checkbox" 
                         checked={selectedLeads.includes(lead.id)}
-                        onChange={(e) => {
-                          if(e.target.checked) setSelectedLeads([...selectedLeads, lead.id]);
-                          else setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
-                        }}
-                        className="rounded border-white/[0.05] bg-[#05050A] text-[#8B5CF6] focus:ring-[#8B5CF6]/50"
+                        onChange={() => {}}
+                        className="w-5 h-5 rounded-md border-2 border-white/30 bg-slate-900 checked:bg-[#8B5CF6] accent-[#8B5CF6] cursor-pointer"
                       />
                     </td>
                     <td className="p-4">

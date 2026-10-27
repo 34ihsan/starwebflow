@@ -57,18 +57,20 @@ export async function DELETE(req: Request) {
     const { leadIds, clearAll, sector, location } = body;
 
     if (clearAll) {
-      const where: any = { tenantId };
+      const where: any = {};
+      if (tenantId && tenantId !== 'default-tenant') {
+        where.OR = [{ tenantId }, { tenantId: 'default-tenant' }];
+      }
       if (sector && sector.trim()) where.industry = { contains: sector.trim(), mode: 'insensitive' };
       if (location && location.trim()) where.location = { contains: location.trim(), mode: 'insensitive' };
 
       const res = await prisma.lead.deleteMany({ where });
-      return NextResponse.json({ success: true, count: res.count, message: `${res.count} potansiyel müşteri veritabanından silindi.` });
+      return NextResponse.json({ success: true, count: res.count, message: `${res.count} potansiyel müşteri silindi.` });
     }
 
     if (Array.isArray(leadIds) && leadIds.length > 0) {
       const res = await prisma.lead.deleteMany({
         where: {
-          tenantId,
           id: { in: leadIds }
         }
       });
