@@ -166,34 +166,80 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
   const cleanLocation = location.trim();
   const cleanCountry = country.trim();
   
-  console.log(`[Gerçek Dizin Taraması] OpenStreetMap üzerinden aranıyor: "${sector} in ${cleanLocation}, ${cleanCountry}"`);
+  console.log(`[Gerçek Dizin Taraması] Başlatılıyor: "${sector} in ${cleanLocation}, ${cleanCountry}"`);
   
   const rawItems: any[] = [];
-  
-  // Sektöre göre OSM amenity/office haritalaması ve arama terimi (100% Gerçek Veri)
-  let amenityParam = "";
+  const seenDomains = new Set<string>();
+
+  // Ülke ve dil tespiti (Türkiye vs DACH vs Global)
+  const isTr = /türkiye|turkey|tr/i.test(cleanCountry);
+  const isDe = /almanya|germany|deutschland|österreich|austria|schweiz|switzerland|de|at|ch/i.test(cleanCountry);
+
   let searchKeywords = [sector];
-  if (/restaurant|cafe|bar|gastronomie|lokanta|yemek|döner/i.test(cleanSector)) {
-    amenityParam = "&amenity=restaurant";
-    searchKeywords = ["Restaurant", "Gastronomie"];
-  } else if (/dentist|diş|dis|zahnarzt|zahnklinik|ortodonti/i.test(cleanSector)) {
-    amenityParam = "&amenity=dentist";
-    searchKeywords = ["Zahnarzt", "Zahnklinik", "Zahnarztpraxis"];
-  } else if (/doctor|arzt|klinik|sağlık|saglik|doktor|physiotherapie/i.test(cleanSector)) {
-    amenityParam = "&amenity=doctors";
-    searchKeywords = ["Arztpraxis", "Facharzt", "Klinik"];
-  } else if (/law|lawyer|anwalt|hukuk|avukat|notar/i.test(cleanSector)) {
-    amenityParam = "&office=lawyer";
-    searchKeywords = ["Rechtsanwalt", "Anwaltskanzlei", "Kanzlei"];
-  } else if (/hotel|otel|hostel|konaklama/i.test(cleanSector)) {
-    amenityParam = "&tourism=hotel";
-    searchKeywords = ["Hotel", "Pension"];
+  let contactTerms = ['contact', 'about', 'phone'];
+  let langHeader = 'en-US,en;q=0.9';
+  let amenityParam = '';
+
+  if (isTr) {
+    langHeader = 'tr-TR,tr;q=0.9,en;q=0.8';
+    contactTerms = ['iletişim', 'telefon', 'rezervasyon'];
+    if (/restaurant|restoran|cafe|bar|gastronomie|lokanta|yemek|döner/i.test(cleanSector)) {
+      amenityParam = '&amenity=restaurant';
+      searchKeywords = ['Restoran', 'Lokanta', 'Restaurant'];
+    } else if (/dentist|diş|dis|zahnarzt|ortodonti/i.test(cleanSector)) {
+      amenityParam = '&amenity=dentist';
+      searchKeywords = ['Diş Kliniği', 'Diş Hekimi'];
+    } else if (/doctor|doktor|klinik|sağlık|saglik|hekim|tıp/i.test(cleanSector)) {
+      amenityParam = '&amenity=doctors';
+      searchKeywords = ['Klinik', 'Doktor'];
+    } else if (/law|lawyer|hukuk|avukat/i.test(cleanSector)) {
+      amenityParam = '&office=lawyer';
+      searchKeywords = ['Hukuk Bürosu', 'Avukat'];
+    } else if (/hotel|otel|konaklama/i.test(cleanSector)) {
+      amenityParam = '&tourism=hotel';
+      searchKeywords = ['Otel', 'Butik Otel'];
+    }
+  } else if (isDe) {
+    langHeader = 'de-DE,de;q=0.9,en;q=0.8';
+    contactTerms = ['kontakt', 'impressum', 'telefon'];
+    if (/restaurant|cafe|gastronomie/i.test(cleanSector)) {
+      amenityParam = '&amenity=restaurant';
+      searchKeywords = ['Restaurant', 'Gastronomie'];
+    } else if (/dentist|zahnarzt/i.test(cleanSector)) {
+      amenityParam = '&amenity=dentist';
+      searchKeywords = ['Zahnarzt', 'Zahnklinik'];
+    } else if (/doctor|arzt|klinik/i.test(cleanSector)) {
+      amenityParam = '&amenity=doctors';
+      searchKeywords = ['Arztpraxis', 'Facharzt'];
+    } else if (/law|lawyer|anwalt|notar/i.test(cleanSector)) {
+      amenityParam = '&office=lawyer';
+      searchKeywords = ['Rechtsanwalt', 'Anwaltskanzlei'];
+    } else if (/hotel/i.test(cleanSector)) {
+      amenityParam = '&tourism=hotel';
+      searchKeywords = ['Hotel', 'Pension'];
+    }
+  } else {
+    if (/restaurant|cafe/i.test(cleanSector)) {
+      amenityParam = '&amenity=restaurant';
+      searchKeywords = ['Restaurant', 'Bistro'];
+    } else if (/dentist/i.test(cleanSector)) {
+      amenityParam = '&amenity=dentist';
+      searchKeywords = ['Dentist', 'Dental Clinic'];
+    } else if (/doctor|clinic/i.test(cleanSector)) {
+      amenityParam = '&amenity=doctors';
+      searchKeywords = ['Clinic', 'Doctor'];
+    } else if (/law/i.test(cleanSector)) {
+      amenityParam = '&office=lawyer';
+      searchKeywords = ['Law Firm', 'Attorney'];
+    } else if (/hotel/i.test(cleanSector)) {
+      amenityParam = '&tourism=hotel';
+      searchKeywords = ['Hotel', 'Resort'];
+    }
   }
 
+  // 1. OpenStreetMap Nominatim Taraması (Maksimum 50 limit)
   try {
-    // 1. Yapılandırılmış şehir & sektör sorgusu
-    let osmUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&limit=25&city=${encodeURIComponent(cleanLocation)}&country=${encodeURIComponent(cleanCountry)}${amenityParam}`;
-    
+    let osmUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&limit=50&city=${encodeURIComponent(cleanLocation)}&country=${encodeURIComponent(cleanCountry)}${amenityParam}`;
     let res = await fetch(osmUrl, {
       headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
       signal: AbortSignal.timeout(8000)
@@ -201,10 +247,10 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
 
     let data = res.ok ? await res.json() : [];
 
-    // Eğer yapılandırılmış aramada sonuç gelmezse serbest sektör araması yap
+    // Yapılandırılmış sorgu boşsa genel sektör ve şehir sorgusu dene
     if (!Array.isArray(data) || data.length === 0) {
       const freeQuery = `${searchKeywords[0]} ${cleanLocation} ${cleanCountry}`.trim();
-      osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(freeQuery)}&format=json&addressdetails=1&extratags=1&limit=25`;
+      osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(freeQuery)}&format=json&addressdetails=1&extratags=1&limit=50`;
       res = await fetch(osmUrl, {
         headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
         signal: AbortSignal.timeout(8000)
@@ -214,7 +260,6 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
 
     if (Array.isArray(data)) {
       for (const item of data) {
-        // ASLA belediye, şehir sınırı veya idari bölgeyi işletme sanma!
         if (
           item.class === 'boundary' || 
           item.class === 'place' || 
@@ -234,6 +279,15 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
         const email = item.extratags?.email || item.extratags?.['contact:email'] || '';
         const address = item.display_name || `${cleanLocation}, ${cleanCountry}`;
         
+        let dom = '';
+        if (website) {
+          try {
+            dom = new URL(website.startsWith('http') ? website : `https://${website}`).hostname.replace(/^www\./, '').toLowerCase();
+            if (seenDomains.has(dom)) continue;
+            seenDomains.add(dom);
+          } catch {}
+        }
+
         rawItems.push({
           name,
           title: name,
@@ -245,48 +299,72 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
           totalScore: 4.8,
           reviews: []
         });
+
+        if (rawItems.length >= 25) break;
       }
     }
   } catch (e: any) {
     console.warn('[Gerçek Dizin Taraması] OpenStreetMap isteği:', e?.message || e);
   }
 
-  // 2. Eğer harita dizininde yeterli işletme yoksa, doğrudan DuckDuckGo canlı web aramasından gerçek web sitelerini çek
-  if (rawItems.length < 5) {
-    try {
-      const ddgTerm = `${searchKeywords[0]} ${cleanLocation} ${cleanCountry} kontakt impressum`;
-      const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(ddgTerm)}`;
-      const ddgRes = await fetch(ddgUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml',
-          'Accept-Language': 'de-DE,de;q=0.9,en;q=0.8',
-        },
-        signal: AbortSignal.timeout(6000),
-      });
+  // 2. Canlı Web Taraması (DuckDuckGo Yerelleştirilmiş Çoklu Arama)
+  // Haritada yeterli kayıt bulunamadıysa veya ek işletme web siteleri gerekiyorsa canlı arama yap
+  if (rawItems.length < 25) {
+    const searchQueries = [
+      `${searchKeywords[0]} ${cleanLocation} ${contactTerms[0]}`,
+      `${searchKeywords[0]} ${cleanLocation} ${cleanCountry}`
+    ];
 
-      if (ddgRes.ok) {
-        const html = await ddgRes.text();
-        const linkMatches = html.matchAll(/<a class="result__url"[^>]*href="([^"]+)"[^>]*>\s*([\s\S]*?)\s*<\/a>/gi);
-        for (const lm of linkMatches) {
-          let targetUrl = lm[1].trim();
-          if (targetUrl.includes('uddg=')) {
-            const parsed = new URL(targetUrl, 'https://duckduckgo.com');
-            const uddg = parsed.searchParams.get('uddg');
-            if (uddg) targetUrl = decodeURIComponent(uddg);
-          }
-          if (!targetUrl.startsWith('http')) continue;
-          if (/duckduckgo|google|facebook|instagram|jameda|gelbeseiten|kununu|wikipedia|xing|linkedin/i.test(targetUrl)) continue;
+    const aggregatorBlacklist = /duckduckgo|google|facebook|instagram|jameda|gelbeseiten|kununu|wikipedia|xing|linkedin|tripadvisor|yelp|foursquare|yemeksepeti|trendyol|getir|eksisozluk|sikayetvar|youtube|twitter|tiktok|pinterest|gov\.tr|edu\.tr|belediyesi|gov|mil|wikivoyage|rehber|eniyisi|listesi|blog|hurriyet|sabah|sozcu|milliyet/i;
 
-          try {
-            const u = new URL(targetUrl);
-            const domain = u.hostname.replace(/^www\./, '').toLowerCase();
-            const cleanTitle = domain.split('.')[0].replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-            
-            if (!rawItems.some((r) => r.website?.includes(domain))) {
+    for (const q of searchQueries) {
+      if (rawItems.length >= 25) break;
+      try {
+        const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
+        const ddgRes = await fetch(ddgUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml',
+            'Accept-Language': langHeader,
+          },
+          signal: AbortSignal.timeout(6000),
+        });
+
+        if (ddgRes.ok) {
+          const html = await ddgRes.text();
+          // Hem href hem class içeren tüm linkleri yakala (uddg parametreli gerçek hedef linkler)
+          const anchorMatches = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)];
+          for (const m of anchorMatches) {
+            let targetUrl = m[1].trim();
+            if (targetUrl.includes('uddg=')) {
+              try {
+                const parsed = new URL(targetUrl.startsWith('//') ? `https:${targetUrl}` : targetUrl);
+                const uddg = parsed.searchParams.get('uddg');
+                if (uddg) targetUrl = decodeURIComponent(uddg);
+              } catch {}
+            }
+            if (!targetUrl.startsWith('http')) continue;
+            if (aggregatorBlacklist.test(targetUrl)) continue;
+
+            try {
+              const u = new URL(targetUrl);
+              const domain = u.hostname.replace(/^www\./, '').toLowerCase();
+              if (domain.includes('duckduckgo') || /^[0-9.]+$/.test(domain)) continue;
+              if (seenDomains.has(domain)) continue;
+
+              // Link metninden veya etiketinden işletme adını temizle
+              const rawText = m[2].replace(/<[^>]+>/g, '').replace(/&#x27;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').trim();
+              let cleanName = rawText.split(/[-–|:•]/)[0].trim();
+              if (cleanName.length < 3 || /iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa/i.test(cleanName)) {
+                const parts = rawText.split(/[-–|:•]/).map((p: string) => p.trim());
+                const better = parts.find((p: string) => p.length >= 3 && !/iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa/i.test(p));
+                cleanName = better || domain.split('.')[0].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+              }
+
+              seenDomains.add(domain);
               rawItems.push({
-                name: `${searchKeywords[0]} ${cleanTitle}`,
-                title: `${searchKeywords[0]} ${cleanTitle}`,
+                name: cleanName,
+                title: cleanName,
                 website: `https://${domain}`,
                 phone: '',
                 email: '',
@@ -295,13 +373,14 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
                 totalScore: 4.8,
                 reviews: [],
               });
-            }
-          } catch {}
-          if (rawItems.length >= 15) break;
+            } catch {}
+
+            if (rawItems.length >= 25) break;
+          }
         }
+      } catch (ddgErr: any) {
+        console.warn(`[Gerçek Dizin Taraması] DuckDuckGo "${q}" fallback:`, ddgErr?.message || ddgErr);
       }
-    } catch (ddgErr: any) {
-      console.warn('[Gerçek Dizin Taraması] DuckDuckGo web fallback:', ddgErr?.message || ddgErr);
     }
   }
 

@@ -13,7 +13,10 @@ export async function GET(req: Request) {
     const after = searchParams.get('after');
 
     const where: any = { 
-      tenantId,
+      OR: [
+        { tenantId },
+        { tenantId: 'default-tenant' }
+      ],
       NOT: [
         { email: { contains: 'stadtverwaltung' } },
         { email: { contains: 'rathaus' } },
@@ -105,10 +108,14 @@ export async function POST(req: Request) {
     }).catch(() => {});
 
     // --- ÖNBELLEKLEME (CACHING) KONTROLÜ ---
+    // Sadece taze arama istenmemişse ve veritabanında en az 20 geçerli müşteri varsa önbellekten dön
     if (!body.fresh) {
       const existingLeads = await prisma.lead.findMany({
         where: {
-          tenantId,
+          OR: [
+            { tenantId },
+            { tenantId: 'default-tenant' }
+          ],
           industry: sector,
           location: location,
           country: country,
@@ -118,12 +125,12 @@ export async function POST(req: Request) {
             { company: location }
           ]
         },
-        take: 20
+        take: 50
       });
 
       const validLeads = (existingLeads || []).filter(l => l.email || l.phone || l.website);
-      if (validLeads.length >= 3) {
-        console.log(`[Prospecting API] Found ${validLeads.length} valid cached leads for tenant ${tenantId}, returning directly.`);
+      if (validLeads.length >= 20) {
+        console.log(`[Prospecting API] Found ${validLeads.length} valid cached leads, returning directly.`);
         return NextResponse.json({
           success: true,
           message: `${validLeads.length} müşteri önbellekten (ücretsiz) getirildi.`,

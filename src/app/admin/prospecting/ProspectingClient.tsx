@@ -220,7 +220,7 @@ export default function ProspectingClient() {
           setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
           let attempts = 0;
           // SADECE BU YENİ ARAMADAN SONRA oluşturulan verileri getir!
-          const pollUrl = `/api/prospecting?limit=50&sector=${encodeURIComponent(sector)}&after=${encodeURIComponent(searchTimestamp)}`;
+          const pollUrl = `/api/prospecting?limit=50&sector=${encodeURIComponent(sector)}&location=${encodeURIComponent(location || '')}&after=${encodeURIComponent(searchTimestamp)}`;
           const interval = setInterval(async () => {
             attempts++;
             try {
@@ -228,10 +228,13 @@ export default function ProspectingClient() {
               const checkData = await checkRes.json();
               if (checkData.success && Array.isArray(checkData.results) && checkData.results.length > 0) {
                 setResults(checkData.results);
-                setSearchStatusText(null);
-                setIsSearching(false);
-                clearInterval(interval);
-                return;
+                // Eğer 15+ potansiyel müşteri listelendiyse veya 6 deneme (18 sn) geçtiyse taramayı tamamla
+                if (checkData.results.length >= 15 || attempts >= 8) {
+                  setSearchStatusText(null);
+                  setIsSearching(false);
+                  clearInterval(interval);
+                  return;
+                }
               }
             } catch (err) {
               // Devam et
