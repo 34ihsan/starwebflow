@@ -32,10 +32,18 @@ export interface EmailDiscoveryResult {
 
 const CONTACT_PATHS = [
   '', 
-  '/impressum', '/impressum.html', '/impressum.htm', '/impressum.php',
-  '/kontakt', '/kontakt.html', '/kontakt.htm', '/kontakt.php',
-  '/contact', '/contact-us', '/contact.html',
-  '/ueber-uns', '/about', '/team', '/anfahrt'
+  // Global & English
+  '/contact', '/contact-us', '/contact.html', '/about', '/about-us', '/team',
+  // Türkçe
+  '/iletisim', '/iletisim.html', '/hakkimizda',
+  // Almanca (DACH)
+  '/impressum', '/impressum.html', '/impressum.php', '/kontakt', '/kontakt.html', '/ueber-uns',
+  // İspanyolca & Portekizce (İspanya, Latin Amerika, Portekiz, Brezilya)
+  '/contacto', '/contacto.html', '/contato', '/contato.html', '/fale-conosco', '/sobre', '/aviso-legal',
+  // Fransızca
+  '/mentions-legales', '/a-propos',
+  // İtalyanca
+  '/contatti', '/contatti.html', '/chi-siamo'
 ];
 
 const JUNK_DOMAINS = new Set([
@@ -117,8 +125,8 @@ export function extractPhonesFromHtml(html: string): string[] {
     if (clean.length >= 6 && clean.length <= 25) found.add(clean);
   }
 
-  // 2. Metin içindeki Telefon / Tel / Fon / Phone kalıpları (Almanca ve Uluslararası)
-  const textRe = /(?:Tel(?:\.|efon)?|Phone|Fon|Mobil|Mobile)[:\.\s]+([+]?[0-9\(\)\/\s\-]{6,25})/gi;
+  // 2. Metin içindeki Telefon / Tel / Phone / Téléphone / Teléfono / Contatto kalıpları
+  const textRe = /(?:Tel(?:\.|efon|éfono|ephone|efono)?|Phone|Fon|Mobil|Mobile|Cell|Celular|Téléphone|Numéro|Numero)[:\.\s]+([+]?[0-9\(\)\/\s\-]{6,25})/gi;
   while ((m = textRe.exec(html))) {
     let clean = m[1].replace(/[\r\n\t<]/g, '').trim();
     clean = clean.replace(/\s+/g, ' ');

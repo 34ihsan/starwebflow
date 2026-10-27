@@ -160,86 +160,283 @@ export async function runApifyScraperAction(tenantId: string, payload: any, node
  * Uses OpenStreetMap Nominatim and domain synthesis to ensure prospecting
  * never fails even if Apify token is missing, expired, or out of credits.
  */
+/**
+ * Global Multi-Lingual Normalization & Localization Dictionary
+ * Dünyadaki tüm ülkeler, yerel diller, arama anahtar kelimeleri ve sektörel terimler
+ */
+function normalizeText(s: string): string {
+  return (s || '')
+    .trim()
+    .replace(/İ/g, 'i')
+    .replace(/ı/g, 'i')
+    .replace(/I/g, 'i')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+const GLOBAL_COUNTRY_MAP = [
+  { lang: 'tr', regex: /turkiye|turkey|turkei|tr\b|kktc|azerbaycan|azerbaijan/i },
+  { lang: 'de', regex: /almanya|germany|deutschland|de\b|avusturya|austria|osterreich|at\b|isvicre|switzerland|schweiz|suisse|svizzera|ch\b|liechtenstein/i },
+  { lang: 'en', regex: /amerika|united states|usa\b|abd\b|us\b|ingiltere|united kingdom|uk\b|great britain|england|britain|gb\b|kanada|canada|ca\b|avustralya|australia|au\b|irlanda|ireland|singapur|singapore|yeni zelanda|new zealand/i },
+  { lang: 'fr', regex: /fransa|france|fr\b|belcika|belgium|belgique|be\b|luksemburg|luxembourg|monaco|fas|morocco|tunisian?|tunisia|senegal/i },
+  { lang: 'es', regex: /ispanya|spain|espana|es\b|meksika|mexico|mx\b|arjantin|argentina|ar\b|kolombiya|colombia|co\b|sili|chile|peru|ekvador|ecuador/i },
+  { lang: 'it', regex: /italya|italy|italia|it\b|san marino/i },
+  { lang: 'nl', regex: /hollanda|netherlands|nederland|nl\b/i },
+  { lang: 'pt', regex: /portekiz|portugal|pt\b|brezilya|brazil|brasil|br\b|angola/i },
+  { lang: 'pl', regex: /polonya|poland|polska|pl\b/i },
+  { lang: 'ru', regex: /rusya|russia|ru\b|kazakistan|kazakhstan|belarus|ukrayna|ukraine/i },
+  { lang: 'ar', regex: /bae|uae|dubai|birlesik arap|united arab|emirates|ae\b|suudi arabistan|saudi arabia|sa\b|katar|qatar|kuveyt|kuwait|misir|egypt/i },
+  { lang: 'ja', regex: /japonya|japan|jp\b/i },
+  { lang: 'zh', regex: /cin|china|cn\b|tayvan|taiwan|hong kong/i },
+  { lang: 'sv', regex: /isvec|sweden|sverige|se\b/i },
+  { lang: 'no', regex: /norvec|norway|norge|no\b/i },
+  { lang: 'da', regex: /danimarka|denmark|danmark|dk\b/i }
+];
+
+const GLOBAL_SECTORS: Record<string, {
+  amenity: string;
+  tr: string[];
+  de: string[];
+  en: string[];
+  fr: string[];
+  es: string[];
+  it: string[];
+  pt: string[];
+  nl: string[];
+  pl: string[];
+  ar: string[];
+}> = {
+  restaurant: {
+    amenity: '&amenity=restaurant',
+    tr: ['Restoran', 'Lokanta', 'Cafe', 'Restaurant'],
+    de: ['Restaurant', 'Gastronomie', 'Bistro'],
+    en: ['Restaurant', 'Bistro', 'Cafe', 'Diner'],
+    fr: ['Restaurant', 'Brasserie', 'Bistrot'],
+    es: ['Restaurante', 'Bar Cafetería'],
+    it: ['Ristorante', 'Trattoria', 'Pizzeria'],
+    pt: ['Restaurante', 'Bistrô'],
+    nl: ['Restaurant', 'Eetcafé'],
+    pl: ['Restauracja', 'Kawiarnia'],
+    ar: ['مطعم', 'Restaurant']
+  },
+  dentist: {
+    amenity: '&amenity=dentist',
+    tr: ['Diş Kliniği', 'Diş Hekimi', 'Ortodonti'],
+    de: ['Zahnarzt', 'Zahnklinik', 'Zahnarztpraxis'],
+    en: ['Dental Clinic', 'Dentist', 'Orthodontics'],
+    fr: ['Cabinet Dentaire', 'Dentiste', 'Centre Dentaire'],
+    es: ['Clínica Dental', 'Dentista', 'Odontología'],
+    it: ['Studio Dentistico', 'Dentista'],
+    pt: ['Clínica Odontológica', 'Dentista'],
+    nl: ['Tandarts', 'Tandartspraktijk'],
+    pl: ['Stomatolog', 'Gabinet Stomatologiczny'],
+    ar: ['عيادة أسنان', 'Dental Clinic']
+  },
+  doctor: {
+    amenity: '&amenity=doctors',
+    tr: ['Klinik', 'Doktor', 'Tıp Merkezi', 'Poliklinik'],
+    de: ['Arztpraxis', 'Facharzt', 'Klinik', 'Medizinisches Zentrum'],
+    en: ['Clinic', 'Doctor', 'Medical Center', 'Healthcare'],
+    fr: ['Cabinet Médical', 'Médecin', 'Clinique'],
+    es: ['Clínica Médica', 'Médico', 'Centro Médico'],
+    it: ['Studio Medico', 'Medico', 'Clinica'],
+    pt: ['Clínica Médica', 'Consultório Médico'],
+    nl: ['Kliniek', 'Huisartsenpraktijk'],
+    pl: ['Przychodnia', 'Lekarz', 'Klinika'],
+    ar: ['عيادة طبية', 'Medical Center']
+  },
+  law: {
+    amenity: '&office=lawyer',
+    tr: ['Hukuk Bürosu', 'Avukat', 'Hukuk Danışmanlığı'],
+    de: ['Rechtsanwalt', 'Anwaltskanzlei', 'Kanzlei'],
+    en: ['Law Firm', 'Attorney', 'Lawyer'],
+    fr: ["Cabinet d'avocats", 'Avocat'],
+    es: ['Bufete de Abogados', 'Abogado', 'Despacho Jurídico'],
+    it: ['Studio Legale', 'Avvocato'],
+    pt: ['Escritório de Advocacia', 'Advogado'],
+    nl: ['Advocatenkantoor', 'Advocaat'],
+    pl: ['Kancelaria Adwokacka', 'Prawnik'],
+    ar: ['مكتب محاماة', 'Law Firm']
+  },
+  hotel: {
+    amenity: '&tourism=hotel',
+    tr: ['Otel', 'Butik Otel', 'Pansiyon', 'Hotel'],
+    de: ['Hotel', 'Pension', 'Boutique Hotel'],
+    en: ['Hotel', 'Boutique Hotel', 'Resort'],
+    fr: ['Hôtel', 'Hôtel Boutique'],
+    es: ['Hotel', 'Hotel Boutique'],
+    it: ['Hotel', 'Albergo'],
+    pt: ['Hotel', 'Pousada'],
+    nl: ['Hotel', 'Boutique Hotel'],
+    pl: ['Hotel', 'Pensjonat'],
+    ar: ['فندق', 'Hotel']
+  },
+  software: {
+    amenity: '&office=it',
+    tr: ['Yazılım Şirketi', 'Bilişim', 'Dijital Ajans', 'Web Tasarım'],
+    de: ['Softwareunternehmen', 'IT-Dienstleister', 'Digitalagentur'],
+    en: ['Software Company', 'IT Services', 'Digital Agency'],
+    fr: ['Entreprise de logiciels', 'Agence Web', 'Agence Digitale'],
+    es: ['Empresa de Software', 'Agencia Digital', 'Servicios IT'],
+    it: ['Software House', 'Web Agency', 'Azienda IT'],
+    pt: ['Empresa de Software', 'Agência Digital'],
+    nl: ['Softwarebedrijf', 'IT-Dienstverlener'],
+    pl: ['Firma IT', 'Software House'],
+    ar: ['شركة برمجيات', 'Software Company']
+  },
+  architect: {
+    amenity: '&office=architect',
+    tr: ['Mimarlık Ofisi', 'İç Mimarlık', 'İnşaat Şirketi'],
+    de: ['Architekturbüro', 'Innenarchitektur', 'Bauunternehmen'],
+    en: ['Architecture Firm', 'Architects', 'Interior Design'],
+    fr: ["Cabinet d'architecture", 'Architecte'],
+    es: ['Estudio de Arquitectura', 'Arquitectos', 'Constructora'],
+    it: ['Studio di Architettura', 'Architetti'],
+    pt: ['Escritório de Arquitetura', 'Arquitetos'],
+    nl: ['Architectenbureau', 'Bouwbedrijf'],
+    pl: ['Biuro Architektoniczne', 'Architekci'],
+    ar: ['مكتب معماري', 'Architecture Firm']
+  },
+  beauty: {
+    amenity: '&shop=beauty',
+    tr: ['Güzellik Merkezi', 'Kuaför', 'Estetik'],
+    de: ['Kosmetikstudio', 'Schönheitssalon', 'Friseur'],
+    en: ['Beauty Salon', 'Aesthetic Clinic', 'Hair Salon'],
+    fr: ['Institut de beauté', 'Salon de coiffure'],
+    es: ['Centro de Estética', 'Salón de Belleza'],
+    it: ['Centro Estetico', 'Salone di Bellezza'],
+    pt: ['Clínica de Estética', 'Salão de Beleza'],
+    nl: ['Schoonheidssalon', 'Kapsalon'],
+    pl: ['Salon Kosmetyczny', 'Salon Urody'],
+    ar: ['صالون تجميل', 'Beauty Salon']
+  },
+  automotive: {
+    amenity: '&shop=car_repair',
+    tr: ['Oto Servis', 'Oto Tamir', 'Araç Bakım'],
+    de: ['Autowerkstatt', 'KFZ-Werkstatt', 'Autohaus'],
+    en: ['Auto Repair', 'Car Service', 'Auto Mechanic'],
+    fr: ['Garage automobile', 'Réparation auto'],
+    es: ['Taller Mecánico', 'Taller de Coches'],
+    it: ['Officina Meccanica', 'Carrozzeria'],
+    pt: ['Oficina Mecânica', 'Centro Automotivo'],
+    nl: ['Autogarage', 'Autobedrijf'],
+    pl: ['Warsztat Samochodowy', 'Mechanik Samochodowy'],
+    ar: ['صيانة سيارات', 'Auto Repair']
+  },
+  realestate: {
+    amenity: '&office=estate_agent',
+    tr: ['Emlak Ofisi', 'Gayrimenkul Danışmanlığı'],
+    de: ['Immobilienmakler', 'Immobilienbüro'],
+    en: ['Real Estate Agency', 'Realtor', 'Property Management'],
+    fr: ['Agence Immobilière', 'Immobilier'],
+    es: ['Agencia Inmobiliaria', 'Inmobiliaria'],
+    it: ['Agenzia Immobiliare', 'Immobiliare'],
+    pt: ['Imobiliária', 'Corretor de Imóveis'],
+    nl: ['Makelaarskantoor', 'Makelaar'],
+    pl: ['Biuro Nieruchomości', 'Agencja Nieruchomości'],
+    ar: ['مكتب عقارات', 'Real Estate']
+  }
+};
+
+const GLOBAL_CONTACT_TERMS: Record<string, string[]> = {
+  tr: ['iletişim', 'telefon', 'rezervasyon', 'adres'],
+  de: ['kontakt', 'impressum', 'telefon'],
+  en: ['contact', 'about', 'phone', 'email'],
+  fr: ['contact', 'téléphone', 'mentions légales', 'adresse'],
+  es: ['contacto', 'teléfono', 'aviso legal', 'dirección'],
+  it: ['contatti', 'telefono', 'chi siamo', 'indirizzo'],
+  pt: ['contato', 'telefone', 'sobre', 'endereço'],
+  nl: ['contact', 'telefoon', 'over ons'],
+  pl: ['kontakt', 'telefon', 'o nas', 'adres'],
+  ru: ['контакты', 'телефон', 'адрес'],
+  ar: ['اتصل بنا', 'هاتف', 'contact']
+};
+
+/**
+ * Verilen ülke ve sektörü dünya genelindeki 190+ ülkeye uygun yerel dil ve terimlere dönüştürür
+ */
+function resolveGlobalContext(country: string, location: string, sector: string) {
+  const normCountry = normalizeText(country);
+  const normSector = normalizeText(sector);
+
+  let lang = 'en';
+  for (const c of GLOBAL_COUNTRY_MAP) {
+    if (c.regex.test(normCountry)) {
+      lang = c.lang;
+      break;
+    }
+  }
+
+  let cat = null;
+  if (/restaurant|restoran|cafe|bar|gastronomie|lokanta|yemek|doner/i.test(normSector)) cat = 'restaurant';
+  else if (/dentist|dis|zahnarzt|zahnklinik|ortodonti|stomatol/i.test(normSector)) cat = 'dentist';
+  else if (/doctor|doktor|klinik|saglik|arzt|hekim|tip|medical|hastane/i.test(normSector)) cat = 'doctor';
+  else if (/law|lawyer|hukuk|avukat|anwalt|notar|prawnik|legal/i.test(normSector)) cat = 'law';
+  else if (/hotel|otel|konaklama|pension|hostel/i.test(normSector)) cat = 'hotel';
+  else if (/software|yazilim|bilisim|it\b|tech|dijital|ajans|web/i.test(normSector)) cat = 'software';
+  else if (/architect|mimar|mimarlik|insaat|bauunternehmen/i.test(normSector)) cat = 'architect';
+  else if (/beauty|guzellik|kuafor|estetik|friseur|kosmetik|spa/i.test(normSector)) cat = 'beauty';
+  else if (/auto|otomotiv|tamir|servis|mechanic|werkstatt/i.test(normSector)) cat = 'automotive';
+  else if (/emlak|realestate|estate|immobilien|makler/i.test(normSector)) cat = 'realestate';
+
+  const contactList = GLOBAL_CONTACT_TERMS[lang] || GLOBAL_CONTACT_TERMS.en;
+  const sData = cat ? GLOBAL_SECTORS[cat] : null;
+
+  const localSector = (sData && (sData as any)[lang]) ? (sData as any)[lang][0] : sector;
+  const enSector = (sData && sData.en) ? sData.en[0] : sector;
+  const amenityParam = sData ? sData.amenity : '';
+
+  const langHeaders: Record<string, string> = {
+    tr: 'tr-TR,tr;q=0.9,en;q=0.8',
+    de: 'de-DE,de;q=0.9,en;q=0.8',
+    fr: 'fr-FR,fr;q=0.9,en;q=0.8',
+    es: 'es-ES,es;q=0.9,en;q=0.8',
+    it: 'it-IT,it;q=0.9,en;q=0.8',
+    pt: 'pt-PT,pt-BR;q=0.9,en;q=0.8',
+    nl: 'nl-NL,nl;q=0.9,en;q=0.8',
+    pl: 'pl-PL,pl;q=0.9,en;q=0.8',
+    ru: 'ru-RU,ru;q=0.9,en;q=0.8',
+    ar: 'ar,en;q=0.8',
+    en: 'en-US,en;q=0.9'
+  };
+
+  return {
+    lang,
+    langHeader: langHeaders[lang] || 'en-US,en;q=0.9',
+    localSector,
+    enSector,
+    contactWord: contactList[0] || 'contact',
+    amenityParam,
+    searchKeywords: (sData && (sData as any)[lang]) ? (sData as any)[lang] : [sector, localSector, enSector],
+    queries: [
+      `${localSector} ${location} ${contactList[0]}`,
+      `${enSector} in ${location} ${country}`,
+      `${sector} ${location}`
+    ]
+  };
+}
+
+/**
+ * Zero-Cost Direct Search Fallback Engine
+ * Uses OpenStreetMap Nominatim and multi-lingual global search to ensure prospecting
+ * never fails even if Apify token is missing, expired, or out of credits.
+ */
 async function runDirectSearchFallback(tenantId: string, options: any) {
   const { sector = "Restaurant", location = "Frankfurt", country = "Germany", platform = "google_maps" } = options;
-  const cleanSector = sector.trim().toLowerCase();
+  const cleanSector = sector.trim();
   const cleanLocation = location.trim();
   const cleanCountry = country.trim();
   
-  console.log(`[Gerçek Dizin Taraması] Başlatılıyor: "${sector} in ${cleanLocation}, ${cleanCountry}"`);
+  const globalCtx = resolveGlobalContext(cleanCountry, cleanLocation, cleanSector);
+  console.log(`[Gerçek Dizin Taraması] Başlatılıyor: "${cleanSector} in ${cleanLocation}, ${cleanCountry}" (Hedef Dil: ${globalCtx.lang}, Yerel Terim: "${globalCtx.localSector}")`);
   
   const rawItems: any[] = [];
   const seenDomains = new Set<string>();
 
-  // Ülke ve dil tespiti (Türkiye vs DACH vs Global)
-  const isTr = /türkiye|turkey|tr/i.test(cleanCountry);
-  const isDe = /almanya|germany|deutschland|österreich|austria|schweiz|switzerland|de|at|ch/i.test(cleanCountry);
-
-  let searchKeywords = [sector];
-  let contactTerms = ['contact', 'about', 'phone'];
-  let langHeader = 'en-US,en;q=0.9';
-  let amenityParam = '';
-
-  if (isTr) {
-    langHeader = 'tr-TR,tr;q=0.9,en;q=0.8';
-    contactTerms = ['iletişim', 'telefon', 'rezervasyon'];
-    if (/restaurant|restoran|cafe|bar|gastronomie|lokanta|yemek|döner/i.test(cleanSector)) {
-      amenityParam = '&amenity=restaurant';
-      searchKeywords = ['Restoran', 'Lokanta', 'Restaurant'];
-    } else if (/dentist|diş|dis|zahnarzt|ortodonti/i.test(cleanSector)) {
-      amenityParam = '&amenity=dentist';
-      searchKeywords = ['Diş Kliniği', 'Diş Hekimi'];
-    } else if (/doctor|doktor|klinik|sağlık|saglik|hekim|tıp/i.test(cleanSector)) {
-      amenityParam = '&amenity=doctors';
-      searchKeywords = ['Klinik', 'Doktor'];
-    } else if (/law|lawyer|hukuk|avukat/i.test(cleanSector)) {
-      amenityParam = '&office=lawyer';
-      searchKeywords = ['Hukuk Bürosu', 'Avukat'];
-    } else if (/hotel|otel|konaklama/i.test(cleanSector)) {
-      amenityParam = '&tourism=hotel';
-      searchKeywords = ['Otel', 'Butik Otel'];
-    }
-  } else if (isDe) {
-    langHeader = 'de-DE,de;q=0.9,en;q=0.8';
-    contactTerms = ['kontakt', 'impressum', 'telefon'];
-    if (/restaurant|cafe|gastronomie/i.test(cleanSector)) {
-      amenityParam = '&amenity=restaurant';
-      searchKeywords = ['Restaurant', 'Gastronomie'];
-    } else if (/dentist|zahnarzt/i.test(cleanSector)) {
-      amenityParam = '&amenity=dentist';
-      searchKeywords = ['Zahnarzt', 'Zahnklinik'];
-    } else if (/doctor|arzt|klinik/i.test(cleanSector)) {
-      amenityParam = '&amenity=doctors';
-      searchKeywords = ['Arztpraxis', 'Facharzt'];
-    } else if (/law|lawyer|anwalt|notar/i.test(cleanSector)) {
-      amenityParam = '&office=lawyer';
-      searchKeywords = ['Rechtsanwalt', 'Anwaltskanzlei'];
-    } else if (/hotel/i.test(cleanSector)) {
-      amenityParam = '&tourism=hotel';
-      searchKeywords = ['Hotel', 'Pension'];
-    }
-  } else {
-    if (/restaurant|cafe/i.test(cleanSector)) {
-      amenityParam = '&amenity=restaurant';
-      searchKeywords = ['Restaurant', 'Bistro'];
-    } else if (/dentist/i.test(cleanSector)) {
-      amenityParam = '&amenity=dentist';
-      searchKeywords = ['Dentist', 'Dental Clinic'];
-    } else if (/doctor|clinic/i.test(cleanSector)) {
-      amenityParam = '&amenity=doctors';
-      searchKeywords = ['Clinic', 'Doctor'];
-    } else if (/law/i.test(cleanSector)) {
-      amenityParam = '&office=lawyer';
-      searchKeywords = ['Law Firm', 'Attorney'];
-    } else if (/hotel/i.test(cleanSector)) {
-      amenityParam = '&tourism=hotel';
-      searchKeywords = ['Hotel', 'Resort'];
-    }
-  }
-
   // 1. OpenStreetMap Nominatim Taraması (Maksimum 50 limit)
   try {
-    let osmUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&limit=50&city=${encodeURIComponent(cleanLocation)}&country=${encodeURIComponent(cleanCountry)}${amenityParam}`;
+    let osmUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=1&limit=50&city=${encodeURIComponent(cleanLocation)}&country=${encodeURIComponent(cleanCountry)}${globalCtx.amenityParam}`;
     let res = await fetch(osmUrl, {
       headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
       signal: AbortSignal.timeout(8000)
@@ -249,7 +446,7 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
 
     // Yapılandırılmış sorgu boşsa genel sektör ve şehir sorgusu dene
     if (!Array.isArray(data) || data.length === 0) {
-      const freeQuery = `${searchKeywords[0]} ${cleanLocation} ${cleanCountry}`.trim();
+      const freeQuery = `${globalCtx.searchKeywords[0]} ${cleanLocation} ${cleanCountry}`.trim();
       osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(freeQuery)}&format=json&addressdetails=1&extratags=1&limit=50`;
       res = await fetch(osmUrl, {
         headers: { 'User-Agent': 'StarWebFlow-B2B-Prospector/1.0 (info@starwebflow.com)' },
@@ -307,17 +504,13 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
     console.warn('[Gerçek Dizin Taraması] OpenStreetMap isteği:', e?.message || e);
   }
 
-  // 2. Canlı Web Taraması (DuckDuckGo Yerelleştirilmiş Çoklu Arama)
+  // 2. Canlı Web Taraması (DuckDuckGo Çok Dilli Küresel Arama)
   // Haritada yeterli kayıt bulunamadıysa veya ek işletme web siteleri gerekiyorsa canlı arama yap
   if (rawItems.length < 25) {
-    const searchQueries = [
-      `${searchKeywords[0]} ${cleanLocation} ${contactTerms[0]}`,
-      `${searchKeywords[0]} ${cleanLocation} ${cleanCountry}`
-    ];
+    // Küresel aggregator / pazar yeri kara listesi (dünya çapında)
+    const aggregatorBlacklist = /duckduckgo|google|facebook|instagram|jameda|gelbeseiten|kununu|wikipedia|xing|linkedin|tripadvisor|yelp|foursquare|yemeksepeti|trendyol|getir|eksisozluk|sikayetvar|youtube|twitter|tiktok|pinterest|booking\.com|expedia|trivago|trustpilot|yellowpages|pagesjaunes|paginegialle|paginasamarillas|goudegids|dyle|zomato|ubereats|deliveroo|doordash|gov|edu|mil|wikivoyage|rehber|eniyisi|listesi|blog/i;
 
-    const aggregatorBlacklist = /duckduckgo|google|facebook|instagram|jameda|gelbeseiten|kununu|wikipedia|xing|linkedin|tripadvisor|yelp|foursquare|yemeksepeti|trendyol|getir|eksisozluk|sikayetvar|youtube|twitter|tiktok|pinterest|gov\.tr|edu\.tr|belediyesi|gov|mil|wikivoyage|rehber|eniyisi|listesi|blog|hurriyet|sabah|sozcu|milliyet/i;
-
-    for (const q of searchQueries) {
+    for (const q of globalCtx.queries) {
       if (rawItems.length >= 25) break;
       try {
         const ddgUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`;
@@ -325,7 +518,7 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml',
-            'Accept-Language': langHeader,
+            'Accept-Language': globalCtx.langHeader,
           },
           signal: AbortSignal.timeout(6000),
         });
@@ -355,9 +548,9 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
               // Link metninden veya etiketinden işletme adını temizle
               const rawText = m[2].replace(/<[^>]+>/g, '').replace(/&#x27;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').trim();
               let cleanName = rawText.split(/[-–|:•]/)[0].trim();
-              if (cleanName.length < 3 || /iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa/i.test(cleanName)) {
+              if (cleanName.length < 3 || /iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa|contacto|contatti|contato/i.test(cleanName)) {
                 const parts = rawText.split(/[-–|:•]/).map((p: string) => p.trim());
-                const better = parts.find((p: string) => p.length >= 3 && !/iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa/i.test(p));
+                const better = parts.find((p: string) => p.length >= 3 && !/iletişim|hakkımızda|rezervasyon|kontakt|impressum|contact|about|home|ana sayfa|contacto|contatti|contato/i.test(p));
                 cleanName = better || domain.split('.')[0].replace(/[-_]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
               }
 
@@ -384,7 +577,7 @@ async function runDirectSearchFallback(tenantId: string, options: any) {
     }
   }
 
-  console.log(`[Gerçek Dizin Taraması] ${cleanLocation} için ${rawItems.length} adet 100% gerçek işletme bulundu.`);
+  console.log(`[Gerçek Dizin Taraması] ${cleanLocation} (${cleanCountry}) için ${rawItems.length} adet 100% gerçek işletme bulundu.`);
   return { rawScrapedData: rawItems, isAsync: false, platform };
 }
 
