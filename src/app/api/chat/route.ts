@@ -332,24 +332,81 @@ Modeli genel internet bilgisiyle değil, yalnızca şirketinizin gerçek ve doğ
 👉 E-ticaret altyapınız için /randevu sayfamızdan 15 dakikalık ücretsiz demo randevusu alabilirsiniz.`;
     }
 
-    // 15. Genel Kurumsal Bilgi & Danışmanlık
-    if (
-      lower.includes('starwebflow') ||
-      lower.includes('hakkında') ||
-      lower.includes('kimsiniz') ||
-      lower.includes('neler yapıyorsunuz') ||
-      lower.includes('hizmetleriniz')
-    ) {
-      return `⚡ **Starwebflow — Egemen Yapay Zeka (Sovereign AI) & Yüksek Performanslı Sistem Evi:**
+    // ─── 2. SEKTÖREL VE ÖZGÜN NİYET ÇÖZÜCÜ (DYNAMIC SEMANTIC SYNTHESIZER) ────────
+    // Kullanıcı listede olmayan bambaşka bir sektör veya soru sorsa dahi ona nokta atışı cevap üretir:
+    const isHealthcare = lower.includes('sağlık') || lower.includes('klinik') || lower.includes('doktor') || lower.includes('hasta') || lower.includes('diş') || lower.includes('randevu') || lower.includes('muayene') || lower.includes('estetik');
+    const isLogistics = lower.includes('lojistik') || lower.includes('kargo') || lower.includes('nakliye') || lower.includes('araç') || lower.includes('sevkiyat') || lower.includes('depo') || lower.includes('şoför');
+    const isLegal = lower.includes('hukuk') || lower.includes('avukat') || lower.includes('dava') || lower.includes('müvekkil') || lower.includes('icra') || lower.includes('danışmanlık');
+    const isRealEstate = lower.includes('emlak') || lower.includes('gayrimenkul') || lower.includes('konut') || lower.includes('kira') || lower.includes('arsa') || lower.includes('villa');
+    const isFinanceOrCommerce = lower.includes('toptan') || lower.includes('tekstil') || lower.includes('üretim') || lower.includes('fabrika') || lower.includes('ihracat') || lower.includes('b2b') || lower.includes('bayi');
 
-Müşteri ve şirket verilerinizi kontrolsüz açık bulutlara sızdırmadan kendi özel sunucunuzda çalışan otonom sistemler kuruyoruz:
+    if (isHealthcare) {
+      return `🏥 **Sağlık & Klinik Sektörü İçin 7/24 Otonom Sistem Mimarisi:**
 
-• 🔒 **Sovereign AI (Yerel LLM):** Kendi VPS sunucunuzda çalışan, sıfır token ücretli, %100 KVKK & DSGVO uyumlu yapay zeka ajanları.
-• ⚙️ **İş Akışı & CRM Otomasyonu:** n8n ile otomatik müşteri karşılama, anında fatura ve teklif üretimi, takvim senkronizasyonu.
-• ⚡ **Sub-Second Web & Portallar:** Next.js 14 ile 0.8s altı açılan kurumsal web sistemleri ve şifreli B2B müşteri panelleri.
-• 🛡️ **%99.98 Uptime SLA:** 7/24 kesintisiz otomatik telemetri ve 15 dk müdahale garantisi.
+1. 📞 **7/24 Çok Dilli WhatsApp & Telefon Triyajı:** Gece geç saatlerde Avrupa'dan veya yerelden gelen hasta taleplerini ana dillerinde karşılar, semptom ön-triyajı yapar ve doktorun müsait takvimine doğrudan onaylı randevu işler.
+2. 🔒 **%100 KVKK & DSGVO Madde 9 Sağlık Verisi Koruması:** Hasta bilgileri açık bulutlara aktarılmaz; Frankfurt/TR dedike sunucunuzda şifreli (AES-256) izole tutulur.
+3. 📆 **No-Show Önleyici Hatırlatma:** Randevudan 24 saat ve 2 saat önce otomatik WhatsApp onayı göndererek klinikteki randevu kaçırma oranını %80 oranında düşürür.
 
-👉 İhtiyaçlarınıza özel mimari yol haritası için /randevu sayfamızdan 15 dakikalık ücretsiz keşif randevusu alabilirsiniz.`;
+👉 Kliniğiniz için /randevu sayfamızdan 15 dakikalık ücretsiz fizibilite randevusu planlayabilirsiniz.`;
+    }
+
+    if (isLogistics) {
+      return `🚚 **Lojistik & Dağıtım Sektörü İçin Otonom Evrak ve CRM Mimarisi:**
+
+1. 📄 **Yapay Zeka Destekli Fatura & CMR Okuma (OCR):** Gelen karmaşık lojistik belgelerini ve navlun faturalarını saniyeler içinde okuyup ERP sisteminize sıfır insan hatasıyla aktarır.
+2. 📍 **Canlı WhatsApp Kargo & Konteyner Takibi:** Müşterilerin ve acentelerin "Yüküm nerede?" sorularını doğrudan takip sistemine bağlanarak canlı WhatsApp mesajıyla 2 saniyede yanıtlar.
+3. ⚡ **Gecikme & Telemetri Bildirimleri:** Gümrük veya güzergah gecikmelerinde n8n webhook altyapısı ile ilgili müşterilere ve operasyon merkezine otomatik anlık bildirim düşer.
+
+👉 Lojistik operasyonunuz için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+    }
+
+    if (isLegal) {
+      return `⚖️ **Hukuk Büroları & Avukatlık İçin Sovereign AI ve Şifreli Arşiv Mimarisi:**
+
+1. 🔒 **Avukat-Müvekkil Gizliliği & %100 Yasal İzolasyon:** Dava dosyalarınız, deliller ve müvekkil yazışmaları asla üçüncü taraf şirketlerin modellerini eğitmek için kullanılmaz. Sistem kendi şifreli VPS'inizde tamamen size özel çalışır.
+2. 🔍 **Mevzuat & İçtihat Taraması (Yerel RAG):** Binlerce sayfalık sözleşme ve içtihadı kendi sunucunuzdaki güvenli yapay zeka ile saniyeler içinde tarayabilir, çelişkili maddeleri anında tespit edebilirsiniz.
+3. 📅 **Duruşma & Randevu Otopilotu:** Müvekkillerinizin web sitenizden veya WhatsApp'tan uygun duruşma dışı saatlere online danışmanlık randevusu almasını sağlar.
+
+👉 Büronuz için /randevu sayfamızdan 15 dakikalık ücretsiz gizlilik ve altyapı görüşmesi başlatabilirsiniz.`;
+    }
+
+    if (isRealEstate) {
+      return `🏢 **Gayrimenkul & Yatırım Şirketleri İçin 7/24 VIP Satış Asistanı:**
+
+1. 🎯 **Bütçe & Bölge Nitelendirmesi:** Gece saatlerinde gelen yatırımcı adaylarının bütçesini, aradığı m² ve bölge kriterlerini 30 saniyede öğrenip sıcak lead olarak CRM'inize kaydeder.
+2. 📑 **Anında WhatsApp PDF Portföy Sunumu:** Müşterinin kriterlerine uyan ilanların PDF sunumunu ve konumunu müşterinin WhatsApp'ına insan personelinizi meşgul etmeden saniyeler içinde iletir.
+3. 🤝 **Canlı Yer Gösterme & Toplantı Randevusu:** Danışmanınızın Google/Outlook takvimine onaylı yer gösterme randevusu kilitler.
+
+👉 Gayrimenkul sisteminiz için /randevu sayfamızdan 15 dakikalık ücretsiz keşif randevusu planlayabilirsiniz.`;
+    }
+
+    if (isFinanceOrCommerce) {
+      return `🏭 **B2B Üretim, Fabrika & Toptan Ticaret İçin Özel Portallar:**
+
+1. 🔐 **Şifreli Bayi & Sipariş Paneli:** Bayilerinizin Excel veya telefonla sipariş verme karmaşasına son verir; canlı stok, cari bakiye ve özel iskontolu fiyatlarla tek ekrandan sipariş alırsınız.
+2. ⚙️ **ERP Entegrasyonu (SAP, Logo, Mikro):** Verilen siparişler otomatik olarak ERP muhasebe sisteminize işlenir, irsaliye ve fatura taslağı insan eli değmeden hazırlanır.
+3. ⚡ **0.38s Ultra Hızlı Dijital Katalog:** Yurt dışı alıcıların sitenizi gezerken beklemesini önleyen, uluslararası SEO ve GEO uyumlu kurumsal vitrin.
+
+👉 Fabrikanız veya toptan operasyonunuz için /randevu sayfamızdan 15 dakikalık teknik analiz randevusu planlayabilirsiniz.`;
+    }
+
+    // ─── 3. GUARDRAIL (KONU DIŞI SAVUNMA KALKANI) ──────────────────────────
+    // Şirket dışı (yemek tarifi, futbol, siyaset, genel sohbet) konuları doğrudan işe odaklar:
+    const isOffTopic =
+      lower.includes('yemek tarif') ||
+      lower.includes('futbol') ||
+      lower.includes('maç') ||
+      lower.includes('siyaset') ||
+      lower.includes('parti') ||
+      lower.includes('seçim') ||
+      lower.includes('hava durumu') ||
+      lower.includes('şaka yap') ||
+      lower.includes('fıkra');
+
+    if (isOffTopic) {
+      return `Starwebflow olarak odağımız; işletmelerin müşteri verilerini koruyan **Sovereign AI ajanları**, **n8n süreç otomasyonları** ve **0.8s altı Next.js web sistemleri** kurmaktır.
+
+Şirketinizin dijital altyapısını güçlendirmek veya operasyonel maliyetlerinizi düşürecek çözümler hakkında bilgi almak isterseniz, uzman ekibimizle /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
     }
   }
 
@@ -730,54 +787,17 @@ ${effectiveAudit.specTitle ? `- Ziyaretçinin oluşturduğu şartname taslağı:
 
     let systemPrompt = '';
     if (langKey === 'de') {
-      systemPrompt = `Sie sind der offizielle KI-Architektur-Berater von Starwebflow.
-Wir bauen souveräne, autarke Systeme: Dedizierte Server, lokale Ollama-Modelle, n8n-Workflows und Next.js 14 Plattformen nach DIN ISO 25010 Standards.
-
-[UNSERE 4 KERNBEREICHE]
-1. Souveräne KI-Agenten & Lokale LLMs (/hizmetler/ai-agents): 100% DSGVO-konform auf dedizierten Servern (Frankfurt/TR), 0 API-Token-Kosten, 24/7 aktiv.
-2. End-to-End Workflow- & CRM-Automatisierung (/hizmetler/ai-otomasyon): n8n, Webhooks & REST-APIs für automatische Lead-Erfassung, Rechnungen und Termine.
-3. Subsekunden Next.js 14 Web & B2B-Portale (/hizmetler/web-gelistirme): LCP unter 0,8s, A+ Sicherheit, 3,6x Conversion-Multiplikator.
-4. 24/7 Monitoring & 99,98% Uptime-SLA (/hizmetler/web-uygulamasi): Proaktive Überwachung aller Server und Schnittstellen alle 60 Sekunden.
-
-[KONTEXT]
-${ragResult.formattedContext}
-${auditMemoryBlock}
-
-Antworten Sie prägnant auf Deutsch in 2 bis 3 klaren, überzeugenden Sätzen.`;
+      systemPrompt = `Du bist Starwebflow Senior AI & System Architect.
+Wir bauen souveräne, autarke Systeme: Dedizierte Server (Frankfurt/TR), lokale Ollama-Modelle (0 Token-Kosten), n8n-Workflows und Next.js 14 (LCP <0.8s).
+Antworte präzise auf Deutsch in maximal 3 Sätzen. Lade am Ende zu /randevu ein.`;
     } else if (langKey === 'en') {
-      systemPrompt = `You are the official Enterprise Architecture & AI Advisor of Starwebflow.
-We build sovereign, high-performance systems: Dedicated servers, local Ollama models, n8n automations, and sub-second Next.js 14 web apps.
-
-[OUR 4 CORE PILLARS]
-1. Sovereign AI Agents & Local LLMs (/hizmetler/ai-agents): 100% GDPR compliant on dedicated VPS, zero API token fees, 24/7 active.
-2. End-to-End Process & CRM Automation (/hizmetler/ai-otomasyon): n8n and Webhooks for automated lead routing, invoice dispatch, and calendar sync.
-3. Sub-Second Next.js 14 Web & B2B Portals (/hizmetler/web-gelistirme): Sub-0.8s LCP, A+ security headers, 3.6x conversion multiplier.
-4. 24/7 Telemetry & 99.98% Uptime SLA: Proactive probing every 60 seconds with intervention guarantee.
-
-[CONTEXT]
-${ragResult.formattedContext}
-${auditMemoryBlock}
-
-Respond authoritatively in English in 2 to 3 sharp, helpful sentences.`;
+      systemPrompt = `You are Starwebflow Senior Enterprise & AI Architect.
+We engineer sovereign systems: Dedicated private servers, local Ollama models (zero token fees), n8n automations, and sub-second Next.js 14 web platforms.
+Answer authoritatively in English in at most 3 crisp sentences. Invite to /randevu.`;
     } else {
-      systemPrompt = `Sen Starwebflow'un resmi Kurumsal Mimari & AI Danışmanısın.
-Biz işletmelerin verilerini üçüncü taraf bulut tekellerine sızdırmadan; kendi sunucularında çalışan yerel yapay zeka ajanları (Ollama), n8n süreç otomasyonları ve 0.8s altı Next.js 14 web sistemleri kuruyoruz.
-
-[4 TEMEL MİMARİ ALANIMIZ]
-1. Sovereign AI Ajanları & Yerel LLM (/hizmetler/ai-agents): Tier-3/Tier-4 Frankfurt veya TR dedike sunucularda çalışan isteğe bağlı açık kaynaklı yerel modeller (Ollama altyapısı), %100 KVKK/DSGVO veri gizliliği, sıfır token faturası.
-2. Uçtan Uca Süreç & CRM Otomasyonları (/hizmetler/ai-otomasyon): n8n ve webhook ile otomatik lead kaydı, teklif/fatura üretimi ve takvim senkronizasyonu.
-3. Sub-Second Kurumsal Web & B2B Portalları (/hizmetler/web-gelistirme): Next.js 14 ile 0.8s LCP açılış hızı, Google 100/100 skor, Grade A+ güvenlik.
-4. 7/24 Kesintisiz Telemetri & %99.98 Uptime SLA: Her 60 saniyede otomatik sağlık taraması ve 15 dk müdahale garantisi.
-
-[GÜNCEL BİLGİ & HAFIZA]
-${ragResult.formattedContext}
-${auditMemoryBlock}
-
-[KESİN KURALLAR]
-- Asla aynı cümleyi, benzer kalıpları veya kelime gruplarını peş peşe tekrarlama (döngüye girme).
-- Her cümlede yeni, somut ve teknik bir fayda sun (örneğin: Google LCP 0.8s altı, %20 ziyaretçi terkini engelleme, 3.6x dönüşüm artışı, şifreli müşteri portalları, sıfır token gideri).
-- Daima akıcı TÜRKÇE, net ve profesyonel bir tonla yanıt ver.
-- Ziyaretçinin sorduğu mimariyi açıkladıktan sonra ilgilenirse /randevu sayfamızdan 15 dakikalık ücretsiz mimari analiz randevusuna davet et.`;
+      systemPrompt = `Sen Starwebflow'un Kıdemli Sistem & AI Mimarı ve Danışmanısın.
+Misyonumuz: Şirket verilerini bulutlara sızdırmadan kendi VPS sunucunda çalışan yerel AI ajanları (Ollama, sıfır token gideri), n8n süreç otomasyonları ve 0.8s altı Next.js 14 web sistemleri kurmaktır.
+Kullanıcının sorusuna doğrudan, kurumsal, akıcı bir Türkçe ile ve en fazla 3 net cümlede yanıt ver. Asla tekrara düşme. Yanıtının sonunda /randevu sayfamızdan 15 dakikalık ücretsiz mimari keşif görüşmesine davet et.`;
     }
 
     // 1. Step: Try Primary Ollama Model with fast token race (first token must arrive in 3.5s or switch seamlessly to curated fallback)
