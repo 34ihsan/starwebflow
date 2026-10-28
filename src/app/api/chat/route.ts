@@ -202,22 +202,50 @@ Aylık kullanıcı başı 15-30$ Calendly aboneliği ödemek yerine; kendi siten
 3. 📋 **Ücretsiz Ön Şartname & Fizibilite:** Projenize başlamadan önce hiçbir ön ödeme yapmadan, /randevu sayfamızdan 15 dakikalık teknik değerlendirme alabilir; tam maliyet ve yol haritasını ücretsiz çıkarabilirsiniz.`;
     }
 
-    // 7. Randevu, Takvim & Görüşme
+    // 8. 7/24 Telemetri, %99.98 Uptime SLA & Kesintisiz İzleme
     if (
-      lower.includes('randevu') ||
-      lower.includes('takvim') ||
-      lower.includes('kalender') ||
-      lower.includes('toplantı') ||
-      lower.includes('görüşme')
+      lower.includes('telemetri') ||
+      lower.includes('uptime') ||
+      lower.includes('sla') ||
+      lower.includes('izleme') ||
+      lower.includes('kesintisiz') ||
+      lower.includes('çökme') ||
+      lower.includes('monitoring')
     ) {
-      return `📅 **Starwebflow ile 15 Dakikalık Ücretsiz Mimari Değerlendirme:**
+      return `🛡️ **%99.98 Uptime SLA ve 7/24 Kesintisiz Telemetri Nasıl Sağlanır?**
 
-Görüşmemizde:
-• Mevcut web altyapınızın ve sunucu mimarinizin fizibilitesini çıkarıyoruz.
-• İşletmenizin verilerini koruyacak yerel yapay zeka ve süreç otomasyonu yol haritasını paylaşıyoruz.
-• Lastenheft şartnamesi ve net bütçe tablosunu hazırlıyoruz.
+Geleneksel ajanslar web sitenizi teslim eder ve sunucunuz çöktüğünde veya SSL sertifikanız bittiğinde saatlerce haberiniz olmaz. Starwebflow bu riski 3 katmanlı otonom kalkanla sıfırlar:
 
-Doğrudan [starwebflow.com/randevu](/randevu) sayfamızdan uygun saatinizi seçebilir veya ad-soyad, e-posta ve telefon bilginizi buradan iletebilirsiniz.`;
+1. ⏱️ **Her 60 Saniyede Bir Otomatik Telemetri Taraması:**
+Bağımsız denetim botlarımız her 60 saniyede bir web sitenizin HTTP durumunu (200 OK), SSL geçerliliğini, DNS yanıt süresini ve API uçlarını dışarıdan yoklar.
+
+2. 🚨 **15 Dakika Kritik Müdahale SLA Garantisi:**
+Herhangi bir serviste 1 saniyeden uzun gecikme veya hata algılandığı an sistem mühendislerimizin telefonuna anlık acil durum bildirimi düşer. 15 dakika içinde proaktif müdahale protokolü devreye girer.
+
+3. 🔄 **Otonom Kendini İyileştirme (Auto-Restart & Failover):**
+Sunucudaki PM2 ve Docker servisleri beklenmeyen bellek sızıntısı veya kilitlenmelerde insan müdahalesine gerek kalmadan mikrosaniyeler içinde otonom yeniden başlar ve trafiği yedek hatta aktarır.
+
+👉 Şirketinizin kritik altyapısını %99.98 SLA güvencesine almak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme planlayabilirsiniz.`;
+    }
+
+    // 9. Genel Kurumsal Bilgi & Danışmanlık
+    if (
+      lower.includes('starwebflow') ||
+      lower.includes('hakkında') ||
+      lower.includes('kimsiniz') ||
+      lower.includes('neler yapıyorsunuz') ||
+      lower.includes('hizmetleriniz')
+    ) {
+      return `⚡ **Starwebflow — Egemen Yapay Zeka (Sovereign AI) & Yüksek Performanslı Sistem Evi:**
+
+Müşteri ve şirket verilerinizi kontrolsüz açık bulutlara sızdırmadan kendi özel sunucunuzda çalışan otonom sistemler kuruyoruz:
+
+• 🔒 **Sovereign AI (Yerel LLM):** Kendi VPS sunucunuzda çalışan, sıfır token ücretli, %100 KVKK & DSGVO uyumlu yapay zeka ajanları.
+• ⚙️ **İş Akışı & CRM Otomasyonu:** n8n ile otomatik müşteri karşılama, anında fatura ve teklif üretimi, takvim senkronizasyonu.
+• ⚡ **Sub-Second Web & Portallar:** Next.js 14 ile 0.8s altı açılan kurumsal web sistemleri ve şifreli B2B müşteri panelleri.
+• 🛡️ **%99.98 Uptime SLA:** 7/24 kesintisiz otomatik telemetri ve 15 dk müdahale garantisi.
+
+👉 İhtiyaçlarınıza özel mimari yol haritası için /randevu sayfamızdan 15 dakikalık ücretsiz keşif randevusu alabilirsiniz.`;
     }
   }
 
@@ -648,7 +676,7 @@ ${auditMemoryBlock}
 - Ziyaretçinin sorduğu mimariyi açıkladıktan sonra ilgilenirse /randevu sayfamızdan 15 dakikalık ücretsiz mimari analiz randevusuna davet et.`;
     }
 
-    // 1. Step: Try Primary Ollama Model (e.g. on dedicated VPS) with fast 3.5s availability check
+    // 1. Step: Try Primary Ollama Model with fast token race (first token must arrive in 3.5s or switch seamlessly to curated fallback)
     if (isOllamaPrimary()) {
       const ollamaBaseUrl = getOllamaBaseUrl();
       const isOnline = await isOllamaReachable(ollamaBaseUrl);
@@ -656,26 +684,88 @@ ${auditMemoryBlock}
       if (isOnline) {
         try {
           const primaryModel = getAgentModel();
-          // Keep last 4 messages to prevent CPU prompt-eval explosion on long conversations
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
-          // Hard 5-second abort signal so CPU inference never causes Nginx 60s 504 timeout
-          const abortController = new AbortController();
-          const timer = setTimeout(() => abortController.abort(), 5000);
-
-          const result = await streamText({
+          const result = streamText({
             model: primaryModel,
             system: systemPrompt,
             messages: trimmedMessages,
-            maxTokens: 150, // Fast 2-3 second crisp response on VPS CPU
+            maxTokens: 150,
             temperature: 0.7,
             frequencyPenalty: 0.65,
             presencePenalty: 0.35,
-            abortSignal: abortController.signal,
           });
 
-          clearTimeout(timer);
-          return result.toDataStreamResponse();
+          const encoder = new TextEncoder();
+          const fallbackText = getCuratedResponse(lastUserMsg, langKey) ||
+            (langKey === 'de'
+              ? 'Starwebflow baut souveräne KI-Agenten, n8n-Workflow-Automatisierungen und hochperformante Next.js 14 Plattformen nach DIN ISO 25010 Standards. Vereinbaren Sie ein unverbindliches 15-minütiges Architekturgespräch unter /randevu.'
+              : langKey === 'en'
+              ? 'Starwebflow engineers sovereign AI agents, n8n workflow automations, and sub-second Next.js 14 web platforms with strict data privacy. Schedule a 15-minute scoping call at /randevu.'
+              : 'Starwebflow olarak işletmenize özel dedike sunucularda çalışan yerel AI ajanları (Ollama), n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 kurumsal web sistemleri kuruyoruz. 15 dakikalık ücretsiz mimari değerlendirme için /randevu sayfamızı ziyaret edebilirsiniz.');
+
+          const stream = new ReadableStream({
+            async start(controller) {
+              try {
+                const iterator = result.textStream[Symbol.asyncIterator]();
+                const firstChunkPromise = iterator.next();
+                const timeoutPromise = new Promise<{ done: boolean; value?: string }>((resolve) =>
+                  setTimeout(() => resolve({ done: true, value: undefined }), 3500)
+                );
+
+                const winner = await Promise.race([firstChunkPromise, timeoutPromise]);
+
+                if (winner.done || !winner.value) {
+                  // Ollama took longer than 3.5s to evaluate prompt on CPU; stream the instant executive answer immediately
+                  const words = fallbackText.split(' ');
+                  for (let i = 0; i < words.length; i += 3) {
+                    const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
+                    controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
+                  }
+                  controller.enqueue(
+                    encoder.encode(
+                      formatDataStreamPart('finish_message', {
+                        finishReason: 'stop',
+                        usage: { promptTokens: 10, completionTokens: words.length },
+                      })
+                    )
+                  );
+                  controller.close();
+                  return;
+                }
+
+                // Ollama produced first token in time! Stream the full response
+                controller.enqueue(encoder.encode(formatDataStreamPart('text', winner.value)));
+                for await (const chunk of result.textStream) {
+                  controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
+                }
+                controller.enqueue(
+                  encoder.encode(
+                    formatDataStreamPart('finish_message', {
+                      finishReason: 'stop',
+                      usage: { promptTokens: 60, completionTokens: 60 },
+                    })
+                  )
+                );
+                controller.close();
+              } catch {
+                // If stream iteration ever throws or drops, stream fallback gracefully
+                const words = fallbackText.split(' ');
+                for (let i = 0; i < words.length; i += 3) {
+                  const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
+                  controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
+                }
+                controller.close();
+              }
+            },
+          });
+
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'text/plain; charset=utf-8',
+              'X-Vercel-AI-Data-Stream': 'v1',
+            },
+          });
         } catch (ollamaErr: any) {
           console.warn(`[Chat API] Ollama akış hatası (${ollamaErr?.message}). Dayanıklı anlık akışa geçiliyor...`);
         }
