@@ -27,16 +27,16 @@ export function isAiConfigured(): boolean {
   return process.env.OLLAMA_ENABLED !== 'false' || !!getGoogleApiKey();
 }
 
-// ─── Yerel Ollama Görev Odaklı Modeller ──────────────────────────────────────
+// ─── Yerel Resmi Açık Kaynak Ollama Modelleri (Qwen 2.5 & Llama 3.2) ────────
 export const OLLAMA_MODELS = {
-  AGENT: process.env.OLLAMA_AGENT_MODEL || 'starwebflow-agent:latest',
-  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'starwebflow-automation:latest',
-  WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'starwebflow-webdev:latest',
-  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'starwebflow-growth:latest',
-  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'starwebflow-admin:latest',
-  FLASH: process.env.OLLAMA_FLASH_MODEL || 'starwebflow-agent:latest',
-  PRO: process.env.OLLAMA_PRO_MODEL || 'starwebflow-growth:latest',
-  CODER: process.env.OLLAMA_CODER_MODEL || 'starwebflow-webdev:latest',
+  AGENT: process.env.OLLAMA_AGENT_MODEL || 'qwen2.5:1.5b',
+  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'qwen2.5:1.5b',
+  WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'qwen2.5:3b',
+  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'qwen2.5:1.5b',
+  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'qwen2.5:1.5b',
+  FLASH: 'qwen2.5:1.5b',
+  PRO: 'qwen2.5:3b',
+  CODER: 'qwen2.5:3b',
   FAST_LIGHT: 'qwen2.5:1.5b',
   EMBED: process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text:latest',
 } as const;
@@ -76,40 +76,37 @@ export async function getInstalledOllamaModels(): Promise<string[]> {
 }
 
 /**
- * Sunucuda bulunan modeller arasından en uygun ve hızlı olanı akıllıca seçer.
+ * Sunucuda bulunan modeller arasından en uygun ve hızlı resmi açık kaynak modeli seçer.
  * Öncelik Sırası:
- * 1. starwebflow-agent
- * 2. starwebflow
- * 3. qwen2.5 (hızlı & Türkçe/Almanca/İngilizce kusursuz)
- * 4. llama3.2 / llama3
- * 5. mistral
- * 6. Sunucudaki ilk mevcut model
+ * 1. qwen2.5:1.5b / qwen2.5:3b / qwen
+ * 2. llama3.2 / llama3
+ * 3. mistral
+ * 4. starwebflow
+ * 5. Sunucudaki ilk mevcut model
  */
-export async function resolveBestAvailableModel(preferred = 'starwebflow-agent:latest'): Promise<string> {
+export async function resolveBestAvailableModel(preferred = 'qwen2.5:1.5b'): Promise<string> {
   const installed = await getInstalledOllamaModels();
   if (!installed || installed.length === 0) {
     return preferred;
   }
 
-  // 1. Tam veya kısmi eşleşme kontrolü
-  const matchPreferred = installed.find((m) => m === preferred || m.startsWith(preferred.split(':')[0]));
-  if (matchPreferred) return matchPreferred;
-
-  // 2. starwebflow modelleri
-  const starwebflowMatch = installed.find((m) => m.includes('starwebflow'));
-  if (starwebflowMatch) return starwebflowMatch;
-
-  // 3. Hafif ve zeki açık kaynak modeller
-  const qwenMatch = installed.find((m) => m.includes('qwen'));
+  // 1. qwen modelleri (en hızlı ve çok dilli şampiyon model)
+  const qwenMatch = installed.find((m) => m.includes('qwen2.5:1.5b') || m.includes('qwen2.5') || m.includes('qwen'));
   if (qwenMatch) return qwenMatch;
 
-  const llamaMatch = installed.find((m) => m.includes('llama3') || m.includes('llama'));
+  // 2. llama3.2 modelleri
+  const llamaMatch = installed.find((m) => m.includes('llama3.2') || m.includes('llama3') || m.includes('llama'));
   if (llamaMatch) return llamaMatch;
 
+  // 3. mistral modelleri
   const mistralMatch = installed.find((m) => m.includes('mistral'));
   if (mistralMatch) return mistralMatch;
 
-  // 4. Sunucudaki ilk model
+  // 4. starwebflow modelleri
+  const starwebflowMatch = installed.find((m) => m.includes('starwebflow'));
+  if (starwebflowMatch) return starwebflowMatch;
+
+  // 5. Sunucudaki ilk model
   return installed[0] || preferred;
 }
 
@@ -491,10 +488,10 @@ export async function generateJsonResilient<T>({
     domain === 'webdev'
       ? getWebDevModel()
       : domain === 'growth'
-      ? getGrowthModel()
-      : domain === 'agent'
-      ? getAgentModel()
-      : getAutomationModel();
+        ? getGrowthModel()
+        : domain === 'agent'
+          ? getAgentModel()
+          : getAutomationModel();
 
   if (!isOllamaPrimary()) {
     try {

@@ -279,7 +279,8 @@ YANIT KURALLARI:
 
       if (isOnline) {
         try {
-          const selectedModelName = await resolveBestAvailableModel();
+          const selectedModelName = await resolveBestAvailableModel('qwen2.5:1.5b');
+          console.log('[Chat API] Aktif Ollama modeli:', selectedModelName);
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
