@@ -191,16 +191,7 @@ function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'
 2. ⚙️ **Projeye Tanımlama:** \`.env\` dosyasında \`OLLAMA_BASE_URL="http://sunucu-ip-adresiniz:11434"\` olarak tanımlandığında, her iki ortam da tek bir güçlü merkezden yapay zeka yanıtlarını üretmeye başlar.
 
 👉 Bu bağlantıyı sizin için anahtar teslim yapılandırmak ve test etmek üzere /randevu sayfamızdan teknik randevu planlayabilirsiniz.`;
-      } else {
-        fallbackText = `Merhaba! Starwebflow olarak işletmenize özel dedike sunucularda çalışan yerel AI ajanları (Ollama), n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 kurumsal web sistemleri kuruyoruz.
-
-Merak ettiğiniz mimariyi (örneğin: ChatGPT vs Yerel Model farkı, VPS kurulumu, süreç otomasyonu veya Next.js hız avantajları) doğrudan sorabilir ya da /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
-      }
-    } else {
-      fallbackText = `We build sovereign, high-performance systems: Dedicated servers, local Ollama models, n8n automations, and sub-second Next.js 14 web apps. How can we empower your business infrastructure? Schedule a complimentary 15-minute review at /randevu.`;
-    }
-  }
-    else if (
+      } else if (
       lower.includes('fiyat') ||
       lower.includes('ücret') ||
       lower.includes('maliyet') ||
@@ -461,9 +452,10 @@ Conclusion: For enterprise operations handling sensitive customer data, running 
         'Starwebflow engineers sovereign AI agents, n8n process automations, and sub-second web platforms. All systems run on dedicated infrastructure with full data privacy. Let us know your requirements and we will scope a tailored solution.';
     }
   }
+  }
 
   // Stream in small natural word chunks
-  const words = fallbackText.split(' ');
+  const words = (fallbackText || '').split(' ');
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
