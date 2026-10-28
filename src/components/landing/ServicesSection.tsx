@@ -767,7 +767,7 @@ function ServiceBentoCard({
   language: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     const el = ref.current
@@ -930,7 +930,7 @@ function ServiceBentoCard({
 export default function ServicesSection() {
   const { language } = useLanguage()
   const titleRef = useRef<HTMLDivElement>(null)
-  const [titleVisible, setTitleVisible] = useState(false)
+  const [titleVisible, setTitleVisible] = useState(true)
 
   useEffect(() => {
     const el = titleRef.current
@@ -1361,19 +1361,19 @@ export default function ServicesSection() {
           }`}
         >
           <Link
-            href="/#quote"
+            href="/randevu"
             className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 shadow-[0_12px_34px_rgba(124,58,237,0.32)] group"
             style={{
               background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 55%, #059669 100%)',
             }}
           >
-            <Zap className="w-4 h-4 text-amber-300" aria-hidden="true" />
+            <Calendar className="w-4 h-4 text-amber-300" aria-hidden="true" />
             <span className="tracking-wide">
               {language === 'tr'
-                ? 'İşletmeniz İçin Ücretsiz Yol Haritası & Teklif Alın'
+                ? '15 Dakikalık Ücretsiz Mimari & Strateji Randevusu Alın'
                 : language === 'de'
-                ? 'Kostenlose Potenzialanalyse & Angebot anfordern'
-                : 'Get Your Free Growth Roadmap & Custom Proposal'}
+                ? '15-Minütigen Kostenlosen Architekturtermin Buchen'
+                : 'Book a 15-Minute Free Architecture Strategy Call'}
             </span>
             <ArrowRight
               className="w-4 h-4 group-hover:translate-x-1.5 transition-transform"

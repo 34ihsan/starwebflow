@@ -29,7 +29,7 @@ export default function LiveCaseStudyCard({
 
   return (
     <div
-      className="fixed bottom-6 left-6 z-40 transition-all duration-500"
+      className="fixed bottom-6 left-6 z-40 hidden md:block transition-all duration-500"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',

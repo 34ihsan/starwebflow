@@ -2,8 +2,7 @@
 
 import Navbar from '@/components/landing/Navbar'
 import Footer from '@/components/landing/Footer'
-import AIChatBot from '@/components/landing/AIChatBot'
-import ExpertTerminal from './ExpertTerminal'
+import ChatWidget from '@/components/marketing/ChatWidget'
 import LiveCaseStudyCard from './LiveCaseStudyCard'
 
 export interface TerminalLog {
@@ -35,8 +34,7 @@ export default function ServiceLayout({
       <Navbar />
       <main className="bg-white text-slate-900">{children}</main>
       <Footer />
-      <AIChatBot />
-      <ExpertTerminal logs={terminalLogs} />
+      <ChatWidget />
       <LiveCaseStudyCard {...caseStudy} />
     </div>
   )

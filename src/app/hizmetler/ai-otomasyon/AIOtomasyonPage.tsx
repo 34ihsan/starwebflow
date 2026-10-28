@@ -5,6 +5,7 @@ import ServiceLayout from '@/components/services/ServiceLayout'
 import ServiceHero from '@/components/services/ServiceHero'
 import ValueMatrix from '@/components/services/ValueMatrix'
 import ComparisonTable from '@/components/services/ComparisonTable'
+import SalesPsychologyMatrix from '@/components/services/SalesPsychologyMatrix'
 import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
@@ -735,20 +736,8 @@ export default function AIOtomasyonPage() {
         </div>
       </section>
 
-      <section className="section bg-slate-50/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
-              {language === 'tr' ? 'Manuel vs ' : language === 'en' ? 'Manual vs ' : 'Manuell vs '}
-              <span className="text-emerald-600 font-extrabold">{language === 'tr' ? 'Otomatik' : language === 'en' ? 'Automated' : 'Automatisiert'}</span>
-            </h2>
-          </div>
-          <ComparisonTable
-            accentColor={ACCENT}
-            rows={dict.comparison.rows}
-          />
-        </div>
-      </section>
+      {/* ─── B2B SALES PSYCHOLOGY & DECISION MATRIX ─── */}
+      <SalesPsychologyMatrix serviceKey="ai-otomasyon" accentColor={ACCENT} />
 
       <ServiceCTA
         accentColor={ACCENT}

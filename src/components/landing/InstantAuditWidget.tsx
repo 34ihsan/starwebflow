@@ -55,9 +55,9 @@ export default function InstantAuditWidget() {
     return 'text-rose-600';
   };
 
-  const handleAudit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!domainInput.trim()) return;
+  const executeAudit = async (domainToScan: string) => {
+    const cleanDomain = domainToScan.trim();
+    if (!cleanDomain) return;
 
     setError('');
     setLoading(true);
@@ -93,7 +93,7 @@ export default function InstantAuditWidget() {
       const res = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain: domainInput, language }),
+        body: JSON.stringify({ domain: cleanDomain, language }),
       });
 
       const data = await res.json();
@@ -136,6 +136,23 @@ export default function InstantAuditWidget() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Listen for trigger events from Hero or other components
+  React.useEffect(() => {
+    const handleTriggerAudit = (e: any) => {
+      if (e.detail?.domain) {
+        setDomainInput(e.detail.domain);
+        executeAudit(e.detail.domain);
+      }
+    };
+    window.addEventListener('starwebflow:trigger-audit', handleTriggerAudit);
+    return () => window.removeEventListener('starwebflow:trigger-audit', handleTriggerAudit);
+  }, [language, isTr, isDe]);
+
+  const handleAudit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await executeAudit(domainInput);
   };
 
   const handleSendCloneMessage = async (textToSend?: string) => {

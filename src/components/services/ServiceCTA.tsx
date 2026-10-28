@@ -123,7 +123,7 @@ export default function ServiceCTA({
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-            <Link href="/#contact">
+            <Link href="/randevu">
               <Button
                 variant="primary"
                 size="lg"

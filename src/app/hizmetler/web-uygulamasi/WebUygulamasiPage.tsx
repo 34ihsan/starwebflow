@@ -5,6 +5,7 @@ import ServiceLayout from '@/components/services/ServiceLayout'
 import ServiceHero from '@/components/services/ServiceHero'
 import ValueMatrix from '@/components/services/ValueMatrix'
 import ComparisonTable from '@/components/services/ComparisonTable'
+import SalesPsychologyMatrix from '@/components/services/SalesPsychologyMatrix'
 import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
@@ -756,32 +757,8 @@ export default function WebUygulamasiPage() {
         </div>
       </section>
 
-      <section className="section bg-slate-50/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
-              <span className="text-slate-900 font-extrabold">{dict.comparison.title}</span> <span className="text-cyan-600 font-extrabold">{dict.comparison.titleHighlight}</span>
-            </h2>
-          </div>
-          <ComparisonTable
-            accentColor={ACCENT}
-            rows={dict.comparison.rows.map((row, i) => {
-              const featuresEN = [
-                'Alignment to Industry', 'Monthly SaaS Cost', 'Data Ownership',
-                'Integration', 'Scaling', 'Brand & UX'
-              ];
-              const featuresDE = [
-                'Anpassung an Ihre Branche', 'Monatliche SaaS-Kosten', 'Dateneigentum',
-                'Integration', 'Skalierung', 'Marke & UX'
-              ];
-              return {
-                ...row,
-                feature: language === 'tr' ? row.feature : language === 'en' ? featuresEN[i] : featuresDE[i]
-              }
-            })}
-          />
-        </div>
-      </section>
+      {/* ─── B2B SALES PSYCHOLOGY & DECISION MATRIX ─── */}
+      <SalesPsychologyMatrix serviceKey="web-uygulamasi" accentColor={ACCENT} />
 
       <ServiceCTA
         accentColor={ACCENT}

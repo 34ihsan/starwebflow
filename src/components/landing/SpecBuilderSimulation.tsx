@@ -30,7 +30,7 @@ const IDEA_PRESETS = {
 export default function SpecBuilderSimulation() {
   const { language } = useLanguage()
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   const [projectIdea, setProjectIdea] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)

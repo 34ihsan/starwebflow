@@ -124,3 +124,93 @@ export async function deleteAppointment(id: string) {
     return { success: false, error: 'Failed to delete appointment' };
   }
 }
+
+export async function createPublicBooking(data: {
+  clientName: string;
+  clientEmail: string;
+  clientPhone?: string;
+  companyName?: string;
+  topic: string;
+  notes?: string;
+  dateStr: string;
+  timeSlot: string;
+}) {
+  try {
+    if (!data.clientName || !data.clientEmail || !data.dateStr || !data.timeSlot) {
+      return { success: false, error: 'Lütfen tüm zorunlu alanları doldurunuz.' };
+    }
+
+    // 1. Resolve or create tenant
+    let tenant = await prisma.tenant.findFirst();
+    if (!tenant) {
+      tenant = await prisma.tenant.create({
+        data: {
+          id: 'default-tenant',
+          name: 'Starwebflow',
+          slug: 'starwebflow-' + Date.now(),
+        },
+      });
+    }
+    const tenantId = tenant.id;
+
+    // 2. Parse start and end time
+    const [hours, minutes] = data.timeSlot.split(':').map((s) => parseInt(s, 10));
+    const startTime = new Date(data.dateStr);
+    startTime.setHours(isNaN(hours) ? 14 : hours, isNaN(minutes) ? 0 : minutes, 0, 0);
+    const endTime = new Date(startTime.getTime() + 15 * 60 * 1000); // 15 mins discovery session
+
+    const title = `[15dk Mimari Keşif] ${data.topic || 'Genel Değerlendirme'} - ${data.clientName}`;
+    const meetLink = 'https://meet.google.com/swf-arch-review';
+
+    // 3. Create appointment
+    const apt = await prisma.appointment.create({
+      data: {
+        tenantId,
+        title,
+        clientName: data.clientName.trim(),
+        clientEmail: data.clientEmail.trim().toLowerCase(),
+        startTime,
+        endTime,
+        status: 'scheduled',
+        meetLink,
+      },
+    });
+
+    // 4. Create or update corresponding lead record
+    try {
+      await prisma.lead.create({
+        data: {
+          tenantId,
+          name: data.clientName.trim(),
+          email: data.clientEmail.trim().toLowerCase(),
+          phone: data.clientPhone?.trim() || null,
+          company: data.companyName?.trim() || null,
+          source: 'Randevu Portalı (/randevu)',
+          serviceType: data.topic,
+          status: 'new',
+        },
+      });
+    } catch (leadError) {
+      console.warn('[Appointment] Lead creation error (safe ignored):', leadError);
+    }
+
+    safeRevalidatePath('/admin/appointments');
+    safeRevalidatePath('/admin/leads');
+
+    return {
+      success: true,
+      appointment: {
+        id: apt.id,
+        title,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        meetLink,
+        clientName: apt.clientName,
+        clientEmail: apt.clientEmail,
+      },
+    };
+  } catch (error: any) {
+    console.error('createPublicBooking error:', error);
+    return { success: false, error: error.message || 'Randevu oluşturulurken bir hata oluştu.' };
+  }
+}

@@ -91,9 +91,9 @@ export async function POST(req: Request) {
   try {
     const tenantId = (await getStaffTenantId()) || (await getTenantIdOrLegacy());
     const body = await req.json();
-    const { sector, country, location, platform, targetRoles, personName, personRole } = body;
+    const { sector, country, location, platform, targetRoles, personName, personRole, blueprintId, autoCities } = body;
 
-    console.log(`[Prospecting API] Received search request for tenant ${tenantId}:`, { sector, country, location, platform, targetRoles, personName, personRole });
+    console.log(`[Prospecting API] Received search request for tenant ${tenantId}:`, { sector, country, location, platform, targetRoles, personName, personRole, blueprintId, autoCities });
 
     // Varsa eski belediye ve geçersiz çöpleri temizle
     await prisma.lead.deleteMany({
@@ -140,7 +140,16 @@ export async function POST(req: Request) {
     }
 
     // 1. Scraper'ı tetikle (Apify veya Direct Fallback)
-    const scraperResult = await runApifyScraperAction(tenantId, {}, { sector, location, country, platform, targetRoles, personName, personRole });
+    const scraperResult = await runApifyScraperAction(tenantId, {}, { 
+      sector, 
+      location: location || (Array.isArray(autoCities) && autoCities.length > 0 ? autoCities.slice(0, 3).join(', ') : 'Berlin'), 
+      country, 
+      platform, 
+      targetRoles, 
+      personName, 
+      personRole,
+      blueprintId
+    });
     
     const rawData = scraperResult?.rawScrapedData || [];
     

@@ -38,7 +38,7 @@ export default function RegionBanner() {
 
   return (
     <div
-      className="relative z-[60] bg-slate-50 border-b border-slate-200/80 text-xs font-medium py-2 px-4 transition-all duration-300 shadow-xs"
+      className="bg-slate-50/95 border-b border-slate-200/70 text-xs font-medium py-1.5 px-4 transition-all duration-300 relative z-10"
     >
       {/* Top accent line */}
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />

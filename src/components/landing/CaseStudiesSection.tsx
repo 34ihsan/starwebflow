@@ -10,7 +10,7 @@ type SectorId = 'all' | 'ecommerce' | 'saas' | 'fintech' | 'corporate' | 'reales
 export default function CaseStudiesSection() {
   const { t, language } = useLanguage()
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
   const [activeSector, setActiveSector] = useState<SectorId>('all')
 
   const sectors = [

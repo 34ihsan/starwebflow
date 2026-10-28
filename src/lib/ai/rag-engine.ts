@@ -207,6 +207,17 @@ async function getOrBuildKnowledgeIndex(): Promise<{
     return { chunks: allChunks, hasEmbeddings: false };
   }
 
+  // Fast check if Ollama is actually reachable before attempting heavy embeddings (prevents hanging when offline)
+  const isHealthy = await Promise.race([
+    ollama.checkHealth().then((h) => h.online),
+    new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 600)),
+  ]);
+
+  if (!isHealthy) {
+    cachedVectorChunks = allChunks;
+    return { chunks: allChunks, hasEmbeddings: false };
+  }
+
   isEmbeddingInProgress = true;
   try {
     const inputs = allChunks.map((c) => `${c.title}\n${c.content}`);

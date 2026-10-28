@@ -1,134 +1,177 @@
 'use client'
 
+import React from 'react'
 import { motion } from 'framer-motion'
-import { XCircle, CheckCircle2, ArrowRight, TrendingDown, TrendingUp } from 'lucide-react'
+import { XCircle, CheckCircle2, TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 export default function ComparisonSection() {
   const { language } = useLanguage()
+  const lang = (language as 'tr' | 'en' | 'de') || 'tr'
 
   const comparisonData = [
     {
-      traditional: language === 'tr' ? 'Ziyaretçi iletişim formu doldurur ve beklemeye başlar.' : language === 'de' ? 'Besucher füllt Kontaktformular aus und wartet.' : 'Visitor fills out contact form and starts waiting.',
-      starwebflow: language === 'tr' ? 'Ziyaretçi sitedeyken AI anında WhatsApp veya Chat üzerinden iletişime geçer.' : language === 'de' ? 'KI kontaktiert den Besucher sofort via WhatsApp oder Live-Chat.' : 'AI connects instantly via WhatsApp or Chat while visitor is on site.'
+      feature: lang === 'tr' ? 'Veri Gizliliği & Egemenlik' : lang === 'de' ? 'Datensouveränität & DSGVO' : 'Data Privacy & Sovereignty',
+      traditional:
+        lang === 'tr'
+          ? 'Müşteri verileri kontrolsüz yabancı bulutlara ve açık API’lere sızdırılır (Büyük KVKK/DSGVO riski).'
+          : lang === 'de'
+          ? 'Kundendaten fließen ungeprüft in US-Clouds und Drittanbieter-APIs (DSGVO-Haftungsrisiko).'
+          : 'Customer data leaks to unvetted third-party US clouds and APIs (Severe GDPR compliance risk).',
+      starwebflow:
+        lang === 'tr'
+          ? 'Verileriniz Frankfurt/TR dedike sunucunuzda kalır. Yerel Ollama modelleri ile %100 izole çalışır.'
+          : lang === 'de'
+          ? 'Dedizierte deutsche Server & lokale Ollama-Modelle. 100% DSGVO-konform und datensicher.'
+          : 'Dedicated EU datacenter VPS & local Ollama models. 100% isolated and GDPR compliant.',
     },
     {
-      traditional: language === 'tr' ? 'Satış/Destek ekibi ertesi gün veya saatler sonra manuel e-posta atar.' : language === 'de' ? 'Vertrieb/Support sendet erst am nächsten Tag eine manuelle E-Mail.' : 'Sales/Support sends a manual email hours or a day later.',
-      starwebflow: language === 'tr' ? 'AI saniyeler içinde doğal dilde konuşur, müşterinin itirazlarını anında giderir.' : language === 'de' ? 'KI antwortet in Sekunden in natürlicher Sprache und löst Einwände.' : 'AI responds in seconds in natural language and handles objections.'
+      feature: lang === 'tr' ? 'Müşteri Yanıt Hızı' : lang === 'de' ? 'Reaktionszeit auf Leads' : 'Inbound Lead Response',
+      traditional:
+        lang === 'tr'
+          ? 'İletişim formu doldurulur; ekip ertesi gün yanıt verene kadar müşteri rakibe gitmiştir.'
+          : lang === 'de'
+          ? 'Kontaktformular wird erst am nächsten Werktag beantwortet. Der Interessent kauft beim Wettbewerb.'
+          : 'Lead fills out a form; sales responds next day while the lead has already moved to a competitor.',
+      starwebflow:
+        lang === 'tr'
+          ? 'Sitedeyken veya WhatsApp’tan 3 saniyede yanıt verilir, itirazlar giderilir ve takvime randevu işlenir.'
+          : lang === 'de'
+          ? 'KI antwortet in unter 3 Sekunden, qualifiziert das Budget und bucht den Termin direkt in Ihren Kalender.'
+          : 'Responds within 3 seconds, qualifies budget, and schedules a meeting directly into your calendar.',
     },
     {
-      traditional: language === 'tr' ? 'Geç kalındığı için müşteri soğumuştur, rakiplerden teklif almaya gitmiştir.' : language === 'de' ? 'Da es zu spät ist, kühlt der Kunde ab und holt Konkurrenzangebote ein.' : 'Customer goes cold due to delay and requests quotes from competitors.',
-      starwebflow: language === 'tr' ? 'Müşteri daha sıcakken anında takvime toplantı kaydeder veya siparişi tamamlar.' : language === 'de' ? 'Bucht sofort ein Meeting im Kalender oder schließt die Bestellung ab.' : 'Schedules meeting immediately or completes order while lead is hot.'
+      feature: lang === 'tr' ? 'Web Platform Altyapısı' : lang === 'de' ? 'Web-Infrastruktur' : 'Web Infrastructure',
+      traditional:
+        lang === 'tr'
+          ? 'Şişkin WordPress veya ağır eklentiler: 3.5+ saniye açılış süresi ve yüksek sepet/lead terk oranı.'
+          : lang === 'de'
+          ? 'Überladenes WordPress mit 30 Plugins: Über 3,5s Ladezeit und hohe Absprungraten.'
+          : 'Bloated WordPress or legacy CMS: 3.5s+ loading times and high mobile bounce rates.',
+      starwebflow:
+        lang === 'tr'
+          ? 'Next.js 14 App Router: 0.8 saniyenin altında açılış (LCP), Grade A+ güvenlik ve kusursuz mobil deneyim.'
+          : lang === 'de'
+          ? 'Next.js 14 App Router: LCP unter 0,8 Sekunden, Grade A+ Sicherheit und maximale Conversion.'
+          : 'Next.js 14 App Router: Sub-0.8s LCP, Grade A+ security, and frictionless mobile conversion.',
     },
     {
-      traditional: language === 'tr' ? 'Müşteri verileri, talepler ve notlar manuel olarak Excel veya CRM\'e girilir.' : language === 'de' ? 'Kundendaten und Notizen werden manuell in Excel oder CRM eingegeben.' : 'Customer data and notes are manually typed into Excel or CRM.',
-      starwebflow: language === 'tr' ? 'Tüm görüşme özeti, bütçe analizleri ve talepler saniyeler içinde CRM\'e (HubSpot vs) yansır.' : language === 'de' ? 'Zusammenfassung, Budgetanalyse und Anfragen fließen sofort ins CRM.' : 'Full call summary, budget analysis, and requests sync to CRM in seconds.'
+      feature: lang === 'tr' ? 'Maliyet ve Lisans Modeli' : lang === 'de' ? 'Kosten & Lizenzmodell' : 'Cost & Licensing Model',
+      traditional:
+        lang === 'tr'
+          ? 'Kullanıcı başına SaaS lisansları ve kontrolsüz API token faturalarıyla her ay katlanan maliyet.'
+          : lang === 'de'
+          ? 'Teure User-Lizenzen und unkalkulierbare API-Token-Rechnungen, die monatlich steigen.'
+          : 'Unpredictable per-seat SaaS subscriptions and spiraling per-token API recurring costs.',
+      starwebflow:
+        lang === 'tr'
+          ? 'Sistemin mülkiyeti size aittir. Kendi sunucunuzda sınırsız yerel sorgu ve sabit altyapı maliyeti.'
+          : lang === 'de'
+          ? 'Volles Eigentum am System. Unbegrenzte lokale Anfragen auf eigener Infrastruktur ohne Lizenzfalle.'
+          : 'You own the system. Unlimited local inference on your own dedicated VPS with predictable cost.',
     },
     {
-      traditional: language === 'tr' ? 'Mesai biter. Gece ve hafta sonları hiçbir işlem yapılmaz.' : language === 'de' ? 'Feierabend. Nachts und am Wochenende passiert nichts.' : 'Workday ends. Zero activity during nights and weekends.',
-      starwebflow: language === 'tr' ? 'Sistem 7/24, tatilsiz ve molasız olarak aynı performansta satış kapatmaya devam eder.' : language === 'de' ? 'System schließt 24/7 ohne Pause Verkäufe auf gleichem Niveau ab.' : 'System continues closing sales 24/7 without breaks at full performance.'
-    }
+      feature: lang === 'tr' ? 'Operasyonel Destek & SLA' : lang === 'de' ? 'Wartung & SLA-Schutz' : 'Maintenance & SLA Support',
+      traditional:
+        lang === 'tr'
+          ? 'Site teslim edilir ve ajans kaybolur. SSL veya sunucu çöktüğünde saatlerce haberiniz olmaz.'
+          : lang === 'de'
+          ? 'Agentur liefert ab und ist unerreichbar. Systemausfälle werden erst von Kunden bemerkt.'
+          : 'Agency delivers and disappears. Server crashes or expired SSL go unnoticed for days.',
+      starwebflow:
+        lang === 'tr'
+          ? 'Her 60 saniyede otomatik sağlık yoklaması, 15 dakika müdahale SLA’sı ve proaktif kalkan.'
+          : lang === 'de'
+          ? 'Automatischer Health-Check alle 60 Sekunden, 15 Minuten Interventions-SLA und proaktiver Schutz.'
+          : 'Automated 60-second health probes, 15-minute intervention SLA, and proactive defense.',
+    },
   ]
+
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="comparison" className="py-24 bg-white border-t border-slate-200 text-slate-900 relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mb-6 shadow-2xs"
-          >
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-bold text-emerald-700">
-              {language === 'tr' ? 'Karşılaştırma Analizi' : language === 'de' ? 'Vergleichsanalyse' : 'Comparison Analysis'}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 mb-4 shadow-xs">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+            <span>
+              {lang === 'tr' ? 'Stratejik Karar Matrisi' : lang === 'de' ? 'Entscheidungsmatrix' : 'Strategic Decision Matrix'}
             </span>
-          </motion.div>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold mb-6 tracking-tight text-slate-900 font-['Outfit']"
-          >
-            {language === 'tr' ? (
-              <>Klasik Model vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebflow Modeli</span></>
-            ) : language === 'de' ? (
-              <>Klassisches Modell vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebFlow Modell</span></>
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            {lang === 'tr' ? (
+              <>
+                Geleneksel Ajans Modeli vs.{' '}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  Starwebflow Egemen Mimarisi
+                </span>
+              </>
+            ) : lang === 'de' ? (
+              <>
+                Klassische Agenturen vs.{' '}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  Starwebflow Souveräne Architektur
+                </span>
+              </>
             ) : (
-              <>Traditional Model vs <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">StarWebFlow Model</span></>
+              <>
+                Traditional Agencies vs.{' '}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  Starwebflow Sovereign Architecture
+                </span>
+              </>
             )}
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-lg text-slate-600 font-normal"
-          >
-            {language === 'tr' 
-              ? 'Hızın ve verimliliğin ciroyu nasıl belirlediğini kendi gözlerinizle görün.' 
-              : language === 'de' 
-              ? 'Sehen Sie selbst, wie Geschwindigkeit und Effizienz Ihren Umsatz bestimmen.' 
-              : 'See for yourself how speed and efficiency dictate your revenue.'}
-          </motion.p>
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+            {lang === 'tr'
+              ? 'Şirketinizin dijital altyapısını kurarken karşılaşacağınız gerçek farklar ve uzun vadeli yatırım getirisi.'
+              : lang === 'de'
+              ? 'Der direkte Vergleich zwischen fragmentierten Altsystemen und unserer integrierten Unternehmensplattform.'
+              : 'The direct comparison between fragmented legacy models and our sovereign enterprise architecture.'}
+          </p>
         </div>
 
-        <div className="max-w-5xl mx-auto">
-          {/* Header Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4">
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center shadow-2xs">
-              <h3 className="text-lg font-bold text-rose-700 flex items-center justify-center gap-2">
-                <TrendingDown className="w-5 h-5 text-rose-600" />
-                {language === 'tr' ? 'Geleneksel Ajans / Manuel Süreç' : language === 'de' ? 'Klassische Agentur / Manueller Prozess' : 'Traditional Agency / Manual Process'}
-              </h3>
-            </div>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center relative overflow-hidden shadow-2xs">
-              <h3 className="text-lg font-bold text-emerald-800 flex items-center justify-center gap-2 relative z-10">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
-                {language === 'tr' ? 'StarWebflow AI Ekosistemi' : language === 'de' ? 'StarWebFlow KI-Ökosystem' : 'StarWebFlow AI Ecosystem'}
-              </h3>
-            </div>
-          </div>
+        {/* Matrix Table Cards */}
+        <div className="space-y-4">
+          {comparisonData.map((row, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 1, y: 0 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.05 }}
+              className="rounded-2xl bg-slate-50/70 border border-slate-200 p-6 sm:p-7 grid grid-cols-1 md:grid-cols-12 gap-6 items-center hover:border-slate-300 hover:bg-slate-50 transition-colors shadow-xs"
+            >
+              {/* Feature Title (3 Cols) */}
+              <div className="md:col-span-3">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold block mb-1">
+                  Kriter 0{idx + 1}
+                </span>
+                <h4 className="text-base font-bold text-slate-900">{row.feature}</h4>
+              </div>
 
-          {/* Comparison Rows */}
-          <div className="space-y-4">
-            {comparisonData.map((row, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 relative"
-              >
-                {/* Arrow indicator for desktop */}
-                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white border border-slate-200 items-center justify-center z-10 shadow-sm">
-                  <ArrowRight className="w-4 h-4 text-slate-400" />
+              {/* Traditional Agency (4 Cols) */}
+              <div className="md:col-span-4 p-4 rounded-xl bg-rose-50 border border-rose-200">
+                <div className="flex items-center gap-2 mb-2 text-rose-800 font-bold text-xs">
+                  <XCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{lang === 'tr' ? 'Geleneksel Ajans / Manuel' : lang === 'de' ? 'Klassische Agentur' : 'Traditional Agency'}</span>
                 </div>
+                <p className="text-xs text-rose-900 leading-relaxed font-medium">{row.traditional}</p>
+              </div>
 
-                <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-5 flex gap-4 transition-colors">
-                  <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-slate-600 leading-relaxed font-normal">{row.traditional}</p>
+              {/* Starwebflow Model (5 Cols) */}
+              <div className="md:col-span-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-xs">
+                <div className="flex items-center gap-2 mb-2 text-emerald-800 font-bold text-xs">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>{lang === 'tr' ? 'Starwebflow Sovereign Altyapısı' : lang === 'de' ? 'Starwebflow Plattform' : 'Starwebflow Sovereign Platform'}</span>
                 </div>
-                
-                <div className="bg-emerald-50/40 border border-emerald-200/90 rounded-xl p-5 flex gap-4 transition-colors shadow-2xs">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  <p className="text-sm text-slate-900 font-semibold leading-relaxed">{row.starwebflow}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center px-2">
-            <div className="inline-flex flex-col sm:flex-row items-center text-center gap-2 sm:gap-3 px-4 sm:px-6 py-3.5 max-w-full rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">{language === 'tr' ? 'Sonuç:' : language === 'de' ? 'Ergebnis:' : 'Result:'}</span>
-              <span className="text-base sm:text-lg font-bold text-slate-900 break-words">
-                {language === 'tr' ? '10x Daha Hızlı Büyüme & %80 Daha Az İş Yükü' : language === 'de' ? '10x schnelleres Wachstum & 80% weniger Workload' : '10x Faster Growth & 80% Less Workload'}
-              </span>
-            </div>
-          </div>
+                <p className="text-xs text-emerald-950 font-semibold leading-relaxed">{row.starwebflow}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
+
       </div>
     </section>
   )

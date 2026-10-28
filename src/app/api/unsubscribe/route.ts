@@ -8,19 +8,23 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
+    const leadId = searchParams.get('leadId');
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email parameter is required' }, { status: 400 });
+    if (!email && !leadId) {
+      return NextResponse.json({ error: 'Email or leadId parameter is required' }, { status: 400 });
     }
 
-    // Since a lead email might exist in multiple tenants if we operate multi-tenant B2B,
-    // usually we'd pass tenantId or leadId too. For simplicity, we unsubscribe from all matching.
-    const leads = await prisma.lead.findMany({
-      where: { email: { equals: email, mode: 'insensitive' } }
-    });
+    const where: any = {};
+    if (leadId) {
+      where.id = leadId;
+    } else if (email) {
+      where.email = { equals: email, mode: 'insensitive' };
+    }
+
+    const leads = await prisma.lead.findMany({ where });
 
     if (leads.length === 0) {
-      return NextResponse.json({ message: 'Email not found in our records.' });
+      return NextResponse.json({ message: 'Record not found in our records.' });
     }
 
     // Mark as unsubscribed and pause sequences
@@ -36,25 +40,35 @@ export async function GET(request: Request) {
       });
     }
 
-    // HTML response for the user
+    const displayEmail = email || leads[0]?.email || 'E-Mail-Adresse';
+    const isGerman = (leads[0]?.country || '').toLowerCase().includes('almanya') || (leads[0]?.country || '').toLowerCase().includes('germany') || (leads[0]?.country || '').toLowerCase().includes('deutschland');
+
+    // HTML response for the user (DSGVO / Multi-language compliant)
     const html = `
       <!DOCTYPE html>
-      <html lang="tr">
+      <html lang="${isGerman ? 'de' : 'tr'}">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Abonelikten Ayrıldınız</title>
+        <title>${isGerman ? 'Erfolgreich abgemeldet' : 'Abonelikten Ayrıldınız'}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f9fafb; }
-          .container { text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); max-width: 400px; }
-          h1 { color: #111827; font-size: 24px; margin-bottom: 16px; }
-          p { color: #4b5563; font-size: 16px; line-height: 1.5; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #0f172a; color: #f8fafc; }
+          .container { text-align: center; background: #1e293b; padding: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+          .icon { width: 48px; height: 48px; margin: 0 auto 16px; color: #10b981; }
+          h1 { color: #f8fafc; font-size: 22px; margin-bottom: 12px; }
+          p { color: #94a3b8; font-size: 15px; line-height: 1.6; }
+          .badge { display: inline-block; background: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: 600; font-size: 13px; padding: 4px 12px; border-radius: 9999px; margin-top: 16px; }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>Abonelikten Ayrıldınız</h1>
-          <p><b>${email}</b> adresi iletişim listemizden başarıyla çıkarılmıştır. Bundan sonra sizden bir talep gelmediği sürece tarafımızdan e-posta almayacaksınız.</p>
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <h1>${isGerman ? 'Erfolgreich abgemeldet' : 'Abonelikten Ayrıldınız'}</h1>
+          <p>${isGerman 
+            ? `Die Adresse <b>${displayEmail}</b> wurde erfolgreich aus unserem Verteiler entfernt. Sie erhalten künftig keine automatisierten Nachrichten mehr von uns (DSGVO-konform).` 
+            : `<b>${displayEmail}</b> adresi iletişim listemizden başarıyla çıkarılmıştır. Bundan sonra sizden bir talep gelmediği sürece tarafımızdan e-posta almayacaksınız.`}
+          </p>
+          <span class="badge">${isGerman ? 'Status: Abgemeldet' : 'Durum: Listeden Çıkarıldı'}</span>
         </div>
       </body>
       </html>

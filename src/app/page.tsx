@@ -3,63 +3,65 @@ import HeroSection from '@/components/landing/HeroSection'
 import TrustBar from '@/components/landing/TrustBar'
 import InstantAuditWidget from '@/components/landing/InstantAuditWidget'
 import ServicesSection from '@/components/landing/ServicesSection'
-import ScenarioCards from '@/components/landing/ScenarioCards'
-import InteractiveAIDemo from '@/components/landing/InteractiveAIDemo'
 import ComparisonSection from '@/components/landing/ComparisonSection'
-import BeforeAfterComparison from '@/components/landing/BeforeAfterComparison'
-import DataFlowSection from '@/components/landing/DataFlowSection'
-import WhyUsSection from '@/components/landing/WhyUsSection'
-import PricingSection from '@/components/landing/PricingSection'
 import CaseStudiesSection from '@/components/landing/CaseStudiesSection'
-import ProcessSection from '@/components/landing/ProcessSection'
-import CTABanner from '@/components/landing/CTABanner'
+import SpecBuilderSimulation from '@/components/landing/SpecBuilderSimulation'
+import FAQSection from '@/components/landing/FAQSection'
 import Footer from '@/components/landing/Footer'
 import ChatWidget from '@/components/marketing/ChatWidget'
-import ROICalculatorSection from '@/components/landing/ROICalculatorSection'
-import SecuritySection from '@/components/landing/SecuritySection'
-import SpecBuilderSimulation from '@/components/landing/SpecBuilderSimulation'
 import LeadCaptureModal from '@/components/marketing/LeadCaptureModal'
-import QuickQuoteForm from '@/components/marketing/QuickQuoteForm'
-import FAQSection from '@/components/landing/FAQSection'
-import TestimonialsSection from '@/components/landing/TestimonialsSection'
 import GEOContent from '@/components/ui/GEOContent'
-
-import EuropeTurksTrustSection from '@/components/landing/EuropeTurksTrustSection'
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900 w-full max-w-full overflow-x-hidden">
       <Navbar />
-      <div id="hero"><HeroSection /></div>
-      <div id="trust"><TrustBar /></div>
-      <div id="audit"><InstantAuditWidget /></div>
-      <div id="services"><ServicesSection /></div>
-      <div id="scenarios"><ScenarioCards /></div>
-      <div id="demo"><InteractiveAIDemo /></div>
-      <div id="comparison"><ComparisonSection /></div>
-      <div id="before-after"><BeforeAfterComparison /></div>
-      <div id="flow"><DataFlowSection /></div>
-      <div id="why-us"><WhyUsSection /></div>
-      <div id="europe-turks"><EuropeTurksTrustSection /></div>
-      <div id="roi"><ROICalculatorSection /></div>
-      <div id="pricing"><PricingSection /></div>
-      <div id="case-studies"><CaseStudiesSection /></div>
-      <div id="testimonials"><TestimonialsSection /></div>
-      <div id="process"><ProcessSection /></div>
-      <div id="simulation"><SpecBuilderSimulation /></div>
-      <div id="cta"><CTABanner /></div>
-      <div id="quote" className="py-24 bg-slate-50/70 border-t border-slate-200/80 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-100/30 to-transparent pointer-events-none" />
-        <div className="container mx-auto px-4 relative z-10">
-          <QuickQuoteForm />
-        </div>
+
+      {/* 1. Elite Hero: B2B Positioning + Fast Audit Bar + Autonomous Command Center */}
+      <div id="hero">
+        <HeroSection />
       </div>
-      <div id="security"><SecuritySection /></div>
-      <div id="faq"><FAQSection /></div>
+
+      {/* 2. Enterprise Trust & Compliance Bar (DIN ISO 25010, DSGVO, Dedicated VPS) */}
+      <div id="trust">
+        <TrustBar />
+      </div>
+
+      {/* 3. Flagship Conversion Anchor: Live Site Diagnostic, Financial Loss Calculator & AI Clone */}
+      <div id="audit">
+        <InstantAuditWidget />
+      </div>
+
+      {/* 4. Strategic Architecture Pillars & Live Machine Simulators */}
+      <div id="services">
+        <ServicesSection />
+      </div>
+
+      {/* 5. Strategic Decision Matrix: Traditional Agency Model vs. Starwebflow Sovereign Platform */}
+      <div id="comparison">
+        <ComparisonSection />
+      </div>
+
+      {/* 6. Measurable Business Wins & Sector Case Studies */}
+      <div id="case-studies">
+        <CaseStudiesSection />
+      </div>
+
+      {/* 7. Lastenheft Spec Builder & Technical Proposal Blueprint */}
+      <div id="simulation" className="py-16 bg-slate-50/70 border-t border-slate-200">
+        <SpecBuilderSimulation />
+      </div>
+
+      {/* 8. Enterprise FAQ & SLA Guarantees */}
+      <div id="faq">
+        <FAQSection />
+      </div>
+
       <Footer />
       <ChatWidget />
       <LeadCaptureModal />
-      {/* GEO — AI Citation Content (invisible to users, readable by AI crawlers) */}
+
+      {/* GEO — AI Citation Content (invisible to users, readable by AI search engines) */}
       <GEOContent />
     </main>
   )

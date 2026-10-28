@@ -1,268 +1,336 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '@/components/ui/Button'
-import { ArrowRight, Sparkles, ChevronDown, TrendingUp, Shield, Zap, Users } from 'lucide-react'
+import {
+  ArrowRight,
+  TrendingUp,
+  Shield,
+  Zap,
+  Users,
+  Server,
+  Activity,
+  CheckCircle2,
+  Lock,
+  Search,
+  Cpu,
+  Terminal,
+} from 'lucide-react'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 // ── Metrics Ticker Data ──────────────────────────────────────────────────
 const TICKER_METRICS = [
-  { icon: TrendingUp, value: '+312%', label: { tr: 'Ortalama ROI Artışı', en: 'Avg. ROI Increase', de: 'Ø ROI-Steigerung' }, color: '#10B981' },
-  { icon: Zap,         value: '0.8s',  label: { tr: 'LCP Garanti',        en: 'LCP Guarantee',    de: 'LCP Garantie'    }, color: '#4F8EF7' },
-  { icon: Users,       value: '50+',   label: { tr: 'Mutlu Müşteri',      en: 'Happy Clients',    de: 'Kunden'          }, color: '#8B5CF6' },
-  { icon: Shield,      value: 'A+',    label: { tr: 'Güvenlik Skoru',     en: 'Security Score',   de: 'Sicherheitswert' }, color: '#06B6D4' },
-  { icon: TrendingUp,  value: '4.9★',  label: { tr: 'Müşteri Puanı',     en: 'Client Rating',    de: 'Kundenbewertung' }, color: '#F59E0B' },
-  { icon: Zap,         value: '100%',  label: { tr: 'GDPR Uyumlu',       en: 'GDPR Compliant',   de: 'DSGVO Konform'   }, color: '#10B981' },
+  { icon: TrendingUp, value: '+312%', label: { tr: 'Ortalama ROI Artışı', en: 'Avg. ROI Increase', de: 'Ø ROI-Steigerung' }, color: '#059669' },
+  { icon: Zap,         value: '0.8s',  label: { tr: 'LCP Hız Garantisi',   en: 'LCP Guarantee',    de: 'LCP Garantie'    }, color: '#2563EB' },
+  { icon: Server,      value: '100%',  label: { tr: 'Özel Sunucu (Ollama)', en: 'Private Server',   de: 'Private Server'  }, color: '#7C3AED' },
+  { icon: Shield,      value: 'A+',    label: { tr: 'Güvenlik & SSL',      en: 'Security Score',   de: 'Sicherheitswert' }, color: '#0891B2' },
+  { icon: Users,       value: '50+',   label: { tr: 'Kurumsal Referans',   en: 'Happy Clients',    de: 'Kunden'          }, color: '#D97706' },
+  { icon: Lock,        value: 'DSGVO', label: { tr: 'KVKK & GDPR Uyumlu',  en: 'GDPR Compliant',   de: 'DSGVO Konform'   }, color: '#059669' },
 ]
 
 export default function HeroSection() {
-  const { t, language } = useLanguage()
-  const [mounted, setMounted] = useState(false)
-  const lang = language as 'tr' | 'en' | 'de'
+  const { language } = useLanguage()
+  const lang = (language as 'tr' | 'en' | 'de') || 'tr'
+
+  const [domainInput, setDomainInput] = useState('')
+  const [activeLogIndex, setActiveLogIndex] = useState(0)
+
+  // Simulation pipeline logs cycling every 2.8s
+  const pipelineLogs = [
+    {
+      time: '12:04:12',
+      tag: 'LEAD INGEST',
+      color: 'text-sky-300 border-sky-400/30 bg-sky-500/10',
+      text: lang === 'tr' ? 'Yeni kurumsal talep yakalandı → Niyet analizi yapıldı' : lang === 'de' ? 'Neue Lead-Anfrage erfasst → Intent-Analyse abgeschlossen' : 'Inbound lead captured → Intent classified',
+    },
+    {
+      time: '12:04:13',
+      tag: 'OLLAMA AI',
+      color: 'text-purple-300 border-purple-400/30 bg-purple-500/10',
+      text: lang === 'tr' ? 'starwebflow-agent yerel LLM yanıt üretti (18ms latency)' : lang === 'de' ? 'starwebflow-agent lokales LLM generiert Antwort (18ms)' : 'starwebflow-agent local LLM generated response (18ms)',
+    },
+    {
+      time: '12:04:14',
+      tag: 'CRM & SLATE',
+      color: 'text-emerald-300 border-emerald-400/30 bg-emerald-500/10',
+      text: lang === 'tr' ? 'Takvim randevusu onaylandı & PDF şartname iletildi ✓' : lang === 'de' ? 'Kalenderslot bestätigt & Lastenheft-PDF versendet ✓' : 'Calendar meeting confirmed & tech spec PDF dispatched ✓',
+    },
+  ]
 
   useEffect(() => {
-    setMounted(true)
-    // Cursor glow follow effect
-    const glow = document.getElementById('cursor-glow')
-    if (!glow) return
-    const handleMouseMove = (e: MouseEvent) => {
-      glow.style.left = `${e.clientX}px`
-      glow.style.top = `${e.clientY}px`
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+    const interval = setInterval(() => {
+      setActiveLogIndex((prev) => (prev + 1) % pipelineLogs.length)
+    }, 2800)
+    return () => clearInterval(interval)
+  }, [pipelineLogs.length])
 
-  const handleScroll = (href: string) => {
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  const handleQuickAuditSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const targetDomain = domainInput.trim()
+    const el = document.querySelector('#audit')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+    if (targetDomain && typeof window !== 'undefined') {
+      setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent('starwebflow:trigger-audit', {
+            detail: { domain: targetDomain },
+          })
+        )
+      }, 500)
+    }
   }
 
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50/60 pt-36 pb-16 sm:pt-44 sm:pb-24 border-b border-slate-200/80"
       data-speakable="true"
     >
-      {/* ── Aurora + Grid Background ──────────────────────────────────── */}
-      <div className="absolute inset-0 bg-white dark:bg-[#0A0A0F] transition-colors duration-200" />
-      <div className="aurora-bg absolute inset-0 pointer-events-none" aria-hidden="true" />
-      <div className="grid-pattern absolute inset-0 pointer-events-none opacity-40" aria-hidden="true" />
+      {/* ── Light Ambient Grid Background ───────────────────────────── */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
-      {/* Cursor glow */}
-      <div id="cursor-glow" className="cursor-glow" style={{ left: '50%', top: '50%' }} />
+      {/* Subtle Glow Spheres */}
+      <div className="absolute top-1/4 -left-20 w-[450px] h-[450px] rounded-full bg-blue-100/60 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-10 right-0 w-[450px] h-[450px] rounded-full bg-purple-100/60 blur-[140px] pointer-events-none" />
 
-      {/* Ambient blobs */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] rounded-full bg-[#4F8EF7]/6 blur-[120px] animate-[orbPulse_8s_ease-in-out_infinite]" />
-        <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] rounded-full bg-[#8B5CF6]/6 blur-[100px] animate-[orbPulse_10s_ease-in-out_infinite_2s]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[#06B6D4]/3 blur-[150px]" />
-        {/* Floating particles */}
-        {mounted && [...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              width: `${Math.random() * 4 + 2}px`,
-              height: `${Math.random() * 4 + 2}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              background: ['#4F8EF7', '#8B5CF6', '#06B6D4', '#10B981'][Math.floor(Math.random() * 4)] + '40',
-              animationDuration: `${Math.random() * 10 + 8}s`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24 w-full">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center w-full min-w-0">
-
-          {/* Left — Text */}
-          <div className="text-center lg:text-left min-w-0 w-full" style={{ animation: 'fadeInLeft 0.8s ease both' }}>
-
-            {/* Badge */}
-            <div className="inline-flex items-center mb-6">
-              <span className="tag-badge">
-                <Sparkles className="w-3 h-3" aria-hidden="true" />
-                {t('hero.badge')}
+      {/* ── Main Content Container ──────────────────────────────────── */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-10 items-center">
+          
+          {/* ── Left Column: High-Ticket B2B Positioning (7 Cols) ────── */}
+          <div className="lg:col-span-7 text-center lg:text-left">
+            
+            {/* Live Sovereign Node Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-xs mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+              </span>
+              <span className="text-xs font-semibold text-emerald-800 tracking-wide">
+                {lang === 'tr'
+                  ? 'Sovereign AI Node: Aktif · Frankfurt & Istanbul · %100 DSGVO / KVKK'
+                  : lang === 'de'
+                  ? 'Sovereign AI Node: Aktiv · Frankfurt Rechenzentrum · 100% DSGVO'
+                  : 'Sovereign AI Node: Active · Frankfurt Datacenter · 100% GDPR'}
               </span>
             </div>
 
-            {/* H1 — SEO optimized */}
-            <h1 className="heading-xl text-slate-900 dark:text-white mb-5 sm:mb-6 break-words" data-speakable="true">
-              {t('hero.title')}{' '}
-              <span className="block gradient-text mt-1">{t('hero.titleHighlight')}</span>
+            {/* H1 Headline */}
+            <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.14] mb-6">
+              {lang === 'tr' ? (
+                <>
+                  İşletmenizin Operasyonlarını <br className="hidden sm:inline" />
+                  <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 bg-clip-text text-transparent">
+                    Özel Sunuculu Yapay Zeka & Web Mimarisiyle
+                  </span>{' '}
+                  Otopilota Alın.
+                </>
+              ) : lang === 'de' ? (
+                <>
+                  Skalieren Sie Ihre Workflows mit <br className="hidden sm:inline" />
+                  <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 bg-clip-text text-transparent">
+                    dedizierter KI & Hochgeschwindigkeits-Web
+                  </span>{' '}
+                  auf Autopilot.
+                </>
+              ) : (
+                <>
+                  Autopilot Your Business with <br className="hidden sm:inline" />
+                  <span className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 bg-clip-text text-transparent">
+                    Private Sovereign AI & Sub-Second Web
+                  </span>{' '}
+                  Architecture.
+                </>
+              )}
             </h1>
 
-            {/* Sub-headline */}
-            <p className="text-base sm:text-lg text-slate-600 dark:text-[#94A3B8] mb-8 sm:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-              {t('hero.desc')}
+            {/* Subtitle */}
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal mb-8">
+              {lang === 'tr'
+                ? 'Müşteri verilerinizi üçüncü taraf bulut tekellerine teslim etmeden; kendi sunucunuzda çalışan bağımsız Ollama LLM modelleri, milisaniyelik Next.js 14 sistemleri ve 7/24 çalışan dijital operasyon ekipleri kuruyoruz.'
+                : lang === 'de'
+                ? 'Keine Datenabflüsse an US-Cloudanbieter: Wir implementieren autarke Ollama-LLMs auf dedizierten Servern, subsekundenschnelle Next.js Plattformen und vollautomatische CRM-Workflows.'
+                : 'Zero data leakage to third-party cloud monopolies: We deploy sovereign Ollama LLMs on dedicated VPS, sub-second Next.js enterprise systems, and 24/7 autonomous workflow pipelines.'}
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full sm:w-auto">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => handleScroll('#contact')}
-                className="group relative overflow-hidden w-full sm:w-auto font-bold"
-                id="hero-cta-primary"
-              >
-                {/* Shimmer overlay */}
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-                <Sparkles className="w-5 h-5 relative z-10" aria-hidden="true" />
-                <span className="relative z-10">{t('hero.ctaPrimary')}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" aria-hidden="true" />
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => handleScroll('#services')}
-                id="hero-cta-secondary"
-                className="group w-full sm:w-auto font-bold"
-              >
-                <span>{t('hero.ctaSecondary')}</span>
-                <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" aria-hidden="true" />
-              </Button>
-            </div>
-
-            {/* Social Proof */}
-            <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 sm:gap-6 justify-center lg:justify-start">
-              {/* Avatars */}
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {[
-                    { bg: 'linear-gradient(135deg,#4F8EF7,#06B6D4)', label: 'AK' },
-                    { bg: 'linear-gradient(135deg,#8B5CF6,#EC4899)', label: 'MD' },
-                    { bg: 'linear-gradient(135deg,#10B981,#06B6D4)', label: 'ZA' },
-                    { bg: 'linear-gradient(135deg,#F59E0B,#EF4444)', label: 'EY' },
-                  ].map(({ bg, label }, i) => (
-                    <div
-                      key={i}
-                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white shadow-sm shrink-0"
-                      style={{ background: bg }}
-                      aria-hidden="true"
-                    >
-                      {label}
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">50+</p>
-                  <p className="text-xs text-slate-600 font-medium">
-                    {lang === 'tr' ? 'mutlu müşteri' : lang === 'de' ? 'Kunden' : 'happy clients'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="h-8 w-px bg-slate-200 hidden sm:block" />
-
-              {/* Stars */}
-              <div className="flex items-center gap-1.5">
-                <div className="flex gap-0.5" aria-label="5 star rating">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-[#FBBF24]" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-900">4.9</p>
-                  <p className="text-xs text-slate-600 font-medium">
-                    {lang === 'tr' ? 'puan (38 yorum)' : lang === 'de' ? 'Sterne (38)' : 'rating (38)'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right — Neural Orb Visual */}
-          <div
-            className="flex items-center justify-center min-w-0 w-full max-w-full overflow-hidden sm:overflow-visible py-4"
-            style={{ animation: 'fadeInRight 0.8s ease both 0.2s', animationFillMode: 'both' }}
-          >
-            <div className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] max-w-full">
-              {/* Outer rings */}
-              <div className="orb-ring absolute inset-0 border-[#4F8EF7]/20" style={{ animationDuration: '20s' }} />
-              <div className="orb-ring orb-ring-reverse absolute inset-3 sm:inset-4 border-[#8B5CF6]/15" style={{ animationDuration: '15s' }} />
-              <div className="orb-ring absolute inset-6 sm:inset-8 border-[#06B6D4]/10" style={{ animationDuration: '25s' }} />
-
-              {/* Dashed orbit */}
-              <div
-                className="absolute inset-0 rounded-full border border-dashed border-[#4F8EF7]/10"
-                style={{ animation: 'orbRotate 30s linear infinite' }}
-              />
-
-              {/* Orbit dots */}
-              <div className="absolute inset-0" style={{ animation: 'orbRotate 8s linear infinite' }}>
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#4F8EF7] shadow-[0_0_15px_rgba(79,142,247,0.9)]" />
-              </div>
-              <div className="absolute inset-0" style={{ animation: 'orbRotateReverse 12s linear infinite' }}>
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#8B5CF6] shadow-[0_0_12px_rgba(139,92,246,0.9)]" />
-              </div>
-              <div className="absolute inset-8" style={{ animation: 'orbRotate 6s linear infinite' }}>
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#06B6D4] shadow-[0_0_10px_rgba(6,182,212,0.9)]" />
-              </div>
-              <div className="absolute inset-12" style={{ animation: 'orbRotateReverse 9s linear infinite' }}>
-                <div className="absolute bottom-0 right-1/4 w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_10px_rgba(16,185,129,0.9)]" />
-              </div>
-
-              {/* Core orb */}
-              <div
-                className="absolute inset-12 sm:inset-16 rounded-full flex items-center justify-center"
-                style={{
-                  background: 'radial-gradient(circle at 35% 35%, rgba(79,142,247,0.7) 0%, rgba(139,92,246,0.5) 40%, rgba(6,182,212,0.2) 70%, transparent 100%)',
-                  boxShadow: '0 0 80px rgba(79,142,247,0.35), 0 0 160px rgba(79,142,247,0.12), inset 0 0 50px rgba(255,255,255,0.06)',
-                  animation: 'orbPulse 4s ease-in-out infinite',
-                }}
-              >
-                <div
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full"
-                  style={{
-                    background: 'radial-gradient(circle, rgba(255,255,255,0.25) 0%, rgba(79,142,247,0.4) 50%, transparent 100%)',
-                    animation: 'orbPulse 4s ease-in-out infinite 1s',
-                  }}
+            {/* CRO Weapon: Hero Fast Audit Input Bar */}
+            <form
+              onSubmit={handleQuickAuditSubmit}
+              className="bg-white p-2 sm:p-2.5 rounded-2xl border border-slate-300 shadow-xl shadow-slate-200/60 max-w-xl mx-auto lg:mx-0 mb-6 flex flex-col sm:flex-row gap-2"
+            >
+              <div className="relative flex-1 flex items-center">
+                <Search className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={domainInput}
+                  onChange={(e) => setDomainInput(e.target.value)}
+                  placeholder={
+                    lang === 'tr'
+                      ? 'sirketiniz.com (veya rakibinizin sitesi)'
+                      : lang === 'de'
+                      ? 'ihre-domain.de (oder Wettbewerber)'
+                      : 'yourdomain.com (or competitor)'
+                  }
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 rounded-xl text-slate-900 text-sm placeholder-slate-400 border border-slate-200 focus:outline-none focus:bg-white focus:border-blue-500 transition-colors"
                 />
               </div>
+              <Button
+                variant="primary"
+                size="md"
+                type="submit"
+                className="font-bold whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-md shadow-blue-600/20"
+              >
+                <span>{lang === 'tr' ? 'Canlı Analiz Et' : lang === 'de' ? 'Live Analysieren' : 'Scan Live Site'}</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </form>
 
-              {/* Floating Tech Badges - Positioned within bounds for mobile */}
-              <TechBadge label="AI Agent" icon="🤖" color="#8B5CF6" style={{ top: '4%', right: '2%', animation: 'float 7s ease-in-out infinite' }} />
-              <TechBadge label="Next.js" icon="▲" color="#4F8EF7" style={{ bottom: '6%', left: '4%', animation: 'float 5s ease-in-out infinite 1s' }} />
-              <TechBadge label="OpenAI" icon="⚡" color="#10B981" style={{ top: '38%', left: '2%', animation: 'float 6s ease-in-out infinite 0.5s' }} />
-              <TechBadge label="n8n" icon="🔄" color="#F59E0B" style={{ top: '8%', left: '18%', animation: 'float 8s ease-in-out infinite 2s' }} />
+            {/* Quick Proof Signals */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-medium text-slate-600">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                {lang === 'tr' ? 'Kredi kartı gerekmez' : lang === 'de' ? 'Keine Kreditkarte' : 'No credit card'}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                {lang === 'tr' ? '3 Saniyede Gerçek HTTP & SSL Taraması' : lang === 'de' ? 'Echter Live-Scan in 3 Sek.' : 'Real HTTP & SSL scan in 3s'}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                {lang === 'tr' ? 'DIN ISO 25010 Uyumlu' : lang === 'de' ? 'DIN ISO 25010 konform' : 'DIN ISO 25010 Standard'}
+              </span>
             </div>
           </div>
+
+          {/* ── Right Column: Autonomous Command Center (5 Cols) ─────── */}
+          <div className="lg:col-span-5 w-full">
+            <div className="relative rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl shadow-slate-950/20">
+              
+              {/* Window Header */}
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-rose-500/90" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500/90" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-500/90" />
+                  <span className="text-xs font-mono text-slate-300 ml-2">starwebflow-node-01 [DEDICATED VPS • TIER-4 ISO 27001]</span>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono text-emerald-400">
+                  <Activity className="w-3 h-3 animate-pulse" />
+                  99.98% SLA
+                </div>
+              </div>
+
+              {/* Module 1: Dedicated Ollama Cluster */}
+              <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Cpu className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-bold text-white">Private Ollama Cluster</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                    Local Inference
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center pt-1">
+                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                    <p className="text-[10px] text-slate-400">Model</p>
+                    <p className="text-xs font-mono font-bold text-slate-200 truncate">starwebflow</p>
+                  </div>
+                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                    <p className="text-[10px] text-slate-400">Latency</p>
+                    <p className="text-xs font-mono font-bold text-emerald-400">18ms</p>
+                  </div>
+                  <div className="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                    <p className="text-[10px] text-slate-400">Data Leakage</p>
+                    <p className="text-xs font-mono font-bold text-emerald-400">0.00%</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Module 2: Sub-Second Telemetry */}
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-3.5 h-3.5 text-blue-400" />
+                    <span className="text-[11px] font-semibold text-slate-300">LCP Benchmark</span>
+                  </div>
+                  <p className="text-lg font-bold text-white font-mono">0.68s</p>
+                  <p className="text-[10px] text-emerald-400 font-medium">● 4.2x faster than WP</p>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-[11px] font-semibold text-slate-300">Enterprise Privacy</span>
+                  </div>
+                  <p className="text-lg font-bold text-white font-mono">DSGVO A+</p>
+                  <p className="text-[10px] text-slate-400">Frankfurt Datacenter</p>
+                </div>
+              </div>
+
+              {/* Module 3: Real-Time Event Pipeline Simulator */}
+              <div className="p-3 rounded-xl bg-slate-950/90 border border-slate-800 font-mono text-[11px]">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
+                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Terminal className="w-3 h-3 text-slate-400" />
+                    Live Autonomous Event Stream
+                  </span>
+                  <span className="text-[9px] text-emerald-400 flex items-center gap-1 font-semibold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    Live Sync
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  {pipelineLogs.map((log, index) => {
+                    const isActive = index === activeLogIndex
+                    return (
+                      <div
+                        key={index}
+                        className={`p-1.5 rounded-lg transition-all duration-300 flex items-start gap-2 ${
+                          isActive
+                            ? 'bg-slate-850 border border-slate-700 text-white'
+                            : 'opacity-40 text-slate-400'
+                        }`}
+                      >
+                        <span className="text-[10px] text-slate-400 shrink-0">{log.time}</span>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border shrink-0 ${log.color}`}>
+                          {log.tag}
+                        </span>
+                        <span className="truncate text-[10px]">{log.text}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
 
-        {/* ── Metrics Ticker ─────────────────────────────────────────── */}
-        <div className="mt-16 sm:mt-20 relative w-full overflow-hidden max-w-full" aria-label="Key performance metrics">
-          {/* Fade edges */}
-          <div className="absolute left-0 top-0 w-12 sm:w-20 h-full bg-gradient-to-r from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 w-12 sm:w-20 h-full bg-gradient-to-l from-white dark:from-[#0A0A0F] to-transparent z-10 pointer-events-none" />
-
+        {/* ── Metrics Ticker (Light Theme) ───────────────────────────── */}
+        <div className="mt-14 sm:mt-18 relative w-full overflow-hidden max-w-full" aria-label="Key performance metrics">
           <div className="overflow-hidden w-full">
-            <div className="metrics-ticker flex gap-4 sm:gap-8 w-max">
+            <div className="metrics-ticker flex gap-4 sm:gap-6 w-max">
               {[...TICKER_METRICS, ...TICKER_METRICS].map((metric, i) => {
                 const Icon = metric.icon
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-3 px-6 py-3 glass rounded-xl border border-slate-200/80 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.12] transition-all duration-300 group shrink-0 shadow-sm"
+                    className="flex items-center gap-3 px-5 py-2.5 rounded-xl bg-white border border-slate-200/90 shadow-sm shrink-0"
                   >
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                       style={{ background: `${metric.color}15`, border: `1px solid ${metric.color}30` }}
                     >
                       <Icon className="w-4 h-4" style={{ color: metric.color }} aria-hidden="true" />
                     </div>
                     <div>
-                      <p className="text-sm font-black text-white font-['Outfit']" style={{ color: metric.color }}>
+                      <p className="text-sm font-black font-mono text-slate-900" style={{ color: metric.color }}>
                         {metric.value}
                       </p>
-                      <p className="text-[10px] text-[#64748B] font-medium whitespace-nowrap">
+                      <p className="text-[11px] text-slate-600 font-semibold whitespace-nowrap">
                         {metric.label[lang] || metric.label.tr}
                       </p>
                     </div>
@@ -273,44 +341,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[#475569]">
-          <span className="text-xs font-medium tracking-widest uppercase">
-            {lang === 'tr' ? 'Keşfet' : lang === 'de' ? 'Entdecken' : 'Explore'}
-          </span>
-          <div
-            className="w-5 h-8 rounded-full border border-[#475569]/50 flex items-start justify-center pt-1.5 cursor-pointer hover:border-[#4F8EF7]/50 transition-colors"
-            onClick={() => handleScroll('#trust')}
-            role="button"
-            aria-label="Scroll down"
-            tabIndex={0}
-          >
-            <div className="w-1 h-2 bg-[#4F8EF7] rounded-full" style={{ animation: 'float 1.5s ease-in-out infinite' }} />
-          </div>
-        </div>
       </div>
     </section>
-  )
-}
-
-// ── Tech Badge Component ─────────────────────────────────────────────────
-function TechBadge({
-  label, icon, color, style,
-}: {
-  label: string; icon: string; color: string; style: React.CSSProperties
-}) {
-  return (
-    <div
-      className="absolute bg-white/95 rounded-xl px-3 py-2 flex items-center gap-2 border border-slate-200/90 shadow-md backdrop-blur-md"
-      style={{
-        ...style,
-        borderColor: `${color}40`,
-        boxShadow: `0 8px 24px -4px ${color}20, 0 2px 8px rgba(0,0,0,0.06)`,
-      }}
-    >
-      <span className="text-sm" aria-hidden="true">{icon}</span>
-      <span className="text-xs font-bold text-slate-800 whitespace-nowrap">{label}</span>
-      <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: color }} />
-    </div>
   )
 }

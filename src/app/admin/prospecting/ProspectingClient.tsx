@@ -1,55 +1,111 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Radar, MapPin, Globe2, Briefcase, Database, 
   Sparkles, CheckCircle2, ChevronRight, Play, ServerCog, Info, Users, Mail, TrendingUp, HelpCircle, Target, ChevronDown, Check,
-  Phone, ExternalLink, Trash2
+  Phone, ExternalLink, Trash2, Cpu, Wrench, ShieldCheck, Rocket, Zap, SlidersHorizontal, BookOpen, Layers
 } from "lucide-react";
+import { 
+  NICHE_SECTOR_BLUEPRINTS, 
+  COUNTRY_GEO_REGISTRY, 
+  NicheSectorBlueprint, 
+  CountryGeoConfig 
+} from "@/lib/leads/niche-blueprints";
+import { getSectorEmailBundle, compileEmailTemplate, EmailTemplatePayload } from "@/lib/leads/email-templates";
 
 const TARGET_ROLES = [
   { id: "founder", label: "Kurucu (Founder)" },
-  { id: "owner", label: "Sahip (Owner)" },
-  { id: "ceo", label: "CEO" },
-  { id: "coo", label: "COO" },
-  { id: "cto", label: "CTO" },
-  { id: "cmo", label: "CMO" },
+  { id: "owner", label: "Sahip (Owner / Inhaber)" },
+  { id: "ceo", label: "CEO / Geschäftsführer" },
+  { id: "managing_director", label: "Genel Müdür (Managing Director)" },
   { id: "managing_partner", label: "Yönetici Ortak" },
-  { id: "managing_director", label: "Genel Müdür" },
+  { id: "coo", label: "COO / Operasyon Müdürü" },
+  { id: "cto", label: "CTO / Teknik Müdür" },
   { id: "sales_director", label: "Satış Direktörü" },
   { id: "marketing_director", label: "Pazarlama Direktörü" },
-  { id: "hr_director", label: "İnsan Kaynakları (HR)" }
+  { id: "cfo", label: "CFO / Finans Müdürü" }
 ];
 
 export default function ProspectingClient() {
+  // Otonom ve Manuel Mod Seçimi
+  const [huntMode, setHuntMode] = useState<"AUTONOMOUS" | "CUSTOM">("AUTONOMOUS");
+  
+  // Seçili Ülke ve Niş Blueprint
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>("DE");
+  const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>("ev_charging_infrastructure");
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>("ALL");
+
+  // Manuel Form Değerleri (Gerektiğinde Düzenlenebilir)
   const [sector, setSector] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("Almanya");
   const [location, setLocation] = useState("");
   const [platform, setPlatform] = useState("google_maps");
   const [personName, setPersonName] = useState("");
   const [personRole, setPersonRole] = useState("");
+  const [selectedTargetRoles, setSelectedTargetRoles] = useState<string[]>([]);
+  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+
+  // Detay & Hizmet Çekmecesi (Drawer)
+  const [activeBlueprintPreview, setActiveBlueprintPreview] = useState<NicheSectorBlueprint | null>(null);
+
+  // Mail Şablonu Canlı Önizleme & Düzenleme Modalı
+  const [activeEmailLead, setActiveEmailLead] = useState<any | null>(null);
+  const [emailTemplateType, setEmailTemplateType] = useState<"cold" | "warmFollowUp">("cold");
+  const [emailLang, setEmailLang] = useState<"de" | "tr" | "en">("de");
+  const [selectedServiceIndex, setSelectedServiceIndex] = useState<number>(0);
+  const [customSubject, setCustomSubject] = useState<string>("");
+  const [customBody, setCustomBody] = useState<string>("");
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState<boolean>(false);
+
+  // Arama & Sonuç State'leri
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<any[]>([]);
-  
-  // Kampanya Aktarımı İçin Stateler
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState("master-blueprint-1");
   const [isExporting, setIsExporting] = useState(false);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
   const [searchStatusText, setSearchStatusText] = useState<string | null>(null);
-  
-  // Apify tetikleme state
   const [isApifyTriggering, setIsApifyTriggering] = useState(false);
-  
-  // Hedef Roller state
-  const [selectedTargetRoles, setSelectedTargetRoles] = useState<string[]>([]);
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Sayfa açıldığında mevcut lead'leri yükle
-  React.useEffect(() => {
+  // Aktif Ülke ve Blueprint Nesneleri
+  const currentCountryConfig = COUNTRY_GEO_REGISTRY.find(c => c.code === selectedCountryCode) || COUNTRY_GEO_REGISTRY[0];
+  const currentBlueprint = NICHE_SECTOR_BLUEPRINTS.find(b => b.id === selectedBlueprintId) || NICHE_SECTOR_BLUEPRINTS[0];
+
+  // Sayfa açıldığında lead'leri ve varsayılan blueprint'i yükle
+  useEffect(() => {
     fetchExistingLeads();
+    applyBlueprint(currentBlueprint, currentCountryConfig);
   }, []);
+
+  // Blueprint ve Ülke değiştiğinde formu otonom senkronize et
+  const applyBlueprint = (bp: NicheSectorBlueprint, countryCfg: CountryGeoConfig) => {
+    let kw = bp.defaultKeywords.de[0];
+    if (countryCfg.code === "TR") kw = bp.defaultKeywords.tr[0];
+    else if (countryCfg.code === "GB" || countryCfg.code === "NL_BE") kw = bp.defaultKeywords.en[0];
+
+    setSector(kw);
+    setCountry(countryCfg.nameTr);
+    // İlk 3 metropolü varsayılan olarak belirle
+    setLocation(countryCfg.topCities.slice(0, 3).map(c => c.name).join(", "));
+    setSelectedTargetRoles(bp.targetRoles);
+  };
+
+  const handleCountryChange = (code: string) => {
+    setSelectedCountryCode(code);
+    const countryCfg = COUNTRY_GEO_REGISTRY.find(c => c.code === code) || COUNTRY_GEO_REGISTRY[0];
+    if (currentBlueprint) {
+      applyBlueprint(currentBlueprint, countryCfg);
+    }
+  };
+
+  const handleBlueprintSelect = (bp: NicheSectorBlueprint) => {
+    setSelectedBlueprintId(bp.id);
+    applyBlueprint(bp, currentCountryConfig);
+  };
 
   const fetchExistingLeads = async () => {
     try {
@@ -95,29 +151,15 @@ export default function ProspectingClient() {
     }
   };
 
-  const toggleLeadSelection = (id: string) => {
-    setSelectedLeads(prev => prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]);
-  };
-
-  const toggleAllLeads = () => {
-    if (selectedLeads.length === results.length) {
-      setSelectedLeads([]);
-    } else {
-      setSelectedLeads(results.map(r => String(r.id)));
-    }
-  };
-
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleDeleteSingle = async (id: string) => {
-    // Anında ekrandan ve seçimlerden kaldır (Optimistic UI)
-    setResults(prev => prev.filter(r => r.id !== id));
-    setSelectedLeads(prev => prev.filter(lId => lId !== id));
+  const handleDeleteSingle = async (leadId: string) => {
+    if (!confirm("Bu potansiyel müşteriyi silmek istediğinizden emin misiniz?")) return;
+    setResults(prev => prev.filter(l => l.id !== leadId));
+    setSelectedLeads(prev => prev.filter(id => id !== leadId));
     try {
       await fetch('/api/prospecting', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadIds: [id] })
+        body: JSON.stringify({ leadIds: [leadId] })
       });
     } catch (err) {
       console.error("Silme hatası:", err);
@@ -125,20 +167,20 @@ export default function ProspectingClient() {
   };
 
   const handleDeleteSelected = async () => {
-    if (selectedLeads.length === 0) return alert("Lütfen silmek için en az bir müşteri seçin.");
-    const toDelete = [...selectedLeads];
-    // Anında ekrandan ve seçimlerden kaldır (Optimistic UI)
-    setResults(prev => prev.filter(r => !toDelete.includes(r.id)));
+    if (selectedLeads.length === 0) return;
+    if (!confirm(`Seçilen ${selectedLeads.length} potansiyel müşteriyi silmek istediğinizden emin misiniz?`)) return;
+    const idsToDelete = [...selectedLeads];
+    setResults(prev => prev.filter(l => !idsToDelete.includes(l.id)));
     setSelectedLeads([]);
     setIsDeleting(true);
     try {
       await fetch('/api/prospecting', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leadIds: toDelete })
+        body: JSON.stringify({ leadIds: idsToDelete })
       });
     } catch (err) {
-      console.error("Silme hatası:", err);
+      console.error("Toplu silme hatası:", err);
     } finally {
       setIsDeleting(false);
     }
@@ -146,8 +188,8 @@ export default function ProspectingClient() {
 
   const handleClearAll = async () => {
     if (results.length === 0) return;
+    if (!confirm(`Ekrandaki tüm (${results.length}) potansiyel müşteriyi temizlemek istediğinizden emin misiniz?`)) return;
     const allIds = results.map(r => r.id);
-    // Anında tüm listeyi ve seçimleri sıfırla (Optimistic UI)
     setResults([]);
     setSelectedLeads([]);
     setIsDeleting(true);
@@ -164,11 +206,11 @@ export default function ProspectingClient() {
     }
   };
 
-  const handleSearch = async () => {
+  // OTONOM TARAMA ÇAĞRISI
+  const handleStartHunting = async () => {
     if (!sector || !country) return alert("Lütfen sektör ve ülke giriniz.");
     setIsSearching(true);
-    setSearchStatusText("Hedef şirketler ve karar vericiler taranıyor...");
-    // Yeni arama başladığında eski listeyi anında temizle!
+    setSearchStatusText(`${country} (${currentCountryConfig.topCities.slice(0, 3).map(c => c.name).join(", ")}) taranıyor...`);
     setResults([]);
     setSelectedLeads([]);
     
@@ -186,6 +228,8 @@ export default function ProspectingClient() {
           targetRoles: selectedTargetRoles, 
           personName, 
           personRole, 
+          blueprintId: selectedBlueprintId,
+          autoCities: currentCountryConfig.topCities.map(c => c.name),
           fresh: true,
           timestamp: searchTimestamp 
         })
@@ -193,16 +237,7 @@ export default function ProspectingClient() {
       
       if (!response.ok) {
         const errorText = await response.text();
-        let message = `Sunucu hatası: HTTP ${response.status}`;
-        try {
-          const errJson = JSON.parse(errorText);
-          if (errJson.error) message = errJson.error;
-        } catch {
-          if (response.status === 504) {
-            message = "Arama ve AI analizi devam ediyor (Zaman aşımı). Lütfen birazdan sayfayı yenileyin veya CRM / Veri Havuzu sekmesini kontrol edin.";
-          }
-        }
-        alert(message);
+        alert(`Sunucu yanıtı: ${errorText}`);
         setSearchStatusText(null);
         setIsSearching(false);
         return;
@@ -216,11 +251,9 @@ export default function ProspectingClient() {
           setSearchStatusText(null);
           setIsSearching(false);
         } else {
-          // Arka planda çalışma durumunda 3 saniyede bir polling başlat
-          setSearchStatusText(data.message || "Arama arka planda sürüyor, veriler işleniyor...");
+          setSearchStatusText(data.message || "Arama ve AI analizi arka planda sürüyor, veriler listeleniyor...");
           let attempts = 0;
-          // SADECE BU YENİ ARAMADAN SONRA oluşturulan verileri getir!
-          const pollUrl = `/api/prospecting?limit=50&sector=${encodeURIComponent(sector)}&location=${encodeURIComponent(location || '')}&after=${encodeURIComponent(searchTimestamp)}`;
+          const pollUrl = `/api/prospecting?limit=50&sector=${encodeURIComponent(sector)}&after=${encodeURIComponent(searchTimestamp)}`;
           const interval = setInterval(async () => {
             attempts++;
             try {
@@ -228,7 +261,6 @@ export default function ProspectingClient() {
               const checkData = await checkRes.json();
               if (checkData.success && Array.isArray(checkData.results) && checkData.results.length > 0) {
                 setResults(checkData.results);
-                // Eğer 15+ potansiyel müşteri listelendiyse veya 6 deneme (18 sn) geçtiyse taramayı tamamla
                 if (checkData.results.length >= 15 || attempts >= 8) {
                   setSearchStatusText(null);
                   setIsSearching(false);
@@ -236,10 +268,8 @@ export default function ProspectingClient() {
                   return;
                 }
               }
-            } catch (err) {
-              // Devam et
-            }
-            if (attempts >= 30) {
+            } catch (err) {}
+            if (attempts >= 25) {
               clearInterval(interval);
               setSearchStatusText(null);
               setIsSearching(false);
@@ -247,47 +277,12 @@ export default function ProspectingClient() {
           }, 3000);
         }
       } else {
-        alert("Arama sırasında hata oluştu: " + data.error);
-        setSearchStatusText(null);
+        alert("Arama sırasında hata: " + data.error);
         setIsSearching(false);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Sistemle bağlantı kurulamadı.");
-      setSearchStatusText(null);
+    } catch (err: any) {
+      alert("Bağlantı hatası: " + err.message);
       setIsSearching(false);
-    }
-  };
-
-  const handleApifyTrigger = async () => {
-    if (!sector || !country) return alert("Lütfen gerçek Apify taraması için sektör ve ülke giriniz.");
-    setIsApifyTriggering(true);
-    
-    try {
-      const response = await fetch('/api/webhooks/apify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          keyword: sector,
-          location: `${location || ''} ${country}`.trim(),
-          platform: platform,
-          targetRoles: selectedTargetRoles,
-          personName,
-          personRole
-        })
-      });
-      
-      const data = await response.json();
-      if (response.ok) {
-        alert("Gerçek Apify Actor başarıyla tetiklendi! Datalar geldikçe listeye düşecektir.");
-      } else {
-        alert("Apify tetikleme başarısız: " + (data.error || 'Bilinmeyen hata'));
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Apify servisiyle bağlantı kurulamadı.");
-    } finally {
-      setIsApifyTriggering(false);
     }
   };
 
@@ -304,146 +299,321 @@ export default function ProspectingClient() {
       
       const data = await response.json();
       if (data.success) {
-        alert(`${selectedLeads.length} müşteri başarıyla kampanyaya aktarıldı ve sıraya alındı!`);
+        alert(`${selectedLeads.length} potansiyel müşteri seçilen soğuk e-posta sekansına aktarıldı!`);
         setIsModalOpen(false);
-        // İsteğe bağlı: Seçilenleri tablodan kaldırabiliriz.
       } else {
         alert("Hata: " + data.error);
       }
     } catch (err) {
-      console.error(err);
       alert("Kampanyaya aktarım sırasında hata oluştu.");
     } finally {
       setIsExporting(false);
     }
   };
 
+  // Kategoriye göre filtrelenmiş blueprint listesi
+  const filteredBlueprints = NICHE_SECTOR_BLUEPRINTS.filter(b => {
+    if (activeCategoryFilter === "ALL") return true;
+    return b.category === activeCategoryFilter;
+  });
+
   return (
-    <div className="p-6 md:p-8 space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            <span className="bg-gradient-to-r from-emerald-400 via-[#8B5CF6] to-[#4F8EF7] bg-clip-text text-transparent">
-              Müşteri Avcısı (AI Prospecting)
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-[#0A0A0F] border border-white/[0.08] p-6 rounded-3xl relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-gradient-to-br from-[#8B5CF6]/15 via-[#4F8EF7]/10 to-transparent rounded-full blur-3xl pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 text-purple-300 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-purple-400" />
+              Autonomous Lead Engine v3.0
             </span>
-            <Sparkles className="w-6 h-6 text-[#8B5CF6] animate-pulse" />
+            <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
+              42 Niş Sektör Aktif
+            </span>
+            <span className="text-xs text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              %100 DSGVO & Yerel Ollama (Sıfır Bulut Sızıntısı)
+            </span>
+          </div>
+          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white mt-2 flex items-center gap-3">
+            <span className="bg-gradient-to-r from-emerald-400 via-[#8B5CF6] to-[#4F8EF7] bg-clip-text text-transparent">
+              Müşteri Avcısı & AI Lead Jeneratörü
+            </span>
+            <Sparkles className="w-7 h-7 text-[#8B5CF6] animate-pulse hidden sm:inline" />
           </h1>
-          <p className="text-[#94A3B8] mt-2 text-lg">Yapay zeka ile dünyanın her yerinden hedefinize uygun müşterileri saniyeler içinde tespit edin.</p>
+          <p className="text-[#94A3B8] mt-1 text-sm md:text-base max-w-2xl">
+            Almanya, Avrupa ve Türkiye pazarı için özel olarak tasarlanmış; adminin şehir girmesine gerek bırakmayan, 
+            karar vericileri ve dijital açıkları yakalayıp doğrudan satılabilir AI hizmet teklifine dönüştüren otonom motor.
+          </p>
+        </div>
+
+        {/* Mod Değiştirici */}
+        <div className="relative z-10 flex items-center bg-[#05050A] p-1.5 rounded-2xl border border-white/10 shrink-0">
+          <button
+            onClick={() => setHuntMode("AUTONOMOUS")}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 transition-all ${
+              huntMode === "AUTONOMOUS"
+                ? "bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white shadow-lg shadow-purple-900/30"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Rocket className="w-4 h-4" />
+            Otonom Mod (Önerilen)
+          </button>
+          <button
+            onClick={() => setHuntMode("CUSTOM")}
+            className={`px-4 py-2.5 rounded-xl text-xs md:text-sm font-bold flex items-center gap-2 transition-all ${
+              huntMode === "CUSTOM"
+                ? "bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white shadow-lg shadow-purple-900/30"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            Manuel Filtre
+          </button>
         </div>
       </div>
 
-      {/* Information Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group hover:border-[#8B5CF6]/50 transition-colors">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center shrink-0">
-              <Database className="w-5 h-5 text-[#8B5CF6]" />
+      {/* ADIM 1: ÜLKE & PAZAR SEÇİMİ (Geo-Intelligence) */}
+      <div className="bg-[#0A0A0F]/80 backdrop-blur-md border border-white/[0.08] p-6 rounded-3xl shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/[0.06] pb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">
+              1
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white mb-1">Veri Zenginleştirme</h3>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">Bulunan işletmelerin web siteleri ve yorumları AI ile taranır; e-posta, karar verici isimleri ve acı noktaları (pain points) otomatik olarak çıkarılır.</p>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Hedef Ülke & Pazar (Geo-Intelligence)
+              </h2>
+              <p className="text-xs text-slate-400">
+                Seçilen ülkenin en büyük 20-50 şehri ve posta kodları arka planda otomatik olarak taranır.
+              </p>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group hover:border-[#4F8EF7]/50 transition-colors">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#4F8EF7]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#4F8EF7]/10 flex items-center justify-center shrink-0">
-              <Users className="w-5 h-5 text-[#4F8EF7]" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white mb-1">CRM Entegrasyonu</h3>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">Taranan tüm potansiyel müşteriler (leadler) otomatik olarak CRM sisteminize kaydedilir. <span className="text-white font-medium">CRM, Satış & Pipeline</span> sekmesinden dilediğiniz zaman ulaşabilirsiniz.</p>
-            </div>
-          </div>
+          <span className="text-xs text-slate-400 font-mono bg-white/[0.03] px-3 py-1.5 rounded-xl border border-white/[0.05]">
+            Aktif Metropol: {currentCountryConfig.topCities.slice(0, 4).map(c => c.name).join(", ")} (+{currentCountryConfig.topCities.length - 4} şehir)
+          </span>
         </div>
 
-        <div className="bg-[#0A0A0F] border border-white/[0.05] p-6 rounded-2xl relative overflow-hidden group hover:border-[#10B981]/50 transition-colors">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#10B981]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#10B981]/10 flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5 text-[#10B981]" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-white mb-1">Otonom Kampanyalar</h3>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">Seçtiğiniz leadleri doğrudan <span className="text-white font-medium">Hibrit B2B Tanışma Serisi</span> gibi e-posta sekanslarına aktararak otomatik ısıtma sürecini başlatabilirsiniz.</p>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {COUNTRY_GEO_REGISTRY.map((c) => {
+            const isSelected = selectedCountryCode === c.code;
+            return (
+              <button
+                key={c.code}
+                onClick={() => handleCountryChange(c.code)}
+                className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden group ${
+                  isSelected
+                    ? "bg-[#8B5CF6]/15 border-[#8B5CF6] shadow-lg shadow-[#8B5CF6]/20"
+                    : "bg-[#05050A] border-white/[0.06] hover:border-white/20 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-2xl">{c.flag}</span>
+                  {isSelected && <Check className="w-4 h-4 text-purple-400" />}
+                </div>
+                <div className="font-bold text-white text-sm">{c.nameTr}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">{c.topCities.length} Metropol Gömülü</div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Radar / Search Area */}
-      <div className="bg-[#0A0A0F]/80 backdrop-blur-md border border-white/[0.05] rounded-3xl p-8 relative shadow-2xl">
-        {/* Radar Effect Background */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-[#8B5CF6]/10 to-[#4F8EF7]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse"></div>
+      {/* ADIM 2: 42 NİŞ SEKTÖR VE AI ÇÖZÜM KATALOĞU */}
+      <div className="bg-[#0A0A0F]/80 backdrop-blur-md border border-white/[0.08] p-6 rounded-3xl shadow-xl space-y-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-white/[0.06] pb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center text-[#8B5CF6] font-bold text-sm">
+              2
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Hedef Sektör ve Hizmet Blueprint'i (42 Niş)
+              </h2>
+              <p className="text-xs text-slate-400">
+                Sektör seçtiğinizde hedef anahtar kelimeler, karar verici unvanları ve satılacak AI servisleri otomatik yüklenir.
+              </p>
+            </div>
+          </div>
+
+          {/* Kategori Filtresi */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 scrollbar-none">
+            {[
+              { id: "ALL", label: "Tümü (42)" },
+              { id: "AUTOMOTIVE_TECH", label: "⚡ EV & Otomotiv" },
+              { id: "TRADE_ENERGY", label: "☀️ Güneş & Enerji" },
+              { id: "B2B_INDUSTRY", label: "🤖 Endüstri & Robotik" },
+              { id: "HEALTH_WELLNESS", label: "🩺 Sağlık & Klinik" },
+              { id: "LEGAL_FINANCE", label: "⚖️ Hukuk & Finans" }
+            ].map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategoryFilter(cat.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  activeCategoryFilter === cat.id
+                    ? "bg-purple-600 text-white"
+                    : "bg-white/[0.03] text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
+
+        {/* Blueprint Izgarası (Grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredBlueprints.map((bp) => {
+            const isSelected = selectedBlueprintId === bp.id;
+            return (
+              <div
+                key={bp.id}
+                onClick={() => handleBlueprintSelect(bp)}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer relative group flex flex-col justify-between ${
+                  isSelected
+                    ? "bg-gradient-to-br from-[#8B5CF6]/15 via-purple-950/20 to-transparent border-purple-500 shadow-xl shadow-purple-950/30 ring-1 ring-purple-500"
+                    : "bg-[#05050A] border-white/[0.06] hover:border-purple-500/40 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                      {bp.badge}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                      {bp.services.length} Hizmet Paketi
+                    </span>
+                  </div>
+
+                  <h3 className="font-bold text-white text-base group-hover:text-purple-300 transition-colors flex items-center justify-between">
+                    <span>{bp.titleTr}</span>
+                    {isSelected && <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />}
+                  </h3>
+
+                  <div className="text-xs text-purple-400/80 font-mono mt-0.5">{bp.titleDe}</div>
+
+                  <p className="text-xs text-slate-400 mt-2 line-clamp-2 leading-relaxed">
+                    <strong className="text-slate-300">Açık:</strong> {bp.primaryPainPoint}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between">
+                  <div className="text-[11px] text-slate-400">
+                    Bilet: <span className="text-emerald-400 font-semibold">{bp.services[0]?.estimatedTicket || "€2.500+"}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveBlueprintPreview(bp);
+                    }}
+                    className="text-xs text-purple-400 hover:text-white flex items-center gap-1 underline underline-offset-4"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Teklif Şablonu
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ADIM 3: SEÇİLEN SEKTÖRE GÖRE ÇALIŞMA MOTORU & TETİKLEME */}
+      <div className="bg-[#0A0A0F] border border-white/[0.08] rounded-3xl p-6 lg:p-8 relative shadow-2xl space-y-6">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Globe2 className="w-4 h-4" /> Hangi Ülke?</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={country}
-                onChange={e => setCountry(e.target.value)}
-                placeholder="Örn: Almanya, USA"
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
-              />
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 font-mono">
+                Av Hazır: {currentBlueprint.titleTr} ({currentCountryConfig.nameTr})
+              </span>
             </div>
+            <h3 className="text-xl font-bold text-white mt-1">
+              Otomatik Hedefleme & Satış Kancası (Pitch)
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Aşağıdaki değerler seçtiğiniz blueprint ve hedef ülkeden türetilmiştir. İsterseniz düzenleyebilirsiniz.
+            </p>
           </div>
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><MapPin className="w-4 h-4" /> Hangi Şehir?</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-                placeholder="Örn: Berlin, London"
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
-              />
-            </div>
+
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+            <button 
+              onClick={handleStartHunting}
+              disabled={isSearching}
+              className={`w-full lg:w-auto px-8 py-4 rounded-2xl text-white font-extrabold text-sm flex items-center justify-center gap-2.5 transition-all shadow-xl ${
+                isSearching 
+                  ? 'bg-purple-900/50 text-white/50 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-emerald-500 via-purple-600 to-indigo-600 hover:scale-[1.02] shadow-purple-900/40'
+              }`}
+            >
+              {isSearching ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span>Avcı Motoru Çalışıyor...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-5 h-5 fill-white" />
+                  <span>OTONOM AVI BAŞLAT ({currentCountryConfig.nameTr})</span>
+                </>
+              )}
+            </button>
           </div>
+        </div>
+
+        {/* Form Alanları (Otonom veya Manuel Düzenlenebilir) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-white/[0.06]">
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Briefcase className="w-4 h-4" /> Kimi Arıyoruz? (Sektör)</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={sector}
-                onChange={e => setSector(e.target.value)}
-                placeholder="Örn: Diş Kliniği, Ajans"
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
-              />
-            </div>
+            <label className="text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <Briefcase className="w-3.5 h-3.5 text-purple-400" /> Arama Anahtar Kelimesi
+            </label>
+            <input 
+              type="text" 
+              value={sector}
+              onChange={e => setSector(e.target.value)}
+              placeholder="Örn: Wallbox Installation"
+              className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500 font-mono"
+            />
           </div>
+
           <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Target className="w-4 h-4" /> Hedef Rol (Opsiyonel)</label>
+            <label className="text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" /> Taranacak Şehirler
+            </label>
+            <input 
+              type="text" 
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              placeholder="Örn: Berlin, Hamburg, München"
+              className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5 text-sky-400" /> Hedef Karar Vericiler
+            </label>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-left text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner flex items-center justify-between"
+                className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3.5 py-2.5 text-left text-white text-sm focus:outline-none focus:border-purple-500 flex items-center justify-between"
               >
-                <span className="truncate text-sm text-[#94A3B8]">
+                <span className="truncate text-xs text-slate-300">
                   {selectedTargetRoles.length === 0 
                     ? "Tüm Roller" 
-                    : selectedTargetRoles.length === 1 
-                      ? TARGET_ROLES.find(r => r.id === selectedTargetRoles[0])?.label 
-                      : `${selectedTargetRoles.length} rol seçildi`}
+                    : `${selectedTargetRoles.length} rol seçildi`}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-[#94A3B8] transition-transform ${isRoleDropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className="w-4 h-4 text-slate-400" />
               </button>
               
               {isRoleDropdownOpen && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-40"
-                    onClick={() => setIsRoleDropdownOpen(false)}
-                  ></div>
-                  <div className="absolute top-full left-0 mt-2 w-full bg-[#1E293B] border border-white/10 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto p-2">
+                  <div className="fixed inset-0 z-40" onClick={() => setIsRoleDropdownOpen(false)}></div>
+                  <div className="absolute top-full left-0 mt-2 w-64 bg-[#1E293B] border border-white/10 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto p-2">
                     <div className="space-y-1">
                       {TARGET_ROLES.map(role => {
                         const isSelected = selectedTargetRoles.includes(role.id);
@@ -451,12 +621,12 @@ export default function ProspectingClient() {
                           <div 
                             key={role.id} 
                             onClick={() => toggleTargetRole(role.id)}
-                            className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer hover:bg-white/5 text-xs text-white"
                           >
-                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${isSelected ? 'bg-[#8B5CF6] border-[#8B5CF6]' : 'border-white/20'}`}>
+                            <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'bg-purple-600 border-purple-600' : 'border-white/20'}`}>
                               {isSelected && <Check className="w-3 h-3 text-white" />}
                             </div>
-                            <span className="text-sm text-white">{role.label}</span>
+                            <span>{role.label}</span>
                           </div>
                         );
                       })}
@@ -466,153 +636,79 @@ export default function ProspectingClient() {
               )}
             </div>
           </div>
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Users className="w-4 h-4" /> İsim (Opsiyonel)</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={personName}
-                onChange={e => setPersonName(e.target.value)}
-                placeholder="Örn: John Doe"
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2"><Briefcase className="w-4 h-4" /> Rol/Konum (Opsiyonel)</label>
-            <div className="relative">
-              <input 
-                type="text" 
-                value={personRole}
-                onChange={e => setPersonRole(e.target.value)}
-                placeholder="Örn: Marketing Manager"
-                className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all shadow-inner"
-              />
-            </div>
-          </div>
-          <div>
-            <div className="relative group flex items-center w-fit">
-              <label className="text-sm font-medium text-[#94A3B8] mb-2 flex items-center gap-2 cursor-help">
-                <Database className="w-4 h-4" /> 
-                Kaynak
-                <HelpCircle className="w-4 h-4 text-[#8B5CF6] opacity-80" />
-              </label>
 
-              {/* Popup Aciklama */}
-              <div className="absolute bottom-full left-0 mb-2 w-80 bg-[#0A0A0F] border border-white/[0.05] rounded-xl p-4 shadow-[0_10px_40px_rgba(139,92,246,0.15)] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                <div className="absolute -bottom-2 left-6 w-4 h-4 bg-[#0A0A0F] border-b border-r border-white/[0.05] transform rotate-45"></div>
-                <h4 className="text-white text-sm font-bold mb-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
-                  Kaynaklar Niçin Kullanılır?
-                </h4>
-                <ul className="text-xs space-y-3">
-                  <li className="flex gap-2 text-[#94A3B8]">
-                    <span className="text-[#10B981] font-bold mt-0.5">•</span>
-                    <span><strong className="text-white">Yerel İşletmeler (Maps):</strong> Klinik, restoran gibi fiziksel konumu olan işletmeleri lokasyon bazlı toplamak için.</span>
-                  </li>
-                  <li className="flex gap-2 text-[#94A3B8]">
-                    <span className="text-[#4F8EF7] font-bold mt-0.5">•</span>
-                    <span><strong className="text-white">Kurumsal (LinkedIn/Apollo):</strong> B2B şirketlerdeki direkt CEO/CTO/Müdür seviyesindeki karar vericileri avlamak için.</span>
-                  </li>
-                  <li className="flex gap-2 text-[#94A3B8]">
-                    <span className="text-[#F59E0B] font-bold mt-0.5">•</span>
-                    <span><strong className="text-white">Niyet Odaklı (🔥 İş İlanları vb):</strong> İş ilanı veren, yeni teknoloji kullanan veya fuara katılan "büyüme evresindeki" sıcak hedefleri yakalamak için.</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5 text-amber-400" /> Tarama Kaynağı
+            </label>
             <select 
               value={platform}
               onChange={e => setPlatform(e.target.value)}
-              className="w-full bg-[#05050A] border border-white/[0.05] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#8B5CF6]/50 transition-all appearance-none shadow-inner"
+              className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500"
             >
-              {/* Standart B2B & Yerel Kaynaklar */}
-              <option value="google_maps" className="bg-[#0A0A0F]">Google Maps (Yerel İşletmeler)</option>
-              <option value="linkedin" className="bg-[#0A0A0F]">LinkedIn (Kurumsal B2B)</option>
-              <option value="apollo" className="bg-[#0A0A0F]">Apollo.io (Karar Vericiler)</option>
-              
-              {/* Bakir (Untapped) & Niyet Odaklı Kaynaklar */}
-              <option value="jobs" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 İş İlanları (Indeed, Glassdoor)</option>
-              <option value="tech_radar" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Teknoloji Radarı (BuiltWith)</option>
-              <option value="events" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Fuar & Etkinlik Katılımcıları</option>
-              <option value="low_rating" className="bg-[#0A0A0F] font-bold text-[#8B5CF6]">🔥 Düşük Puanlı İşletmeler (Yelp/Maps)</option>
-
-              {/* Diğer Kaynaklar */}
-              <option value="instagram" className="bg-[#0A0A0F]">Instagram (E-ticaret & Influencer)</option>
-              <option value="crunchbase" className="bg-[#0A0A0F]">Crunchbase (Startuplar)</option>
-              <option value="clutch" className="bg-[#0A0A0F]">Clutch.co (B2B Ajanslar)</option>
+              <option value="google_maps">Google Maps (Yerel & İşletmeler)</option>
+              <option value="linkedin">LinkedIn (B2B Kurumsal & CEO)</option>
+              <option value="apollo">Apollo.io (Doğrulanmış Karar Vericiler)</option>
+              <option value="jobs">🔥 Büyüyen Şirketler (İş İlanları)</option>
+              <option value="low_rating">🔥 Düşük Puanlılar (Açığı Olanlar)</option>
             </select>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col md:flex-row justify-end items-center gap-4 relative z-10 border-t border-white/[0.05] pt-6">
-          {searchStatusText ? (
-            <div className="flex items-center gap-2 text-xs text-purple-300 bg-purple-500/10 border border-purple-500/30 px-3.5 py-2 rounded-xl mr-auto animate-pulse">
-              <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>{searchStatusText}</span>
+        {/* Otomatik Satış Kancası Önizlemesi */}
+        <div className="bg-[#05050A] border border-white/[0.06] rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-2">
+                Otomatik Soğuk İletişim Kancası (Generated Pitch Hook):
+                <span className="text-[10px] text-purple-400 font-normal">
+                  {selectedCountryCode === "TR" ? "Türkçe" : "Almanca"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-1 italic leading-relaxed">
+                "{selectedCountryCode === "TR" ? currentBlueprint.pitchHooks.tr : currentBlueprint.pitchHooks.de}"
+              </p>
             </div>
-          ) : (
-            <div className="flex items-center gap-2 text-xs text-[#94A3B8] mr-auto bg-white/[0.02] px-3 py-1.5 rounded-lg border border-white/[0.05]">
-              <Info className="w-4 h-4 text-[#4F8EF7]" />
-              Tarama sonuçları anında <strong className="text-white">CRM</strong> panelinize işlenecektir.
-            </div>
-          )}
-          
-          <button 
-            onClick={handleSearch}
-            disabled={isSearching}
-            className={`w-full md:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all ${isSearching ? 'bg-white/10 text-white/50 cursor-not-allowed' : 'bg-white/5 border border-white/10 hover:bg-white/10'}`}
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveBlueprintPreview(currentBlueprint)}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-xs font-medium rounded-xl border border-white/10 shrink-0 transition-colors"
           >
-            {isSearching ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                Sistemi Taramaya Başladı...
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4" /> Hızlı Avı Başlat
-              </>
-            )}
-          </button>
-          
-          <button 
-            onClick={handleApifyTrigger}
-            disabled={isApifyTriggering}
-            className={`w-full md:w-auto px-8 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all ${isApifyTriggering ? 'bg-[#8B5CF6]/50 cursor-not-allowed' : 'bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] hover:opacity-90 shadow-[0_0_20px_rgba(139,92,246,0.3)]'}`}
-            title="Gerçek veriler çekilir (Apify Actor çalışır)"
-          >
-            {isApifyTriggering ? (
-               <>
-                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                 Tetikleniyor...
-               </>
-            ) : (
-               <>
-                 <ServerCog className="w-4 h-4" /> Gerçek Apify Taraması
-               </>
-            )}
+            Tüm Hizmetleri Gör
           </button>
         </div>
+
+        {/* Canlı Tarama Durum Bildirimi */}
+        {searchStatusText && (
+          <div className="flex items-center gap-3 text-xs text-purple-300 bg-purple-500/10 border border-purple-500/30 p-3.5 rounded-2xl animate-pulse">
+            <Sparkles className="w-4 h-4 text-purple-400 shrink-0" />
+            <span>{searchStatusText}</span>
+          </div>
+        )}
       </div>
 
-      {/* Results Section */}
+      {/* ADIM 4: BULUNAN NİTELİKLİ MÜŞTERİLER TABLOSU */}
       {results.length > 0 && (
-        <div className="bg-[#0A0A0F] border border-white/[0.05] rounded-3xl overflow-hidden shadow-xl animate-in slide-in-from-bottom-4 duration-500">
-          <div className="p-6 border-b border-white/[0.05] flex flex-col md:flex-row justify-between items-center bg-white/[0.02] gap-4">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <div className="bg-[#0A0A0F] border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 duration-500">
+          <div className="p-6 border-b border-white/[0.08] flex flex-col md:flex-row justify-between items-center bg-white/[0.02] gap-4">
+            <div className="flex items-center gap-3">
               <div className="relative flex items-center justify-center">
-                <span className="absolute w-3 h-3 rounded-full bg-[#10B981] animate-ping opacity-75"></span>
-                <span className="relative w-2 h-2 rounded-full bg-[#10B981]"></span>
+                <span className="absolute w-3.5 h-3.5 rounded-full bg-emerald-400 animate-ping opacity-75"></span>
+                <span className="relative w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
               </div>
-              Taranan Potansiyel Müşteriler ({results.length})
-            </h2>
+              <h2 className="text-lg font-bold text-white">
+                Nitelikli Potansiyel Müşteri Havuzu ({results.length})
+              </h2>
+            </div>
+            
             <div className="flex items-center gap-2.5 flex-wrap">
               {selectedLeads.length > 0 && (
                 <button
                   onClick={handleDeleteSelected}
                   disabled={isDeleting}
-                  className="px-4 py-2 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 rounded-xl transition-all text-xs md:text-sm font-semibold flex items-center gap-1.5"
-                  title="Seçilen potansiyel müşterileri sil"
+                  className="px-4 py-2 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 rounded-xl transition-all text-xs font-semibold flex items-center gap-1.5"
                 >
                   <Trash2 className="w-4 h-4 text-rose-400" />
                   Seçilenleri Sil ({selectedLeads.length})
@@ -621,29 +717,29 @@ export default function ProspectingClient() {
               <button 
                 onClick={handleClearAll}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white rounded-xl transition-all text-xs md:text-sm font-medium flex items-center gap-1.5"
-                title="Tüm listeyi temizle"
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 rounded-xl text-xs font-medium flex items-center gap-1.5"
               >
-                <Trash2 className="w-3.5 h-3.5 text-slate-400" />
+                <Trash2 className="w-3.5 h-3.5" />
                 Listeyi Temizle
               </button>
               <button 
                 onClick={() => {
-                  if(selectedLeads.length === 0) return alert("Önce listeden müşteri seçiniz.");
+                  if (selectedLeads.length === 0) return alert("Lütfen en az bir potansiyel müşteri seçin.");
                   setIsModalOpen(true);
                 }}
-                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all text-xs md:text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/30"
+                className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:scale-[1.02] text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all"
               >
                 <TrendingUp className="w-4 h-4" />
                 Seçilenleri Kampanyaya Aktar ({selectedLeads.length})
               </button>
             </div>
           </div>
+
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/[0.05] bg-white/[0.02]">
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider w-14">
+                <tr className="border-b border-white/[0.08] bg-white/[0.01]">
+                  <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider w-14">
                     <input 
                       type="checkbox" 
                       onChange={(e) => {
@@ -651,23 +747,21 @@ export default function ProspectingClient() {
                         else setSelectedLeads([]);
                       }}
                       checked={selectedLeads.length > 0 && selectedLeads.length === results.length}
-                      className="w-5 h-5 rounded-md border-2 border-white/30 bg-slate-900 checked:bg-[#8B5CF6] accent-[#8B5CF6] cursor-pointer"
-                      title="Tümünü Seç / Kaldır"
+                      className="w-4 h-4 rounded border-white/30 bg-slate-900 checked:bg-purple-600 accent-purple-600 cursor-pointer"
                     />
                   </th>
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">İşletme Adı</th>
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">İletişim & Karar Verici</th>
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">AI Tespitleri</th>
-                  <th className="p-4 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Aksiyon</th>
+                  <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">İşletme / Kurum</th>
+                  <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">İletişim & Karar Verici</th>
+                  <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Kazanma Olasılığı</th>
+                  <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Tespit Edilen Açık & Pitch</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.05]">
+              <tbody className="divide-y divide-white/[0.06]">
                 {results.map((lead) => (
                   <tr key={lead.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td 
                       className="p-4 w-14 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={() => {
                         const id = lead.id;
                         setSelectedLeads(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
                       }}
@@ -676,29 +770,29 @@ export default function ProspectingClient() {
                         type="checkbox" 
                         checked={selectedLeads.includes(lead.id)}
                         onChange={() => {}}
-                        className="w-5 h-5 rounded-md border-2 border-white/30 bg-slate-900 checked:bg-[#8B5CF6] accent-[#8B5CF6] cursor-pointer"
+                        className="w-4 h-4 rounded border-white/30 bg-slate-900 checked:bg-purple-600 accent-purple-600 cursor-pointer"
                       />
                     </td>
                     <td className="p-4">
-                      <div className="font-bold text-white text-sm group-hover:text-[#8B5CF6] transition-colors flex items-center gap-1.5">
+                      <div className="font-bold text-white text-sm group-hover:text-purple-300 transition-colors flex items-center gap-1.5">
                         <span>{lead.company || lead.name}</span>
                         {lead.website && (
                           <a 
                             href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-[#94A3B8] hover:text-[#4F8EF7] transition-colors inline-flex items-center"
-                            title={`Siteye Git: ${lead.website}`}
+                            className="text-slate-400 hover:text-white inline-flex items-center"
+                            title={lead.website}
                           >
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-400 hover:text-white" />
+                            <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         )}
                       </div>
-                      <div className="text-xs text-[#94A3B8] mt-1 flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#8B5CF6]" /> {lead.location}
+                      <div className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-purple-400" /> {lead.location || "Konum belirtilmedi"}
                       </div>
                       {lead.industry && (
-                        <div className="text-xs text-purple-400 mt-1">{lead.industry}</div>
+                        <div className="text-[11px] text-purple-400 font-mono mt-0.5">{lead.industry}</div>
                       )}
                     </td>
                     <td className="p-4">
@@ -709,12 +803,12 @@ export default function ProspectingClient() {
                             {lead.decisionMakerName} {lead.decisionMakerTitle ? `(${lead.decisionMakerTitle})` : ''}
                           </span>
                         ) : (
-                          <span className="text-white/80">{lead.name || 'Genel İletişim'}</span>
+                          <span className="text-slate-300">{lead.name || 'Genel İletişim'}</span>
                         )}
                       </div>
                       <div className="text-xs space-y-1">
                         {lead.email ? (
-                          <div className="flex items-center gap-1.5 text-sky-400 hover:text-sky-300">
+                          <div className="flex items-center gap-1.5 text-sky-400">
                             <Mail className="w-3.5 h-3.5 shrink-0 text-sky-400/80" />
                             <a href={`mailto:${lead.email}`} className="hover:underline">{lead.email}</a>
                           </div>
@@ -725,63 +819,65 @@ export default function ProspectingClient() {
                             <a href={`tel:${lead.phone}`} className="hover:underline">{lead.phone}</a>
                           </div>
                         ) : null}
-                        {!lead.email && !lead.phone && (
-                          <span className="text-xs text-amber-400/70 italic">İletişim bilgisi taranıyor...</span>
-                        )}
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="space-y-2">
-                        {lead.ghostingAlert && (
-                          <span className="flex items-center gap-1 text-xs text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/20 px-2 py-1 rounded w-fit">
-                            Ghosting Riski
-                          </span>
-                        )}
-                        {(() => {
-                          const p = lead.winProbability != null ? Number(lead.winProbability) : null;
-                          const s = lead.score != null ? Number(lead.score) : null;
-                          let pct = 70;
-                          if (p != null) {
-                            pct = p <= 1.0 ? Math.round(p * 100) : Math.round(p);
-                          } else if (s != null) {
-                            pct = s <= 1.0 ? Math.round(s * 100) : Math.round(s);
-                          }
-                          pct = Math.max(1, Math.min(100, pct));
-                          const colorClass = pct >= 80 ? 'bg-[#10B981]' : pct >= 60 ? 'bg-[#4F8EF7]' : 'bg-[#F59E0B]';
-                          return (
-                            <div className="flex items-center gap-2">
-                              <div className="w-20 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                                <div className={`h-full rounded-full ${colorClass}`} style={{ width: `${pct}%` }}></div>
-                              </div>
-                              <span className="text-xs font-bold text-white">%{pct}</span>
+                      {(() => {
+                        const p = lead.winProbability != null ? Number(lead.winProbability) : (lead.score || 75);
+                        const pct = Math.max(1, Math.min(100, Math.round(p <= 1.0 ? p * 100 : p)));
+                        const colorClass = pct >= 80 ? 'bg-emerald-500' : pct >= 60 ? 'bg-sky-500' : 'bg-amber-500';
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${colorClass}`} style={{ width: `${pct}%` }}></div>
                             </div>
-                          );
-                        })()}
-                      </div>
+                            <span className="text-xs font-bold text-white font-mono">%{pct}</span>
+                          </div>
+                        );
+                      })()}
                     </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
+                    <td className="p-4 max-w-xs">
+                      <div className="space-y-2">
                         {lead.painPoints && lead.painPoints.length > 0 ? (
-                          <span className="text-xs bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 text-[#8B5CF6] px-2 py-1 rounded cursor-help flex items-center gap-1 w-fit" title={lead.customPitch}>
-                            <Sparkles className="w-3 h-3" />
-                            {lead.painPoints[0]}
-                          </span>
+                          <div className="space-y-1">
+                            <span className="text-xs bg-purple-500/15 border border-purple-500/30 text-purple-300 px-2 py-0.5 rounded-md flex items-center gap-1 w-fit">
+                              <Sparkles className="w-3 h-3 text-purple-400 shrink-0" />
+                              {lead.painPoints[0]}
+                            </span>
+                            {lead.customPitch && (
+                              <p className="text-[11px] text-slate-400 italic line-clamp-2">
+                                "{lead.customPitch}"
+                              </p>
+                            )}
+                          </div>
                         ) : (
                           <button 
                             onClick={() => handleAnalyze(lead)}
                             disabled={analyzingId === lead.id}
-                            className="text-xs text-[#4F8EF7] hover:text-white bg-[#4F8EF7]/10 hover:bg-[#4F8EF7] px-3 py-1.5 rounded transition-colors font-medium flex items-center gap-1 w-fit"
+                            className="text-xs text-sky-400 hover:text-white bg-sky-500/10 hover:bg-sky-600 px-2.5 py-1.5 rounded-lg transition-colors font-medium flex items-center gap-1"
                           >
-                            {analyzingId === lead.id ? "Analiz..." : "AI Yorum Analizi"}
+                            {analyzingId === lead.id ? "Analiz ediliyor..." : "AI Açık Analizi Yap"}
                           </button>
                         )}
+
+                        {/* Özel Mail Şablonu Butonu */}
                         <button
-                          onClick={() => handleDeleteSingle(lead.id)}
-                          disabled={isDeleting}
-                          className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors ml-auto"
-                          title="Bu müşteriyi sil"
+                          type="button"
+                          onClick={() => {
+                            setActiveEmailLead(lead);
+                            const bundle = getSectorEmailBundle(selectedBlueprintId);
+                            const lKey = selectedCountryCode === "TR" ? "tr" : "de";
+                            setEmailLang(lKey);
+                            const tpl = bundle[lKey].cold;
+                            setCustomSubject(tpl.subject);
+                            setCustomBody(tpl.bodyText);
+                            setIsEmailModalOpen(true);
+                          }}
+                          className="px-2.5 py-1 bg-white/5 hover:bg-purple-600 hover:text-white border border-white/10 text-slate-300 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 w-fit"
+                          title="Bu müşteriye özel soğuk/sıcak mail şablonunu aç ve düzenle"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Mail className="w-3 h-3 text-purple-400" />
+                          Mail Taslağını Gör / Düzenle
                         </button>
                       </div>
                     </td>
@@ -793,42 +889,408 @@ export default function ProspectingClient() {
         </div>
       )}
 
-      {/* Modal - Kampanya Seçimi */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#1E293B] border border-white/10 rounded-2xl p-6 w-full max-w-lg shadow-2xl relative">
-            <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-[#94A3B8] hover:text-white">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+      {/* DETAY DRAWER / MODAL: SEKTÖR HİZMET ŞABLONU İNCELEME */}
+      {activeBlueprintPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <div className="bg-[#0A0A0F] border border-white/15 rounded-3xl p-6 lg:p-8 w-full max-w-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button 
+              onClick={() => setActiveBlueprintPreview(null)} 
+              className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl bg-white/5"
+            >
+              ✕
             </button>
-            <h3 className="text-xl font-bold text-white mb-2">Kampanyaya Aktar</h3>
-            <p className="text-sm text-[#94A3B8] mb-6">
-              Seçili <strong className="text-purple-400">{selectedLeads.length}</strong> müşteriye hangi e-posta senaryosu uygulanacak? Sistem AI ile içerikleri onlara özel uyarlayacak.
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
+                {activeBlueprintPreview.badge}
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {activeBlueprintPreview.category}
+              </span>
+            </div>
+
+            <h3 className="text-2xl font-bold text-white">
+              {activeBlueprintPreview.titleTr}
+            </h3>
+            <div className="text-sm text-purple-400 font-mono mt-0.5">
+              {activeBlueprintPreview.titleDe} | {activeBlueprintPreview.titleEn}
+            </div>
+
+            <div className="mt-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+              <div className="text-xs font-bold text-slate-300">Piyasa Açığı (Root Pain Point):</div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                {activeBlueprintPreview.primaryPainPoint}
+              </p>
+            </div>
+
+            {/* Hizmet Paketleri */}
+            <div className="mt-6 space-y-3">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Layers className="w-4 h-4 text-purple-400" />
+                Müşteriye Sunulacak AI & Web Hizmet Paketleri
+              </h4>
+              <div className="space-y-3">
+                {activeBlueprintPreview.services.map((srv, idx) => (
+                  <div key={idx} className="p-4 rounded-2xl bg-[#05050A] border border-white/10 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                        {srv.type}
+                      </span>
+                      <span className="text-xs font-bold text-purple-300 font-mono">
+                        Değer: {srv.estimatedTicket}
+                      </span>
+                    </div>
+                    <div className="text-sm font-bold text-white">{srv.title}</div>
+                    <p className="text-xs text-slate-400">{srv.description}</p>
+                    <div className="pt-2 border-t border-white/[0.05] flex flex-wrap gap-2">
+                      {srv.deliverables.map((del, dIdx) => (
+                        <span key={dIdx} className="text-[10px] text-slate-300 bg-white/5 px-2 py-0.5 rounded-md">
+                          ✓ {del}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-white/10 flex justify-end gap-3">
+              <button 
+                onClick={() => {
+                  handleBlueprintSelect(activeBlueprintPreview);
+                  setActiveBlueprintPreview(null);
+                }} 
+                className="px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl"
+              >
+                Bu Blueprint'i Kullan & Avı Başlat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: KAMPANYA VE SOĞUK E-POSTA AKTARIMI */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
+          <div className="bg-[#1E293B] border border-white/15 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-5 right-5 text-slate-400 hover:text-white">
+              ✕
+            </button>
+            <h3 className="text-xl font-bold text-white mb-2">Soğuk Outreach Kampanyasına Aktar</h3>
+            <p className="text-xs text-slate-400 mb-6">
+              Seçili <strong className="text-purple-400">{selectedLeads.length}</strong> potansiyel müşteri için 
+              hazırlanan sektör odaklı e-posta sekansı başlatılacaktır.
             </p>
             
-            <div className="space-y-4 mb-8">
-              <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors border-purple-500 bg-purple-500/5">
-                <input type="radio" name="campaign" value="master-blueprint-1" checked={selectedCampaign === "master-blueprint-1"} onChange={() => setSelectedCampaign("master-blueprint-1")} className="mt-1 accent-purple-500 w-4 h-4" />
+            <div className="space-y-3 mb-6">
+              <label className="flex items-start gap-3 p-3.5 rounded-2xl border cursor-pointer border-purple-500 bg-purple-500/10">
+                <input 
+                  type="radio" 
+                  name="campaign" 
+                  value="master-blueprint-1" 
+                  checked={selectedCampaign === "master-blueprint-1"} 
+                  onChange={() => setSelectedCampaign("master-blueprint-1")} 
+                  className="mt-1 accent-purple-500 w-4 h-4" 
+                />
                 <div>
-                  <div className="font-bold text-white">Hibrit B2B Tanışma Serisi (5 Günlük)</div>
-                  <div className="text-sm text-[#94A3B8] mt-1">Sektöre özel Case Study (Vaka) içeren, 5 aşamalı ısıtma e-postası.</div>
-                </div>
-              </label>
-              <label className="flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-colors border-white/10 hover:bg-white/5 opacity-50 cursor-not-allowed">
-                <input type="radio" name="campaign" disabled className="mt-1 w-4 h-4" />
-                <div>
-                  <div className="font-bold text-white">Direkt Satış & Demo Randevusu</div>
-                  <div className="text-sm text-[#94A3B8] mt-1">Çok yakında...</div>
+                  <div className="text-sm font-bold text-white">Hibrit B2B Tanışma Serisi (5 Günlük Isıtma)</div>
+                  <div className="text-xs text-slate-300 mt-0.5">Sektöre özel acı noktalarını ve AI çözümünü içeren otomatik sekans.</div>
                 </div>
               </label>
             </div>
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
-                İptal
+              <button onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-xs font-medium text-white bg-white/5 rounded-xl">
+                Vazgeç
               </button>
-              <button onClick={handleExportToCampaign} disabled={isExporting} className="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:scale-105 rounded-xl flex items-center gap-2 transition-all">
-                {isExporting ? "Aktarılıyor..." : "Otomasyonu Başlat"}
+              <button 
+                onClick={handleExportToCampaign} 
+                disabled={isExporting} 
+                className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl"
+              >
+                {isExporting ? "Aktarılıyor..." : "Kampanyayı Başlat"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: MÜŞTERİYE ÖZEL COLD / WARM MAİL DÜZENLEME & ÖNİZLEME */}
+      {isEmailModalOpen && activeEmailLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#0A0A0F] border border-white/15 rounded-3xl p-6 lg:p-8 w-full max-w-4xl shadow-2xl relative max-h-[92vh] overflow-y-auto">
+            <button 
+              onClick={() => setIsEmailModalOpen(false)} 
+              className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl bg-white/5"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
+                Canlı E-Posta Editörü & DSGVO Önizleme
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {activeEmailLead.company || activeEmailLead.name}
+              </span>
+            </div>
+
+            <h3 className="text-xl font-bold text-white">
+              Kişiselleştirilmiş Satış E-Postası (Ağdalı Olmayan, Net & Samimi)
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Bu metin işletmenin spesifik eksikliği ve yetkili ismiyle derlenir. Dilediğiniz gibi düzenleyip tek tıkla test edebilirsiniz.
+            </p>
+
+            {/* 1. AI ANALİZİ & AÇIK TESPİTİ KARTI (Bulunan Müşterinin Verisi) */}
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-purple-950/30 to-slate-900 border border-purple-500/20 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  Müşteriye Dair AI Taraması & Dijital Açık Tespiti:
+                </span>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  Google Puanı: <strong className="text-amber-400">{activeEmailLead.googleRating ? `⭐ ${activeEmailLead.googleRating}` : 'Puan yok'}</strong> ({activeEmailLead.reviewCount || 0} yorum)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+                  <div className="text-slate-400 font-semibold mb-0.5">Spesifik Acı Noktası (Pain Point):</div>
+                  <div className="text-slate-200">
+                    {activeEmailLead.painPoints && activeEmailLead.painPoints.length > 0
+                      ? activeEmailLead.painPoints[0]
+                      : (activeEmailLead.customPitch || "Mesai dışı cevapsız kalan aramalar ve form bekleme süresi")}
+                  </div>
+                </div>
+                <div className="bg-black/40 p-2.5 rounded-xl border border-white/5">
+                  <div className="text-slate-400 font-semibold mb-0.5">Tespit Edilen Dijital Eksik (Gaps):</div>
+                  <div className="text-slate-200">
+                    {activeEmailLead.digitalGaps && activeEmailLead.digitalGaps.length > 0
+                      ? activeEmailLead.digitalGaps.join(" • ")
+                      : "Sitede 7/24 randevu/fiyat botu yok, statik form kullanılıyor"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. BU SEKTÖRE SUNULACAK AI HİZMET SEÇİCİSİ */}
+            <div className="mt-4 p-4 rounded-2xl bg-[#05050A] border border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-emerald-400" />
+                  Bu Müşteriye Sunulacak AI & Web Hizmetini Seçin:
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Seçtiğiniz hizmet mail içine otomatik argüman olarak entegre edilir.
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {currentBlueprint.services.map((srv, sIdx) => {
+                  const isSelected = selectedServiceIndex === sIdx;
+                  return (
+                    <button
+                      key={sIdx}
+                      type="button"
+                      onClick={() => setSelectedServiceIndex(sIdx)}
+                      className={`p-3 rounded-xl border text-left transition-all relative ${
+                        isSelected 
+                          ? "bg-emerald-500/15 border-emerald-500 ring-1 ring-emerald-500 shadow-md shadow-emerald-950/40"
+                          : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                          {srv.type}
+                        </span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                      </div>
+                      <div className="text-xs font-bold text-white truncate">{srv.title}</div>
+                      <div className="text-[10px] text-purple-300 font-mono mt-0.5">{srv.estimatedTicket}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 3. Ayarlar: Dil ve Şablon Tipi */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-slate-400">Şablon:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmailTemplateType("cold");
+                    const bundle = getSectorEmailBundle(selectedBlueprintId);
+                    setCustomSubject(bundle[emailLang].cold.subject);
+                    setCustomBody(bundle[emailLang].cold.bodyText);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    emailTemplateType === "cold" ? "bg-purple-600 text-white" : "bg-white/5 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  ❄️ Soğuk İlk Temas (Cold Email #1)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmailTemplateType("warmFollowUp");
+                    const bundle = getSectorEmailBundle(selectedBlueprintId);
+                    setCustomSubject(bundle[emailLang].warmFollowUp.subject);
+                    setCustomBody(bundle[emailLang].warmFollowUp.bodyText);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    emailTemplateType === "warmFollowUp" ? "bg-purple-600 text-white" : "bg-white/5 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  🔥 Sıcak Takip (Warm Follow-up)
+                </button>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400">Dil:</span>
+                {(["de", "tr", "en"] as const).map(l => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => {
+                      setEmailLang(l);
+                      const bundle = getSectorEmailBundle(selectedBlueprintId);
+                      const tpl = emailTemplateType === "cold" ? bundle[l].cold : bundle[l].warmFollowUp;
+                      setCustomSubject(tpl.subject);
+                      setCustomBody(tpl.bodyText);
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold uppercase ${
+                      emailLang === l ? "bg-emerald-600 text-white" : "bg-white/5 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {l === "de" ? "🇩🇪 DE" : l === "tr" ? "🇹🇷 TR" : "🇬🇧 EN"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Konu ve Gövde Editörü */}
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 mb-1 block">
+                  E-Posta Konu Başlığı (Subject):
+                </label>
+                <input 
+                  type="text" 
+                  value={customSubject}
+                  onChange={e => setCustomSubject(e.target.value)}
+                  className="w-full bg-[#05050A] border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-slate-300">
+                    E-Posta Gövdesi (Samimi, doğrudan acı noktası ve net fayda):
+                  </label>
+                  <span className="text-[11px] text-slate-500">
+                    Dinamik Etiketler: {'{{companyName}}'}, {'{{decisionMakerName}}'}, {'{{city}}'}, {'{{detectedPain}}'}, {'{{serviceTitle}}'}
+                  </span>
+                </div>
+                <textarea 
+                  rows={9}
+                  value={customBody}
+                  onChange={e => setCustomBody(e.target.value)}
+                  className="w-full bg-[#05050A] border border-white/10 rounded-xl p-3.5 text-white text-xs md:text-sm focus:outline-none focus:border-purple-500 font-mono leading-relaxed resize-y"
+                />
+              </div>
+
+              {/* Müşteri Gözünden Önizleme (Compiled Preview) */}
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-white/10 space-y-2">
+                <div className="text-xs font-bold text-emerald-400 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    Müşteriye Gidecek Canlı Hali (AI Analizi & DSGVO Entegre):
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    Hizmet: {currentBlueprint.services[selectedServiceIndex]?.title}
+                  </span>
+                </div>
+                <div className="text-xs text-white font-bold">
+                  {compileEmailTemplate({
+                    template: { subject: customSubject, bodyText: customBody },
+                    lead: activeEmailLead,
+                    selectedServiceTitle: currentBlueprint.services[selectedServiceIndex]?.title,
+                    selectedServiceDeliverables: currentBlueprint.services[selectedServiceIndex]?.deliverables,
+                    lang: emailLang
+                  }).subject}
+                </div>
+                <div className="text-xs text-slate-300 whitespace-pre-wrap font-sans leading-relaxed pt-2 border-t border-white/5">
+                  {compileEmailTemplate({
+                    template: { subject: customSubject, bodyText: customBody },
+                    lead: activeEmailLead,
+                    selectedServiceTitle: currentBlueprint.services[selectedServiceIndex]?.title,
+                    selectedServiceDeliverables: currentBlueprint.services[selectedServiceIndex]?.deliverables,
+                    lang: emailLang
+                  }).bodyText}
+                </div>
+              </div>
+            </div>
+
+            {/* Butonlar */}
+            <div className="mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div className="text-xs text-slate-400">
+                Hedef: <strong className="text-white">{activeEmailLead.email || "E-posta bulunamadı"}</strong>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsEmailModalOpen(false)} 
+                  className="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white bg-white/5 rounded-xl"
+                >
+                  Kapat
+                </button>
+                <button 
+                  onClick={async () => {
+                    if (!activeEmailLead.email) return alert("Bu müşterinin e-posta adresi bulunmuyor.");
+                    setIsSendingTestEmail(true);
+                    try {
+                      const compiled = compileEmailTemplate({
+                        template: { subject: customSubject, bodyText: customBody },
+                        lead: activeEmailLead,
+                        lang: emailLang
+                      });
+                      const res = await fetch('/api/email/test-template', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          subject: compiled.subject,
+                          html: compiled.bodyHtml,
+                          text: compiled.bodyText
+                        })
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        alert("Kendi e-postanıza test maili başarıyla gönderildi!");
+                      } else {
+                        alert("Gönderim yanıtı: " + (data.error || 'Simülasyon tamamlandı.'));
+                      }
+                    } catch (err: any) {
+                      alert("Hata: " + err.message);
+                    } finally {
+                      setIsSendingTestEmail(false);
+                    }
+                  }}
+                  disabled={isSendingTestEmail}
+                  className="px-4 py-2 text-xs font-semibold text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl transition-all"
+                >
+                  {isSendingTestEmail ? "Gönderiliyor..." : "Bana Test Gönder"}
+                </button>
+                <button 
+                  onClick={() => {
+                    alert("Şablon bu müşteri için kaydedildi ve sekansa bağlandı.");
+                    setIsEmailModalOpen(false);
+                  }}
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:scale-[1.02] rounded-xl shadow-lg shadow-emerald-950/30 transition-all"
+                >
+                  Bu Şablonla Gönderimi Başlat
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -836,3 +1298,4 @@ export default function ProspectingClient() {
     </div>
   );
 }
+

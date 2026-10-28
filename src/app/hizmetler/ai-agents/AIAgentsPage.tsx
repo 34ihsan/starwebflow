@@ -5,6 +5,7 @@ import ServiceLayout from '@/components/services/ServiceLayout'
 import ServiceHero from '@/components/services/ServiceHero'
 import ValueMatrix from '@/components/services/ValueMatrix'
 import ComparisonTable from '@/components/services/ComparisonTable'
+import SalesPsychologyMatrix from '@/components/services/SalesPsychologyMatrix'
 import ServiceCTA from '@/components/services/ServiceCTA'
 import ROITicker from '@/components/services/ROITicker'
 import GlowCard from '@/components/ui/GlowCard'
@@ -857,28 +858,8 @@ export default function AIAgentsPage() {
         </div>
       </section>
 
-      {/* ─── COMPARISON ─── */}
-      <section className="section bg-slate-50/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="heading-lg text-slate-900 mb-4 font-extrabold">
-              {c.comp.title}
-            </h2>
-          </div>
-          <ComparisonTable
-            accentColor={ACCENT}
-            rows={[
-              { feature: c.comp.f1, traditional: '08:00-18:00', starwebflow: '7/24/365' },
-              { feature: c.comp.f2, traditional: '2-4 saat', starwebflow: '< 2 saniye' },
-              { feature: c.comp.f3, traditional: '1 müşteri', starwebflow: 'Sınırsız' },
-              { feature: c.comp.f4, traditional: c.comp.f4Val, starwebflow: c.comp.f4ValStar },
-              { feature: c.comp.f5, traditional: false, starwebflow: true },
-              { feature: c.comp.f6, traditional: c.comp.f6Val, starwebflow: c.comp.f6ValStar },
-              { feature: c.comp.f7, traditional: c.comp.f7Val, starwebflow: c.comp.f7ValStar },
-            ]}
-          />
-        </div>
-      </section>
+      {/* ─── B2B SALES PSYCHOLOGY & DECISION MATRIX ─── */}
+      <SalesPsychologyMatrix serviceKey="ai-agents" accentColor={ACCENT} />
 
       {/* ─── CTA ─── */}
       <ServiceCTA

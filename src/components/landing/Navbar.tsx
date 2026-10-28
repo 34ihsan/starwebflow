@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Button from '@/components/ui/Button'
-import { Menu, X, Zap, LogIn, UserPlus, Globe, Bot, Megaphone, Cog, Monitor, ChevronDown, Check } from 'lucide-react'
+import { Menu, X, Zap, LogIn, UserPlus, Globe, Bot, Megaphone, Cog, Monitor, ChevronDown, Check, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { useSettings } from '@/lib/settings/SettingsContext'
@@ -70,11 +70,34 @@ export default function Navbar() {
   ]
 
   const navLinks = [
-    { label: t('navbar.whyUs'), href: '/#why-us' },
-    { label: t('navbar.pricing'), href: '/#pricing' },
-    { label: t('navbar.process'), href: '/#process' },
-    { label: t('navbar.blog'), href: '/blog' },
-    { label: t('navbar.contact'), href: '/#contact' },
+    {
+      label: language === 'de' ? 'Lösungen' : language === 'en' ? 'Solutions' : 'Çözümler',
+      href: '/#services',
+    },
+    {
+      label: language === 'de' ? 'Live-Audit' : language === 'en' ? 'Live Audit' : 'Canlı Analiz',
+      href: '/#audit',
+    },
+    {
+      label: language === 'de' ? 'Entscheidung' : language === 'en' ? 'Comparison' : 'Neden Biz?',
+      href: '/#comparison',
+    },
+    {
+      label: language === 'de' ? 'Referenzen' : language === 'en' ? 'Case Studies' : 'Vaka Analizleri',
+      href: '/#case-studies',
+    },
+    {
+      label: language === 'de' ? 'Lastenheft' : language === 'en' ? 'Blueprint' : 'Şartname',
+      href: '/#simulation',
+    },
+    {
+      label: language === 'de' ? 'FAQ' : language === 'en' ? 'FAQ' : 'SSS',
+      href: '/#faq',
+    },
+    {
+      label: 'Blog',
+      href: '/blog',
+    },
   ]
 
   useEffect(() => {
@@ -112,20 +135,14 @@ export default function Navbar() {
   }
 
   return (
-    <>
+    <header
+      className="fixed top-0 inset-x-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-2xl border-b border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+    >
       <RegionBanner />
-      <header
-        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-          scrolled || servicesOpen
-            ? 'bg-white/95 dark:bg-[#0A0A0F]/95 backdrop-blur-2xl border-b border-slate-200/90 dark:border-white/[0.08] shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_30px_rgba(0,0,0,0.6)]'
-            : 'bg-transparent'
-        }`}
-        style={{ animation: 'slideDown 0.5s ease both' }}
-      >
-        {/* Top subtle neon line */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#4F8EF7]/40 to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+      {/* Top subtle accent line */}
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link
               href="/"
@@ -246,7 +263,7 @@ export default function Navbar() {
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className="px-4 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white font-medium rounded-lg hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                    className="px-3 py-1.5 text-xs lg:text-sm text-slate-700 hover:text-blue-600 font-semibold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer"
                   >
                     {link.label}
                   </button>
@@ -254,7 +271,7 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="px-4 py-2 text-sm text-slate-600 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-white font-medium rounded-lg hover:bg-slate-100/80 dark:hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                    className="px-3 py-1.5 text-xs lg:text-sm text-slate-700 hover:text-blue-600 font-semibold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer"
                   >
                     {link.label}
                   </Link>
@@ -263,16 +280,24 @@ export default function Navbar() {
             </nav>
 
             {/* Desktop CTA */}
-            <div className="hidden md:flex items-center gap-2.5">
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                href="/randevu"
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20 transition-all cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{language === 'de' ? 'Termin buchen' : language === 'en' ? 'Book Call' : 'Randevu Al'}</span>
+              </Link>
+
               {/* Dil Seçici Dropdown */}
               <div className="relative" ref={langDropdownRef}>
                 <button
                   onClick={() => setLangOpen(!langOpen)}
-                  className="flex items-center gap-2 px-2.5 py-1.5 text-sm text-slate-700 hover:text-slate-900 font-semibold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer border border-slate-200/80 bg-white/70 shadow-2xs"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-slate-700 hover:text-slate-900 font-bold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer border border-slate-200/80 bg-white/70 shadow-2xs"
                   aria-label="Dil seçimi"
                 >
-                  <FlagIcon code={language} className="w-4.5 h-3" />
-                  <span className="uppercase text-xs tracking-wider font-bold">{language}</span>
+                  <FlagIcon code={language} className="w-4 h-2.5" />
+                  <span className="uppercase tracking-wider">{language}</span>
                   <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {langOpen && (
@@ -297,16 +322,17 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/auth/login" className="px-3.5 py-2 text-sm text-slate-600 hover:text-slate-900 font-medium rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer flex items-center gap-2">
-                <LogIn className="w-4 h-4" />
+              <Link href="/auth/login" className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 font-semibold rounded-lg hover:bg-slate-100/80 transition-all duration-200 cursor-pointer flex items-center gap-1.5">
+                <LogIn className="w-3.5 h-3.5" />
                 {t('navbar.login')}
               </Link>
               <Button
                 variant="primary"
-                size="md"
+                size="sm"
+                className="font-bold text-xs"
                 onClick={() => window.location.href = '/auth/register'}
               >
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className="w-3.5 h-3.5" />
                 {t('navbar.register')}
               </Button>
             </div>
@@ -418,6 +444,5 @@ export default function Navbar() {
           </div>
         </div>
       </header>
-    </>
   )
 }

@@ -251,7 +251,7 @@ function FAQItem({ q, a, index }: { q: string; a: string; index: number }) {
 export default function FAQSection() {
   const { language } = useLanguage()
   const sectionRef = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'ai' | 'web'>('all')
 
