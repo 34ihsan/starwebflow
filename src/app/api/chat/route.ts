@@ -287,7 +287,7 @@ YANIT KURALLARI:
 
       if (activeOllamaUrl) {
         try {
-          const selectedModelName = await resolveBestAvailableModel('qwen2.5:1.5b');
+          const selectedModelName = await resolveBestAvailableModel('qwen2.5:3b');
           console.log(`[Chat API] Aktif Ollama adresi: ${activeOllamaUrl}, model: ${selectedModelName}`);
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;

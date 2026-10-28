@@ -27,14 +27,14 @@ export function isAiConfigured(): boolean {
   return process.env.OLLAMA_ENABLED !== 'false' || !!getGoogleApiKey();
 }
 
-// ─── Yerel Resmi Açık Kaynak Ollama Modelleri (Qwen 2.5 & Llama 3.2) ────────
+// ─── Yerel Resmi Açık Kaynak Ollama Modelleri (Qwen 2.5 3B & 1.5B) ────────
 export const OLLAMA_MODELS = {
-  AGENT: process.env.OLLAMA_AGENT_MODEL || 'qwen2.5:1.5b',
-  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'qwen2.5:1.5b',
+  AGENT: process.env.OLLAMA_AGENT_MODEL || 'qwen2.5:3b',
+  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'qwen2.5:3b',
   WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'qwen2.5:3b',
-  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'qwen2.5:1.5b',
-  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'qwen2.5:1.5b',
-  FLASH: 'qwen2.5:1.5b',
+  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'qwen2.5:3b',
+  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'qwen2.5:3b',
+  FLASH: 'qwen2.5:3b',
   PRO: 'qwen2.5:3b',
   CODER: 'qwen2.5:3b',
   FAST_LIGHT: 'qwen2.5:1.5b',
@@ -84,14 +84,18 @@ export async function getInstalledOllamaModels(): Promise<string[]> {
  * 4. starwebflow
  * 5. Sunucudaki ilk mevcut model
  */
-export async function resolveBestAvailableModel(preferred = 'qwen2.5:1.5b'): Promise<string> {
+export async function resolveBestAvailableModel(preferred = 'qwen2.5:3b'): Promise<string> {
   const installed = await getInstalledOllamaModels();
   if (!installed || installed.length === 0) {
     return preferred;
   }
 
-  // 1. qwen modelleri (en hızlı ve çok dilli şampiyon model)
-  const qwenMatch = installed.find((m) => m.includes('qwen2.5:1.5b') || m.includes('qwen2.5') || m.includes('qwen'));
+  // 1. qwen 3b veya 7b modelleri (en akıllı ve akıcı)
+  const qwen3bMatch = installed.find((m) => m.includes('qwen2.5:3b') || m.includes('qwen2.5:7b'));
+  if (qwen3bMatch) return qwen3bMatch;
+
+  // 2. qwen diğer modelleri (1.5b vb.)
+  const qwenMatch = installed.find((m) => m.includes('qwen2.5') || m.includes('qwen'));
   if (qwenMatch) return qwenMatch;
 
   // 2. llama3.2 modelleri
