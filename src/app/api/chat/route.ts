@@ -53,66 +53,153 @@ async function isOllamaReachable(baseUrl: string): Promise<boolean> {
   }
 }
 
-function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): Response {
-  let fallbackText = '';
+function getCuratedResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): string | null {
   const lower = (lastUserMsg || '').toLowerCase();
 
   if (langKey === 'tr') {
     // 1. ChatGPT vs. Kendi Sunucunda Yerel Model (Ollama) Karşılaştırması
     if (
       (lower.includes('chatgpt') || lower.includes('chat gpt') || lower.includes('gpt')) &&
-      (lower.includes('ollama') || lower.includes('yerel') || lower.includes('model') || lower.includes('hangisi') || lower.includes('fark') || lower.includes('mantık') || lower.includes('vs'))
+      (lower.includes('ollama') || lower.includes('yerel') || lower.includes('model') || lower.includes('hangisi') || lower.includes('fark') || lower.includes('mantık') || lower.includes('vs') || lower.includes('claude') || lower.includes('openai'))
     ) {
-      fallbackText = `İşletmeniz için **ChatGPT mi yoksa Kendi Sunucunuzda Yerel Modeller (Ollama) mi** daha mantıklı? İşte 3 kritik karar kriteri:
+      return `İşletmeniz için **ChatGPT/OpenAI mi yoksa Kendi Sunucunuzda Yerel Modeller (Ollama) mi** daha mantıklı? İşte 3 kritik karar kriteri:
 
-1. 🔒 Veri Güvenliği & KVKK / DSGVO Cezaları:
-• **ChatGPT:** Yazışmalar, müşteri isimleri, telefonlar ve teklifler üçüncü taraf açık bulut sunucularına iletilir. Kurumsal verilerin sızması veya yapay zeka eğitim havuzuna karışması ciddi yasal riskler (KVKK / DSGVO cezaları) doğurur.
-• **Özel Sunuculu Yerel Model:** Sistem Tier-3/Tier-4 Frankfurt veya TR dedike sunucunuzda izole çalışır. Verileriniz sunucunuzdan 1 bayt bile dışarı çıkmaz; %100 gizli ve şirketinizin kontrolünde kalır.
+1. 🔒 **Veri Güvenliği & KVKK / DSGVO Cezaları:**
+• **Açık Bulutlar (ChatGPT):** Müşteri isimleri, telefonlar, ticari teklifler ve şirket sırları yabancı bulutlara iletilir. Verilerin model eğitim havuzuna karışması ciddi yasal ve cezai riskler doğurur.
+• **Starwebflow Sovereign Altyapısı:** Sistem Tier-3/Tier-4 Frankfurt veya Türkiye dedike sunucunuzda izole çalışır. Verileriniz sunucudan 1 bayt bile dışarı çıkmaz; %100 şirketinizin mülkiyetinde kalır.
 
-2. 💵 Değişken Token Faturaları vs. Sabit Sunucu Gideri:
-• **ChatGPT:** Sorgu ve kelime başına dolara endeksli "API token faturası" ödersiniz. Siteniz veya WhatsApp hattınız yoğunlaştıkça faturalar katlanır ve öngörülemez hale gelir.
-• **Yerel Model:** Aylık token faturası **sıfırdır (0$)**. İster ayda 1.000 ister 100.000 müşteriyle konuşun, yalnızca sabit sunucu kiranızı ödersiniz.
+2. 💵 **Değişken Token Faturaları vs. Sabit Sunucu Gideri:**
+• **ChatGPT API:** Sorgu ve kelime başına dolara endeksli "token faturası" ödersiniz. İş hacminiz arttıkça fatura katlanarak büyür.
+• **Yerel Model:** Aylık token faturası **tamamen sıfırdır (0$)**. İster ayda 1.000 ister 100.000 müşteriyle konuşun, sadece sabit sunucu kiranızı ödersiniz.
 
-3. ⚡ Kesintisiz Süreç & Şirket Hafızası:
-• Yerel modeller doğrudan kendi veritabanınıza, CRM'inize ve fatura sisteminize bağlanarak şirketinizin marka diliyle ve ürün kataloğuyla kusursuz yanıt verir.
+3. ⚡ **Şirket Hafızası & Sistem Entegrasyonu:**
+• Yerel modeller doğrudan kendi veritabanınıza, CRM'inize ve ERP sisteminize bağlanarak şirketinizin ürün kataloğu ve marka diliyle konuşur.
 
-🎯 **Sonuç:** Bireysel denemeler için ChatGPT cazip görünse de; **müşteri verisi işleyen, 7/24 satış ve destek yürüten ciddi bir işletme için kendi sunucunuzda açık kaynaklı yerel model çalıştırmak hem güvenlik hem de uzun vadeli bütçe açısından kat kat daha mantıklıdır.**
+🎯 **Sonuç:** Bireysel denemeler için ChatGPT cazip olsa da; **müşteri verisi işleyen, 7/24 satış ve destek yürüten ciddi bir işletme için kendi sunucunuzda açık kaynaklı yerel model çalıştırmak hem güvenlik hem de uzun vadeli bütçe açısından kat kat daha mantıklıdır.**
 
 👉 Şirketiniz için en uygun yerel model mimarisini ve donanım bütçesini /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşmeyle birlikte planlayabiliriz.`;
     }
-    // 2. VPS'deki Ollama Modelini Canlıya ve Buraya Bağlama
-    else if (
-      (lower.includes('vps') || lower.includes('sunucu') || lower.includes('ionos') || lower.includes('hostinger')) &&
-      (lower.includes('bağla') || lower.includes('entegre') || lower.includes('canlı') || lower.includes('buraya') || lower.includes('nasıl'))
+
+    // 2. n8n & Süreç & Fatura Otomasyonu
+    if (
+      lower.includes('n8n') ||
+      lower.includes('webhook') ||
+      lower.includes('otomasyon') ||
+      lower.includes('otopilot') ||
+      (lower.includes('crm') && lower.includes('fatura')) ||
+      lower.includes('iş akış') ||
+      lower.includes('fatura/teklif')
     ) {
-      fallbackText = `Evet, VPS üzerindeki Ollama servisini hem canlı web sitenize hem de yerel test ortamınıza bağlamak mümkündür ve en verimli çalışma yöntemidir!
+      return `⚙️ **n8n ve Webhook İş Akışı Otomasyonları ile Ekibinizin Haftalık 15-20 Saatini Kurtarıyoruz:**
+
+1. 📥 **3 Saniyede Otomatik Lead Nitelendirme:**
+Web sitenizden, WhatsApp'tan veya Instagram'dan gelen müşteri talebi insan eli değmeden 3 saniyede taranır, bütçesine göre puanlanır ve doğrudan CRM'inize (HubSpot, Pipedrive veya PostgreSQL) işlenir.
+
+2. 📄 **Otonom Teklif & Fatura (PDF) Üretimi:**
+Müşteri görüşmesi bittiği an sistem kurumsal şartname ve PDF teklif taslağını otomatik derleyip yöneticinin WhatsApp'ına onay için gönderir.
+
+3. 📆 **Sıfır Kaçak Takvim & Randevu Otopilotu:**
+Randevu alındığında şirket takviminiz anında eşitlenir, Google Meet toplantı linki oluşturulur ve randevuya katılmama oranını %80 düşüren otomatik WhatsApp/E-posta hatırlatması iletilir.
+
+👉 Firmanıza özel n8n otomasyon haritasını çıkarmak için /randevu sayfamızdan 15 dakikalık ücretsiz teknik değerlendirme planlayabilirsiniz.`;
+    }
+
+    // 3. Kendi Sunucumuzda (Ollama) Çalışan AI Ajanları & Sovereign AI Kurulumu
+    if (
+      lower.includes('nasıl kurul') ||
+      lower.includes('avantaj') ||
+      (lower.includes('kendi sunucu') && (lower.includes('ajan') || lower.includes('ai') || lower.includes('model') || lower.includes('ollama'))) ||
+      (lower.includes('sızdır') && lower.includes('ajan')) ||
+      lower.includes('sovereign')
+    ) {
+      return `Starwebflow Sovereign AI mimarisiyle **kendi sunucunuzda çalışan ve verilerinizi dışarı sızdırmayan yapay zeka ajanları** şu 4 aşamada kurulur ve işletmenize devasa avantajlar sağlar:
+
+🔒 **Nasıl Kuruluyor? (4 Adımlı Mimari):**
+1. **İzole Donanım Tahsisi:** Şirketinize özel Tier-3/Tier-4 Frankfurt veya TR merkezli dedike bir VPS ayağa kaldırılır. Sunucu şifreleri ve root yetkisi tamamen size aittir.
+2. **Yerel Model Optimizasyonu (Ollama):** Sektörünüze uygun açık kaynaklı kurumsal modeller (1.5B - 8B) sunucunuza yüklenir ve CPU/RAM performansına göre ince ayar (fine-tuning/quantization) yapılır.
+3. **Şirket Bilgi Havuzu (RAG Entegrasyonu):** Şirketinizin ürün kataloğu, fiyat politikası, sözleşmeleri ve SSS havuzu izole vektör veri tabanına gömülür. Ajan yalnızca sizin teyitli şirket bilgilerinizle konuşur.
+4. **Çok Kanallı Entegrasyon:** Ajan sitenizdeki chat ekranına, WhatsApp Business hattınıza ve CRM sisteminize API ile bağlanır.
+
+⚡ **Somut İşletme Avantajları:**
+• **%100 Veri Egemenliği:** Müşteri konuşmaları ve ticari sırlar asla üçüncü taraf bulutlara gitmez; DSGVO ve KVKK cezalarına karşı tam yasal kalkan sağlar.
+• **Sıfır Token Maliyeti:** Ayda 1.000 ya da 100.000 sorgu yapsanız dahi kelime başı ek fatura ödemezsiniz; sistem sabit sunucu kirasında sınırsız çalışır.
+• **7/24 Kesintisiz Satış:** Gece saatlerinde bile müşterilerinizi anında karşılar, itirazları çözer ve doğrudan takviminize onaylı randevu kaydeder.
+
+👉 Firmanıza özel sunucu altyapısı ve model yol haritasını planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+    }
+
+    // 4. Next.js 14, Web Geliştirme, Hız & B2B Portalları
+    if (
+      lower.includes('next') ||
+      lower.includes('lcp') ||
+      lower.includes('sub-second') ||
+      lower.includes('portal') ||
+      lower.includes('kurumsal web') ||
+      lower.includes('web sistemi') ||
+      lower.includes('hız') ||
+      lower.includes('yavaş')
+    ) {
+      return `Next.js 14 ile geliştirdiğimiz **0.8 saniye altı kurumsal web sistemlerinin** yavaş sitelere kıyasla işletmenize kazandırdığı 3 somut avantaj:
+
+1. ⚡ **Göz Açıp Kapayıncaya Kadar Açılış (0.8s Altı LCP):**
+Klasik WordPress veya hantal temalı siteler tıkladığınızda 3 ila 5 saniye bekletir. Google araştırmalarına göre her 1 saniyelik gecikme ziyaretçilerin %20'sinin siteyi terk etmesine yol açar. Next.js 14 sayfaları gecikmesiz açtığı için reklam bütçeniz çöpe gitmez, dönüşüm oranı ortalama 3.6 kat artar.
+
+2. 🔐 **Şifreli Müşteri & B2B Portalları:**
+Müşterileriniz sadece statik sayfaları gezmez; kendi şirket hesabıyla şifreli panele girip sözleşmelerini, tekliflerini, faturalarını ve proje aşamalarını 7/24 canlı takip edebilir.
+
+3. 📅 **Ücretsiz & Bağımsız Randevu/Takvim Mimarisi:**
+Aylık kullanıcı başı 15-30$ Calendly aboneliği ödemek yerine; kendi sitenize gömülü çalışan, Google Takvim & Outlook ile çift yönlü eşitlenen ve WhatsApp hatırlatmalı sınırsız bir randevu altyapısı kuruyoruz.
+
+👉 Projeniz için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+    }
+
+    // 5. Fiyatlar, Ücretlendirme ve Maliyet
+    if (
+      lower.includes('fiyat') ||
+      lower.includes('ücret') ||
+      lower.includes('maliyet') ||
+      lower.includes('kaç para') ||
+      lower.includes('kaç tl') ||
+      lower.includes('kaç euro') ||
+      lower.includes('bütçe') ||
+      lower.includes('fiyatlandırma') ||
+      (lower.includes('ne kadar') && (lower.includes('tutar') || lower.includes('ödeme') || lower.includes('para')))
+    ) {
+      return `Starwebflow'da sürpriz veya dolara endeksli değişken faturalar yoktur. Maliyet modelimiz 3 şeffaf esasa dayanır:
+
+1. 🔒 **Yapay Zeka & Otomasyon:** Kendi kiraladığınız dedike sunucuda çalıştığı için OpenAI gibi şirketlere aylık token/kelime faturası ödemezsiniz. Tek seferlik anahtar teslim kurulum + isteğe bağlı 7/24 SLA bakım modeli uygulanır.
+2. ⚡ **Sub-Second Web & Portallar:** Next.js 14 altyapısıyla geliştirilen sistemler; sayfa sayısı, müşteri portalı veya ERP entegrasyonu derinliğine göre şeffaf bir proje teklifiyle fiyatlandırılır.
+3. 📋 **Ücretsiz Ön Şartname & Fizibilite:** Projenize başlamadan önce hiçbir ön ödeme yapmadan, /randevu sayfamızdan 15 dakikalık teknik değerlendirme alabilir; tam maliyet ve yol haritasını ücretsiz çıkarabilirsiniz.`;
+    }
+  }
+
+  return null;
+}
+
+function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): Response {
+  let fallbackText = getCuratedResponse(lastUserMsg, langKey);
+  if (!fallbackText) {
+    const lower = (lastUserMsg || '').toLowerCase();
+    if (langKey === 'tr') {
+      if (
+        lower.includes('vps') || lower.includes('sunucu') || lower.includes('ionos') || lower.includes('hostinger')
+      ) {
+        fallbackText = `Evet, VPS üzerindeki Ollama servisini hem canlı web sitenize hem de yerel test ortamınıza bağlamak mümkündür ve en verimli çalışma yöntemidir!
 
 İşte bunu sağlamanın 2 adımlı temiz yolu:
-1. 🖥️ **VPS Üzerinde Dış Dinleme:** VPS'inizdeki Ollama servisinin dış dünyaya güvenli yanıt verebilmesi için \`OLLAMA_HOST=0.0.0.0:11434\` ortam değişkeniyle çalıştırılması ve güvenlik duvarında bu porta (veya tercihen arkasına kurulacak Nginx SSL ters vekili ile örneğin \`https://ai.siteniz.com\` adresine) izin verilmesi gerekir.
-2. ⚙️ **Projeye Tanımlama:** Hem canlı sunucunuzdaki hem de yerel geliştirme ortamınızdaki \`.env\` dosyasında:
-\`OLLAMA_BASE_URL="http://sunucu-ip-adresiniz:11434"\` (veya SSL arkasındaki alan adınız) olarak tanımlandığında, her iki ortam da tek bir güçlü merkezden yapay zeka yanıtlarını üretmeye başlar.
+1. 🖥️ **VPS Üzerinde Dış Dinleme:** VPS'inizdeki Ollama servisinin dış dünyaya güvenli yanıt verebilmesi için \`OLLAMA_HOST=0.0.0.0:11434\` ortam değişkeniyle çalıştırılması gerekir.
+2. ⚙️ **Projeye Tanımlama:** \`.env\` dosyasında \`OLLAMA_BASE_URL="http://sunucu-ip-adresiniz:11434"\` olarak tanımlandığında, her iki ortam da tek bir güçlü merkezden yapay zeka yanıtlarını üretmeye başlar.
 
 👉 Bu bağlantıyı sizin için anahtar teslim yapılandırmak ve test etmek üzere /randevu sayfamızdan teknik randevu planlayabilirsiniz.`;
-    }
-    // 3. Nasıl Çalışıyoruz & Süreç & Teslimat Süresi
-    else if (
-      lower.includes('nasıl çalış') ||
-      lower.includes('süreç') ||
-      lower.includes('teslimat') ||
-      lower.includes('ne kadar sür') ||
-      lower.includes('aşama') ||
-      lower.includes('adımlar')
-    ) {
-      fallbackText = `Projelerimizi 4 aşamalı kurumsal mühendislik disipliniyle hayata geçiriyoruz:
+      } else {
+        fallbackText = `Merhaba! Starwebflow olarak işletmenize özel dedike sunucularda çalışan yerel AI ajanları (Ollama), n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 kurumsal web sistemleri kuruyoruz.
 
-1. 🎯 **1. Gün - Mimari Keşif & Şartname:** 15 dakikalık görüşmeyle iş süreçleriniz, mevcut CRM yapınız ve sunucu ihtiyaçlarınız netleştirilir.
-2. 🔒 **2-4. Gün - İzole Sunucu & Model Eğitimi:** Tier-3/Tier-4 sunucunuz ayağa kaldırılır, şirketinizin ürün ve bilgi havuzu (RAG) yüklenerek yerel yapay zeka modelleri eğitilir.
-3. ⚙️ **5-7. Gün - Süreç Otomasyonu (n8n):** Web siteniz, WhatsApp hattınız ve muhasebe sisteminiz otomatik veri akışlarıyla birbirine bağlanır.
-4. 🚀 **Canlıya Alma & 7/24 Telemetri:** Sistem canlıya alınır ve her 60 saniyede bir otomatik telemetri denetimiyle %99.98 uptime güvencesiyle çalışır.
-
-👉 Sürecinizi başlatmak için /randevu sayfamızdan ilk keşif görüşmesini planlayabilirsiniz.`;
+Merak ettiğiniz mimariyi (örneğin: ChatGPT vs Yerel Model farkı, VPS kurulumu, süreç otomasyonu veya Next.js hız avantajları) doğrudan sorabilir ya da /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
+      }
+    } else {
+      fallbackText = `We build sovereign, high-performance systems: Dedicated servers, local Ollama models, n8n automations, and sub-second Next.js 14 web apps. How can we empower your business infrastructure? Schedule a complimentary 15-minute review at /randevu.`;
     }
-    // 4. Fiyatlar, Ücretlendirme ve Maliyet
+  }
     else if (
       lower.includes('fiyat') ||
       lower.includes('ücret') ||
