@@ -11,6 +11,8 @@ interface Props {
   params: { slug: string };
 }
 
+export const revalidate = 86400; // Cache blog article for 24 hours with ISR
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await prisma.blogPost.findUnique({
     where: { slug: params.slug, status: 'PUBLISHED' },

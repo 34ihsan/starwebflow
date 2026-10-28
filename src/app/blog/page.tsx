@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'Dijital pazarlama, SEO, web tasarım ve yapay zeka çözümleri hakkında en güncel makaleler ve içgörüler.',
 };
 
+export const revalidate = 3600; // Cache blog index for 1 hour with ISR
+
 export default async function BlogIndexPage() {
   const posts = await prisma.blogPost.findMany({
     where: { status: 'PUBLISHED' },
