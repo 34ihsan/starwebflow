@@ -27,7 +27,7 @@ export function isAiConfigured(): boolean {
   return process.env.OLLAMA_ENABLED !== 'false' || !!getGoogleApiKey();
 }
 
-// ─── Yerel Ollama Görev Odaklı Modeller (E:\OllamaModels) ────────────────────
+// ─── Yerel Ollama Görev Odaklı Modeller ──────────────────────────────────────
 export const OLLAMA_MODELS = {
   AGENT: process.env.OLLAMA_AGENT_MODEL || 'starwebflow-agent:latest',
   AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'starwebflow-automation:latest',
@@ -42,6 +42,76 @@ export const OLLAMA_MODELS = {
 } as const;
 
 export type StarWebflowAiDomain = 'agent' | 'automation' | 'webdev' | 'growth' | 'admin' | 'flash' | 'pro' | 'coder';
+
+let cachedInstalledModels: string[] | null = null;
+let lastModelCheckTime = 0;
+
+/**
+ * Sunucuda (Ollama) halihazırda yüklü olan tüm modelleri dinamik olarak listeler.
+ */
+export async function getInstalledOllamaModels(): Promise<string[]> {
+  const now = Date.now();
+  if (cachedInstalledModels && now - lastModelCheckTime < 60000) {
+    return cachedInstalledModels;
+  }
+  try {
+    const baseUrl = getOllamaBaseUrl();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(`${baseUrl}/api/tags`, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return [];
+    const data = await res.json();
+    const models = (data.models || []).map((m: any) => m.name || m.model);
+    cachedInstalledModels = models;
+    lastModelCheckTime = now;
+    return models;
+  } catch {
+    return cachedInstalledModels || [];
+  }
+}
+
+/**
+ * Sunucuda bulunan modeller arasından en uygun ve hızlı olanı akıllıca seçer.
+ * Öncelik Sırası:
+ * 1. starwebflow-agent
+ * 2. starwebflow
+ * 3. qwen2.5 (hızlı & Türkçe/Almanca/İngilizce kusursuz)
+ * 4. llama3.2 / llama3
+ * 5. mistral
+ * 6. Sunucudaki ilk mevcut model
+ */
+export async function resolveBestAvailableModel(preferred = 'starwebflow-agent:latest'): Promise<string> {
+  const installed = await getInstalledOllamaModels();
+  if (!installed || installed.length === 0) {
+    return preferred;
+  }
+
+  // 1. Tam veya kısmi eşleşme kontrolü
+  const matchPreferred = installed.find((m) => m === preferred || m.startsWith(preferred.split(':')[0]));
+  if (matchPreferred) return matchPreferred;
+
+  // 2. starwebflow modelleri
+  const starwebflowMatch = installed.find((m) => m.includes('starwebflow'));
+  if (starwebflowMatch) return starwebflowMatch;
+
+  // 3. Hafif ve zeki açık kaynak modeller
+  const qwenMatch = installed.find((m) => m.includes('qwen'));
+  if (qwenMatch) return qwenMatch;
+
+  const llamaMatch = installed.find((m) => m.includes('llama3') || m.includes('llama'));
+  if (llamaMatch) return llamaMatch;
+
+  const mistralMatch = installed.find((m) => m.includes('mistral'));
+  if (mistralMatch) return mistralMatch;
+
+  // 4. Sunucudaki ilk model
+  return installed[0] || preferred;
+}
 
 export function getOllamaProvider() {
   return createOpenAI({
@@ -77,9 +147,9 @@ export function getGoogleProvider() {
 /**
  * 1. AI Agents (7/24 Çok Dilli TR/DE/EN Satış & Müşteri Destek Ajanı, Tool Calling)
  */
-export function getAgentModel() {
+export function getAgentModel(modelName?: string) {
   if (isOllamaPrimary()) {
-    return getOllamaProvider()(OLLAMA_MODELS.AGENT);
+    return getOllamaProvider()(modelName || OLLAMA_MODELS.AGENT);
   }
   return getGoogleProvider()('gemini-2.5-flash');
 }

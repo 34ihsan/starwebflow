@@ -1,4 +1,4 @@
-import { getAgentModel, getGoogleProvider, getGoogleApiKey, getOllamaBaseUrl, isOllamaPrimary } from '@/lib/ai/gemini-client';
+import { getAgentModel, getGoogleProvider, getGoogleApiKey, getOllamaBaseUrl, isOllamaPrimary, resolveBestAvailableModel } from '@/lib/ai/gemini-client';
 import { retrieveStarWebFlowRagContext } from '@/lib/ai/rag-engine';
 import { streamText, formatDataStreamPart } from 'ai';
 
@@ -956,7 +956,8 @@ YANIT KURALLARI:
 
       if (isOnline) {
         try {
-          const primaryModel = getAgentModel();
+          const selectedModelName = await resolveBestAvailableModel();
+          const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
           const result = streamText({
