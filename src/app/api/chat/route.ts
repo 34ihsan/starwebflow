@@ -508,10 +508,14 @@ Biz işletmelerin verilerini üçüncü taraf bulut tekellerine sızdırmadan; k
 ${ragResult.formattedContext}
 ${auditMemoryBlock}
 
-Daima TÜRKÇE, 2-3 net ve profesyonel cümleyle yanıt ver. Ziyaretçinin sorduğu mimariyi açıkla ve ilgilenirse ücretsiz teknik mimari analizi / randevu (/randevu) için yönlendir.`;
+[KESİN KURALLAR]
+- Asla aynı cümleyi, benzer kalıpları veya kelime gruplarını peş peşe tekrarlama (döngüye girme).
+- Her cümlede yeni, somut ve teknik bir fayda sun (örneğin: Google LCP 0.8s altı, %20 ziyaretçi terkini engelleme, 3.6x dönüşüm artışı, şifreli müşteri portalları, sıfır token gideri).
+- Daima akıcı TÜRKÇE, net ve profesyonel bir tonla yanıt ver.
+- Ziyaretçinin sorduğu mimariyi açıkladıktan sonra ilgilenirse /randevu sayfamızdan 15 dakikalık ücretsiz mimari analiz randevusuna davet et.`;
     }
 
-    // 1. Step: Try Primary Ollama Model (e.g. on dedicated VPS) with fast 1.2s availability check
+    // 1. Step: Try Primary Ollama Model (e.g. on dedicated VPS) with fast 3.5s availability check
     if (isOllamaPrimary()) {
       const ollamaBaseUrl = getOllamaBaseUrl();
       const isOnline = await isOllamaReachable(ollamaBaseUrl);
@@ -524,7 +528,9 @@ Daima TÜRKÇE, 2-3 net ve profesyonel cümleyle yanıt ver. Ziyaretçinin sordu
             system: systemPrompt,
             messages,
             maxTokens: 500,
-            temperature: 0.3,
+            temperature: 0.7,
+            frequencyPenalty: 0.65,
+            presencePenalty: 0.35,
           });
 
           return result.toDataStreamResponse();
