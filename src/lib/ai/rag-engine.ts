@@ -83,6 +83,50 @@ const CORE_KNOWLEDGE_CHUNKS: RagDocumentChunk[] = [
 - Müşterilerinize self-servis portal, bayilerinize özel sipariş ve takip paneli sunarak Excel dosyaları ve telefon trafiği karmaşasını tamamen sıfırlar.`,
   },
   {
+    id: 'kb-sector-construction',
+    title: 'İnşaat, Taahhüt ve Mimarlık Sektörü Otomasyonları',
+    category: 'automation_erp',
+    keywords: ['inşaat', 'insaat', 'şantiye', 'santiye', 'müteahhit', 'mimarlık', 'mimari', 'hakediş', 'keşif', 'taşeron', 'kat planı', 'daire satışı'],
+    content: `İnşaat, Taahhüt ve Mimarlık Sektörü İçin Özel Çözümlerimiz:
+- Şantiye Sesli WhatsApp Raporu: Şantiye şefleri ve ustabaşıları uzun formlar doldurmak yerine WhatsApp'tan ses kaydı, harcama fişi veya fotoğraf atar. Sistem bunu anında metne çevirip ERP/Excel hakediş tablosuna işler.
+- 10 Saniyede Keşif & Teklif (PDF): Metrekare ve kaba/ince inşaat talebine göre güncel birim fiyat listenizle anında kurumsal antetli PDF teklif taslağı derler.
+- 7/24 Proje Satış & Kat Planı Asistanı: Reklamdan gelen konut veya arsa alıcılarına WhatsApp'tan anında kat planı ve katalog PDF'i iletip satış ofisine randevu kilitler.
+- Taşeron & Tedarikçi Koordinasyonu: Sipariş onayları ve sevkiyat saatleri otonom hatırlatılır, şantiye duraklamaları önlenir.`,
+  },
+  {
+    id: 'kb-sector-agencies',
+    title: 'Dijital Ajanslar ve Kreatif Ekipler İçin Süreç Otomasyonları',
+    category: 'automation_erp',
+    keywords: ['ajans', 'agency', 'dijital ajans', 'reklam ajansı', 'onboarding', 'brief', 'raporlama', 'revizyon', 'retainer'],
+    content: `Dijital Ajanslar İçin Haftalık 25 Saat Kurtaran Otopilotlar:
+- Otonom Müşteri Onboarding: Sözleşme imzalandığı an otomatik Slack/WhatsApp kanalı açılır, Drive klasörleri oluşturulur ve brief formu iletilip görev kartları açılır.
+- Haftalık Otonom Meta & Google Ads Raporlama: Her pazartesi sabahı insan eli değmeden tüm müşteri hesaplarının harcamaları, ROAS ve tıklama verileri API ile çekilip markaya özel şık bir PDF rapora dönüştürülür.
+- Tasarım & Metin Revizyon Onay Otopilotu: Müşteri revizyonları WhatsApp'tan toplanıp proje aracına işlenir; onay verilen kreatifler anında yayına alınır.
+- Otomatik Hakediş & Retainer Faturalama: Ay sonlarında ajans hizmet bedelleri muhasebe entegrasyonuyla otomatik faturalandırılır.`,
+  },
+  {
+    id: 'kb-sector-education-platforms',
+    title: 'Eğitim, Kurs, Akademi ve Öğrenci Platformları (örn: lernzirkel-online.de)',
+    category: 'ai_agents',
+    keywords: ['lernzirkel', 'eğitim', 'egitim', 'kurs', 'akademi', 'öğrenci', 'ogrenci', 'veli', 'ders', 'schul', 'bildung', 'etüt'],
+    content: `Eğitim Kurumları, Kurslar ve Online Platformlar İçin Otopilotlar:
+- Veli & Öğrenci WhatsApp Kayıt Otopilotu: Siteden gelen öğrenci veya veliyi karşılar, sınıf ve ders ihtiyacını öğrenip deneme dersi randevusu kilitler.
+- No-Show Önleyici Ders Hatırlatma: Derslerden 24 saat ve 2 saat önce velinin WhatsApp'ına otomatik hatırlatma ve online ders linki (Zoom/Meet) iletilir. Katılmama oranını %85 düşürür.
+- Otomatik Aylık Aidat & Fatura Hatırlatma: Vadesi gelen eğitim ödemeleri için velilere muhasebe sistemiyle entegre nazik otomatik WhatsApp ödeme linki ve e-fatura iletilir.
+- 0.8s Altı Hızlı Veli/Öğrenci Portalı: Next.js 14 altyapısıyla öğrencilerin ders programını ve gelişim raporlarını şifreli görebileceği güvenli panel.`,
+  },
+  {
+    id: 'kb-sector-ecommerce-retail',
+    title: 'E-Ticaret, Moda ve Perakende Satış Siteleri (örn: miressen.de)',
+    category: 'growth_geo',
+    keywords: ['miressen', 'e-ticaret', 'eticaret', 'shop', 'butik', 'store', 'mode', 'moda', 'giyim', 'sepet', 'kargo'],
+    content: `E-Ticaret ve Moda Siteleri İçin Satış Artırma Mimarisi:
+- 7/24 Çok Dilli AI Satış Temsilcisi: Sitede gezen ziyaretçinin beden, kumaş, teslimat sorularını anında yanıtlar, kombin önerir ve kararsız müşteriyi siparişe yönlendirir.
+- Terk Edilen Sepetleri WhatsApp'tan Kurtarma: Sepete ürün ekleyip almadan çıkan kullanıcılara 15 dakika sonra kişiselleştirilmiş stok hatırlatması ve kupon ileterek terk edilen sepetlerin %35'ini kurtarır.
+- Kargo & Sipariş Takip Otopilotu: "Siparişim nerede?" sorularını müşteri temsilcisini meşgul etmeden kargo API'sinden WhatsApp üzerinden 2 saniyede çözer.
+- Sub-Second Hız (0.8s LCP): Mobil cihazlarda her 1 saniyelik gecikme satışların %20 düşmesine neden olur. Next.js 14 ile sayfaları anında açılır hale getiriyoruz.`,
+  },
+  {
     id: 'kb-growth-marketing-geo',
     title: 'Veri Odaklı Büyüme (Growth Marketing) & GEO (/hizmetler/reklam-sosyal-medya)',
     category: 'growth_geo',

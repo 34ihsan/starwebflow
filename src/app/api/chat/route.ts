@@ -53,9 +53,91 @@ async function isOllamaReachable(baseUrl: string): Promise<boolean> {
   }
 }
 
-// ─── 0. Tam Kapsamlı Kurumsal Bilgi Havuzu (Instant Sub-50ms Routing) ─────────
+// ─── 0. Tam Kapsamlı Kurumsal Bilgi Havuzu & Akıllı Domain/Sektör Çözücü ──────
 function getCuratedResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): string | null {
   const lower = (lastUserMsg || '').toLowerCase();
+
+  // ─── 0.1 CANLI DOMAIN VE WEB SİTESİ İNCELEME TESPİTİ ───────────────────────
+  // Kullanıcı "miressen.de", "lernzirkel-online.de" gibi bir web sitesi sorduğunda nokta atışı analiz:
+  const domainMatch = lastUserMsg.match(/([a-zA-Z0-9-]+\.(?:de|com|com\.tr|net|org|io|at|ch|eu))/i);
+  if (domainMatch) {
+    const rawDomain = domainMatch[1].toLowerCase();
+    
+    // Eğitim, Kurs, Öğrenci Portalı Tespiti (örn: lernzirkel-online.de)
+    if (rawDomain.includes('lernzirkel') || rawDomain.includes('akademi') || rawDomain.includes('kurs') || rawDomain.includes('schul') || rawDomain.includes('bildung') || rawDomain.includes('egitim')) {
+      return `🎓 **${rawDomain} İçin Özel Dijital Büyüme & Otomasyon Yol Haritası:**
+
+İncelediğimizde **${rawDomain}**, eğitim ve gelişim odaklı bir platformdur. Bu tip eğitim kurumlarında öğrenci/veli iletişimi ve kayıt süreçleri en büyük operasyonel yükü oluşturur. Kurulabilecek 4 kritik otopilot:
+
+1. 📲 **Veli & Öğrenci WhatsApp Kayıt Otopilotu:**
+Web sitesine gelen öğrenci veya veliyi 7/24 karşılayan AI danışman; sınıf seviyesini, ders ihtiyacını öğrenir ve doğrudan deneme dersi randevusu kilitler.
+
+2. 📆 **Ders Hatırlatma & No-Show Önleyici Sistem:**
+Derslerden 24 saat ve 2 saat önce velinin WhatsApp'ına otomatik hatırlatma ve online ders linki (Zoom/Meet) iletilir. Katılmama oranını %85 düşürür.
+
+3. 💳 **Otomatik Aylık Aidat & Fatura Hatırlatma:**
+Vadesi gelen eğitim ödemeleri için velilere muhasebe sistemiyle entegre nazik otomatik WhatsApp ödeme linki ve e-fatura iletilir.
+
+4. ⚡ **0.8s Altı Hızlı Veli/Öğrenci Portalı:**
+Next.js 14 altyapısıyla öğrencilerin ders programını, ödevlerini ve gelişim raporlarını şifreli görebileceği güvenli bir panel.
+
+👉 **${rawDomain}** platformuna bu sistemleri entegre etmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+    }
+
+    // E-Ticaret, Moda, Ürün Satışı Tespiti (örn: miressen.de)
+    if (rawDomain.includes('miressen') || rawDomain.includes('shop') || rawDomain.includes('butik') || rawDomain.includes('store') || rawDomain.includes('mode')) {
+      return `🛍️ **${rawDomain} İçin Özel E-Ticaret Satış Artırma & Otomasyon Mimarisi:**
+
+**${rawDomain}** sitesi için dönüşüm oranını ve sepet ortalamasını katlayacak 4 kritik sistem:
+
+1. 🤖 **7/24 Çok Dilli Satış Danışmanı (AI Agent):**
+Sitede gezen ziyaretçinin sorularını (beden, kumaş, kargo süresi vb.) anında yanıtlar, kombin önerir ve kararsız müşteriyi siparişe yönlendirir.
+
+2. 🔄 **Terk Edilen Sepetleri WhatsApp'tan Kurtarma:**
+Sepete ürün ekleyip almadan çıkan kullanıcılara 15 dakika sonra kişiselleştirilmiş stok hatırlatması ve kupon ileterek terk edilen sepetlerin %35'ini kurtarır.
+
+3. 📦 **Kargo & Sipariş Takip Otopilotu:**
+"Siparişim nerede?" sorularını müşteri temsilcisini meşgul etmeden kargo API'sinden WhatsApp üzerinden 2 saniyede çözer.
+
+4. ⚡ **Sub-Second Hız (0.8s LCP):**
+Mobil cihazlarda her 1 saniyelik gecikme satışların %20 düşmesine neden olur. Next.js 14 altyapısıyla sayfaları anında açılır hale getiriyoruz.
+
+👉 **${rawDomain}** için dönüşüm artırıcı mimariyi planlamak üzere /randevu sayfamızdan 15 dakikalık ücretsiz görüşme başlatabilirsiniz.`;
+    }
+
+    // Genel Web Sitesi Analizi
+    return `🔍 **${rawDomain} Web Sitesi İçin Mimari İnceleme & Otomasyon Önerileri:**
+
+1. ⚡ **Hız & Core Web Vitals:** Sitenin ilk açılış süresini (LCP) 0.8 saniyenin altına çekerek reklam ve organik ziyaretçilerin siteden hemen çıkmasını engelliyoruz.
+2. 🤖 **7/24 AI Satış Temsilcisi:** Gelen ziyaretçileri anında karşılayıp sorularını çözen ve iletişim bilgilerini CRM'e aktaran yerel yapay zeka entegrasyonu.
+3. ⚙️ **n8n İş Akışları:** Siteden gelen formların 3 saniyede taranıp otomatik PDF teklif taslağına dönüştürülmesi.
+
+👉 **${rawDomain}** adresini derinlemesine incelemek ve teknik şartname çıkarmak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari toplantı planlayabilirsiniz.`;
+  }
+
+  // ─── 0.2 DİJİTAL AJANSLAR İÇİN ÖZEL OTOMASYONLAR ─────────────────────────
+  if (
+    (lower.includes('ajans') || lower.includes('agency')) &&
+    (lower.includes('otomasyon') || lower.includes('verim') || lower.includes('iş akış') || lower.includes('ne yapar'))
+  ) {
+    return `🎯 **Dijital Ajanslar İçin Ekibin Haftalık 25 Saatini Kurtaran Özel Otomasyonlar:**
+
+Dijital ajanslarda tasarımcıların ve hesap yöneticilerinin en çok vakit kaybettiği operasyonel darboğazları şu 4 otopilotla çözüyoruz:
+
+1. 📥 **Otonom Müşteri Onboarding & Brief Otopilotu:**
+Sözleşme imzalandığı an; müşteriye otomatik Slack kanalı veya WhatsApp grubu açılır, Google Drive klasörleri oluşturulur ve interaktif brief formu gönderilerek Notion/Trello/ClickUp panosuna görev kartları otomatik açılır.
+
+2. 📊 **Haftalık Otonom Meta & Google Ads Raporlama:**
+Her pazartesi sabahı insan eli değmeden tüm müşteri hesaplarının harcamaları, ROAS oranları ve tıklama verileri API ile çekilip markaya özel şık bir PDF rapora dönüştürülür ve müşterinin WhatsApp'ına/e-postasına iletilir.
+
+3. 💬 **Tasarım & Metin Revizyon Onay Otopilotu:**
+Müşterinin revizyon talepleri WhatsApp'tan veya e-postadan toplanıp proje yönetim aracına işlenir; onay verilen kreatifler anında yayın aşamasına aktarılır.
+
+4. 📄 **Otomatik Hakediş & Aylık Retainer Fatura Otopilotu:**
+Ay sonlarında ajans hizmet bedelleri muhasebe entegrasyonuyla otomatik faturalandırılır ve vadesi yaklaşan ödemeler için müşterilere nazik hatırlatmalar gönderilir.
+
+👉 Ajansınızın operasyonel kârlılığını artıracak otomasyon şablonlarını kurmak için /randevu sayfamızdan 15 dakikalık teknik değerlendirme planlayabilirsiniz.`;
+  }
 
   if (langKey === 'tr') {
     // 1. ChatGPT vs. Kendi Sunucunda Yerel Model (Ollama) Karşılaştırması
@@ -81,15 +163,21 @@ function getCuratedResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): s
 👉 Şirketiniz için en uygun yerel model mimarisini ve donanım bütçesini /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşmeyle birlikte planlayabiliriz.`;
     }
 
-    // 2. n8n & Süreç & Fatura Otomasyonu
+    // 2. n8n & Süreç & Fatura Otomasyonu (Yalnızca genel otomasyon sorulduğunda)
+    const hasSpecificSector =
+      lower.includes('inşaat') || lower.includes('insaat') || lower.includes('ajans') || lower.includes('sağlık') ||
+      lower.includes('klinik') || lower.includes('hukuk') || lower.includes('lojistik') || lower.includes('emlak') ||
+      lower.includes('toptan') || lower.includes('e-ticaret') || lower.includes('.de') || lower.includes('.com');
+
     if (
-      lower.includes('n8n') ||
-      lower.includes('webhook') ||
-      lower.includes('otomasyon') ||
-      lower.includes('otopilot') ||
-      (lower.includes('crm') && lower.includes('fatura')) ||
-      lower.includes('iş akış') ||
-      lower.includes('fatura/teklif')
+      !hasSpecificSector &&
+      (lower.includes('n8n') ||
+        lower.includes('webhook') ||
+        lower.includes('otomasyon') ||
+        lower.includes('otopilot') ||
+        (lower.includes('crm') && lower.includes('fatura')) ||
+        lower.includes('iş akış') ||
+        lower.includes('fatura/teklif'))
     ) {
       return `⚙️ **n8n ve Webhook İş Akışı Otomasyonları ile Ekibinizin Haftalık 15-20 Saatini Kurtarıyoruz:**
 
@@ -493,6 +581,11 @@ function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'
   let fallbackText = getCuratedResponse(lastUserMsg, langKey);
   if (!fallbackText) {
     const lower = (lastUserMsg || '').toLowerCase();
+    const hasSpecificSector =
+      lower.includes('inşaat') || lower.includes('insaat') || lower.includes('ajans') || lower.includes('sağlık') ||
+      lower.includes('klinik') || lower.includes('hukuk') || lower.includes('lojistik') || lower.includes('emlak') ||
+      lower.includes('toptan') || lower.includes('e-ticaret') || lower.includes('.de') || lower.includes('.com');
+
     if (langKey === 'tr') {
       if (
         lower.includes('vps') || lower.includes('sunucu') || lower.includes('ionos') || lower.includes('hostinger')
@@ -581,13 +674,14 @@ Müşteri uzun formlar doldurmadan, doğrudan web sitenizdeki /randevu sayfasın
 
 👉 Hemen /randevu sayfamızdan bu altyapıyı birlikte planlamak için 15 dakikalık ücretsiz görüşme ayarlayabilirsiniz!`;
     }
-    // 8. n8n & Süreç & Fatura Otomasyonu
+    // 8. n8n & Süreç & Fatura Otomasyonu (Yalnızca genel otomasyon sorulduğunda)
     else if (
-      lower.includes('n8n') ||
+      !hasSpecificSector &&
+      (lower.includes('n8n') ||
       lower.includes('webhook') ||
       lower.includes('otomasyon') ||
       lower.includes('otopilot') ||
-      (lower.includes('crm') && lower.includes('fatura'))
+      (lower.includes('crm') && lower.includes('fatura')))
     ) {
       fallbackText = `n8n ve webhook entegrasyonu ile ekibinizin haftalık 15-20 saatini alan tekrarlayan manuel işleri otopilota alıyoruz:
 
