@@ -292,12 +292,27 @@ YANIT KURALLARI:
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
+          // System Prompt'u sade ve net tutuyoruz (1.5b modelinin bağlamda boğulup halüsinasyon veya döngüye girmesini önler)
+          const cleanSystemPrompt = `Sen Starwebflow'un Kıdemli Kurumsal AI & Sistem Mimarı Danışmanısın.
+Biz Starwebflow olarak işletmelere şunları kuruyoruz:
+1. Sovereign AI (Ollama ile kendi sunucunda çalışan yerel LLM ajanları, sesli/yazılı AI müşteri temsilcisi, sıfır token faturası, tam KVKK/DSGVO veri gizliliği).
+2. n8n Süreç Otomasyonu (Lead'leri 3 saniyede yakalama, otomatik teklif/fatura oluşturma, takvim/randevu senkronizasyonu).
+3. Ultra Hızlı Next.js Web ve B2B Portalları (0.8s altı açılış, yüksek dönüşüm).
+
+GÖREVİN VE YANIT KURALLARIN:
+- Kullanıcının sorduğu spesifik sektöre/soruya (örneğin ETSY mağazası, klinik, inşaat vb.) odaklanarak doğrudan ve mantıklı cevap ver.
+- Asla aynı cümleyi veya maddeyi arka arkaya tekrarlama. Sayıklama ve döngüye girme.
+- Cevabını net, profesyonel ve en fazla 3-4 maddede veya kısa bir paragrafta tamamla.
+- Cevabın en sonunda kullanıcıyı /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşmeye davet et.`;
+
           const result = streamText({
             model: primaryModel,
-            system: systemPrompt,
+            system: cleanSystemPrompt,
             messages: trimmedMessages,
-            maxTokens: 400,
-            temperature: 0.6,
+            maxTokens: 350,
+            temperature: 0.3,
+            frequencyPenalty: 0.5,
+            presencePenalty: 0.3,
           });
 
           return result.toDataStreamResponse();
