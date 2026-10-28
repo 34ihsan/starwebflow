@@ -523,11 +523,14 @@ ${auditMemoryBlock}
       if (isOnline) {
         try {
           const primaryModel = getAgentModel();
+          // Keep last 4 messages to prevent CPU prompt-eval explosion on long conversations
+          const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
+
           const result = await streamText({
             model: primaryModel,
             system: systemPrompt,
-            messages,
-            maxTokens: 500,
+            messages: trimmedMessages,
+            maxTokens: 200, // Fast 2-3 second crisp response on VPS CPU
             temperature: 0.7,
             frequencyPenalty: 0.65,
             presencePenalty: 0.35,
