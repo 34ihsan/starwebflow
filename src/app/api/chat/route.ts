@@ -332,13 +332,89 @@ Modeli genel internet bilgisiyle değil, yalnızca şirketinizin gerçek ve doğ
 👉 E-ticaret altyapınız için /randevu sayfamızdan 15 dakikalık ücretsiz demo randevusu alabilirsiniz.`;
     }
 
+    // 15. AI Agent Şirketimize Ne Kazandırır? Bize Gerekli mi? (ROI & Yatırım Geri Dönüşü)
+    if (
+      (lower.includes('ne kazandırır') || lower.includes('gerekli mi') || lower.includes('fayda') || lower.includes('neden ai') || lower.includes('neden yapay zeka') || lower.includes('değer mi') || lower.includes('ne işe yarar') || lower.includes('roi') || lower.includes('yatırım') || lower.includes('avantajı ne')) &&
+      (lower.includes('şirket') || lower.includes('biz') || lower.includes('işletme') || lower.includes('bize') || lower.includes('agent') || lower.includes('ajan') || lower.includes('ai') || lower.includes('sistem'))
+    ) {
+      return `📈 **Bir AI Agent İşletmenize Ne Kazandırır ve Firmanız İçin Gerçekten Gerekli mi?**
+
+Birçok işletme yapay zekayı bir "masraf" veya "moda" olarak görür; oysa doğru kurgulanmış bir AI Agent, şirketinizin **en karlı ve hiç yorulmayan dijital çalışanıdır**. İşte işletmenize kazandıracağı 4 somut matematiksel getiri:
+
+1. ⏱️ **21 Kat Daha Yüksek Satış Dönüşümü (İlk 5 Dakika Kuralı):**
+Harvard Business Review araştırmalarına göre, bir müşteri talebine **ilk 5 dakika içinde yanıt verildiğinde satışa dönüşme ihtimali 21 kat artar**. İnsan ekibiniz toplantıdayken, yoldayken veya gece uyurken AI Ajanınız 15 saniyede müşteriyi karşılar, ihtiyacını çözer ve sıcak randevuyu kilitler.
+
+2. 🌙 **Gece ve Hafta Sonu Ciro Kaçaklarını Sıfırlama (+%30-45 Ek Ciro):**
+B2B ve hizmet sektöründe gelen taleplerin yaklaşık %40'ı mesai saatleri dışında (akşam 19:00 - gece 01:00 arası veya hafta sonu) gelir. Yanıt alamayan potansiyel müşteri hemen rakibinize yazar. AI Ajanınız 7/24 uyanık kalarak bu ciroyu kasanızda tutar.
+
+3. 💼 **Ekibinizin Haftalık 20+ Saatini Kurtarma:**
+Personelinizin gün boyu maruz kaldığı *"Fiyat listeniz nedir?", "Katalog gönderebilir misiniz?", "Randevu saatleriniz ne zaman?"* gibi tekrarlayan rutin soruları insan eli değmeden çözer. Ekibiniz operasyonel amelelikten kurtulup sadece gerçek sıcak satışa odaklanır.
+
+4. 🔒 **Sıfır Ek Maaş, SGK ve Sabit Maliyet:**
+Yeni bir personel istihdam etmek; maaş, SGK, yemek, eğitim ve yönetim maliyeti demektir. Starwebflow AI Ajanı kendi sunucunuzda, sıfır token ücretiyle, yılda 365 gün kesintisiz çalışır. Ortalama bir işletmede yatırım maliyetini **ilk 45 gün içinde** amorti eder (%300+ ROI).
+
+👉 Firmanızın operasyonunu inceleyip AI Ajanının nerede ciro yaratacağını hesaplamak için /randevu sayfamızdan 15 dakikalık ücretsiz fizibilite planlayabilirsiniz.`;
+    }
+
+    // 16. Reklam, Pazarlama & Dijital Büyüme (Growth) Hizmetleri
+    if (
+      lower.includes('reklam') ||
+      lower.includes('büyüme') ||
+      lower.includes('growth') ||
+      lower.includes('pazarlama') ||
+      lower.includes('google ads') ||
+      lower.includes('meta ads') ||
+      lower.includes('müşteri kazan') ||
+      lower.includes('leads') ||
+      (lower.includes('satış') && lower.includes('artır'))
+    ) {
+      return `🚀 **Reklam ve Dijital Büyüme (Growth) İçin Hangi Hizmetleri Sunuyoruz?**
+
+Geleneksel reklam ajansları sadece bütçenizi harcayıp size rapor sunar; Starwebflow ise reklam bütçenizin her kuruşunu net ciroya dönüştüren **"Uçtan Uca Satış & Büyüme Makinesi"** kurar:
+
+1. ⚡ **0.8s Altı Ultra Hızlı Dönüşüm Sayfaları (Next.js Landing Pages):**
+Google ve Meta reklamlarında kullanıcıların %53'ü 3 saniyeden geç açılan siteleri tıklar tıklamaz terk eder. Geliştirdiğimiz sub-second Next.js reklam sayfaları anında açılır, reklam kalite puanınızı artırır ve tıklama maliyetinizi (CPC) %40'a kadar düşürür.
+
+2. 🤖 **Reklam Trafiğini Yakalayan 7/24 AI Satış Ajanı:**
+Reklama tıklayıp sitenize gelen ziyaretçi kararsız kaldığında veya form doldurmak istemediğinde, AI Ajanı devreye girer. Müşterinin aklındaki soru işaretlerini giderir, telefon numarasını veya WhatsApp iletişimini alarak sıcak lead'e dönüştürür.
+
+3. 🎯 **Sunucu Taraflı Dönüşüm Takibi (Server-Side Tracking / CAPI):**
+iOS 14+ ve tarayıcı engelleyicilerin reklam verilerini gizlemesini engelliyoruz. Reklam piksellerini doğrudan sunucunuzdan Google & Meta API'larına bağlayarak reklam algoritmalarının en çok para harcayan doğru kitleyi bulmasını sağlıyoruz.
+
+4. 🔄 **Otonom Retargeting & WhatsApp Lead Kurtarma:**
+Reklamdan gelip teklif alan ama karar vermeyen müşterilere n8n otopilotuyla 24 saat sonra nazik bir hatırlatma veya özel şartname sunumu iletilir; böylece soğuyan lead'ler yeniden satışa döndürülür.
+
+👉 Reklam bütçenizin verimini artıracak büyüme mimarisini planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz strateji görüşmesi alabilirsiniz.`;
+    }
+
     // ─── 2. SEKTÖREL VE ÖZGÜN NİYET ÇÖZÜCÜ (DYNAMIC SEMANTIC SYNTHESIZER) ────────
     // Kullanıcı listede olmayan bambaşka bir sektör veya soru sorsa dahi ona nokta atışı cevap üretir:
+    const isConstruction = lower.includes('inşaat') || lower.includes('insaat') || lower.includes('şantiye') || lower.includes('santiye') || lower.includes('müteahhit') || lower.includes('muteahhit') || lower.includes('yapı') || lower.includes('mimarlık') || lower.includes('hakediş') || lower.includes('proje satışı');
     const isHealthcare = lower.includes('sağlık') || lower.includes('klinik') || lower.includes('doktor') || lower.includes('hasta') || lower.includes('diş') || lower.includes('randevu') || lower.includes('muayene') || lower.includes('estetik');
     const isLogistics = lower.includes('lojistik') || lower.includes('kargo') || lower.includes('nakliye') || lower.includes('araç') || lower.includes('sevkiyat') || lower.includes('depo') || lower.includes('şoför');
     const isLegal = lower.includes('hukuk') || lower.includes('avukat') || lower.includes('dava') || lower.includes('müvekkil') || lower.includes('icra') || lower.includes('danışmanlık');
     const isRealEstate = lower.includes('emlak') || lower.includes('gayrimenkul') || lower.includes('konut') || lower.includes('kira') || lower.includes('arsa') || lower.includes('villa');
     const isFinanceOrCommerce = lower.includes('toptan') || lower.includes('tekstil') || lower.includes('üretim') || lower.includes('fabrika') || lower.includes('ihracat') || lower.includes('b2b') || lower.includes('bayi');
+
+    if (isConstruction) {
+      return `🏗️ **İnşaat, Taahhüt & Mimarlık Şirketleri İçin Verimi 3 Katına Çıkaran Özel Otomasyonlar:**
+
+İnşaat sektöründe zaman kaybı ve şantiye-ofis kopukluğu ciddi kâr erimesine neden olur. Starwebflow mimarisiyle inşaat firmalarına kurduğumuz 4 kritik otopilot:
+
+1. 📱 **Şantiye WhatsApp & Sesli Raporlama Otopilotu:**
+Şantiye şefleri veya ustabaşıları uzun formlar doldurmak yerine WhatsApp'tan ses kaydı, malzeme fotosu veya harcama fişi gönderir. Yerel AI bunu anında metne çevirir, kalemleri ayıklar ve şirketinizin ERP/Excel hakediş tablosuna insan hatası olmadan otomatik işler.
+
+2. 📑 **10 Saniyede Otonom Keşif & Teklif (PDF) Üretimi:**
+Müşteriden gelen m², lokasyon, kaba/ince inşaat veya tadilat talepleri doğrultusunda sistem güncel birim fiyat listenizle anında kurumsal antetli bir PDF teklif taslağı derler ve yönetici onayına sunar.
+
+3. 🏢 **Konut & Proje Satışında 7/24 Lead Yakalama:**
+Projenizin web sitesine veya reklamlarına gelen potansiyel alıcıları AI Ajan karşılar; bütçesini, aradığı oda sayısını ve ödeme planını öğrenip kat planları ve katalog PDF'ini saniyeler içinde alıcının WhatsApp'ına iletir. İlgili alıcıyı satış temsilcinizin takvimine randevu olarak kilitler.
+
+4. 🔄 **Taşeron & Tedarikçi Koordinasyon Otopilotu:**
+Beton, demir veya malzeme tedarikçilerine sipariş onayları, sevkiyat saatleri ve fatura mutabakatları n8n webhook altyapısı ile otonom hatırlatılır; şantiyede malzeme bekleme duraklamaları önlenir.
+
+👉 İnşaat firmanıza özel süreç haritasını çıkarmak için /randevu sayfamızdan 15 dakikalık ücretsiz teknik değerlendirme planlayabilirsiniz.`;
+    }
 
     if (isHealthcare) {
       return `🏥 **Sağlık & Klinik Sektörü İçin 7/24 Otonom Sistem Mimarisi:**
@@ -558,6 +634,45 @@ Müşteri uzun formlar doldurmadan, doğrudan web sitenizdeki /randevu sayfasın
 • Kurulan bu yerel model kümesi; web sitenize, WhatsApp destek hattınıza ve CRM sisteminize bağlanarak tüm müşteri temas noktalarını tek merkezden besler.
 
 👉 Firmanıza özel sunucu altyapısı ve model yol haritasını planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+    }
+    // 11. Büyüme, Reklam & Satış Artışı (Fallback Safety)
+    else if (
+      lower.includes('reklam') ||
+      lower.includes('büyüme') ||
+      lower.includes('growth') ||
+      lower.includes('pazarlama') ||
+      lower.includes('google ads') ||
+      lower.includes('meta ads') ||
+      lower.includes('müşteri kazan') ||
+      lower.includes('leads')
+    ) {
+      fallbackText = `🚀 Reklam ve Büyüme (Growth) İçin Uçtan Uca Sistemler Kuruyoruz:
+
+1. ⚡ 0.8s Altı Ultra Hızlı Reklam Sayfaları (Next.js Landing Pages): Reklam bütçenizin boşa gitmesini önler, tıklama başına maliyeti (CPC) %40'a varan oranda düşürür.
+2. 🤖 Reklam Trafiğini Karşılayan 7/24 AI Satış Ajanı: Sitenize gelen ziyaretçinin sorularını 15 saniyede çözerek doğrudan telefon numarasını ve randevusunu alır.
+3. 🎯 Sunucu Taraflı Takip (CAPI): iOS ve reklam engelleyicilerden etkilenmeden dönüşümleri Meta & Google algoritmalarına iletir.
+4. 🔄 Otonom Retargeting & WhatsApp Takip: Teklif alıp ayrılan potansiyel müşterilere otomatik hatırlatma gönderir.
+
+👉 Detaylı büyüme planlaması için /randevu sayfamızdan 15 dakikalık ücretsiz strateji görüşmesi planlayabilirsiniz.`;
+    }
+    // 12. AI Agent Şirketime Ne Kazandırır? / Gerekli mi? (Fallback Safety)
+    else if (
+      lower.includes('ne kazandırır') ||
+      lower.includes('gerekli mi') ||
+      lower.includes('fayda') ||
+      lower.includes('neden ai') ||
+      lower.includes('değer mi') ||
+      lower.includes('ne işe yarar') ||
+      lower.includes('roi')
+    ) {
+      fallbackText = `📈 Bir AI Agent İşletmenize Ne Kazandırır ve Neden Gereklidir?
+
+1. ⏱️ 21 Kat Daha Yüksek Dönüşüm: İlk 5 dakikada ulaşılan müşteri adaylarının satışa dönme oranı 21 kat yüksektir. AI Ajanınız 15 saniyede yanıt vererek müşteriyi kaçırmaz.
+2. 🌙 Gece & Hafta Sonu Kaçan Ciroyu Yakalama (+%35 Ek Ciro): Müşterilerinizin %40'ı mesai dışı yazar; ajanınız 7/24 uyanık kalarak satışı tamamlar.
+3. 💼 Ekibinize Haftalık 20+ Saat Zaman Kazandırma: Rutin fiyat, katalog ve randevu sorularını insan müdahalesi olmadan çözer.
+4. 🔒 Sıfır Ek Maaş / SGK / Token Maliyeti: Sabit sunucunuzda, sınırsız mesaj kapasitesiyle çalışır.
+
+👉 Firmanıza özel fizibilite için /randevu sayfamızdan 15 dakikalık ücretsiz görüşme başlatabilirsiniz.`;
     } else {
       fallbackText = `Merhaba! Starwebflow olarak işletmenize özel dedike sunucularda çalışan yerel AI ajanları (Ollama), n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 kurumsal web sistemleri kuruyoruz.
 
