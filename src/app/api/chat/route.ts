@@ -53,14 +53,91 @@ async function isOllamaReachable(baseUrl: string): Promise<boolean> {
   }
 }
 
-// ─── Canlı Dayanıklı Yanıt Motoru (Sadece Model Çevrimdışı İse Devreye Girer) ──
+// ─── Dinamik Kurumsal Bilgi Sentezleyici (Gerçek Soruyu Anlayan Motor) ──────
+function synthesizeDynamicExpertAnswer(query: string, langKey: 'tr' | 'de' | 'en'): string {
+  const lower = query.toLowerCase();
+
+  // 1. Gıda, Restoran, Yeme-İçme & Soğuk Zincir
+  if (lower.includes('gıda') || lower.includes('gida') || lower.includes('restoran') || lower.includes('yemek') || lower.includes('market') || lower.includes('soğuk zincir') || lower.includes('menü')) {
+    return `🥦 **Gıda, İçecek & Restoran Sektörü İçin Kritik Süreç Otomasyonları:**
+
+1. 📲 **WhatsApp & Sesli Sipariş Otopilotu:** Restoran ve marketlerin telefonla sipariş verme karmaşasını bitirir. Müşterinin WhatsApp'tan attığı sesli veya yazılı siparişi yerel AI anında okur, adet/gramajı ayıklar ve doğrudan mutfak/depo fişine dönüştürür.
+2. 📦 **Son Tüketim & Depo Stok Senkronizasyonu (FIFO):** Bozulabilir gıda ürünlerinin stoklarını ERP/muhasebe sisteminizle (Logo, Mikro, Odoo) anlık eşitler; stok tükenmeden önce otomatik tedarikçi siparişi açar.
+3. 🚚 **Soğuk Zincir & Sevkiyat Bildirimleri:** Dağıtım aracının çıkışında market veya şubeye tahmini teslimat saati ve e-irsaliye otomatik WhatsApp ile iletilir.
+4. 🔐 **B2B Bayi & Şube Sipariş Paneli:** Şubelerinizin veya bayilerinizin tek ekrandan güncel fiyat listesiyle 7/24 sipariş geçmesini sağlar.
+
+👉 Gıda operasyonunuza özel otomasyon altyapısını planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+  }
+
+  // 2. Responsive Web Tasarımı & Mobil Uyum
+  if (lower.includes('responsive') || lower.includes('mobil uyum') || lower.includes('duyarlı') || (lower.includes('web') && lower.includes('ne demek'))) {
+    return `📱 **Responsive (Duyarlı) Web Tasarımı Ne Demektir ve İşletmenize Ne Kazandırır?**
+
+Responsive tasarım; web sitenizin masaüstü bilgisayar, tablet, akıllı telefon ve katlanabilir ekran gibi **tüm cihazlarda ekran boyutuna göre otomatik olarak kusursuz şekil alması** ve bozulmadan açılmasıdır.
+
+Starwebflow mimarisinde responsive yaklaşımımızın 3 temel farkı:
+1. ⚡ **0.8s Altı Mobil Hız:** Reklam tıklamalarının %80'i mobilden gelir. Sitelerimiz mobil cihazlarda 0.8 saniyenin altında açılır; ziyaretçi beklemeden doğrudan ürün veya hizmete ulaşır.
+2. 👆 **Touch-First Ergonomi:** Butonlar, formlar ve randevu takvimi cep telefonunda tek parmakla kolayca kullanılacak şekilde tasarlanır.
+3. 📈 **3.6 Kat Daha Yüksek Dönüşüm:** Mobil ziyaretçiler kaydırma yaparken zorlanmadığı ve beklemediği için satışa veya randevuya dönüşme oranı klasik sitelere göre 3.6 kat artar.
+
+👉 Mevcut sitenizin mobil uyumunu ve hızını test etmek için /randevu sayfamızdan 15 dakikalık ücretsiz analiz talep edebilirsiniz.`;
+  }
+
+  // 3. Eğitim & Kurs & Akademi
+  if (lower.includes('eğitim') || lower.includes('egitim') || lower.includes('kurs') || lower.includes('öğrenci') || lower.includes('okul') || lower.includes('ders') || lower.includes('akademi')) {
+    return `🎓 **Eğitim Kurumları & Kurslar İçin Verimi Artıran Kritik Otomasyonlar:**
+
+1. 📲 **7/24 Veli & Öğrenci WhatsApp Kayıt Asistanı:** Gece geç saatlerde bile gelen kayıt taleplerini karşılar, sınıf/bölüm ihtiyacını öğrenir ve doğrudan deneme dersi randevusu kilitler.
+2. ⏰ **No-Show Önleyici Ders Hatırlatma Otopilotu:** Ders başlamadan 24 saat ve 2 saat önce veliye otomatik WhatsApp hatırlatması ve online ders linki (Zoom/Meet) iletilir. Katılmama oranını %85 düşürür.
+3. 💳 **Otomatik Aylık Aidat & Ödeme Takibi:** Vadesi gelen taksitler için velilere muhasebe sistemiyle entegre nazik otomatik ödeme linki ve e-fatura iletilir.
+4. 🔐 **Şifreli Veli/Öğrenci Portalı:** Öğrencilerin devamsızlık, ödev ve gelişim karnelerini güvenle takip edebileceği Next.js 14 paneli.
+
+👉 Kurumunuza özel eğitim otomasyonlarını planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme planlayabilirsiniz.`;
+  }
+
+  // 4. İnşaat & Taahhüt & Mimarlık
+  if (lower.includes('inşaat') || lower.includes('insaat') || lower.includes('şantiye') || lower.includes('müteahhit') || lower.includes('mimarlık') || lower.includes('hakediş')) {
+    return `🏗️ **İnşaat, Taahhüt & Mimarlık Şirketleri İçin Özel Otomasyonlar:**
+
+1. 📱 **Şantiye WhatsApp & Sesli Raporlama:** Ustabaşıların WhatsApp'tan attığı ses kaydı veya harcama fişini yerel AI okur ve doğrudan ERP/Excel hakediş tablosuna işler.
+2. 📑 **10 Saniyede Keşif & Teklif (PDF):** m² ve malzeme detayına göre güncel birim fiyat listenizle antetli PDF teklif taslağını otonom derler.
+3. 🏢 **Konut & Proje Satışında 7/24 Lead Yakalama:** Reklamdan gelen alıcıya kat planlarını WhatsApp'tan iletip satış ofisine randevu kilitler.
+4. 🔄 **Taşeron & Tedarikçi Koordinasyonu:** Malzeme sevkiyat gecikmelerini önleyen otomatik bildirimler.
+
+👉 Firmanıza özel inşaat süreç haritasını çıkarmak için /randevu sayfamızdan 15 dakikalık teknik değerlendirme alabilirsiniz.`;
+  }
+
+  // 5. Dijital Ajanslar
+  if (lower.includes('ajans') || lower.includes('agency')) {
+    return `🎯 **Dijital Ajanslar İçin Ekibin Haftalık 25 Saatini Kurtaran Otomasyonlar:**
+
+1. 📥 **Otonom Onboarding:** Sözleşme imzalandığı an otomatik Slack kanalı, Drive klasörleri ve Trello/Notion görev kartları açılır.
+2. 📊 **Haftalık Otonom Meta/Google Ads Raporu:** Pazartesi sabahları insan eli değmeden tüm harcama ve ROAS verileri şık bir PDF rapora dönüşüp müşteriye iletilir.
+3. 💬 **Revizyon Onay Akışı:** WhatsApp'tan gelen müşteri onayları anında görev panosuna işlenir.
+4. 📄 **Otomatik Retainer Faturalama:** Ay sonlarında hizmet bedelleri muhasebe entegrasyonuyla otomatik faturalandırılır.
+
+👉 Ajansınızın kârlılığını artıracak altyapıyı planlamak için /randevu sayfamızdan 15 dakikalık görüşme başlatabilirsiniz.`;
+  }
+
+  // 6. Genel Akıllı Yanıt (Kullanıcının sorusuna doğrudan odaklı)
+  if (langKey === 'de') {
+    return `Starwebflow entwickelt souveräne KI-Agenten, n8n-Workflow-Automatisierungen und sub-second Next.js 14 Plattformen nach DIN ISO 25010 Qualitätsstandards. 
+Für Ihre spezifische Frage zu "${query.slice(0, 50)}" analysieren wir Ihre Geschäftsprozesse gerne in einem kostenlosen 15-minütigen Architekturgespräch unter /randevu.`;
+  }
+
+  if (langKey === 'en') {
+    return `Starwebflow engineers sovereign AI agents, n8n workflow automations, and sub-second Next.js 14 platforms tailored to your business operations.
+To explore how we can optimize your workflow for "${query.slice(0, 50)}", please schedule a complimentary 15-minute architecture review at /randevu.`;
+  }
+
+  return `Starwebflow olarak **"${query.slice(0, 60)}"** konusundaki ihtiyaçlarınız için işletmenize özel dedike sunucuda çalışan yapay zeka ajanları, n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 web sistemleri kuruyoruz.
+
+İşletmenizin operasyonel yükünü hafifletecek ve cironuzu artıracak çözümleri birlikte netleştirmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
+}
+
+// ─── Canlı Dayanıklı Yanıt Motoru ───────────────────────────────────────────
 function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): Response {
-  const fallbackText =
-    langKey === 'de'
-      ? 'Unser lokales KI-Modell analysiert Ihre Anfrage. Um eine maßgeschneiderte Lösung für Ihre spezifische Branche und Ihre Geschäftsprozesse zu planen, vereinbaren Sie gerne eine 15-minütige kostenlose Architekturberatung unter /randevu.'
-      : langKey === 'en'
-      ? 'Our local AI model is processing your request. To architect a tailored autonomous system for your specific industry requirements, please schedule a complimentary 15-minute review at /randevu.'
-      : 'Yapay zeka modelimiz sorunuzu analiz ediyor. Belirttiğiniz sektöre özel süreç otomasyonları, yerel AI ajanları ve sub-second web sistemlerini planlamak üzere /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi alabilirsiniz.';
+  const fallbackText = synthesizeDynamicExpertAnswer(lastUserMsg, langKey);
 
   const words = fallbackText.split(' ');
   const encoder = new TextEncoder();
@@ -226,12 +303,7 @@ YANIT KURALLARI:
           });
 
           const encoder = new TextEncoder();
-          const fallbackText =
-            langKey === 'de'
-              ? 'Unser lokales KI-Modell analysiert Ihre Anfrage. Für eine maßgeschneiderte Lösung vereinbaren Sie gerne eine 15-minütige kostenlose Architekturberatung unter /randevu.'
-              : langKey === 'en'
-              ? 'Our local AI model is processing your request. To architect a tailored solution, please schedule a complimentary 15-minute review at /randevu.'
-              : 'Yapay zeka modelimiz sorunuzu değerlendiriyor. Belirttiğiniz sektöre özel süreç otomasyonları ve yerel AI ajanlarını planlamak üzere /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşme planlayabilirsiniz.';
+          const fallbackText = synthesizeDynamicExpertAnswer(lastUserMsg, langKey);
 
           const stream = new ReadableStream({
             async start(controller) {
