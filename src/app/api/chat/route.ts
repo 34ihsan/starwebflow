@@ -88,6 +88,28 @@ Starwebflow mimarisinde responsive yaklaşımımızın 3 temel farkı:
 👉 Ajansınızın kârlılığını artıracak altyapıyı planlamak için /randevu sayfamızdan 15 dakikalık görüşme başlatabilirsiniz.`;
   }
 
+  // 6. AI Agent ve AI Otomasyon Farkı
+  if (
+    (lower.includes('fark') || lower.includes('nedir') || lower.includes('karşılaştır') || lower.includes('ne demek')) &&
+    (lower.includes('agent') || lower.includes('ajan')) &&
+    (lower.includes('otomasyon') || lower.includes('n8n') || lower.includes('süreç'))
+  ) {
+    return `🤖 **AI Agent (Yapay Zeka Ajanı) ile AI Otomasyonu Arasındaki Temel Fark Nedir?**
+
+Her iki teknoloji birbirini tamamlar ancak şirketinizde tamamen farklı rolleri üstlenirler:
+
+1. ⚙️ **AI Otomasyonu (n8n / Kurallı İş Akışı): "Şirketin Dijital Kas Sistemi"**
+• Önceden belirlenmiş kurallarla çalışır. *"Eğer web formundan yeni müşteri gelirse → CRM'e kaydet → PDF teklif oluştur → WhatsApp'tan gönder"* gibi zincirleme süreçleri insan hatası olmadan mikrosaniyelerde yürütür. Karar vermez, emri kusursuz uygular.
+
+2. 🧠 **AI Agent (Otonom Temsilci): "Şirketin Düşünen Beyni"**
+• Sabit kurallarla sınırlı değildir. Müşterinin aklındaki soruları, itirazlarını ve niyetini anlar; şirketinizin kurumsal hafızasını tarayarak tıpkı tecrübeli bir satış temsilcisi gibi akıl yürütür ve müşteriyi ikna eder.
+
+🎯 **Birlikte Nasıl Çalışırlar?**
+AI Agent müşterinizi 7/24 karşılar, sorularını çözer ve randevuyu kilitler; AI Otomasyonu ise bu görüşmenin faturasını, sözleşmesini ve takvim senkronizasyonunu arka planda otopilota alır.
+
+👉 İşletmenize bu iki gücü entegre etmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
+  }
+
   // 6. Genel Akıllı Yanıt (Kullanıcının sorusuna doğrudan odaklı)
   if (langKey === 'de') {
     return `Starwebflow entwickelt souveräne KI-Agenten, n8n-Workflow-Automatisierungen und sub-second Next.js 14 Plattformen nach DIN ISO 25010 Qualitätsstandards. 
@@ -99,9 +121,9 @@ Für Ihre spezifische Frage zu "${query.slice(0, 50)}" analysieren wir Ihre Gesc
 To explore how we can optimize your workflow for "${query.slice(0, 50)}", please schedule a complimentary 15-minute architecture review at /randevu.`;
   }
 
-  return `Starwebflow olarak **"${query.slice(0, 60)}"** konusundaki ihtiyaçlarınız için işletmenize özel dedike sunucuda çalışan yapay zeka ajanları, n8n süreç otomasyonları ve 0.8s altı ultra hızlı Next.js 14 web sistemleri kuruyoruz.
+  return `Starwebflow Kıdemli Sistem & AI Danışmanı olarak; **"${query.slice(0, 80)}"** konusunda müşteri verilerinizi açık bulutlara kaptırmadan kendi sunucunuzda çalışan otonom mimariler geliştiriyoruz.
 
-İşletmenizin operasyonel yükünü hafifletecek ve cironuzu artıracak çözümleri birlikte netleştirmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
+İşletmenizin mevcut yazılımlarıyla (ERP/CRM/Web) konuşan özel AI ajanları ve n8n süreç otomasyonlarını kurgulamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz.`;
 }
 
 // ─── Canlı Dayanıklı Yanıt Motoru ───────────────────────────────────────────
@@ -318,7 +340,8 @@ YANIT KURALLARI:
                   )
                 );
                 controller.close();
-              } catch {
+              } catch (streamErr: any) {
+                console.error('[Chat API Internal Stream Exception]:', streamErr?.message || streamErr);
                 // If stream iteration ever throws or drops, stream fallback gracefully
                 const words = fallbackText.split(' ');
                 for (let i = 0; i < words.length; i += 3) {
