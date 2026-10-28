@@ -19,8 +19,8 @@ export function getOllamaBaseUrl(): string {
 }
 
 export function isOllamaPrimary(): boolean {
-  const mode = (process.env.AI_PROVIDER || 'ollama').toLowerCase();
-  return mode === 'ollama' || mode === 'local' || !getGoogleApiKey();
+  // %100 Sovereign AI İlkesi: Sistem tüm işlemler, kod, chat ve otomasyonlar için yalnızca yerel Ollama kullanır.
+  return true;
 }
 
 export function isAiConfigured(): boolean {

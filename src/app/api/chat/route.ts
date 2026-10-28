@@ -1,37 +1,6 @@
-import { getAgentModel, getGoogleProvider, getGoogleApiKey, getOllamaBaseUrl, isOllamaPrimary, resolveBestAvailableModel } from '@/lib/ai/gemini-client';
+import { getAgentModel, getOllamaBaseUrl, isOllamaPrimary, resolveBestAvailableModel } from '@/lib/ai/gemini-client';
 import { retrieveStarWebFlowRagContext } from '@/lib/ai/rag-engine';
 import { streamText, formatDataStreamPart } from 'ai';
-
-let isGeminiQuotaExhausted = false;
-
-/**
- * Fast health probe to verify if Gemini has available credits before attempting streamText.
- * Catches HTTP 402 (prepayment credits depleted) or rate limits in ~300ms without 12s hang & 500 error.
- */
-async function isGeminiUsable(apiKey: string): Promise<boolean> {
-  if (!apiKey || isGeminiQuotaExhausted) return false;
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 1200);
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }),
-        signal: controller.signal,
-      }
-    );
-    clearTimeout(timeout);
-    if (res.status === 402 || res.status === 429 || res.status === 403) {
-      isGeminiQuotaExhausted = true;
-      return false;
-    }
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Fast health probe to verify if Ollama server is reachable before attempting streamText.
@@ -371,35 +340,11 @@ YANIT KURALLARI:
           console.warn(`[Chat API] Ollama akış hatası (${ollamaErr?.message}). Dayanıklı anlık akışa geçiliyor...`);
         }
       } else {
-        console.warn(`[Chat API] Ollama (${ollamaBaseUrl}) çevrimdışı veya portu henüz açık değil. Yedek sağlayıcıya geçiliyor...`);
+        console.warn(`[Chat API] Ollama (${ollamaBaseUrl}) çevrimdışı veya portu henüz açık değil. Dayanıklı anlık akışa geçiliyor...`);
       }
     }
 
-    // 2. Step: Try Google Gemini Provider only if quota/prepayment is valid
-    const googleKey = getGoogleApiKey();
-    if (googleKey && googleKey !== 'BURAYA_API_ANAHTARINIZI_YAPISTIRIN') {
-      const geminiOnline = await isGeminiUsable(googleKey);
-      if (geminiOnline) {
-        try {
-          const googleProvider = getGoogleProvider();
-          const fallbackResult = await streamText({
-            model: googleProvider('gemini-2.5-flash'),
-            system: systemPrompt,
-            messages,
-            maxTokens: 500,
-            temperature: 0.3,
-          });
-
-          return fallbackResult.toDataStreamResponse();
-        } catch (googleError: any) {
-          console.warn(`[Chat API] Google Gemini yanıt veremedi (${googleError?.message}). Dayanıklı akıllı akışa geçiliyor...`);
-        }
-      } else {
-        console.warn(`[Chat API] Google Gemini API kotası tükenmiş (402) veya geçersiz. Dayanıklı akıllı akışa geçiliyor...`);
-      }
-    }
-
-    // 3. Step: Resilient Instant Structured Stream (Guaranteed never to fail, freeze, or hang)
+    // Dayanıklı Anlık Akış (Sovereign Fallback)
     return streamFallbackResponse(lastUserMsg, langKey);
   } catch (globalError: any) {
     console.error('[Chat API Global Error]:', globalError);
