@@ -4,22 +4,30 @@ import { streamText, formatDataStreamPart } from 'ai';
 
 /**
  * Fast health probe to verify if Ollama server is reachable before attempting streamText.
- * Prevents 10s hang and silent stream death when Ollama server is offline or unreachable.
+ * Checks both 127.0.0.1 and localhost to prevent IPv4/IPv6 resolution mismatch.
  */
-async function isOllamaReachable(baseUrl: string): Promise<boolean> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch(`${baseUrl}/api/tags`, {
-      method: 'GET',
-      signal: controller.signal,
-      cache: 'no-store',
-    });
-    clearTimeout(timeout);
-    return res.ok;
-  } catch {
-    return false;
+async function getReachableOllamaUrl(configuredUrl: string): Promise<string | null> {
+  const candidates = [configuredUrl, 'http://127.0.0.1:11434', 'http://localhost:11434'];
+  const uniqueUrls = Array.from(new Set(candidates));
+
+  for (const url of uniqueUrls) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2500);
+      const res = await fetch(`${url}/api/tags`, {
+        method: 'GET',
+        signal: controller.signal,
+        cache: 'no-store',
+      });
+      clearTimeout(timeout);
+      if (res.ok) {
+        return url;
+      }
+    } catch (err: any) {
+      console.warn(`[Chat API] Ollama probe failed for ${url}:`, err?.message || err);
+    }
   }
+  return null;
 }
 
 // ─── Dinamik Kurumsal Bilgi Sentezleyici (Gerçek Soruyu Anlayan Motor) ──────
@@ -275,12 +283,12 @@ YANIT KURALLARI:
     // 1. Step: Try Primary Ollama Model with fast token race (first token must arrive in 3.5s or switch seamlessly to curated fallback)
     if (isOllamaPrimary()) {
       const ollamaBaseUrl = getOllamaBaseUrl();
-      const isOnline = await isOllamaReachable(ollamaBaseUrl);
+      const activeOllamaUrl = await getReachableOllamaUrl(ollamaBaseUrl);
 
-      if (isOnline) {
+      if (activeOllamaUrl) {
         try {
           const selectedModelName = await resolveBestAvailableModel('qwen2.5:1.5b');
-          console.log('[Chat API] Aktif Ollama modeli:', selectedModelName);
+          console.log(`[Chat API] Aktif Ollama adresi: ${activeOllamaUrl}, model: ${selectedModelName}`);
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
@@ -288,87 +296,19 @@ YANIT KURALLARI:
             model: primaryModel,
             system: systemPrompt,
             messages: trimmedMessages,
-            maxTokens: 350,
+            maxTokens: 400,
             temperature: 0.6,
-            frequencyPenalty: 0.4,
-            presencePenalty: 0.2,
           });
 
-          const encoder = new TextEncoder();
-          const fallbackText = synthesizeDynamicExpertAnswer(lastUserMsg, langKey);
-
-          const stream = new ReadableStream({
-            async start(controller) {
-              try {
-                const iterator = result.textStream[Symbol.asyncIterator]();
-                const firstChunkPromise = iterator.next();
-                const timeoutPromise = new Promise<{ done: boolean; value?: string }>((resolve) =>
-                  setTimeout(() => resolve({ done: true, value: undefined }), 15000)
-                );
-
-                const winner = await Promise.race([firstChunkPromise, timeoutPromise]);
-
-                if (winner.done || !winner.value) {
-                  // Ollama took longer than 15s to evaluate prompt on CPU; stream the instant executive answer immediately
-                  const words = fallbackText.split(' ');
-                  for (let i = 0; i < words.length; i += 3) {
-                    const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
-                    controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
-                  }
-                  controller.enqueue(
-                    encoder.encode(
-                      formatDataStreamPart('finish_message', {
-                        finishReason: 'stop',
-                        usage: { promptTokens: 10, completionTokens: words.length },
-                      })
-                    )
-                  );
-                  controller.close();
-                  return;
-                }
-
-                // Ollama produced first token in time! Stream the full response
-                controller.enqueue(encoder.encode(formatDataStreamPart('text', winner.value)));
-                for await (const chunk of result.textStream) {
-                  controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
-                }
-                controller.enqueue(
-                  encoder.encode(
-                    formatDataStreamPart('finish_message', {
-                      finishReason: 'stop',
-                      usage: { promptTokens: 60, completionTokens: 60 },
-                    })
-                  )
-                );
-                controller.close();
-              } catch (streamErr: any) {
-                console.error('[Chat API Internal Stream Exception]:', streamErr?.message || streamErr);
-                // If stream iteration ever throws or drops, stream fallback gracefully
-                const words = fallbackText.split(' ');
-                for (let i = 0; i < words.length; i += 3) {
-                  const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
-                  controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
-                }
-                controller.close();
-              }
-            },
-          });
-
-          return new Response(stream, {
-            headers: {
-              'Content-Type': 'text/plain; charset=utf-8',
-              'X-Vercel-AI-Data-Stream': 'v1',
-            },
-          });
+          return result.toDataStreamResponse();
         } catch (ollamaErr: any) {
-          console.warn(`[Chat API] Ollama akış hatası (${ollamaErr?.message}). Dayanıklı anlık akışa geçiliyor...`);
+          console.error(`[Chat API] Ollama akış hatası:`, ollamaErr);
         }
       } else {
-        console.warn(`[Chat API] Ollama (${ollamaBaseUrl}) çevrimdışı veya portu henüz açık değil. Dayanıklı anlık akışa geçiliyor...`);
+        console.error(`[Chat API] Ollama hiçbir yerel adreste bulunamadı.`);
       }
     }
 
-    // Dayanıklı Anlık Akış (Sovereign Fallback)
     return streamFallbackResponse(lastUserMsg, langKey);
   } catch (globalError: any) {
     console.error('[Chat API Global Error]:', globalError);
