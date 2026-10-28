@@ -228,7 +228,111 @@ Sunucudaki PM2 ve Docker servisleri beklenmeyen bellek sızıntısı veya kilitl
 👉 Şirketinizin kritik altyapısını %99.98 SLA güvencesine almak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme planlayabilirsiniz.`;
     }
 
-    // 9. Genel Kurumsal Bilgi & Danışmanlık
+    // 9. AI Çözümleri Sadece Metin mi Anlıyor? (Multimodal / Sesli AI)
+    if (
+      lower.includes('sadece metin') ||
+      lower.includes('sesli') ||
+      lower.includes('santral') ||
+      lower.includes('multimodal') ||
+      lower.includes('görsel anla') ||
+      lower.includes('ses anla') ||
+      (lower.includes('metin') && (lower.includes('anlar') || lower.includes('anlıyor')))
+    ) {
+      return `🎙️ **Hayır, Geliştirdiğimiz Yapay Zeka Çözümleri Sadece Metin Değil, Çok Boyutlu (Multimodal) Yeteneklere Sahiptir:**
+
+1. 📞 **7/24 Sesli Telefon Santrali:** Müşterinizin telefon aramalarına gerçek bir insan doğallığında, gecikmesiz (~1.1s) sesle yanıt verir; randevuyu onaylar veya çağrıyı ilgili kişiye bağlar.
+2. 🎙️ **WhatsApp & Canlı Sesli Mesajlar:** Müşterilerinizin WhatsApp'tan attığı ses kayıtlarını dinleyip metne döker, niyetini anlar ve saniyeler içinde sesli veya yazılı cevap üretir.
+3. 📄 **Evrak & Görsel Okuma (OCR + Vision):** Müşterinizin gönderdiği fatura, tahlil sonucu, teknik şartname veya ürün fotoğraflarını anında analiz eder, verileri ERP/CRM sisteminize hatasız kaydeder.
+
+👉 Sesli yapay zeka santrali ve multimodal modelleri işletmenize entegre etmek için /randevu sayfamızdan 15 dakikalık demo görüşmesi alabilirsiniz.`;
+    }
+
+    // 10. AI Agents ve Otomasyon Ne Kadar Sürede Devreye Girer?
+    if (
+      (lower.includes('ne kadar sürede') || lower.includes('kaç günde') || lower.includes('kaç hafta') || lower.includes('ne zaman')) &&
+      (lower.includes('devreye') || lower.includes('canlı') || lower.includes('kurulur') || lower.includes('teslim') || lower.includes('başlar'))
+    ) {
+      return `⏱️ **AI Agents ve Süreç Otomasyonları Ne Kadar Sürede Devreye Girer?**
+
+Starwebflow'un modüler mühendislik mimarisi sayesinde projeler aylarca sürmez:
+
+1. 🚀 **Temel AI Satış & Karşılama Ajanları:** Sitenize, WhatsApp hattınıza veya müşteri destek kanalınıza **3 ila 7 iş günü içinde** aktif edilerek canlıya alınır.
+2. ⚙️ **CRM & ERP Entegrasyonlu Çok Kanallı Sistemler:** n8n iş akışları, otomatik PDF fatura/teklif motoru ve takvim otopilotu **2 ila 4 hafta içinde** anahtar teslim kurulur.
+3. 🛡️ **30 Gün Ücretsiz Garanti & SLA:** Sistem canlıya alındıktan sonraki ilk 30 gün boyunca tüm ince ayarlar ve performans optimizasyonu ücretsiz teknik destek kapsamındadır.
+
+👉 Projenizin devreye giriş takvimini netleştirmek için /randevu sayfamızdan 15 dakikalık keşif görüşmesi planlayabilirsiniz.`;
+    }
+
+    // 11. Mevcut Sistemlerim (ERP, CRM) AI ile Konuşabilir mi?
+    if (
+      (lower.includes('erp') || lower.includes('crm') || lower.includes('sap') || lower.includes('logo') || lower.includes('mikro') || lower.includes('hubspot') || lower.includes('salesforce') || lower.includes('odoo')) &&
+      (lower.includes('konuş') || lower.includes('bağlan') || lower.includes('entegre') || lower.includes('aktar') || lower.includes('veri'))
+    ) {
+      return `🔄 **Evet, Kesinlikle! Mevcut ERP ve CRM Yazılımlarınız Yapay Zeka ile Çift Yönlü Konuşabilir:**
+
+Geliştirdiğimiz otonom sistemler n8n, Webhook ve REST API köprüleriyle halihazırda kullandığınız tüm kurumsal yazılımlarla konuşur:
+
+1. 📥 **CRM'den Canlı Veri Okuma:** Müşteri aradığında veya yazdığında; AI ajan CRM'inizden (HubSpot, Salesforce, Pipedrive veya özel DB) müşteri geçmişini ve açık siparişlerini anında okur.
+2. 🔄 **Stok & Cari Sorgulama:** SAP, Logo, Mikro, Odoo gibi muhasebe ve ERP sistemlerinizden anlık stok ve fiyat listesi kontrolü yapar.
+3. 📝 **Otomatik Kayıt Oluşturma:** Müşteri teklifi kabul ettiği an, insan müdahalesine gerek kalmadan CRM'de yeni müşteri kartı açar, ERP'de sipariş taslağı oluşturur ve takvime toplantıyı işler.
+
+👉 Mevcut yazılımlarınızı yapay zekaya bağlamak için /randevu sayfamızdan 15 dakikalık entegrasyon analizi alabilirsiniz.`;
+    }
+
+    // 12. İşletmeme Özel AI Agent Nasıl Eğitilir?
+    if (
+      (lower.includes('nasıl eğit') || lower.includes('eğitim') || lower.includes('fine-tuning') || lower.includes('rag') || lower.includes('bilgi havuz')) &&
+      (lower.includes('özel') || lower.includes('şirket') || lower.includes('işletme') || lower.includes('ajan') || lower.includes('model'))
+    ) {
+      return `🧠 **İşletmenize Özel AI Agent Nasıl Eğitilir ve Şirket Dilinizi Nasıl Öğrenir?**
+
+Modeli genel internet bilgisiyle değil, yalnızca şirketinizin gerçek ve doğrulanmış kurumsal verileriyle donatıyoruz:
+
+1. 📚 **Veri Havuzunun Çıkarılması:** Şirketinizin PDF katalogları, ürün & hizmet fiyat listeleri, sözleşme şartnameleri, önceki müşteri yazışmaları ve SSS belgeleri taranır.
+2. 🔒 **İzole Vektör Veritabanı (RAG Mimarisi):** Tüm bu veriler kendi sunucunuzdaki (Almanya/TR VPS) izole vektör veritabanına gömülür. Veriler asla dışarı sızmaz.
+3. 🎯 **Marka Dili & Kurallar (System Guardrails):** Ajanın hangi durumda nasıl konuşacağı, indirim yetkisinin sınırları ve şirketinizin resmi kurumsal tonu kesin kurallarla modele kodlanır.
+4. 🚀 **Sıfır Halüsinasyon:** Ajan bilmediği veya onayınız olmayan bir konuda asla tahmin yürütmez; yanıtı doğrudan şirket belgelerinizden referans vererek cevaplar.
+
+👉 Firmanıza özel bilgi tabanı ve model eğitimini başlatmak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşmesi planlayabilirsiniz.`;
+    }
+
+    // 13. Şirket İçi Operasyonlarda (İK, Finans) Otomasyon
+    if (
+      (lower.includes('insan kaynak') || lower.includes('ik') || lower.includes('finans') || lower.includes('şirket içi') || lower.includes('iç operasyon') || lower.includes('bordro') || lower.includes('izin')) &&
+      (lower.includes('otomasyon') || lower.includes('kullan') || lower.includes('yapay zeka') || lower.includes('ajan'))
+    ) {
+      return `👥 **Evet! Yapay Zeka Otomasyonlarını Sadece Müşteriler İçin Değil, Şirket İçi İK ve Finans Departmanları İçin de Kuruyoruz:**
+
+1. 🏖️ **İnsan Kaynakları (İK) Otopilotu:**
+• İzin talepleri, masraf fişleri ve çalışan onay süreçleri doğrudan Slack veya WhatsApp botu üzerinden 10 saniyede tamamlanır.
+• Yeni çalışan oryantasyonunda (onboarding); şirket el kitapçığı, servis güzergahları ve kurum içi yönetmelikler AI asistan tarafından personele 7/24 aktarılır.
+
+2. 💳 **Finans & Muhasebe Otopilotu:**
+• Gelen PDF faturalar OCR ve LLM ile okunup tutar, vergi numarası ve kalemler hatasız şekilde muhasebe sisteminize işlenir.
+• Vadesi yaklaşan alacaklar ve cari hesap mutabakatları için müşterilere otomatik nazik hatırlatma mesajları iletilir.
+
+👉 Şirket içi iş yükünüzü hafifletecek otomasyon haritasını /randevu sayfamızdan 15 dakikalık görüşmeyle birlikte çıkarabiliriz.`;
+    }
+
+    // 14. E-Ticarette AI Satış Artışı & Sepet Kurtarma
+    if (
+      lower.includes('e-ticaret') ||
+      lower.includes('sepet') ||
+      lower.includes('woocommerce') ||
+      lower.includes('shopify') ||
+      lower.includes('ikas') ||
+      lower.includes('ticimax')
+    ) {
+      return `🛒 **E-Ticaret Sitenizde Yapay Zeka ile Satışları Nasıl Artırıyoruz?**
+
+1. 🛍️ **7/24 Aktif Satış Danışmanı:** Ziyaretçinin baktığı ürünlere veya sepetine göre ona en uygun beden/kombin veya tamamlayıcı ürünü canlı chatte önererek sepet ortalamasını (AOV) %28 artırır.
+2. 🔄 **Terk Edilen Sepetleri WhatsApp'tan Kurtarma:** Müşteri sepeti bırakıp çıktığında, 15 dakika sonra kişiselleştirilmiş empati mesajıyla (stok hatırlatması veya özel kuponla) müşteriyi siteye geri döndürür.
+3. 📦 **Kargo & İade Asistanı:** "Kargom nerede?" veya "Nasıl iade ederim?" sorularını insan personelinizi meşgul etmeden kargo API'sinden anında yanıtlar.
+
+👉 E-ticaret altyapınız için /randevu sayfamızdan 15 dakikalık ücretsiz demo randevusu alabilirsiniz.`;
+    }
+
+    // 15. Genel Kurumsal Bilgi & Danışmanlık
     if (
       lower.includes('starwebflow') ||
       lower.includes('hakkında') ||
