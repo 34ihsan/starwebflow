@@ -53,6 +53,7 @@ async function isOllamaReachable(baseUrl: string): Promise<boolean> {
   }
 }
 
+// ─── 0. Tam Kapsamlı Kurumsal Bilgi Havuzu (Instant Sub-50ms Routing) ─────────
 function getCuratedResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): string | null {
   const lower = (lastUserMsg || '').toLowerCase();
 
@@ -128,7 +129,36 @@ Randevu alındığında şirket takviminiz anında eşitlenir, Google Meet topla
 👉 Firmanıza özel sunucu altyapısı ve model yol haritasını planlamak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
     }
 
-    // 4. Next.js 14, Web Geliştirme, Hız & B2B Portalları
+    // 4. Canlı Analiz, Hız, Güvenlik ve Ciro Kaçakları
+    if (
+      lower.includes('analiz') ||
+      lower.includes('audit') ||
+      lower.includes('kaçak') ||
+      lower.includes('ciro') ||
+      lower.includes('tarama') ||
+      (lower.includes('site') && lower.includes('nasıl')) ||
+      lower.includes('ttfb')
+    ) {
+      return `🔍 **Mevcut Web Sitenizin Hız, Güvenlik ve Ciro Kaçaklarını 3 Saniyede Canlı Analiz Edin:**
+
+Web sitenizin adresini buraya yazarak veya ana sayfamızdaki **"3 Saniyede Canlı Site Taranması"** modülünü kullanarak şu kritik metrikleri anında öğrenebilirsiniz:
+
+1. ⚡ **Gerçek Sunucu Yanıt Hızı (TTFB & LCP):**
+Sitenizin ilk bayt yanıt süresini (TTFB) ve en büyük içerik boyama (LCP) hızını test eder. 0.8 saniyenin üzerindeki her gecikmenin ne kadar ciro ve müşteri kaybına yol açtığını hesaplar.
+
+2. 🛡️ **Güvenlik Başlıkları & SSL Denetimi:**
+HTTPS, HSTS, CSP ve Grade A+ güvenlik standartlarına uygunluğu denetler.
+
+3. 🤖 **ChatGPT & AI Arama (GEO) Görünürlüğü:**
+Yapay zeka arama motorlarının (ChatGPT, Perplexity, Gemini) sitenizi ne kadar tanıdığını ve müşterilere önerip önermediğini tespit eder.
+
+4. 🤖 **Özel AI Ajan Klonu:**
+Sitenizin içeriğine göre 3 saniyede çalışan örnek bir AI Satış Temsilcisi simülasyonu üretir.
+
+👉 Web sitenizin linkini buraya yazın ya da /randevu sayfamızdan 15 dakikalık derinlemesine mimari analiz talep edin!`;
+    }
+
+    // 5. Next.js 14, Web Geliştirme, Hız & B2B Portalları
     if (
       lower.includes('next') ||
       lower.includes('lcp') ||
@@ -153,7 +183,7 @@ Aylık kullanıcı başı 15-30$ Calendly aboneliği ödemek yerine; kendi siten
 👉 Projeniz için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme alabilirsiniz.`;
     }
 
-    // 5. Fiyatlar, Ücretlendirme ve Maliyet
+    // 6. Fiyatlar, Ücretlendirme ve Maliyet
     if (
       lower.includes('fiyat') ||
       lower.includes('ücret') ||
@@ -170,6 +200,24 @@ Aylık kullanıcı başı 15-30$ Calendly aboneliği ödemek yerine; kendi siten
 1. 🔒 **Yapay Zeka & Otomasyon:** Kendi kiraladığınız dedike sunucuda çalıştığı için OpenAI gibi şirketlere aylık token/kelime faturası ödemezsiniz. Tek seferlik anahtar teslim kurulum + isteğe bağlı 7/24 SLA bakım modeli uygulanır.
 2. ⚡ **Sub-Second Web & Portallar:** Next.js 14 altyapısıyla geliştirilen sistemler; sayfa sayısı, müşteri portalı veya ERP entegrasyonu derinliğine göre şeffaf bir proje teklifiyle fiyatlandırılır.
 3. 📋 **Ücretsiz Ön Şartname & Fizibilite:** Projenize başlamadan önce hiçbir ön ödeme yapmadan, /randevu sayfamızdan 15 dakikalık teknik değerlendirme alabilir; tam maliyet ve yol haritasını ücretsiz çıkarabilirsiniz.`;
+    }
+
+    // 7. Randevu, Takvim & Görüşme
+    if (
+      lower.includes('randevu') ||
+      lower.includes('takvim') ||
+      lower.includes('kalender') ||
+      lower.includes('toplantı') ||
+      lower.includes('görüşme')
+    ) {
+      return `📅 **Starwebflow ile 15 Dakikalık Ücretsiz Mimari Değerlendirme:**
+
+Görüşmemizde:
+• Mevcut web altyapınızın ve sunucu mimarinizin fizibilitesini çıkarıyoruz.
+• İşletmenizin verilerini koruyacak yerel yapay zeka ve süreç otomasyonu yol haritasını paylaşıyoruz.
+• Lastenheft şartnamesi ve net bütçe tablosunu hazırlıyoruz.
+
+Doğrudan [starwebflow.com/randevu](/randevu) sayfamızdan uygun saatinizi seçebilir veya ad-soyad, e-posta ve telefon bilginizi buradan iletebilirsiniz.`;
     }
   }
 
@@ -521,6 +569,12 @@ export async function POST(req: Request) {
         ? String(messages[messages.length - 1]?.content || '')
         : '';
 
+    // Fast-path: Return instant curated architecture response under 50ms if matching core B2B query
+    const curatedAnswer = getCuratedResponse(lastUserMsg, langKey);
+    if (curatedAnswer) {
+      return streamFallbackResponse(lastUserMsg, langKey);
+    }
+
     let ragResult = { formattedContext: '' };
     try {
       ragResult = await retrieveStarWebFlowRagContext(lastUserMsg, 3);
@@ -605,19 +659,25 @@ ${auditMemoryBlock}
           // Keep last 4 messages to prevent CPU prompt-eval explosion on long conversations
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
+          // Hard 5-second abort signal so CPU inference never causes Nginx 60s 504 timeout
+          const abortController = new AbortController();
+          const timer = setTimeout(() => abortController.abort(), 5000);
+
           const result = await streamText({
             model: primaryModel,
             system: systemPrompt,
             messages: trimmedMessages,
-            maxTokens: 200, // Fast 2-3 second crisp response on VPS CPU
+            maxTokens: 150, // Fast 2-3 second crisp response on VPS CPU
             temperature: 0.7,
             frequencyPenalty: 0.65,
             presencePenalty: 0.35,
+            abortSignal: abortController.signal,
           });
 
+          clearTimeout(timer);
           return result.toDataStreamResponse();
         } catch (ollamaErr: any) {
-          console.warn(`[Chat API] Ollama akış hatası: ${ollamaErr?.message}. Yedek sağlayıcıya geçiliyor...`);
+          console.warn(`[Chat API] Ollama akış hatası (${ollamaErr?.message}). Dayanıklı anlık akışa geçiliyor...`);
         }
       } else {
         console.warn(`[Chat API] Ollama (${ollamaBaseUrl}) çevrimdışı veya portu henüz açık değil. Yedek sağlayıcıya geçiliyor...`);
