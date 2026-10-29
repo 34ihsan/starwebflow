@@ -27,17 +27,32 @@ export function isAiConfigured(): boolean {
   return process.env.OLLAMA_ENABLED !== 'false' || !!getGoogleApiKey();
 }
 
-// ─── Yerel Resmi Açık Kaynak Ollama Modelleri (Qwen 2.5 3B & 1.5B) ────────
+// ─── Yerel Resmi Açık Kaynak Ollama Modelleri ─────────────────────────────
+// starwebflow ön adlı deneysel modeller tamamen kaldırıldı.
+// Yalnızca global kabul görmüş saf resmi modeller görevlerine göre dağıtıldı:
 export const OLLAMA_MODELS = {
+  // 1. Canlı Chat & Müşteri Karşılama Ajanı (Çok dilli, hızlı ve yüksek anlama kabiliyeti)
   AGENT: process.env.OLLAMA_AGENT_MODEL || 'qwen2.5:3b',
-  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'qwen2.5:3b',
-  WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'qwen2.5:3b',
-  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'qwen2.5:3b',
-  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'qwen2.5:3b',
-  FLASH: 'qwen2.5:3b',
-  PRO: 'qwen2.5:3b',
-  CODER: 'qwen2.5:3b',
+
+  // 2. İş Akışı, Mantık & n8n JSON Kurulumu (Güçlü akıl yürütme için Mistral 7B veya Qwen 7B)
+  AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'mistral:latest',
+
+  // 3. Kod Üretimi, Next.js & Frontend Mühendisliği (Resmi Qwen Coder)
+  WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'qwen2.5-coder:3b',
+  CODER: 'qwen2.5-coder:3b',
+
+  // 4. Büyüme & Reklam Stratejileri (Meta Llama 3.2 3B veya Qwen)
+  GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'llama3.2:3b',
+
+  // 5. Yönetici & Derin Analiz Görevleri (Mistral 7B / Qwen 7B)
+  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'mistral:latest',
+  PRO: 'mistral:latest',
+
+  // 6. Ultra Hafif Hızlı Görevler (Qwen 1.5B)
   FAST_LIGHT: 'qwen2.5:1.5b',
+  FLASH: 'qwen2.5:3b',
+
+  // 7. Vektör Gömme (RAG Embedding)
   EMBED: process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text:latest',
 } as const;
 
@@ -66,7 +81,10 @@ export async function getInstalledOllamaModels(): Promise<string[]> {
     clearTimeout(timeout);
     if (!res.ok) return [];
     const data = await res.json();
-    const models = (data.models || []).map((m: any) => m.name || m.model);
+    // Kesinlikle starwebflow ön adlı modelleri filtreleyip hariç tutuyoruz:
+    const models = (data.models || [])
+      .map((m: any) => m.name || m.model)
+      .filter((name: string) => !name.toLowerCase().startsWith('starwebflow'));
     cachedInstalledModels = models;
     lastModelCheckTime = now;
     return models;
@@ -76,13 +94,13 @@ export async function getInstalledOllamaModels(): Promise<string[]> {
 }
 
 /**
- * Sunucuda bulunan modeller arasından en uygun ve hızlı resmi açık kaynak modeli seçer.
+ * Sunucuda bulunan resmi modeller arasından en uygun ve hızlı modeli seçer.
+ * starwebflow ön adlı tüm modeller devre dışı bırakılmıştır.
  * Öncelik Sırası:
- * 1. qwen2.5:1.5b / qwen2.5:3b / qwen
- * 2. llama3.2 / llama3
- * 3. mistral
- * 4. starwebflow
- * 5. Sunucudaki ilk mevcut model
+ * 1. qwen2.5:3b / qwen2.5:7b-instruct
+ * 2. llama3.2:3b
+ * 3. mistral:latest
+ * 4. qwen2.5:1.5b
  */
 export async function resolveBestAvailableModel(preferred = 'qwen2.5:3b'): Promise<string> {
   const installed = await getInstalledOllamaModels();
@@ -90,27 +108,22 @@ export async function resolveBestAvailableModel(preferred = 'qwen2.5:3b'): Promi
     return preferred;
   }
 
-  // 1. qwen 3b veya 7b modelleri (en akıllı ve akıcı)
+  // 1. Qwen 3B veya 7B (En zeki ve akıcı Türkçe/Çok dilli)
   const qwen3bMatch = installed.find((m) => m.includes('qwen2.5:3b') || m.includes('qwen2.5:7b'));
   if (qwen3bMatch) return qwen3bMatch;
 
-  // 2. qwen diğer modelleri (1.5b vb.)
-  const qwenMatch = installed.find((m) => m.includes('qwen2.5') || m.includes('qwen'));
-  if (qwenMatch) return qwenMatch;
-
-  // 2. llama3.2 modelleri
-  const llamaMatch = installed.find((m) => m.includes('llama3.2') || m.includes('llama3') || m.includes('llama'));
+  // 2. Meta Llama 3.2 3B
+  const llamaMatch = installed.find((m) => m.includes('llama3.2'));
   if (llamaMatch) return llamaMatch;
 
-  // 3. mistral modelleri
+  // 3. Mistral 7B
   const mistralMatch = installed.find((m) => m.includes('mistral'));
   if (mistralMatch) return mistralMatch;
 
-  // 4. starwebflow modelleri
-  const starwebflowMatch = installed.find((m) => m.includes('starwebflow'));
-  if (starwebflowMatch) return starwebflowMatch;
+  // 4. Qwen 1.5B (Hafif yedek)
+  const qwenMatch = installed.find((m) => m.includes('qwen2.5:1.5b') || m.includes('qwen'));
+  if (qwenMatch) return qwenMatch;
 
-  // 5. Sunucudaki ilk model
   return installed[0] || preferred;
 }
 
