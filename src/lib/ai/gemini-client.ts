@@ -132,6 +132,10 @@ export function getOllamaProvider() {
     baseURL: `${getOllamaBaseUrl()}/v1`,
     apiKey: 'ollama',
     compatibility: 'compatible',
+    // CPU Çıkarımını Hızlandırma & Bellekte Sıcak Tutma Başlıkları (Zero Cold-Start & Fast Context)
+    headers: {
+      'X-Ollama-Keep-Alive': '24h',
+    },
   });
 }
 

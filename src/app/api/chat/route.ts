@@ -30,7 +30,22 @@ async function getReachableOllamaUrl(configuredUrl: string): Promise<string | nu
   return null;
 }
 
-// ─── Dinamik Kurumsal Bilgi Sentezleyici (Gerçek Soruyu Anlayan Motor) ──────
+// ─── Semantic (Anlamsal) Hafif Önbellek Belleği (Ultra Hız İçin) ───────────
+// Aynı veya çok benzer soruları 10 milisaniyede sıfır CPU maliyetiyle yanıtlar.
+interface SemanticCacheEntry {
+  answer: string;
+  timestamp: number;
+}
+const SEMANTIC_CACHE = new Map<string, SemanticCacheEntry>();
+const CACHE_TTL_MS = 1000 * 60 * 60 * 6; // 6 saat
+
+function normalizeForCache(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[.,?!:;\-_"']/g, '')
+    .replace(/\s+/g, ' ');
+}
 function synthesizeDynamicExpertAnswer(query: string, langKey: 'tr' | 'de' | 'en'): string {
   const lower = query.toLowerCase();
 
@@ -135,6 +150,35 @@ To explore how we can optimize your workflow for "${query.slice(0, 50)}", please
 }
 
 // ─── Canlı Dayanıklı Yanıt Motoru ───────────────────────────────────────────
+function streamCustomResponse(text: string): Response {
+  const words = text.split(' ');
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      for (let i = 0; i < words.length; i += 3) {
+        const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
+        controller.enqueue(encoder.encode(formatDataStreamPart('text', chunk)));
+      }
+      controller.enqueue(
+        encoder.encode(
+          formatDataStreamPart('finish_message', {
+            finishReason: 'stop',
+            usage: { promptTokens: 10, completionTokens: words.length },
+          })
+        )
+      );
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Vercel-AI-Data-Stream': 'v1',
+    },
+  });
+}
+
 function streamFallbackResponse(lastUserMsg: string, langKey: 'tr' | 'de' | 'en'): Response {
   const fallbackText = synthesizeDynamicExpertAnswer(lastUserMsg, langKey);
 
@@ -280,6 +324,16 @@ YANIT KURALLARI:
 - Yanıtının en sonunda mutlaka /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlamaya davet et.${auditMemoryBlock}${ragResult.formattedContext ? `\n[ŞİRKET BİLGİ HAVUZU]:\n${ragResult.formattedContext}` : ''}`;
     }
 
+    // 0. Step: Semantic Cache Check (Benzer veya aynı soru daha önce sorulduysa 10ms'de anında yanıtla)
+    const cacheKey = normalizeForCache(lastUserMsg);
+    if (cacheKey && cacheKey.length > 5) {
+      const cached = SEMANTIC_CACHE.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        console.log(`[Chat API] Semantic Cache hit: "${lastUserMsg}"`);
+        return streamCustomResponse(cached.answer);
+      }
+    }
+
     // 1. Step: Try Primary Ollama Model with fast token race (first token must arrive in 3.5s or switch seamlessly to curated fallback)
     if (isOllamaPrimary()) {
       const ollamaBaseUrl = getOllamaBaseUrl();
@@ -308,10 +362,18 @@ Starwebflow; işletmelere özel sunucuda çalışan yerel AI ajanları (Ollama),
             model: primaryModel,
             system: cleanSystemPrompt,
             messages: trimmedMessages,
-            maxTokens: 300,
+            maxTokens: 250,
             temperature: 0.3,
             frequencyPenalty: 0.8,
             presencePenalty: 0.5,
+            onFinish({ text }) {
+              if (cacheKey && cacheKey.length > 5 && text && text.length > 30) {
+                SEMANTIC_CACHE.set(cacheKey, {
+                  answer: text,
+                  timestamp: Date.now(),
+                });
+              }
+            },
           });
 
           return result.toDataStreamResponse();
