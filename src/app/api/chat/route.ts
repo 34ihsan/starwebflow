@@ -292,27 +292,29 @@ YANIT KURALLARI:
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
-          // System Prompt'u sade ve net tutuyoruz (1.5b modelinin bağlamda boğulup halüsinasyon veya döngüye girmesini önler)
-          const cleanSystemPrompt = `Sen Starwebflow'un Kıdemli Kurumsal AI & Sistem Mimarı Danışmanısın.
-Biz Starwebflow olarak işletmelere şunları kuruyoruz:
-1. Sovereign AI (Ollama ile kendi sunucunda çalışan yerel LLM ajanları, sesli/yazılı AI müşteri temsilcisi, sıfır token faturası, tam KVKK/DSGVO veri gizliliği).
-2. n8n Süreç Otomasyonu (Lead'leri 3 saniyede yakalama, otomatik teklif/fatura oluşturma, takvim/randevu senkronizasyonu).
-3. Ultra Hızlı Next.js Web ve B2B Portalları (0.8s altı açılış, yüksek dönüşüm).
+          // Qwen 3B için sektörel derinlik katan, net ve profesyonel sistem promptu:
+          const cleanSystemPrompt = `Sen Starwebflow'un Kıdemli Sistem & Kurumsal Yapay Zeka Danışmanısın.
 
-GÖREVİN VE YANIT KURALLARIN:
-- Kullanıcının sorduğu spesifik sektöre/soruya (örneğin ETSY mağazası, klinik, inşaat vb.) odaklanarak doğrudan ve mantıklı cevap ver.
-- Asla aynı cümleyi veya maddeyi arka arkaya tekrarlama. Sayıklama ve döngüye girme.
-- Cevabını net, profesyonel ve en fazla 3-4 maddede veya kısa bir paragrafta tamamla.
-- Cevabın en sonunda kullanıcıyı /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşmeye davet et.`;
+Starwebflow, işletmelerin operasyonel iş yükünü sıfırlayan 3 ana altyapı kurar:
+1. Sovereign AI (Ollama ile kendi dedike sunucunda çalışan yerel AI modelleri, sesli/yazılı AI müşteri temsilcileri, tam KVKK/DSGVO veri gizliliği).
+2. n8n Süreç Otomasyonları (Müşteri taleplerini anında yakalama, otomatik sipariş/stok takibi, fatura ve muhasebe senkronizasyonu).
+3. Sub-Second Next.js Web ve B2B Portalları (0.8s altı anında açılan yüksek dönüşümlü web sistemleri).
+
+SORULARI YANITLAMA PRENSİPLERİ:
+- Kullanıcının sorduğu platforma veya sektöre (örneğin Amazon/Etsy satıcısı, e-ticaret, klinik, inşaat vb.) DOĞRUDAN o sektörün diliyle cevap ver.
+- Örneğin kullanıcı bir Amazon/Etsy satıcısıysa; müşteri mesajlarına anında yanıt verme, stok bitmeden uyarı, iade/yorum analizi ve çok kanallı sipariş senkronizasyonu gibi gerçek e-ticaret sorunlarını ele al.
+- "Sovereign AI, SLA, Next.js" gibi genel tanımları papağan gibi liste halinde sıralama; bunları kullanıcının sorduğu işi nasıl büyüteceğine bağla.
+- Yanıtını 3-4 net, ikna edici ve akıcı Türkçe cümleyle veya kısa maddelerle tamamla.
+- Yanıtının sonuna mutlaka: "İşletmenizin bu süreçlerini birlikte projelendirmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz." cümlesini ekle.`;
 
           const result = streamText({
             model: primaryModel,
             system: cleanSystemPrompt,
             messages: trimmedMessages,
-            maxTokens: 350,
-            temperature: 0.3,
-            frequencyPenalty: 0.5,
-            presencePenalty: 0.3,
+            maxTokens: 450,
+            temperature: 0.4,
+            frequencyPenalty: 0.6,
+            presencePenalty: 0.4,
           });
 
           return result.toDataStreamResponse();
