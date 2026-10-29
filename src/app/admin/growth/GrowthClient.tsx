@@ -46,24 +46,24 @@ export default function GrowthClient() {
   const [activeTab, setActiveTab] = useState('scoring');
 
   // Module 1: Lead Scoring State
-  const [leadName, setLeadName] = useState('Ahmet Yılmaz (E-Ticaret CEO)');
+  const [leadName, setLeadName] = useState('');
   const [scoringResult, setScoringResult] = useState<any>(null);
   const [isScoring, setIsScoring] = useState(false);
 
   // Module 2: CRO State
-  const [croPage, setCroPage] = useState('Ana Sayfa Lead Formu');
+  const [croPage, setCroPage] = useState('');
   const [croResult, setCroResult] = useState<any>(null);
   const [isCroRunning, setIsCroRunning] = useState(false);
 
   // Module 3: Referral & Viral State
-  const [refName, setRefName] = useState('Mehmet Demir');
-  const [refEmail, setRefEmail] = useState('mehmet@teknoloji.com');
+  const [refName, setRefName] = useState('');
+  const [refEmail, setRefEmail] = useState('');
   const [refResult, setRefResult] = useState<any>(null);
   const [shareKit, setShareKit] = useState<any>(null);
   const [isGeneratingKit, setIsGeneratingKit] = useState(false);
 
   // Module 4: Programmatic SEO State
-  const [seoIndustry, setSeoIndustry] = useState('E-Ticaret & Ajanslar');
+  const [seoIndustry, setSeoIndustry] = useState('');
   const [seoResult, setSeoResult] = useState<any>(null);
   const [isSeoRunning, setIsSeoRunning] = useState(false);
 
@@ -376,9 +376,10 @@ export default function GrowthClient() {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
+                  placeholder="Örn: Ana Sayfa Lead Formu veya /fiyatlandirma"
                   value={croPage}
                   onChange={(e) => setCroPage(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-56 focus:outline-none focus:border-purple-500"
+                  className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-56 focus:outline-none focus:border-purple-500 placeholder:text-slate-600"
                 />
                 <button
                   onClick={handleRunCro}
@@ -455,11 +456,11 @@ export default function GrowthClient() {
                 <div className="space-y-3">
                   <div>
                     <label className="text-[11px] text-slate-400 block mb-1">Müşteri Ad Soyad</label>
-                    <input type="text" value={refName} onChange={e => setRefName(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                    <input type="text" placeholder="Örn: Müşteri Adı Soyadı" value={refName} onChange={e => setRefName(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600" />
                   </div>
                   <div>
                     <label className="text-[11px] text-slate-400 block mb-1">Müşteri E-Posta</label>
-                    <input type="email" value={refEmail} onChange={e => setRefEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" />
+                    <input type="email" placeholder="musteri@firma.com" value={refEmail} onChange={e => setRefEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600" />
                   </div>
                   <button onClick={handleCreateReferral} className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition">
                     Referans Davet Linki Üret
@@ -513,7 +514,7 @@ export default function GrowthClient() {
                 <p className="text-xs text-slate-400 mt-1">0 TL reklam harcamasıyla arama motorlarından binlerce nitelikli organik ziyaretçi çeken içerik mimarisi.</p>
               </div>
               <div className="flex items-center gap-2">
-                <input type="text" value={seoIndustry} onChange={e => setSeoIndustry(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-48" />
+                <input type="text" placeholder="Örn: E-Ticaret, Sağlık, Lojistik" value={seoIndustry} onChange={e => setSeoIndustry(e.target.value)} className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-48 placeholder:text-slate-600" />
                 <button onClick={handleGenerateSeo} disabled={isSeoRunning} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
                   {isSeoRunning ? <RefreshCw className="animate-spin" size={14} /> : <Search size={14} />} SEO Şablonları Türet
                 </button>
