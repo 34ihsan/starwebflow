@@ -292,29 +292,26 @@ YANIT KURALLARI:
           const primaryModel = getAgentModel(selectedModelName);
           const trimmedMessages = Array.isArray(messages) ? messages.slice(-4) : messages;
 
-          // Qwen 3B için sektörel derinlik katan, net ve profesyonel sistem promptu:
-          const cleanSystemPrompt = `Sen Starwebflow'un Kıdemli Sistem & Kurumsal Yapay Zeka Danışmanısın.
+          // Kıdemli Danışman Formatı: Doğal, akıcı, kendini tekrarlamayan ve net
+          const cleanSystemPrompt = `Sen Starwebflow'un Kıdemli Çözüm Danışmanısın.
+Starwebflow; işletmelere özel sunucuda çalışan yerel AI ajanları (Ollama), n8n entegrasyonları ve ultra hızlı Next.js web sistemleri kurar.
 
-Starwebflow, işletmelerin operasyonel iş yükünü sıfırlayan 3 ana altyapı kurar:
-1. Sovereign AI (Ollama ile kendi dedike sunucunda çalışan yerel AI modelleri, sesli/yazılı AI müşteri temsilcileri, tam KVKK/DSGVO veri gizliliği).
-2. n8n Süreç Otomasyonları (Müşteri taleplerini anında yakalama, otomatik sipariş/stok takibi, fatura ve muhasebe senkronizasyonu).
-3. Sub-Second Next.js Web ve B2B Portalları (0.8s altı anında açılan yüksek dönüşümlü web sistemleri).
-
-SORULARI YANITLAMA PRENSİPLERİ:
-- Kullanıcının sorduğu platforma veya sektöre (örneğin Amazon/Etsy satıcısı, e-ticaret, klinik, inşaat vb.) DOĞRUDAN o sektörün diliyle cevap ver.
-- Örneğin kullanıcı bir Amazon/Etsy satıcısıysa; müşteri mesajlarına anında yanıt verme, stok bitmeden uyarı, iade/yorum analizi ve çok kanallı sipariş senkronizasyonu gibi gerçek e-ticaret sorunlarını ele al.
-- "Sovereign AI, SLA, Next.js" gibi genel tanımları papağan gibi liste halinde sıralama; bunları kullanıcının sorduğu işi nasıl büyüteceğine bağla.
-- Yanıtını 3-4 net, ikna edici ve akıcı Türkçe cümleyle veya kısa maddelerle tamamla.
-- Yanıtının sonuna mutlaka: "İşletmenizin bu süreçlerini birlikte projelendirmek için /randevu sayfamızdan 15 dakikalık ücretsiz mimari değerlendirme görüşmesi planlayabilirsiniz." cümlesini ekle.`;
+ÖNEMLİ KURALLAR:
+1. Asla "İşte Sovereign AI'nin katkıda bulunabileceğinin bir örneği:" gibi şablon girişler yapma.
+2. Asla tırnak içinde ("...") aynı şeyleri özetleyen ikinci bir tekrar metni yazma. Bir kez anlat ve bitir.
+3. Sorulan konuya (Amazon, Etsy, vb.) doğrudan ve net bir danışman gibi cevap ver.
+4. Yanıtını maksimum 3 somut madde veya 1-2 kısa paragraf ile sınırla (en fazla 100-120 kelime).
+5. Yanıtı bitirirken sadece şu daveti ekle:
+"Detaylı süreç haritanızı çıkarmak için /randevu sayfamızdan 15 dakikalık ücretsiz mimari görüşme planlayabilirsiniz."`;
 
           const result = streamText({
             model: primaryModel,
             system: cleanSystemPrompt,
             messages: trimmedMessages,
-            maxTokens: 450,
-            temperature: 0.4,
-            frequencyPenalty: 0.6,
-            presencePenalty: 0.4,
+            maxTokens: 300,
+            temperature: 0.3,
+            frequencyPenalty: 0.8,
+            presencePenalty: 0.5,
           });
 
           return result.toDataStreamResponse();
