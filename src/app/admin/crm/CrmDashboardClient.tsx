@@ -99,6 +99,7 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
       setAnalyzingRadar(false);
     }
   };
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [offerGenerating, setOfferGenerating] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState("");
   const [battlecard, setBattlecard] = useState<any>(null);
