@@ -59,27 +59,30 @@ export async function POST(req: Request) {
     const { lead = {} } = await req.json();
     const fallback = buildFallbackBattlecard(lead);
 
-    const prompt = `Müşteri Bilgileri:
+    const prompt = `Sen Starwebflow'un Kıdemli Satış Stratejistisin.
+Aşağıdaki potansiyel müşteri (lead) için Cold-to-Warm (Soğuktan Sıcağa) ikna ve satış planını hazırla:
+
+Müşteri Bilgileri:
 - Ad/Şirket: ${fallback.leadName} / ${fallback.company}
 - Sektör: ${fallback.industry}
 - İlgilendiği Hizmet: ${lead?.serviceType || 'Web & AI Otomasyon'}
 - Notlar: ${lead?.notes || lead?.description || 'Kurumsal büyüme ve otomasyon'}
 
-Bu müşteri için 360 derece Satış Battlecard verisini SADECE aşağıdaki JSON formatında Türkçe üret (1. gün e-postasında asla link kullanma):
+ÖNEMLİ: SADECE geçerli bir JSON objesi döndür, markdown veya ek açıklama yazma:
 {
-  "psychologySummary": "Karar verici psikolojisi (1 cümle)",
-  "painPoint": "Temel acı noktası (1 cümle)",
-  "coldEmailSubject": "Spam içermeyen kısa konu başlığı",
-  "coldEmailBody": "Link içermeyen 3 cümlelik ikna edici B2B soğuk e-posta",
+  "psychologySummary": "Müşterinin satın alma psikolojisi (1 kısa net cümle)",
+  "painPoint": "Sektöründeki en büyük operasyonel zaman/para kaybı (1 cümle)",
+  "coldEmailSubject": "Spam filtresine takılmayan, merak uyandırıcı 4-6 kelimelik konu başlığı",
+  "coldEmailBody": "Link içermeyen, müşterinin acısını nokta atışı hedefleyen 3 cümlelik ikna edici B2B e-posta",
   "inboxScore": 98,
-  "whatsappIcebreaker": "Samimi ve kurumsal WhatsApp ilk temas mesajı",
-  "recommendedPackage": "Önerilen StarWebflow çözümü"
+  "whatsappIcebreaker": "WhatsApp'tan atılacak samimi ve profesyonel ilk temas mesajı",
+  "recommendedPackage": "Bu sektöre en yüksek verim sağlayacak Starwebflow mimari paketi"
 }`;
 
     const aiRes = await generateTextResilient({
       prompt,
-      temperature: 0.2,
-      maxTokens: 360,
+      temperature: 0.3,
+      maxTokens: 400,
       preferredModel: 'admin',
     });
 

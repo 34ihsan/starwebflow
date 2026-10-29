@@ -31,21 +31,21 @@ export function isAiConfigured(): boolean {
 // starwebflow ön adlı deneysel modeller tamamen kaldırıldı.
 // Yalnızca global kabul görmüş saf resmi modeller görevlerine göre dağıtıldı:
 export const OLLAMA_MODELS = {
-  // 1. Canlı Chat & Müşteri Karşılama Ajanı (Çok dilli, hızlı ve yüksek anlama kabiliyeti)
+  // 1. Canlı Chat, Müşteri Karşılama & Cold-to-Warm Lead Dönüşüm Ajanı
   AGENT: process.env.OLLAMA_AGENT_MODEL || 'qwen2.5:3b',
 
-  // 2. İş Akışı, Mantık & n8n JSON Kurulumu (Güçlü akıl yürütme için Mistral 7B veya Qwen 7B)
+  // 2. İş Akışı, Mantık & n8n JSON Kurulumu (Güçlü akıl yürütme için Mistral 7B)
   AUTOMATION: process.env.OLLAMA_AUTOMATION_MODEL || 'mistral:latest',
 
   // 3. Kod Üretimi, Next.js & Frontend Mühendisliği (Resmi Qwen Coder)
   WEBDEV: process.env.OLLAMA_WEBDEV_MODEL || 'qwen2.5-coder:3b',
   CODER: 'qwen2.5-coder:3b',
 
-  // 4. Büyüme & Reklam Stratejileri (Meta Llama 3.2 3B veya Qwen)
+  // 4. Büyüme, Cold Outreach & Psikolojik Satış Stratejileri (Meta Llama 3.2 3B)
   GROWTH: process.env.OLLAMA_GROWTH_MODEL || 'llama3.2:3b',
 
-  // 5. Yönetici & Derin Analiz Görevleri (Mistral 7B / Qwen 7B)
-  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'mistral:latest',
+  // 5. CRM, Lead Battlecard & Yönetici Analizleri (Qwen 3B / Mistral 7B)
+  ADMIN: process.env.OLLAMA_ADMIN_MODEL || 'qwen2.5:3b',
   PRO: 'mistral:latest',
 
   // 6. Ultra Hafif Hızlı Görevler (Qwen 1.5B)
@@ -360,7 +360,8 @@ async function tryOllamaGeneration(options: ResilientAIOptions): Promise<Resilie
   const modelName = resolveOllamaModelByDomain(preferredModel);
 
   try {
-    const model = getOllamaProvider()(modelName);
+    const resolvedName = await resolveBestAvailableModel(modelName);
+    const model = getOllamaProvider()(resolvedName);
     const res = await generateText({
       model,
       prompt,
