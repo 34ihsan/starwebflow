@@ -5,7 +5,8 @@ import {
   Users, CheckCircle2, Clock, 
   AlertCircle, Search, 
   MoreHorizontal, Calendar,
-  Plus, Target, TrendingUp, Sparkles, DollarSign, Mail, BrainCircuit, Send
+  Plus, Target, TrendingUp, Sparkles, DollarSign, Mail, BrainCircuit, Send,
+  Radar, Flame, Zap
 } from "lucide-react";
 import { createLead, createLeadWithAIEmail, getLeadActivities } from "@/app/actions/lead";
 import { createTask, updateTaskStatus } from "@/app/actions/task";
@@ -68,7 +69,36 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
     }
   };
 
-  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [radarAnalysis, setRadarAnalysis] = useState<any>(null);
+  const [analyzingRadar, setAnalyzingRadar] = useState(false);
+
+  const handleAnalyzeVisitor = async (lead: any) => {
+    setAnalyzingRadar(true);
+    setRadarAnalysis(null);
+    try {
+      const res = await fetch('/api/admin/visitor-radar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitorData: {
+            domain: lead?.company || lead?.website || lead?.name,
+            industry: lead?.industry || 'B2B Kurumsal',
+            auditScore: lead?.score || 65,
+            viewedPages: ['/hizmetler/ai-agents', '/hizmetler/ai-otomasyon', '/randevu'],
+            lastQuestion: lead?.notes || 'Süreç otomasyonu ve yerel AI ajan entegrasyonu',
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.strategy) {
+        setRadarAnalysis(data.strategy);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAnalyzingRadar(false);
+    }
+  };
   const [offerGenerating, setOfferGenerating] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState("");
   const [battlecard, setBattlecard] = useState<any>(null);
@@ -299,12 +329,22 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                 <div className="text-sm text-[#94A3B8] mb-3">
                   {formatCurrency(lead.value || 0, lead.currency || "TRY")}
                 </div>
-                <button
-                  onClick={() => handleGenerateOffer(lead)}
-                  className="w-full text-xs bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 text-white py-2 rounded-xl transition-opacity font-bold cursor-pointer"
-                >
-                  ✨ 360° AI Satış Battlecard Üret
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleGenerateOffer(lead)}
+                    className="flex-1 text-xs bg-gradient-to-r from-amber-400 to-orange-500 hover:opacity-90 text-white py-2 rounded-xl transition-opacity font-bold cursor-pointer"
+                  >
+                    ✨ Battlecard
+                  </button>
+                  <button
+                    onClick={() => handleAnalyzeVisitor(lead)}
+                    className="px-3 text-xs bg-[#8B5CF6]/20 border border-[#8B5CF6]/40 hover:bg-[#8B5CF6]/30 text-[#8B5CF6] py-2 rounded-xl font-bold cursor-pointer flex items-center gap-1"
+                    title="Cold-to-Warm Müşteri Isıtma Stratejisi"
+                  >
+                    <Radar className="w-3.5 h-3.5 text-[#8B5CF6]" />
+                    Isıt
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -711,6 +751,123 @@ export default function CrmDashboardClient({ initialLeads, initialTasks }: { ini
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Cold-to-Warm AI Visitor Nurture Modal */}
+      {(analyzingRadar || radarAnalysis) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#0A0A0F] border border-[#8B5CF6]/30 rounded-2xl w-full max-w-2xl shadow-[0_0_50px_rgba(139,92,246,0.15)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-white/[0.05] flex justify-between items-center bg-gradient-to-r from-purple-900/30 via-black to-blue-900/30">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 border border-[#8B5CF6]/40 flex items-center justify-center text-[#8B5CF6]">
+                  <Radar className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    🎯 Cold-to-Warm Ziyaretçi Isıtma Radarı
+                    <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">
+                      Yerel Ollama (DSGVO)
+                    </span>
+                  </h2>
+                  <p className="text-xs text-[#94A3B8]">Anonim ziyaretçiyi sıcak B2B müşterisine çeviren otonom satış planı</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { setRadarAnalysis(null); setAnalyzingRadar(false); }} 
+                className="text-[#64748B] hover:text-white p-2 rounded-lg bg-white/5"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1">
+              {analyzingRadar ? (
+                <div className="py-16 text-center space-y-4">
+                  <div className="w-12 h-12 border-3 border-[#8B5CF6] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <div className="space-y-1">
+                    <p className="text-white font-medium text-sm">Ziyaretçi Davranış Sinyalleri Analiz Ediliyor...</p>
+                    <p className="text-xs text-[#64748B]">Ollama (Qwen/Llama) sektörel acı noktası ve soğuk temas mesajını modelliyor.</p>
+                  </div>
+                </div>
+              ) : radarAnalysis ? (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/[0.02] border border-white/[0.05] p-3.5 rounded-xl">
+                      <span className="text-[11px] text-[#94A3B8] block mb-1">Müşteri Sıcaklığı (Temperature)</span>
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-md border ${
+                        radarAnalysis.visitorTemperature === 'HOT'
+                          ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                          : radarAnalysis.visitorTemperature === 'WARM'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                      }`}>
+                        <Flame className="w-3.5 h-3.5" />
+                        {radarAnalysis.visitorTemperature === 'HOT' ? 'Sıcak (Satın Almaya Hazır)' : radarAnalysis.visitorTemperature === 'WARM' ? 'Ilık (İlgi Düzeyi Yüksek)' : 'Soğuk (Yeni Keşif)'}
+                      </span>
+                    </div>
+
+                    <div className="bg-white/[0.02] border border-white/[0.05] p-3.5 rounded-xl">
+                      <span className="text-[11px] text-[#94A3B8] block mb-1">Satın Alma İştah Skoru</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg font-bold text-white">%{radarAnalysis.buyingIntentScore || 78}</span>
+                        <div className="flex-1 bg-white/10 h-2 rounded-full overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-amber-400 to-[#10B981] h-full rounded-full" 
+                            style={{ width: `${radarAnalysis.buyingIntentScore || 78}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-400/5 border border-amber-400/20 p-4 rounded-xl space-y-1">
+                    <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5" /> Tespit Edilen Kritik Acı Noktası (Pain Point):
+                    </span>
+                    <p className="text-xs text-slate-300 leading-relaxed">{radarAnalysis.detectedPainPoint}</p>
+                  </div>
+
+                  <div className="bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 p-4 rounded-xl space-y-1">
+                    <span className="text-xs font-bold text-[#8B5CF6]">🎯 Kanca Değer Önerisi (Hook):</span>
+                    <p className="text-xs text-white font-medium">{radarAnalysis.hookHeadline}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Send className="w-3.5 h-3.5 text-[#10B981]" /> İkna & Isıtma Mesajı (WhatsApp / E-posta):
+                      </label>
+                      <button 
+                        onClick={() => copyBattlecardText("radar_msg", radarAnalysis.nurtureMessage)}
+                        className="text-[11px] text-[#8B5CF6] hover:text-white transition-colors"
+                      >
+                        {copiedField === "radar_msg" ? "✓ Kopyalandı" : "Mesajı Kopyala"}
+                      </button>
+                    </div>
+                    <div className="bg-[#05050A] border border-white/[0.08] p-3.5 rounded-xl text-xs text-slate-200 leading-relaxed font-mono">
+                      {radarAnalysis.nurtureMessage}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                    <span className="text-xs text-[#94A3B8]">
+                      Önerilen Eylem: <strong className="text-white">{radarAnalysis.recommendedAction}</strong>
+                    </span>
+                    <button 
+                      onClick={() => {
+                        copyBattlecardText("radar_msg", radarAnalysis.nurtureMessage);
+                        setRadarAnalysis(null);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#4F8EF7] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      Mesajı Al & Kapat
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       )}
